@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -14,6 +14,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+
+import edu.harvard.i2b2.eclipse.UserInfoBean;
 
 
 /**
@@ -76,9 +78,28 @@ public class OntologyDisplayOptionsDialog extends Dialog {
 	protected void buttonPressed(int buttonId){
     	// reset
     	if(buttonId == 2){
-    		maximum.setText("200");
-    		showHiddens.setSelection(false);
-    		showSynonyms.setSelection(false);
+    	
+    		
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntMax") != null)
+    			System.setProperty("OntMax", UserInfoBean.getInstance().getCellDataParam("ont", "OntMax"));
+    		else 
+    			System.setProperty("OntMax","200");
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntHiddens") != null)	
+    			System.setProperty("OntHiddens", UserInfoBean.getInstance().getCellDataParam("ont","OntHiddens"));
+    		else
+    			System.setProperty("OntHiddens","false");
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntSynonyms") != null)
+    			System.setProperty("OntSynonyms",  UserInfoBean.getInstance().getCellDataParam("ont","OntSynonyms"));	
+    		else
+    			System.setProperty("OntSynonyms","false");
+    		
+    		maximum.setText(System.getProperty("OntMax"));
+    		showHiddens.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntHiddens")));
+        	
+    		showSynonyms.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntSynonyms")));
+    		
     	}	
     	// OK
     	else if(buttonId == 0){

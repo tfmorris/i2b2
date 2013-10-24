@@ -1,26 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
-	<section name="WORKBENCH_SETTINGS">
-		<list key="ENABLED_TRANSFERS">
-		</list>
-	</section>
-	<section name="CleanDialogSettings">
-		<item key="DIALOG_X_ORIGIN" value="307"/>
-		<item key="DIALOG_HEIGHT" value="416"/>
-		<item key="BUILD_NOW" value="false"/>
-		<item key="DIALOG_Y_ORIGIN" value="92"/>
-		<item key="TOGGLE_SELECTED" value="false"/>
-		<item key="DIALOG_WIDTH" value="411"/>
-		<item key="BUILD_ALL" value="true"/>
-	</section>
 	<section name="NewWizardAction">
-		<item key="NewWizardSelectionPage.STORE_SELECTED_ID" value="org.eclipse.team.cvs.ui.newProjectCheckout"/>
+		<item value="org.eclipse.team.cvs.ui.newProjectCheckout" key="NewWizardSelectionPage.STORE_SELECTED_ID"/>
 		<list key="NewWizardSelectionPage.STORE_EXPANDED_CATEGORIES_ID">
 			<item value="org.eclipse.team.cvs.ui.newWizards"/>
 		</list>
-	</section>
-	<section name="ChooseWorkspaceDialogSettings">
-		<item key="DIALOG_X_ORIGIN" value="215"/>
-		<item key="DIALOG_Y_ORIGIN" value="207"/>
 	</section>
 </section>

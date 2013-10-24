@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -301,6 +301,7 @@ public class SchemeTool extends ApplicationWindow
 	    findButton.setLayoutData(findButtonData);
 	    findButton.addMouseListener(new MouseAdapter() {
 
+			@Override
 			public void mouseDown(MouseEvent e) {
 	    		// Add item to findCombo drop down list if not already there
 	    		if(findText == null)

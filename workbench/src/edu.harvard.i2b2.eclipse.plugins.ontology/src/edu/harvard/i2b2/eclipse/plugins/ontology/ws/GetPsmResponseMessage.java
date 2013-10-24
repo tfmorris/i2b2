@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -26,11 +26,12 @@ import edu.harvard.i2b2.ontclient.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.ontclient.datavo.i2b2result.DataType;
 import edu.harvard.i2b2.ontclient.datavo.i2b2result.ResultEnvelopeType;
 import edu.harvard.i2b2.ontclient.datavo.i2b2result.ResultType;
+import edu.harvard.i2b2.ontclient.datavo.psm.query.AnalysisPluginMetadataResponseType;
+import edu.harvard.i2b2.ontclient.datavo.psm.query.AnalysisPluginMetadataTypeType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.CrcXmlResultResponseType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.MasterInstanceResultResponseType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.QueryMasterType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.QueryResultInstanceType;
-import edu.harvard.i2b2.ontclient.datavo.psm.query.ResponseType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.XmlValueType;
 
 
@@ -148,7 +149,34 @@ public class GetPsmResponseMessage {
     		}
     		return queryMaster;
     	}
-    	
+
+     	public AnalysisPluginMetadataTypeType extractAnalysisPluginMetadata(String response){	
+    		try {
+    			JAXBElement jaxbElement = OntologyJAXBUtil.getJAXBUtil().unMashallFromString(response);
+    			respMessageType  = (ResponseMessageType) jaxbElement.getValue();
+    			
+    			// Get response message status 
+    			BodyType body = respMessageType.getMessageBody();
+    			JAXBUnWrapHelper helper = new JAXBUnWrapHelper(); 
+    		
+    			AnalysisPluginMetadataResponseType responseType = (AnalysisPluginMetadataResponseType) helper.getObjectByClass(body.getAny(),
+    					AnalysisPluginMetadataResponseType.class);
+    			List<AnalysisPluginMetadataTypeType> plugins = responseType.getAnalysisPluginMetadataType();
+    			
+    			if(plugins.isEmpty())
+    				return null;
+    			
+    			AnalysisPluginMetadataTypeType pluginMetadata = (AnalysisPluginMetadataTypeType) plugins.get(0);	
+    			return pluginMetadata;
+    			
+    			
+    		} catch (JAXBUtilException e) {
+    			// TODO Auto-generated catch block
+    			log.error(e.getMessage());
+    			return null;
+    		}
+    		
+    	}
     }
 
     	

@@ -7,8 +7,8 @@
       <image path="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_64.gif"/>
       <text>
          i2b2 Workbench
-Version: 1.4.0020
-Build id: 20100126
+Version: 1.5.4.0003
+Build id: 20110616
 (c) Copyright i2b2 contributors and others 2005-2010.  All rights reserved.
 Visit http://www.i2b2.org/
 
@@ -182,7 +182,7 @@ Version 2.1 - 1/15/08
    </plugins>
 
    <features>
-      <feature id="edu.harvard.i2b2.eclipse.features.core" version="1.4.0"/>
+      <feature id="edu.harvard.i2b2.eclipse.features.core" version="1.5.4"/>
    </features>
 
 

@@ -521,17 +521,18 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 					
 					
 					
-					Application app;
-					app = new Application();
-					app.setClassName("edu.harvard.i2b2.timeline.external.NotesViewer");
+		//			Application app;
+		//			app = new Application();
+		//			app.setClassName("edu.harvard.i2b2.timeline.external.NotesViewer");
 					if(	(blobdata[1].equals("B")) && ((blobdata[2].trim()).equals("X")) )
-							app.setEncrypted(true);
-					else 
-						app.setEncrypted(false);
-					app.setName("Display Note");
-					
-					if (app.getEncrypted())
 						note = decryptBlob(note);
+		//					app.setEncrypted(true);
+		//			else 
+		//				app.setEncrypted(false);
+		//			app.setName("Display Note");
+					
+		//			if (app.getEncrypted())
+		//				note = decryptBlob(note);
 					
 					if(note!=null && note.equalsIgnoreCase("[I2B2-Error] Invalid key")) {
 						JOptionPane.showMessageDialog(this, "Not a valid decryption key.");
@@ -584,8 +585,8 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 					final String dndXmlData = strWriter.toString();
 				
 					// get text analyzer View (NEW)
-					/*
-					textAnalyzerView = getView("edu.harvard.i2b2.eclipse.plugins.textanalyzer.views.textAnalyzerView");
+					
+				textAnalyzerView = getView("edu.harvard.i2b2.eclipse.plugins.textanalyzer.views.textAnalyzerView");
 				
 					if(textAnalyzerView != null){		
 						java.awt.EventQueue.invokeLater(new Runnable() {
@@ -594,28 +595,29 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 							}
 						});
 					}
-					*/
-
+					
+	
 
 					//  OR REVERT TO TEXT FRAME VIEWER
-					//else {
+					else {
 						java.awt.EventQueue.invokeLater(new Runnable() {
 							public void run() {
 								new TextViewerFrame(note, dndXmlData).setVisible(true);
 							}
 						});
-			//		}
+					
+					}
 				
 					// REPLACE ABOVE WITH THIS ON RELEASE OF TEXT ANALYZER
 					// view is not open send a message to have it started
 					
-				//	else {
-				//		JOptionPane.showMessageDialog(this, "Text Analyzer plugin not active \n " +
-				//				"Use Window -> Show View \n" +
-				//				"To open this view and try again");
-				//		return;
-				//	}
-					
+			/*		else {
+						JOptionPane.showMessageDialog(this, "Text Analyzer plugin not active \n " +
+								"Use Window -> Show View \n" +
+								"To open this view and try again");
+						return;
+					}
+			*/		
 					/*  Failed attempt to open text analyzer view if it did not exist yet.
 							--- was not able to get IViewPart ...
 					else{

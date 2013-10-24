@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -11,7 +11,6 @@
 
 package edu.harvard.i2b2.eclipse.plugins.ontology.ws;
 
-import java.io.InterruptedIOException;
 import java.io.StringReader;
 import java.net.SocketTimeoutException;
 
@@ -24,15 +23,11 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-import org.apache.axiom.soap.SOAPEnvelope;
-import org.apache.axiom.soap.SOAPFactory;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
-import org.apache.axis2.client.OperationClient;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
-import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,16 +35,12 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.MessageUtil;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.AnalysisDefinitionRequestType;
+import edu.harvard.i2b2.ontclient.datavo.psm.query.AnalysisPluginMetadataRequestType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.MasterDeleteRequestType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.QueryMasterType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.QueryResultInstanceType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.ResultRequestType;
-import edu.harvard.i2b2.ontclient.datavo.vdo.GetChildrenType;
-import edu.harvard.i2b2.ontclient.datavo.vdo.GetReturnType;
-import edu.harvard.i2b2.ontclient.datavo.vdo.GetTermInfoType;
-import edu.harvard.i2b2.ontclient.datavo.vdo.VocabRequestType;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
-import edu.harvard.i2b2.common.util.xml.*;
 
 
 public class CRCServiceDriver {
@@ -174,6 +165,43 @@ public class CRCServiceDriver {
 				 log.error(e.getMessage());
 				 throw new Exception(e);
 			 }
+		return response;
+	}
+	
+    
+	/**
+	 * Function to send getAnalysisPluginsMetadata request to CRC web service
+	 * 
+	 * @return A String containing the CRC web service response 
+	 */
+	public static String getAnalysisPlugins() throws Exception{
+		String response = null;
+		
+			 try {
+				
+				 GetPsmRequestMessage reqMsg = new GetPsmRequestMessage();
+				 AnalysisPluginMetadataRequestType request = reqMsg.getAnalysisPluginMetadataRequestType();
+				 String requestString = reqMsg.doBuildXML(request);
+		//		 log.info(requestString);
+				 				 
+				 if(serviceMethod.equals("SOAP")) {
+		//			 response = sendSOAP(getChildrenRequestString, "http://rpdr.partners.org/GetChildren", "GetChildren", type );
+				 }
+				 else {
+					 response = sendREST(crcEPR, requestString);
+				 }
+			 } catch(SocketTimeoutException e){
+				 log.info("Got timeout interrupt");
+				 throw e;
+			 } catch (AxisFault e) {
+				 log.error(e.getMessage());
+				 throw new AxisFault(e);
+
+			 } catch (Exception e) {
+				 log.error(e.getMessage());
+				 throw new Exception(e);
+			 }
+		//	 log.info(response);
 		return response;
 	}
 	

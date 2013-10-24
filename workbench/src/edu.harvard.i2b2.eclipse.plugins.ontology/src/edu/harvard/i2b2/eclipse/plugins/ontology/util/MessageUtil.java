@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class MessageUtil {
     //to make this class singleton
@@ -26,6 +25,8 @@ public class MessageUtil {
     private String navResponse;
     private String findRequest;
     private String findResponse;
+    private String editRequest;
+    private String editResponse;
     private List<StackData> xmlStack = new ArrayList<StackData>();
     
     static {
@@ -36,6 +37,34 @@ public class MessageUtil {
         return thisInstance;
     }
 
+    public String getEditRequest() {
+		return editRequest;
+	}
+
+	public void setEditRequest(String request) {
+		this.editRequest = request;
+		checkXmlStackSize();
+		StackData stackData = new StackData();
+		stackData.setMessage(request);
+		stackData.setName("Sent" + getTimestamp());
+		xmlStack.add( stackData );
+	}
+
+	public String getEditResponse() {
+		return editResponse;
+	}
+
+	public void setEditResponse(String response) {
+		this.editResponse = response;
+		checkXmlStackSize();
+		StackData stackData = new StackData();
+		stackData.setMessage(response);
+		stackData.setName("Received" + getTimestamp());
+		xmlStack.add( stackData );
+	}
+    
+    
+    
 	public String getFindRequest() {
 		return findRequest;
 	}

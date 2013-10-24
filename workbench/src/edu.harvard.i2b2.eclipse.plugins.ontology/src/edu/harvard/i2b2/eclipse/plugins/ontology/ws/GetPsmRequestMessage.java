@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -27,6 +27,7 @@ import edu.harvard.i2b2.ontclient.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.ontclient.datavo.i2b2message.RequestHeaderType;
 import edu.harvard.i2b2.ontclient.datavo.i2b2message.RequestMessageType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.AnalysisDefinitionRequestType;
+import edu.harvard.i2b2.ontclient.datavo.psm.query.AnalysisPluginMetadataRequestType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.PsmQryHeaderType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.PsmRequestTypeType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.QueryMasterType;
@@ -209,6 +210,52 @@ public class GetPsmRequestMessage extends CRCRequestData {
 		return bodyType;
 	}
 
+public BodyType getBodyType(AnalysisPluginMetadataRequestType requestType) {
+		
+		PsmQryHeaderType headerType = buildPsmHeaderType(PsmRequestTypeType.CRC_QRY_GET_ANALYSIS_PLUGIN_METADATA);
+		edu.harvard.i2b2.ontclient.datavo.psm.query.ObjectFactory of = new edu.harvard.i2b2.ontclient.datavo.psm.query.ObjectFactory();
+		
+		BodyType bodyType = new BodyType();
+		bodyType.getAny().add(of.createPsmheader(headerType));
+		bodyType.getAny().add(of.createRequest(requestType));
+		
+		return bodyType;
+	}
+	
+	
+	public  AnalysisPluginMetadataRequestType getAnalysisPluginMetadataRequestType(){
+		
+		AnalysisPluginMetadataRequestType request = new AnalysisPluginMetadataRequestType();
+		request.setPluginName("CALCULATE_PATIENTCOUNT_FROM_CONCEPTPATH");
+		
+		return request;
+	}
+	
+	/**
+	 * Function to build Psm query Request message type and return it as an XML string
+	 * 
+	 * @param AnalysisPluginMetadataRequestType 
+	 * @return A String data type containing the Psm query RequestMessage in XML format
+	 */
+	public String doBuildXML(  AnalysisPluginMetadataRequestType request){ 
+		String requestString = null;
+			try {
+				MessageHeaderType messageHeader = getMessageHeader(); 	
+				RequestHeaderType reqHeader  = getRequestHeader();
+				BodyType bodyType = getBodyType(request) ;
+				RequestMessageType reqMessageType = getRequestMessageType(messageHeader,
+						reqHeader, bodyType);
+				requestString = getXMLString(reqMessageType);
+				messageHeader = null;
+				reqHeader = null;
+				reqMessageType = null;
+			} catch (JAXBUtilException e) {
+				log.error(e.getMessage());
+			} 
+
+		return requestString;
+	}
+	
 }
 
 

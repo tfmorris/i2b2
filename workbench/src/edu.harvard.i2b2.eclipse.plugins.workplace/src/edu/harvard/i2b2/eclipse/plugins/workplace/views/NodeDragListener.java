@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -107,7 +107,7 @@ final class NodeDragListener implements DragSourceListener
 
 	public void dragFinished(DragSourceEvent event) {
 
-		if (event.display.getData() != null ){
+		if ((event.display.getData() != null ) && (event.display.getData().getClass().equals(String.class))){
 			Iterator iterator = selectionOnDrag.iterator();
 			TreeNode node = (TreeNode) iterator.next();		
 			if(event.display.getData().equals("M|O*V+E")){
@@ -119,6 +119,7 @@ final class NodeDragListener implements DragSourceListener
 				// if we have copied a folder
 				//  set up with placeholder so display is correct
 				//   then copy children also
+				
 				node.copyChildren((String)event.display.getData());
 
 			}

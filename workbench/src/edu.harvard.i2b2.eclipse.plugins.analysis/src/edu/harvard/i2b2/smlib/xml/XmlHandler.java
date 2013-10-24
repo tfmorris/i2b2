@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution.
@@ -11,7 +11,7 @@
  */
 // XmlHandler.java: the callback interface.
 // NO WARRANTY! See README, and copyright below.
-// $Id: XmlHandler.java,v 1.2 2009/09/25 19:52:48 wp066 Exp $
+// $Id: XmlHandler.java,v 1.3 2010/07/06 14:04:25 mem61 Exp $
 package edu.harvard.i2b2.smlib.xml;
 
 /**

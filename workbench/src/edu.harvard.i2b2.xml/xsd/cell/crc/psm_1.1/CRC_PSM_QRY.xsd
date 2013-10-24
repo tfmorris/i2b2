@@ -246,6 +246,14 @@
                     </xs:appinfo>
                 </xs:annotation>
             </xs:enumeration>
+            <xs:enumeration value="CRC_QRY_getAnalysisPluginMetadata">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <requestType>analysis_plugin_metadata_requestType</requestType>
+                        <responseType>analysis_plugin_metadata_responseType</responseType>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:enumeration>
         </xs:restriction>
     </xs:simpleType>
 

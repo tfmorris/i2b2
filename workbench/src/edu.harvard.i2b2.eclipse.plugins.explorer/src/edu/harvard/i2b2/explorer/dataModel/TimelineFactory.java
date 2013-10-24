@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -52,7 +52,6 @@ import edu.harvard.i2b2.common.datavo.pdo.PatientType;
 import edu.harvard.i2b2.common.datavo.pdo.ObservationType;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
-import edu.harvard.i2b2.explorer.data.PDOValueData;
 import edu.harvard.i2b2.explorer.datavo.ExplorerJAXBUtil;
 import edu.harvard.i2b2.explorer.ui.ExplorerComposite;
 import edu.harvard.i2b2.smlib.Lib;
@@ -258,12 +257,12 @@ public class TimelineFactory {
 									nval = obsFactType.getNvalNum().getValue()
 											.doubleValue();
 								}
-								PDOValueData valdp = null;
+								PDOValueModel valdp = null;
 
 								if (pset.hasValueDisplayProperty) {
 									for (int n = 0; n < pset.valDisplayProperties
 											.size(); n++) {
-										PDOValueData tmpvaldp = pset.valDisplayProperties
+										PDOValueModel tmpvaldp = pset.valDisplayProperties
 												.get(n);
 										// if (tmpvaldp.inRange(nval)) {
 										valdp = tmpvaldp;

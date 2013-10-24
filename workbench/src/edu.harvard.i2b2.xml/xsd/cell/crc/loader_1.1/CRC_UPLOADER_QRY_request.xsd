@@ -68,6 +68,7 @@
     <xs:complexType name="load_optionType">
         <xs:attribute name="encrypt_blob" type="xs:boolean" default="false"/>
         <xs:attribute name="ignore_bad_data" type="xs:boolean" default="true"/>
+        <xs:attribute name="delete_existing_data" type="xs:boolean" default="false"/>
     </xs:complexType>
     
     <xs:complexType name="fact_load_optionType">

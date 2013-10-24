@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -46,10 +46,10 @@ import edu.harvard.i2b2.common.datavo.pdo.PatientSet;
 import edu.harvard.i2b2.common.datavo.pdo.PatientType;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.eclipse.plugins.explorer.utils.MessageUtil;
-import edu.harvard.i2b2.explorer.data.PDOValueData;
 import edu.harvard.i2b2.explorer.dataModel.PDOItem;
 import edu.harvard.i2b2.explorer.dataModel.PDORequestMessageModel;
 import edu.harvard.i2b2.explorer.dataModel.PDOResponseMessageModel;
+import edu.harvard.i2b2.explorer.dataModel.PDOValueModel;
 import edu.harvard.i2b2.explorer.dataModel.TimelineFactory;
 import edu.harvard.i2b2.explorer.dataModel.TimelineRow;
 
@@ -542,35 +542,35 @@ public class PDOQueryClient {
 		PDOItem set = new PDOItem();
 		set.fullPath = "\\RPDR\\Labtests\\LAB\\(LLB16) Chemistry\\(LLB21) General Chemistries\\CA";
 		set.hasValueDisplayProperty = true;
-		PDOValueData valdp = new PDOValueData();
+		PDOValueModel valdp = new PDOValueModel();
 		valdp.left = 0.0;
 		valdp.right = 8.4;
 		valdp.color = "red";
 		valdp.height = "Very Low";
 		set.valDisplayProperties.add(valdp);
 
-		valdp = new PDOValueData();
+		valdp = new PDOValueModel();
 		valdp.left = 8.4;
 		valdp.right = 8.9;
 		valdp.color = "gold";
 		valdp.height = "Low";
 		set.valDisplayProperties.add(valdp);
 
-		valdp = new PDOValueData();
+		valdp = new PDOValueModel();
 		valdp.left = 8.9;
 		valdp.right = 10.0;
 		valdp.color = "green";
 		valdp.height = "Medium";
 		set.valDisplayProperties.add(valdp);
 
-		valdp = new PDOValueData();
+		valdp = new PDOValueModel();
 		valdp.left = 10.0;
 		valdp.right = 10.6;
 		valdp.color = "gold";
 		valdp.height = "Tall";
 		set.valDisplayProperties.add(valdp);
 
-		valdp = new PDOValueData();
+		valdp = new PDOValueModel();
 		valdp.left = 10.6;
 		valdp.right = Integer.MAX_VALUE;
 		valdp.color = "red";
@@ -588,35 +588,35 @@ public class PDOQueryClient {
 		set = new PDOItem();
 		set.fullPath = "\\RPDR\\Labtests\\LAB\\(LLB16) Chemistry\\(LLB21) General Chemistries\\GGT";
 		set.hasValueDisplayProperty = true;
-		valdp = new PDOValueData();
+		valdp = new PDOValueModel();
 		valdp.left = 0.0;
 		valdp.right = 1.0;
 		valdp.color = "red";
 		valdp.height = "Very Low";
 		set.valDisplayProperties.add(valdp);
 
-		valdp = new PDOValueData();
+		valdp = new PDOValueModel();
 		valdp.left = 1.0;
 		valdp.right = 19.0;
 		valdp.color = "gold";
 		valdp.height = "Low";
 		set.valDisplayProperties.add(valdp);
 
-		valdp = new PDOValueData();
+		valdp = new PDOValueModel();
 		valdp.left = 19.0;
 		valdp.right = 34.0;
 		valdp.color = "green";
 		valdp.height = "Medium";
 		set.valDisplayProperties.add(valdp);
 
-		valdp = new PDOValueData();
+		valdp = new PDOValueModel();
 		valdp.left = 34.0;
 		valdp.right = 82.0;
 		valdp.color = "gold";
 		valdp.height = "Tall";
 		set.valDisplayProperties.add(valdp);
 
-		valdp = new PDOValueData();
+		valdp = new PDOValueModel();
 		valdp.left = 82.0;
 		valdp.right = Integer.MAX_VALUE;
 		valdp.color = "red";

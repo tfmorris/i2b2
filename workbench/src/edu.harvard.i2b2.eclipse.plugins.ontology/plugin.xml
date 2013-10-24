@@ -21,6 +21,13 @@
             class="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.FindView"
             id="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.findView">
       </view>
+        <view
+            name="Edit Terms"
+            icon="icons/core-cell.gif"
+            category="edu.harvard.i2b2.eclipse.plugins.ontology"
+            class="edu.harvard.i2b2.eclipse.plugins.ontology.views.edit.EditView"
+            id="edu.harvard.i2b2.eclipse.plugins.ontology.views.edit.editView">
+      </view>
    </extension>
       <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -86,6 +93,19 @@
                toolbarPath="additions"
                tooltip="Display the options dialog"/>
       </viewContribution>
+      <viewContribution
+            id="edu.harvard.i2b2.eclipse.plugins.ontology.viewActions"
+            targetID="edu.harvard.i2b2.eclipse.plugins.ontology.views.edit.editView">
+         <action
+               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.edit.ViewStackToolbarActionDelegate"
+               icon="icons/xmlstack.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.edit.viewResponseMessageStack"
+               label="XMLMessageStack"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the XML message stack">
+         </action>
+      </viewContribution>
       </extension>
                   <extension point="org.eclipse.ui.contexts">
       	<context
@@ -98,6 +118,11 @@
       		name="Find Terms View"
       		parentId="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.findView">
       	</context>
+  <context
+        id="edit_terms_view_help_context"
+        name="Edit Terms View"
+        parentId="edu.harvard.i2b2.eclipse.plugins.ontology.views.edit.editView">
+  </context>
       </extension>
       <extension point="org.eclipse.help.contexts">
 		<contexts
@@ -108,6 +133,58 @@
 			file="help_contexts_find.xml"
 			plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
 		</contexts>
+  		<contexts
+        	file="help_contexts_edit.xml"
+        	plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+  		</contexts>
+  		<contexts
+			file="help_edit_wizard_container.xml"
+			plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+		</contexts>
+		<contexts
+			file="help_edit_wizard_folder.xml"
+			plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+		</contexts>
+ 		<contexts
+			file="help_edit_wizard_item.xml"
+			plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+		</contexts>
+ 		<contexts
+			file="help_edit_wizard_queryDimension.xml"
+			plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+		</contexts>
+ 		<contexts
+			file="help_edit_wizard_verifyData.xml"
+			plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+		</contexts>
+   <contexts
+         file="help_edit_wizard_valueRangeMetadata.xml"
+         plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+   </contexts>
+   <contexts
+         file="help_edit_wizard_valueMetadata.xml"
+         plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+   </contexts>
+   <contexts
+         file="help_edit_wizard_unitValue.xml"
+         plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+   </contexts>
+   <contexts
+         file="help_edit_wizard_enumValues.xml"
+         plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+   </contexts>
+   <contexts
+         file="help_edit_wizard_synchronization.xml"
+         plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+   </contexts>
+   <contexts
+         file="help_edit_wizard_synonyms.xml"
+         plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+   </contexts>
+   <contexts
+         file="help_edit_wizard_editSettings.xml"
+         plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+   </contexts>
       </extension>
       <extension point="org.eclipse.help.toc">
       	<toc
@@ -116,13 +193,30 @@
  		<toc
       		file="toc_find.xml"
       		primary="true"/>
-   <toc
-         file="tocconcepts_find.xml"
-         primary="false">
-   </toc>
-   <toc
-         file="tocconcepts_navigate.xml"
-         primary="false">
-   </toc>
+   		<toc
+         	file="tocconcepts_find.xml"
+         	primary="false">
+   		</toc>
+   		<toc
+         	file="tocconcepts_navigate.xml"
+         	primary="false">
+   		</toc>
+   		<toc
+         	file="toc_edit.xml"
+         	primary="true">
+   		</toc>
+   		<toc
+         	file="tocconcepts_edit.xml"
+         	primary="false">
+   		</toc>
+   		<toc
+         	file="tocconcepts_edit_synch.xml"
+         	primary="false">
+   		</toc>
+   		<toc
+         	file="tocconcepts_edit_wizard.xml"
+         	primary="false">
+   		</toc>
       </extension>
+ 
  </plugin>

@@ -1,56 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <repositories-view>
 	<repository id=":extssh:mem61@phsi2b2appdev.mgh.harvard.edu:/cvs/repository">
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.ontology">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.log" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.analysis">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.workplace" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.features.core">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.common" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.commons_apache" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.log">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.ontology" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.workplace">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.webservicesAxis2" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.query">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.previousQuery" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="BuildAssist">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.jdnc_support" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.previousQuery">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="BuildAssist" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.xml_support_jaxb">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.analysis" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.common">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.xml_support_jdom" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.commons_apache">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.xml" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.xml">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.jdnc_support">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.explorer" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.webservicesAxis2">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.query" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.xml_support_jdom">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.plugins.xml_support_jaxb" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
-		<module lastAcessTime="1264534053820" path="edu.harvard.i2b2.eclipse.plugins.explorer">
-			<tag type="version" name="RELEASE_1_4_0020b"/>
+		<module path="edu.harvard.i2b2.eclipse.features.core" lastAcessTime="1308251224289">
+			<tag name="RELEASE_1-5-4-0003b" type="version"/>
 		</module>
 	</repository>
 </repositories-view>

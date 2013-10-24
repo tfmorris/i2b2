@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import edu.harvard.i2b2.eclipse.UserInfoBean;
 
 public class FindDisplayOptionsDialog extends Dialog {
     
@@ -78,9 +80,27 @@ public class FindDisplayOptionsDialog extends Dialog {
 	protected void buttonPressed(int buttonId){
     	// reset
     	if(buttonId == 2){
-    		maximum.setText("200");
-    		showHiddens.setSelection(false);
-    		showSynonyms.setSelection(false);
+    		
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntFindMax") != null)
+    			System.setProperty("OntFindMax", UserInfoBean.getInstance().getCellDataParam("ont", "OntFindMax"));
+    		else 
+    			System.setProperty("OntFindMax","200");
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntFindHiddens") != null)	
+    			System.setProperty("OntFindHiddens", UserInfoBean.getInstance().getCellDataParam("ont","OntFindHiddens"));
+    		else
+    			System.setProperty("OntFindHiddens","false");
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntFindSynonyms") != null)
+    			System.setProperty("OntFindSynonyms",  UserInfoBean.getInstance().getCellDataParam("ont","OntFindSynonyms"));	
+    		else
+    			System.setProperty("OntFindSynonyms","true");		
+    			
+    		
+    		maximum.setText(System.getProperty("OntFindMax"));
+    		showHiddens.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntFindHiddens")));
+    		showSynonyms.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntFindSynonyms")));
+
     	}	
     	// OK
     	else if(buttonId == 0){

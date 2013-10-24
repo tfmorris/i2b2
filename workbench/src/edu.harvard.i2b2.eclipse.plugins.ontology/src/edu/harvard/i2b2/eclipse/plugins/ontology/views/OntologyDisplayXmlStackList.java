@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -21,9 +21,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.TitleAreaDialog;
-import org.eclipse.jface.window.ApplicationWindow;
-
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.StackData;
 
 
@@ -38,6 +35,7 @@ public class OntologyDisplayXmlStackList extends Dialog {
 	
 	/** Create new form for list of response messages **/
 
+	@Override
 	protected Control createDialogArea(Composite parent){
 
 		this.getShell().setText("XML Messages sent/received by this cell");

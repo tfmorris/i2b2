@@ -1,28 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
-	<item key="org.eclipse.pde.ui.synchronizeVersions.mode" value="2"/>
-	<section name="org.eclipse.pde.ui.dialogs.PluginSelectionDialog">
-		<item key="History" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#x0D;&#x0A;&lt;History/&gt;"/>
-		<item key="ShowStatusLine" value="true"/>
-		<section name="DialogBoundsSettings">
-			<item key="DIALOG_X_ORIGIN" value="212"/>
-			<item key="DIALOG_FONT_NAME" value="1|Tahoma|8.25|0|WINDOWS|1|-11|0|0|0|400|0|0|0|1|0|0|0|0|Tahoma"/>
-			<item key="DIALOG_HEIGHT" value="500"/>
-			<item key="DIALOG_Y_ORIGIN" value="36"/>
-			<item key="DIALOG_WIDTH" value="600"/>
-		</section>
-	</section>
+	<item value="2" key="org.eclipse.pde.ui.synchronizeVersions.mode"/>
 	<section name="ProductExportWizard">
-		<item key="destination0" value="C:\build\build-1-4-0020b\client"/>
-		<item key="productRoot" value="Windows"/>
-		<item key="productConfig1" value="/edu.harvard.i2b2.eclipse/i2b2Eclipse.product"/>
-		<item key="p2metadata" value="false"/>
-		<item key="exportSource" value="false"/>
-		<item key="allowBinaryCycles" value="false"/>
-		<item key="destination1" value="C:\build\build-1-4-0020b\client"/>
-		<item key="productConfig0" value="/edu.harvard.i2b2.eclipse/i2b2Eclipse.product"/>
-		<item key="exportSourceFormat" value="Generate source bundles"/>
-		<item key="syncProduct" value="false"/>
-		<item key="exportDirectory" value="true"/>
+		<item value="false" key="exportSource"/>
+		<item value="false" key="syncProduct"/>
+		<item value="/edu.harvard.i2b2.eclipse/i2b2Eclipse.product" key="productConfig1"/>
+		<item value="Generate source bundles" key="exportSourceFormat"/>
+		<item value="false" key="p2metadata"/>
+		<item value="true" key="exportDirectory"/>
+		<item value="/edu.harvard.i2b2.eclipse/i2b2Eclipse.product" key="productConfig0"/>
+		<item value="C:\build\build-1-5-4-0003b\client" key="destination1"/>
+		<item value="C:\build\build-1-5-4-0003b\client" key="destination0"/>
+		<item value="false" key="allowBinaryCycles"/>
+		<item value="Windows" key="productRoot"/>
 	</section>
 </section>

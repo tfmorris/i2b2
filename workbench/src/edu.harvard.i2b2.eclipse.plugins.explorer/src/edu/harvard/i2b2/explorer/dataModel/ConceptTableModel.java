@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -22,7 +22,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
-import edu.harvard.i2b2.explorer.data.PDOValueData;
 import edu.harvard.i2b2.explorer.ui.DateConstraintEditorText;
 import edu.harvard.i2b2.explorer.ui.NumericValueEditorText;
 
@@ -580,7 +579,7 @@ public class ConceptTableModel implements KTableModel {
 	String curFullPath = null;
 	SAXBuilder parser = new SAXBuilder();
 	PDOItem pdoItem = null;
-	PDOValueData valdp;
+	PDOValueModel valdp;
 
 	for (int i = 0; i < rowData.size(); i++) {
 	    ArrayList<ConceptTableRow> timelineRowData = rowData.get(i);
@@ -621,7 +620,7 @@ public class ConceptTableModel implements KTableModel {
 
 		if (!tableRow.data().valueModel().hasEnumValue()
 			&& tableRow.data().valueModel().okToUseValue()) {
-		    valdp = new PDOValueData();
+		    valdp = new PDOValueModel();
 		    valdp.height = tableRow.height;
 		    valdp.useNumericValue(true);
 		    pdoItem.hasValueDisplayProperty = true;
@@ -632,36 +631,54 @@ public class ConceptTableModel implements KTableModel {
 		    } else {
 			valdp.color = "lightbrown";
 		    }
-
-		    if (tableRow.valueText.indexOf("<") >= 0) {
-			String max = tableRow.valueText
-				.substring(tableRow.valueText.indexOf("<") + 1);
-			valdp.left = 0.0 - Double.MAX_VALUE;
-			valdp.right = Double.parseDouble(max);
-			valdp.value(max);
-			valdp.operator("LESS THAN (<)");
-		    } else if (tableRow.valueText.indexOf(">") >= 0) {
-			String min = tableRow.valueText
-				.substring(tableRow.valueText.indexOf(">") + 1);
-			valdp.right = Integer.MAX_VALUE;
-			valdp.left = Double.parseDouble(min);
-			valdp.value(min);
-			valdp.operator("GREATER THAN (>)");
-		    } else if (tableRow.valueText.indexOf("between") >= 0) {
-			String min = tableRow.valueText.substring(
-				tableRow.valueText.indexOf("between") + 7,
-				tableRow.valueText.indexOf("and"));
-			String max = tableRow.valueText
-				.substring(tableRow.valueText.indexOf("and") + 3);
-			valdp.right = Double.parseDouble(max);
-			valdp.left = Double.parseDouble(min);
-			valdp.operator("BETWEEN");
+		    
+		    if(tableRow.data().valueModel().raw) {
+			if (tableRow.valueText.indexOf("<=") >= 0) {
+				String max = tableRow.valueText
+						.substring(tableRow.valueText.indexOf("<") + 2);
+				valdp.left = 0.0 - Double.MAX_VALUE;
+				valdp.right = Double.parseDouble(max);
+				valdp.value(max);
+				valdp.operator("LESS THAN OR EQUAL TO (<=)");
+			} 
+			else if (tableRow.valueText.indexOf(">=") >= 0) {
+				String min = tableRow.valueText
+						.substring(tableRow.valueText.indexOf(">") + 2);
+				valdp.right = Integer.MAX_VALUE;
+				valdp.left = Double.parseDouble(min);
+				valdp.value(min);
+				valdp.operator("GREATER THAN OR EQUAL TO (>=)");
+			}
+			else if (tableRow.valueText.indexOf("<") >= 0) {
+        			String max = tableRow.valueText
+        				.substring(tableRow.valueText.indexOf("<") + 1);
+        			valdp.left = 0.0 - Double.MAX_VALUE;
+        			valdp.right = Double.parseDouble(max);
+        			valdp.value(max);
+        			valdp.operator("LESS THAN (<)");
+    		    	} else if (tableRow.valueText.indexOf(">") >= 0) {
+        			String min = tableRow.valueText
+        				.substring(tableRow.valueText.indexOf(">") + 1);
+        			valdp.right = Integer.MAX_VALUE;
+        			valdp.left = Double.parseDouble(min);
+        			valdp.value(min);
+        			valdp.operator("GREATER THAN (>)");
+    		    } else if (tableRow.valueText.indexOf("between") >= 0) {
+    			String min = tableRow.valueText.substring(
+    				tableRow.valueText.indexOf("between") + 7,
+    				tableRow.valueText.indexOf("and"));
+    			String max = tableRow.valueText
+    				.substring(tableRow.valueText.indexOf("and") + 3);
+    			valdp.right = Double.parseDouble(max);
+    			valdp.left = Double.parseDouble(min);
+    			valdp.operator("BETWEEN");
+    		    }
 		    }
 
 		    pdoItem.valDisplayProperties.add(valdp);
 		    pdoItem.fullPath += (j > 0 ? "" + j : "");
 		} else if (tableRow.data().valueModel().hasEnumValue()) {
-		    valdp = new PDOValueData();
+		    valdp = new PDOValueModel();
 		    valdp.height = tableRow.height;
 		    pdoItem.hasValueDisplayProperty = true;
 

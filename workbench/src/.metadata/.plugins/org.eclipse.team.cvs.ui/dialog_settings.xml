@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="CommitWizard">
-		<item key="width" value="400"/>
-		<item key="height" value="430"/>
-		<item key="VWeight1" value="500"/>
-		<item key="ShowCompare" value="false"/>
-		<item key="VWeight2" value="500"/>
-	</section>
-	<section name="CheckoutAsWizard">
+		<item value="430" key="height"/>
+		<item value="false" key="ShowCompare"/>
+		<item value="400" key="width"/>
+		<item value="500" key="VWeight2"/>
+		<item value="500" key="VWeight1"/>
 	</section>
 	<section name="NewLocationWizard">
-		<list key="ConfigurationWizardMainPage.STORE_HOSTNAME_ID">
-			<item value="phsi2b2appdev.mgh.harvard.edu"/>
-		</list>
 		<list key="ConfigurationWizardMainPage.STORE_PATH_ID">
 			<item value="/cvs/repository"/>
+		</list>
+		<list key="ConfigurationWizardMainPage.STORE_HOSTNAME_ID">
+			<item value="phsi2b2appdev.mgh.harvard.edu"/>
 		</list>
 		<list key="ConfigurationWizardMainPage.STORE_USERNAME_ID">
 			<item value="mem61"/>

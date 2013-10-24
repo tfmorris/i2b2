@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -26,6 +26,8 @@ import edu.harvard.i2b2.ontclient.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.ontclient.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptsType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.DirtyValueType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.OntologyProcessStatusType;
 
 abstract public class OntologyResponseData {
 
@@ -83,6 +85,32 @@ abstract public class OntologyResponseData {
 		} 
 		return strWriter.toString();
 	}
+	
+	public OntologyProcessStatusType doReadStatus(){
+		OntologyProcessStatusType status = null;
+		try {
+			BodyType bodyType = respMessageType.getMessageBody();
+			JAXBUnWrapHelper helper = new JAXBUnWrapHelper(); 
+			if(bodyType != null)
+				status = (OntologyProcessStatusType)helper.getObjectByClass(bodyType.getAny(), OntologyProcessStatusType.class);
+		} catch (JAXBUtilException e) {
+			log.error(e.getMessage());;
+		}
+		return status;		
+	}	
+	
+	public DirtyValueType doReadDirtyType(){
+		DirtyValueType status = null;
+		try {
+			BodyType bodyType = respMessageType.getMessageBody();
+			JAXBUnWrapHelper helper = new JAXBUnWrapHelper(); 
+			if(bodyType != null)
+				status = (DirtyValueType)helper.getObjectByClass(bodyType.getAny(), DirtyValueType.class);
+		} catch (JAXBUtilException e) {
+			log.error(e.getMessage());;
+		}
+		return status;		
+	}	
 }
 
 	

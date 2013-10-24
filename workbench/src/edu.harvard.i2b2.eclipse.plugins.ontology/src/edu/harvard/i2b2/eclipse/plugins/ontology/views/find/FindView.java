@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -28,6 +28,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.help.IWorkbenchHelpSystem;
 import org.eclipse.ui.part.ViewPart;
 
+import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.eclipse.plugins.ontology.views.TreeComposite;
 
 public class FindView extends ViewPart {
@@ -50,9 +51,20 @@ public class FindView extends ViewPart {
 	 * The constructor.
 	 */
 	public FindView() {
-		System.setProperty("OntFindMax", "200");
-		System.setProperty("OntFindHiddens", "false");
-		System.setProperty("OntFindSynonyms", "false");
+		
+		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntFindMax") != null)
+			System.setProperty("OntFindMax", UserInfoBean.getInstance().getCellDataParam("ont", "OntFindMax"));
+		else 
+			System.setProperty("OntFindMax","200");
+		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntFindHiddens") != null)	
+			System.setProperty("OntFindHiddens", UserInfoBean.getInstance().getCellDataParam("ont","OntFindHiddens"));
+		else
+			System.setProperty("OntFindHiddens","false");
+		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntFindSynonyms") != null)
+			System.setProperty("OntFindSynonyms",  UserInfoBean.getInstance().getCellDataParam("ont","OntFindSynonyms"));	
+		else
+			System.setProperty("OntFindSynonyms","true");		
+		
 	}
 	
 	/**
@@ -61,7 +73,7 @@ public class FindView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		log.info("Find Terms plugin version 1.4.0");
+		log.info("Find Terms plugin version 1.5.0");
 		GridLayout layout = new GridLayout(1, false);
 		layout.numColumns = 1;
 		layout.verticalSpacing = 2;
@@ -133,6 +145,7 @@ public class FindView extends ViewPart {
 	private void addHelpButtonToToolBar() {
 		final IWorkbenchHelpSystem helpSystem = PlatformUI.getWorkbench().getHelpSystem();
 		Action helpAction = new Action(){
+			@Override
 			public void run() {
 				helpSystem.displayHelpResource("/edu.harvard.i2b2.eclipse.plugins.ontology/html/i2b2_find_terms_index.htm");
 		}

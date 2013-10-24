@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution.
@@ -12,7 +12,7 @@ package edu.harvard.i2b2.smlib;/************************************************
  * Copyright (c) 1998, 2004 Jackwind Li Guojie
  * 
  * Created on 2004-3-31 1:19:00 by JACK
- * $Id: SimpleProgressC.java,v 1.2 2009/09/24 21:21:36 wp066 Exp $
+ * $Id: SimpleProgressC.java,v 1.3 2010/07/06 14:04:26 mem61 Exp $
  * 
  *****************************************************************************/
 

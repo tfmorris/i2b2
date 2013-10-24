@@ -32,6 +32,8 @@
 	            id="edu.harvard.i2b2.eclipse.plugins.ontology.views.ontologyView"/>  
 	        <viewShortcut
 	            id="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.findView"/> 
+	        <viewShortcut
+	            id="edu.harvard.i2b2.eclipse.plugins.ontology.views.edit.editView"/> 
 	        <viewShortcut 
 	        	id="edu.harvard.i2b2.eclipse.plugins.query.views.QueryView"/>    
 	        <viewShortcut 
@@ -40,8 +42,6 @@
 	        	id="edu.harvard.i2b2.eclipse.plugins.explorer.views.ExplorerView"/>
 	        <viewShortcut 
 	        	id="net.nbirn.srbclient.plugin.views.ClientFolderView"/>
-	        <viewShortcut 
-	        	id="edu.harvard.i2b2.eclipse.plugins.exportData.views.ExportDataView"/>
 	        <viewShortcut 
 	        	id="org.eclipse.help.ui.HelpView"/>
 	        <perspectiveShortcut
@@ -70,7 +70,7 @@
                value="icons/i2b2_hive_16.gif,icons/i2b2_hive_32.gif,icons/i2b2_hive_48.gif,icons/i2b2_hive_64.gif,icons/i2b2_hive_128.gif"/>
          <property
                name="aboutText"
-               value="i2b2 Workbench&#x0A;Version: 1.4.0020&#x0A;Build id: 20100126&#x0A;(c) Copyright i2b2 contributors and others 2005-2010.  All rights reserved.&#x0A;Visit http://www.i2b2.org/&#x0A;&#x0A;This product includes software developed by the following:&#x0A;Apache Software Foundation http://www.apache.org/&#x0A;Eclipse Foundation  http://www.eclipse.org/&#x0A;JDOM Project  http://www.jdom.org/&#x0A;Sun Microsystems http://java.sun.com/&#x0A;University of Maryland (HCIL) http://www.cs.umd.edu/hcil/"/>
+               value="i2b2 Workbench&#x0A;Version: 1.5.4.0003&#x0A;Build id: 20110616&#x0A;(c) Copyright i2b2 contributors and others 2005-2010.  All rights reserved.&#x0A;Visit http://www.i2b2.org/&#x0A;&#x0A;This product includes software developed by the following:&#x0A;Apache Software Foundation http://www.apache.org/&#x0A;Eclipse Foundation  http://www.eclipse.org/&#x0A;JDOM Project  http://www.jdom.org/&#x0A;Sun Microsystems http://java.sun.com/&#x0A;University of Maryland (HCIL) http://www.cs.umd.edu/hcil/"/>
          <property
                name="aboutImage"
                value="icons/i2b2_hive_64.gif"/>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -24,7 +24,6 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.explorer.datavo.ExplorerJAXBUtil;
 import edu.harvard.i2b2.explorer.data.Messages;
-import edu.harvard.i2b2.explorer.data.PDOValueData;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ApplicationType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.FacilityType;
@@ -102,10 +101,10 @@ public class PDORequestMessageModel {
 			itemType.setDimDimcode(item.dimcode);
 			itemType.setDimTablename(item.tableType);
 			for (int j = 0; j < item.valDisplayProperties.size(); j++) {
-				PDOValueData valdp = item.valDisplayProperties.get(j);
+				PDOValueModel valdp = item.valDisplayProperties.get(j);
 				if (!item.queryModel().valueModel().noValue()) {
 					itemType.getConstrainByValue().add(
-							valdp.writeValueConstrain());
+							valdp.writeValueConstrain(item.queryModel().valueModel()));
 				}
 			}
 

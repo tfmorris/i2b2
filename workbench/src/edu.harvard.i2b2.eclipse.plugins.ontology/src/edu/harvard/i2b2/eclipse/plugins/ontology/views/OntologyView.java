@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -26,6 +26,10 @@ import org.eclipse.ui.help.IWorkbenchHelpSystem;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.harvard.i2b2.eclipse.UserInfoBean;
+import edu.harvard.i2b2.eclipse.plugins.ontology.ws.CRCServiceDriver;
+import edu.harvard.i2b2.eclipse.plugins.ontology.ws.GetPsmResponseMessage;
+import edu.harvard.i2b2.ontclient.datavo.i2b2message.StatusType;
+import edu.harvard.i2b2.ontclient.datavo.psm.query.AnalysisPluginMetadataTypeType;
 
 
 /**
@@ -68,7 +72,39 @@ public class OntologyView extends ViewPart {
 		//System.setProperty("user", UserInfoBean.getInstance().getUserName());
 		//System.setProperty("pass", UserInfoBean.getInstance().getUserPassword());
 		System.setProperty("getPatientCount", "false");
+		
+		try {    		
+    		String response = null;
+    		GetPsmResponseMessage r_msg = new GetPsmResponseMessage();
+    		StatusType procStatus = null;	
+
+    		// send request to start the count process
+    		response = CRCServiceDriver. getAnalysisPlugins();
+    		procStatus = r_msg.processResult(response);		
+
+    		if (procStatus.getType().equals("ERROR")){
+    	//		System.setProperty("errorMessage",  procStatus.getValue());				
+    			System.setProperty("patientCountVisible", "false");
+    			return;
+    		}	
+    		AnalysisPluginMetadataTypeType plugin = r_msg.extractAnalysisPluginMetadata(response);
+
+    		if(plugin == null)
+    			System.setProperty("patientCountVisible", "false");
+    		else 
+    			System.setProperty("patientCountVisible", "true");
+    	
+    		
+    		
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		System.setProperty("patientCountVisible", "false");
+		log.info("Problem accessing CRC to get list of analysis plugins");    		
+	//	return null;
 	}
+}
+
+
 	
 	/**
 	 * This is a callback that will allow us
@@ -77,7 +113,7 @@ public class OntologyView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		log.info("Ontology plugin version 1.4.0");
+		log.info("Navigate Terms version 1.5.0");
 		// Drag "from" tree
 		compositeQueryTree = new Composite(parent, SWT.NULL);
 		GridLayout gridLayout = new GridLayout();
@@ -108,6 +144,7 @@ public class OntologyView extends ViewPart {
 	private void addHelpButtonToToolBar() {
 		final IWorkbenchHelpSystem helpSystem = PlatformUI.getWorkbench().getHelpSystem();
 		Action helpAction = new Action(){
+			@Override
 			public void run() {
 				helpSystem.displayHelpResource("/edu.harvard.i2b2.eclipse.plugins.ontology/html/i2b2_navigate_terms_index.htm");
 		}

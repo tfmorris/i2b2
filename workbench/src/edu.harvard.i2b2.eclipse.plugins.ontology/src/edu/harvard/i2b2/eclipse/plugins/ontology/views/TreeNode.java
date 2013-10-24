@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -9,33 +9,15 @@
  */
 package edu.harvard.i2b2.eclipse.plugins.ontology.views;
 
-import java.awt.Point;
 import java.util.*;
 
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.views.IViewDescriptor;
-
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.CRCServiceDriver;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.GetChildrenResponseMessage;
@@ -45,7 +27,6 @@ import edu.harvard.i2b2.ontclient.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.ontclient.datavo.i2b2result.DataType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.QueryMasterType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.QueryResultInstanceType;
-import edu.harvard.i2b2.ontclient.datavo.psm.query.XmlValueType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptsType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetChildrenType;
@@ -55,20 +36,26 @@ public class TreeNode
 {		
 	private Log log = LogFactory.getLog(TreeNode.class.getName());
     private TreeData data;
-    private List children = new ArrayList();
+    private List<TreeNode> children = new ArrayList();
     private TreeNode parent;
     private int result;
+
+
+	private boolean open;
     
     public TreeNode(int level, String fullName, String name, String visualAttributes)
     {
     	this.data = new TreeData(level, fullName, name, visualAttributes);
+    	open = false;
     }
     
     public TreeNode(TreeData data)
     {
     	this.data = data;
+    	open = false;
     }
     
+ 
     public Object getParent()
     {
       return parent;
@@ -81,7 +68,7 @@ public class TreeNode
       return this;
     }
 
-    public List getChildren()
+    public List<TreeNode> getChildren()
     {
       return children;
     }
@@ -91,6 +78,13 @@ public class TreeNode
     	return this.data;
     }
     
+    public boolean isOpen() {
+		return open;
+	}
+
+	public void setOpen(boolean open) {
+		this.open = open;
+	}
 
     @Override
 	public String toString()
@@ -107,25 +101,18 @@ public class TreeNode
     	String key = null;
     	if (data.getVisualattributes().substring(0,1).equals("F"))
     	{
-    		if ((data.getVisualattributes().substring(1).equals("A")) ||
-    				(data.getVisualattributes().substring(1).equals("I"))  ||
-    	    				(data.getVisualattributes().substring(1).equals("H")))
-    			key = "closedFolder";
-    		else if ((data.getVisualattributes().substring(1).equals("AO")) ||
-    				(data.getVisualattributes().substring(1).equals("IO")) ||
-    				(data.getVisualattributes().substring(1).equals("HO")))	
+    		if (isOpen())
     			key = "openFolder";
+    		else 
+    			key = "closedFolder";
+    		
     	}
     	else if (data.getVisualattributes().substring(0,1).equals("C"))
     	{
-    		if ((data.getVisualattributes().substring(1).equals("A")) ||
-    				(data.getVisualattributes().substring(1).equals("I"))  ||
-    				(data.getVisualattributes().substring(1).equals("H")))
-    			key = "closedCase";
-    		else if ((data.getVisualattributes().substring(1).equals("AO")) ||
-    				(data.getVisualattributes().substring(1).equals("IO")) ||
-    				(data.getVisualattributes().substring(1).equals("HO")))	
+    		if (isOpen())
     			key = "openCase";
+    		else 
+    			key = "closedCase";
     	}
     	else if (data.getVisualattributes().substring(0,1).equals("L"))
     	{
@@ -197,7 +184,7 @@ public class TreeNode
 							MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), 
 									SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 							mBox.setText("Please Note ...");
-							mBox.setMessage("The node has exceeded maximum number of children\n"
+							mBox.setMessage("Max number of terms exceeded please try with a more specific query.\n"
 									+ "Populating the node will be slow\n"
 									+"Do you want to continue?");
 							result = mBox.open();
@@ -297,19 +284,21 @@ public class TreeNode
     			
     			TreeNode childNode = new TreeNode(child);
     			// if the child is a folder/directory set it up with a leaf placeholder
-    			if((child.getVisualattributes().equals("FA")) || (child.getVisualattributes().equals("CA")))  
+    			if((child.getVisualattributes().startsWith("FA")) || (child.getVisualattributes().startsWith("CA")))  
     			{
-    				TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "LAO");
+    				TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "LA");
+    				placeholder.setOpen(true);
     				childNode.addChild(placeholder);
     			}
-    			else if	((child.getVisualattributes().equals("FH")) || (child.getVisualattributes().equals("CH")))
+    			else if	((child.getVisualattributes().startsWith("FH")) || (child.getVisualattributes().startsWith("CH")))
     			{
-    				TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "LHO");
+    				TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "LH");
+    				placeholder.setOpen(true);
     				childNode.addChild(placeholder);
     			}
     			this.addChild(childNode);
 
-    		} 	
+    		} 		
     	}
     }
     

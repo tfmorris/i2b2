@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -247,26 +247,17 @@ public class NodeBrowser extends ApplicationWindow
 	this.viewer.addTreeListener(new ITreeViewerListener() {
 		public void treeExpanded(TreeExpansionEvent event) {
 			final TreeNode node = (TreeNode) event.getElement();
-			if (node.getData().getVisualattributes().equals("FA"))
-				node.getData().setVisualattributes("FAO");
-			else if (node.getData().getVisualattributes().equals("CA"))
-				node.getData().setVisualattributes("CAO");
-			else if (node.getData().getVisualattributes().equals("FH"))
-				node.getData().setVisualattributes("FHO");
-			else if (node.getData().getVisualattributes().equals("CH"))
-				node.getData().setVisualattributes("CHO");
-			//viewer.refresh(node);
-			//viewer.expandToLevel(node, 1);
-
+			node.setOpen(true);
+			
 			// check to see if child is a placeholder ('working...')
 			//   if so, make Web Service call to update children of node
 
-			if (node.getChildren().size() == 1 && 
-			!(((TreeNode)node.getChildren().get(0)).getData().getName().
-					equalsIgnoreCase("Over maximum number of child nodes"))) 	
+			if (node.getChildren().size() == 1)
+			//	&& !(((TreeNode)node.getChildren().get(0)).getData().getName().
+			//		equalsIgnoreCase("Over maximum number of child nodes"))) 	
 			{	
 				TreeNode child = (TreeNode)(node.getChildren().get(0));
-				if((child.getData().getVisualattributes().equals("LAO")) || (child.getData().getVisualattributes().equals("LHO")))
+				if((child.getData().getVisualattributes().startsWith("L")) && child.isOpen())	
 				{
 					// child is a placeholder, so remove from list 
 					//   update list with real children   
@@ -275,39 +266,13 @@ public class NodeBrowser extends ApplicationWindow
 					node.getXMLData(viewer, browser).start();
 				}
 			}
-			else {
-				for(int i=0; i<node.getChildren().size(); i++) {
-					TreeNode child = (TreeNode)(node.getChildren().get(i));
-					if(child.getData().getVisualattributes().equals("FAO"))
-					{
-						child.getData().setVisualattributes("FA");
-					}
-					else if (child.getData().getVisualattributes().equals("CAO")) {
-						child.getData().setVisualattributes("CA");	
-					}
-					else if(child.getData().getVisualattributes().equals("FHO"))
-					{
-						child.getData().setVisualattributes("FH");
-					}
-					else if (child.getData().getVisualattributes().equals("CHO")) {
-						child.getData().setVisualattributes("CH");	
-					}
-				}
-				//viewer.refresh(node);
-			}
+			
 			viewer.refresh();
 			viewer.expandToLevel(node, 1);
 		}
 		public void treeCollapsed(TreeExpansionEvent event) {
 			final TreeNode node = (TreeNode) event.getElement();
-			if (node.getData().getVisualattributes().equals("FAO"))
-				node.getData().setVisualattributes("FA");
-			else if (node.getData().getVisualattributes().equals("CAO"))
-				node.getData().setVisualattributes("CA");
-			else if (node.getData().getVisualattributes().equals("FHO"))
-				node.getData().setVisualattributes("FH");
-			else if (node.getData().getVisualattributes().equals("CHO"))
-				node.getData().setVisualattributes("CH");
+			node.setOpen(false);
 			viewer.collapseToLevel(node, 1);
 			viewer.refresh(node);
 		}
@@ -329,95 +294,38 @@ public class NodeBrowser extends ApplicationWindow
 			
  	       // Case where we are expanding the node
  	       boolean expand = false;
- 	       if((node.getData().getVisualattributes()).equals("FA"))
- 	       {
- 	    	  node.getData().setVisualattributes("FAO");
- 	    	  expand = true;
- 	       }
- 	       else if ((node.getData().getVisualattributes()).equals("CA"))
- 	       {
-  	    	  node.getData().setVisualattributes("CAO");
-  	    	  expand = true;
-  	       }
- 	       
-			else if(node.getData().getVisualattributes().equals("FH"))
-			{
-				node.getData().setVisualattributes("FHO");
-				expand = true;
-			}
-			else if (node.getData().getVisualattributes().equals("CH")) {
-				node.getData().setVisualattributes("CHO");	
-				expand = true;
-			}
- 	       if(expand == true)
- 	       {
- 			  viewer.expandToLevel(node, 1);
- 			  viewer.refresh(node);
- 			  
- 				// check to see if this node's child is a placeholder ('working...')
- 				//   if so, make Web Service call to update children of node
+			String visualAttribute = node.getData().getVisualattributes();
+			if((visualAttribute.startsWith("F")) || (visualAttribute.startsWith("C")))
+				if(node.isOpen()){
+					// collapsing node
+					node.setOpen(false);
+					viewer.collapseToLevel(node, 1);
+					viewer.refresh();
+				}
+				else  // expanding node
+				{
+					node.setOpen(true);
+					viewer.expandToLevel(node, 1);
+					viewer.refresh(node);
 
- 				if (node.getChildren().size() == 1)
- 				{	
- 					TreeNode child = (TreeNode)(node.getChildren().get(0));
- 					if((child.getData().getVisualattributes().equals("LAO")) || (child.getData().getVisualattributes().equals("LHO")))
- 					{
- 						// child is a placeholder, so remove from list 
- 						//   update list with real children  
- 						slm.setMessage("Calling WebService");
- 						slm.update(true);
- 						node.getXMLData(viewer, browser).start();
- 					}
- 				}
- 				else {
- 					for(int i=0; i<node.getChildren().size(); i++) {
- 						TreeNode child = (TreeNode)(node.getChildren().get(i));
- 						if(child.getData().getVisualattributes().equals("FAO"))
- 						{
- 							child.getData().setVisualattributes("FA");
- 						}
- 						else if (child.getData().getVisualattributes().equals("CAO")) {
- 							child.getData().setVisualattributes("CA");	
- 						}
- 						else if(child.getData().getVisualattributes().equals("FHO"))
- 						{
- 							child.getData().setVisualattributes("FH");
- 						}
- 						else if (child.getData().getVisualattributes().equals("CHO")) {
- 							child.getData().setVisualattributes("CH");	
- 						}
- 					}
- 					viewer.refresh(node);
- 				}
- 	       }
- 	       
- 	       // Case where we are collapsing the node
- 	       else if (node.getData().getVisualattributes().equals("FAO"))
- 	       {
- 	    	  node.getData().setVisualattributes("FA");
- 	    	  viewer.collapseToLevel(node, 1);
- 	    	  viewer.refresh(node);
- 	       }
- 	       else if (node.getData().getVisualattributes().equals("CAO"))
- 	       {
- 	    	  node.getData().setVisualattributes("CA");
- 	    	  viewer.collapseToLevel(node, 1);
- 	    	  viewer.refresh(node);
- 	       }
- 	       else if (node.getData().getVisualattributes().equals("FHO"))
- 	       {
- 	    	  node.getData().setVisualattributes("FH");
- 	    	  viewer.collapseToLevel(node, 1);
- 	    	  viewer.refresh(node);
- 	       }
- 	       else if (node.getData().getVisualattributes().equals("CHO"))
- 	       {
- 	    	  node.getData().setVisualattributes("CH");
- 	    	  viewer.collapseToLevel(node, 1);
- 	    	  viewer.refresh(node);
- 	       }
-		}
-	});
+					// check to see if this node's child is a placeholder ('working...')
+					//   if so, make Web Service call to update children of node
+
+					if (node.getChildren().size() == 1)
+					{	
+						TreeNode child = (TreeNode)(node.getChildren().get(0));
+						if((child.getData().getVisualattributes().startsWith("L")) && (child.isOpen()))
+						{
+							// child is a placeholder, so remove from list 
+							//   update list with real children  
+							node.getXMLData(viewer, browser).start();
+						}
+					}
+					viewer.refresh();
+				}
+			}
+
+		});
 	
 	
 	Listener viewerListener = new Listener() {
@@ -564,7 +472,9 @@ public class NodeBrowser extends ApplicationWindow
 		vocabData.setType("core");
 		vocabData.setBlob(true);
 		vocabData.setMax(Integer.parseInt(System.getProperty("OntFindMax")));
-
+		vocabData.setHiddens(Boolean.parseBoolean(System.getProperty("OntFindHiddens")));
+		vocabData.setSynonyms(Boolean.parseBoolean(System.getProperty("OntFindSynonyms")));
+		
 		if(categoryKey.equals("any"))
 		{
 			if(categories != null ) {
@@ -597,7 +507,8 @@ public class NodeBrowser extends ApplicationWindow
     			// if the child is a folder/directory set it up with a leaf placeholder
     			if((child.getVisualattributes().equals("FA")) || (child.getVisualattributes().equals("CA")))
     			{
-    				TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "LAO");
+    				TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "LA");
+    				placeholder.setOpen(true);
     				childNode.addChild(placeholder);
     			}
     			this.rootNode.addChild(childNode);
@@ -620,7 +531,7 @@ public class NodeBrowser extends ApplicationWindow
     						MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), 
     								SWT.ICON_QUESTION | SWT.YES | SWT.NO);
     						mBox.setText("Please Note ...");
-    						mBox.setMessage("This query has exceeded maximum number of nodes allowed\n"
+    						mBox.setMessage("Max number of terms exceeded please try with a more specific query.\n"
     								+ "Populating the query results will be slow\n"
     								+"Do you want to continue?");
     						result = mBox.open();
@@ -782,7 +693,7 @@ public class NodeBrowser extends ApplicationWindow
 							MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), 
 									SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 							mBox.setText("Please Note ...");
-							mBox.setMessage("This query has exceeded maximum number of nodes allowed\n"
+							mBox.setMessage("Max number of terms exceeded please try with a more specific query.\n"
 									+ "Populating the query results will be slow\n"
 									+"Do you want to continue?");
 							result = mBox.open();
