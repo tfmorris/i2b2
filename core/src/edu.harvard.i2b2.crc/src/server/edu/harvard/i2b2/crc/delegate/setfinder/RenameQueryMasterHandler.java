@@ -31,7 +31,7 @@ import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 /**
  * RenameQueryMasterHandler class
  * implements execute method
- * $Id: RenameQueryMasterHandler.java,v 1.7 2007/08/31 14:51:07 rk903 Exp $
+ * $Id: RenameQueryMasterHandler.java,v 1.8 2008/03/19 22:36:37 rk903 Exp $
  * @author rkuttan
  */
 public class RenameQueryMasterHandler extends RequestHandler {
@@ -48,6 +48,7 @@ public class RenameQueryMasterHandler extends RequestHandler {
         try {
             masterRenameRequestType = (MasterRenameRequestType) this.getRequestType(requestXml,
                     edu.harvard.i2b2.crc.datavo.setfinder.query.MasterRenameRequestType.class);
+            this.setDataSourceLookup(requestXml);
         } catch (JAXBUtilException jaxbUtilEx) {
             throw new I2B2Exception("Error ", jaxbUtilEx);
         }
@@ -72,7 +73,7 @@ public class RenameQueryMasterHandler extends RequestHandler {
             String userId = masterRenameRequestType.getUserId();
             String masterId = masterRenameRequestType.getQueryMasterId();
             String newQueryName = masterRenameRequestType.getQueryName();
-            masterResponseType = queryInfoLocal.renameQueryMaster(userId,
+            masterResponseType = queryInfoLocal.renameQueryMaster(this.getDataSourceLookup(),userId,
                     masterId, newQueryName);
             masterResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));
           

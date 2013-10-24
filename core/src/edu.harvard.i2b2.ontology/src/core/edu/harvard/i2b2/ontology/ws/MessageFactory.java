@@ -61,8 +61,8 @@ public class MessageFactory {
      * @return OMElement
      * @throws XMLStreamException
      */
-    public static OMElement createResponseOMElementFromString(String xmlString)
-        throws XMLStreamException {
+    public static OMElement createResponseOMElementFromString(String xmlString) 
+        throws I2B2Exception {
         OMElement returnElement = null;
 
         try {
@@ -73,9 +73,9 @@ public class MessageFactory {
             StAXOMBuilder builder = new StAXOMBuilder(reader);
             returnElement = builder.getDocumentElement();
 
-        } catch (XMLStreamException xmlStreamEx) {
+        } catch (XMLStreamException e) {
             log.error("Error while converting Ontology response VDO to OMElement");
-            throw xmlStreamEx;
+            throw new I2B2Exception("XML Stream error ", e);
         }
 
         return returnElement;
@@ -90,8 +90,7 @@ public class MessageFactory {
      *            Observation fact set to be returned to requester
      * @return BodyType object
      */
-    public static BodyType createBodyType(
-    						ConceptsType vocabData) {
+    public static BodyType createBodyType(ConceptsType vocabData) {
 
         edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory of = new edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory();
         BodyType bodyType = new BodyType();
@@ -177,6 +176,7 @@ public class MessageFactory {
     public static ResponseMessageType createResponseMessageType(
         MessageHeaderType messageHeader, ResponseHeaderType respHeader,
         BodyType bodyType) {
+    	
         ResponseMessageType respMsgType = new ResponseMessageType();
         respMsgType.setMessageHeader(messageHeader);
         respMsgType.setMessageBody(bodyType);
@@ -202,7 +202,7 @@ public class MessageFactory {
             OntologyJAXBUtil.getJAXBUtil().marshaller(objectFactory.createResponse(respMessageType),
                 strWriter);
         } catch (JAXBUtilException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             throw new I2B2Exception(
                 "Error converting response message type to string " +
                 e.getMessage(), e);

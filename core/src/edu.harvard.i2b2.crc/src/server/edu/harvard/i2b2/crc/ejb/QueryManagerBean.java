@@ -23,16 +23,21 @@ import javax.xml.bind.JAXBElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.BeanFactory;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
-import edu.harvard.i2b2.crc.dao.setfinder.PatientSetResultDao;
-import edu.harvard.i2b2.crc.dao.setfinder.QueryInstanceDao;
-import edu.harvard.i2b2.crc.dao.setfinder.QueryMasterDao;
-import edu.harvard.i2b2.crc.dao.setfinder.QueryRequestDao;
+import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
+import edu.harvard.i2b2.crc.dao.IDAOFactory;
+import edu.harvard.i2b2.crc.dao.SetFinderDAOFactory;
+import edu.harvard.i2b2.crc.dao.setfinder.IQueryInstanceDao;
+import edu.harvard.i2b2.crc.dao.setfinder.IQueryMasterDao;
+import edu.harvard.i2b2.crc.dao.setfinder.IQueryRequestDao;
+import edu.harvard.i2b2.crc.dao.setfinder.IQueryResultInstanceDao;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
 import edu.harvard.i2b2.crc.datavo.PSMFactory;
+import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType;
@@ -40,397 +45,398 @@ import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.RequestMessageType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.InstanceResultResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterInstanceResultResponseType;
-import edu.harvard.i2b2.crc.datavo.setfinder.query.PsmQryHeaderType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionRequestType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryInstanceType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryMasterType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultOutputOptionListType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultOutputOptionType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.UserType;
-
+import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 /**
  * Ejb manager class for query operation
- *
+ * 
  * @author rkuttan
- *
- * @ejb.bean
- *                           description="QueryTool Query Manager"
- *                           display-name="QueryTool Query Manager"
- *                           jndi-name="ejb.querytool.QueryManager"
+ * 
+ * @ejb.bean description="QueryTool Query Manager"
+ *           display-name="QueryTool Query Manager"
+ *           jndi-name="ejb.querytool.QueryManager"
  *           local-jndi-name="ejb.querytool.QueryManagerLocal"
  *           name="querytool.QueryManager" type="Stateless" view-type="both"
  *           transaction-type="Bean"
- *
+ * 
  * @ejb.transaction type="Required"
- *
- *
+ * 
+ * 
  * @ejb.interface remote-class="edu.harvard.i2b2.crc.ejb.QueryManagerRemote"
- *
- *
+ * 
+ * 
  */
 public class QueryManagerBean implements SessionBean {
-    private static Log log = LogFactory.getLog(QueryManagerBean.class);
-    public static String RESPONSE_QUEUE_NAME = "queue/jms.querytool.QueryResponse";
-    public static String UPLOADPROCESSOR_QUEUE_NAME = "queue/jms.querytool.QueryExecutor";
+	private static Log log = LogFactory.getLog(QueryManagerBean.class);
+	public static String RESPONSE_QUEUE_NAME = "queue/jms.querytool.QueryResponse";
+	// public static String UPLOADPROCESSOR_QUEUE_NAME =
+	// "queue/jms.querytool.QueryExecutor";
 
-   
-    SessionContext context;
+	SessionContext context;
 
-    /**
-     * Function to publish patients using publish message format.
-     *
-     * @ejb.interface-method view-type="both"
-     * @ejb.transaction type="Required"
-     *
-     * @param String
-     *            publish request XML fileName
-     *
-     * @return String publish response XML
-     */
-    public MasterInstanceResultResponseType processQuery(String xmlRequest) throws I2B2Exception {
-        String responseXML = null;
-        UserTransaction transaction = context.getUserTransaction();
-        javax.transaction.TransactionManager tm = (javax.transaction.TransactionManager)context.lookup("java:/TransactionManager");
-        if (tm != null) { 
-        	log.debug("Transaction not null");
-        }
-        MasterInstanceResultResponseType masterInstanceResultType = null;
+	/**
+	 * Function to publish patients using publish message format.
+	 * 
+	 * @ejb.interface-method view-type="both"
+	 * @ejb.transaction type="Required"
+	 * 
+	 * @param String
+	 *            publish request XML fileName
+	 * 
+	 * @return String publish response XML
+	 */
+	public MasterInstanceResultResponseType processQuery(
+			DataSourceLookup dataSourceLookup, String xmlRequest)
+			throws I2B2Exception {
+		String responseXML = null;
+		UserTransaction transaction = context.getUserTransaction();
+		javax.transaction.TransactionManager tm = (javax.transaction.TransactionManager) context
+				.lookup("java:/TransactionManager");
+		if (tm != null) {
+			log.debug("Transaction not null");
+		}
+		MasterInstanceResultResponseType masterInstanceResultType = null;
 
-        try {
-            String sessionId = String.valueOf(System.currentTimeMillis());
-            QueryManagerBeanUtil qmBeanUtil = new QueryManagerBeanUtil();
-            long timeout = qmBeanUtil.getTimeout(xmlRequest);
+		try {
+			String sessionId = String.valueOf(System.currentTimeMillis());
+			QueryManagerBeanUtil qmBeanUtil = new QueryManagerBeanUtil();
+			long timeout = qmBeanUtil.getTimeout(xmlRequest);
 
-            tm.begin();
-            
-            //get timeout information
-            QueryRequestDao requestDao = new QueryRequestDao();
-            String generatedSql = requestDao.buildSql(xmlRequest);
-            if (generatedSql == null) { 
-            	throw new I2B2Exception("Database error unable to generate sql from query definition");
-            } else if (generatedSql.trim().length()<1) { 
-            	throw new I2B2Exception("Database error unable to generate sql from query definition");
-            }
-            
-            String queryMasterId = saveQuery(xmlRequest, generatedSql);
+			DataSourceLookup dsLookupInput = qmBeanUtil
+					.getDataSourceLookupInput(xmlRequest);
+			SetFinderDAOFactory sfDAOFactory = null;
+			// tm.begin();
+			transaction.begin();
+			if (dsLookupInput.getProjectPath() == null) {
+				throw new I2B2Exception("project id is missing in the request");
+			}
+			DAOFactoryHelper daoFactoryHelper = new DAOFactoryHelper(
+					dsLookupInput.getDomainId(),
+					dsLookupInput.getProjectPath(), dsLookupInput.getOwnerId());
+			IDAOFactory daoFactory = daoFactoryHelper.getDAOFactory();
+			sfDAOFactory = daoFactory.getSetFinderDAOFactory();
+			// get timeout information
+			IQueryRequestDao requestDao = sfDAOFactory.getQueryRequestDAO();
+			String generatedSql = requestDao.buildSql(xmlRequest);
+			if (generatedSql == null) {
+				throw new I2B2Exception(
+						"Database error unable to generate sql from query definition");
+			} else if (generatedSql.trim().length() < 1) {
+				throw new I2B2Exception(
+						"Database error unable to generate sql from query definition");
+			}
 
-            // create query instance
-            QueryInstanceDao queryInstanceDao = new QueryInstanceDao();
-            UserType userType = getUserTypeFromSetfinderHeader(xmlRequest);
-            String userId = userType.getLogin();
-            String groupId = userType.getGroup();
-            String queryInstanceId = queryInstanceDao.createQueryInstance(queryMasterId,
-                    userId, groupId, "batch_mode", 5);
-            log.debug("New Query instance id " + queryInstanceId);
-            
-            PatientSetResultDao patientSetResultDao = new PatientSetResultDao();
+			String queryMasterId = saveQuery(sfDAOFactory, xmlRequest,
+					generatedSql);
 
-            String patientSetId = patientSetResultDao.createPatientSet(queryInstanceId);
-            log.debug("Patient Set ID [" + patientSetId +
-                "] for query instance= " + queryInstanceId);
- 
-            tm.commit();
-            
+			// create query instance
+			IQueryInstanceDao queryInstanceDao = sfDAOFactory
+					.getQueryInstanceDAO();
+			UserType userType = getUserTypeFromSetfinderHeader(xmlRequest);
+			String userId = userType.getLogin();
+			String groupId = userType.getGroup();
+			String queryInstanceId = queryInstanceDao.createQueryInstance(
+					queryMasterId, userId, groupId, "batch_mode", 5);
+			log.debug("New Query instance id " + queryInstanceId);
 
-            ResultResponseType responseType = executeSqlInQueue(userId, generatedSql,
-                    sessionId, queryInstanceId, patientSetId,timeout);
+			IQueryResultInstanceDao patientSetResultDao = sfDAOFactory
+					.getPatientSetResultDAO();
+			String patientSetId = null;
+			QueryDefinitionRequestType queryDefRequestType = getQueryDefinitionRequestType(xmlRequest);
+			ResultOutputOptionListType resultOptionList = queryDefRequestType
+					.getResultOutputList();
 
-            
-            transaction.begin();
-            //responseXML = qmBeanUtil.buildQueryRequestResponse(xmlRequest, status,
-            //		sessionId,queryMasterId,queryInstanceId,responseType);
-            log.debug("after queue exectution");
-            
-            QtQueryInstance queryInstance = updateQueryInstanceStatus(responseType,
-                    userId, queryInstanceId);
-            QueryMasterDao queryMasterDao = new QueryMasterDao();
-            QtQueryMaster queryMaster = queryMasterDao.getQueryDefinition(
-                    queryMasterId);
-            masterInstanceResultType = new MasterInstanceResultResponseType();
+			if (resultOptionList != null
+					&& resultOptionList.getResultOutput() != null
+					&& resultOptionList.getResultOutput().size() > 0) {
+				for (ResultOutputOptionType resultOption : resultOptionList
+						.getResultOutput()) {
 
-            QueryMasterType queryMasterType = PSMFactory.buildQueryMasterType(queryMaster);
-            //set query master
-            masterInstanceResultType.setQueryMaster(queryMasterType);
+					patientSetId = patientSetResultDao.createPatientSet(
+							queryInstanceId, resultOption.getName());
+					log.debug("Patient Set ID [" + patientSetId
+							+ "] for query instance= " + queryInstanceId);
+				}
+			} else {
+				QueryProcessorUtil qp = QueryProcessorUtil.getInstance();
+				BeanFactory bf = qp.getSpringBeanFactory();
+				String defaultResultType = (String) bf
+						.getBean(QueryProcessorUtil.DEFAULT_SETFINDER_RESULT_BEANNAME);
+				patientSetId = patientSetResultDao.createPatientSet(
+						queryInstanceId, defaultResultType);
+				log.debug("Patient Set ID [" + patientSetId
+						+ "] for query instance= " + queryInstanceId);
+			}
 
-            QueryInstanceType queryInstanceType = PSMFactory.buildQueryInstanceType(queryInstance);
-            //set query instance
-            masterInstanceResultType.setQueryInstance(queryInstanceType);
-            //set status
-            masterInstanceResultType.setStatus(responseType.getStatus());
+			// tm.commit();
+			transaction.commit();
 
-            QueryResultBean queryResultBean = new QueryResultBean();
-            ResultResponseType responseType1 = queryResultBean.getResultInstanceFromQueryInstanceId(userId,
-                    queryInstanceId);
-            
-            log.debug("Size of result when called thru ejb " + responseType1.getQueryResultInstance().size());
+			ResultResponseType responseType = executeSqlInQueue(dsLookupInput
+					.getDomainId(), dsLookupInput.getProjectPath(),
+					dsLookupInput.getOwnerId(), userId, generatedSql,
+					sessionId, queryInstanceId, patientSetId, xmlRequest,
+					timeout);
 
-            //set result instance
-            masterInstanceResultType.getQueryResultInstance().addAll(responseType1.getQueryResultInstance());
-            transaction.commit();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+			transaction.begin();
+			// responseXML = qmBeanUtil.buildQueryRequestResponse(xmlRequest,
+			// status,
+			// sessionId,queryMasterId,queryInstanceId,responseType);
+			log.debug("after queue exectution");
 
-            try {
-                transaction.rollback();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            throw new I2B2Exception(ex.getMessage(),ex);
-        }
-        
+			/*
+			 * query instance status is updated in the query executor class
+			 * QtQueryInstance queryInstance = updateQueryInstanceStatus(
+			 * sfDAOFactory, responseType, userId, queryInstanceId);
+			 */
 
-        return masterInstanceResultType;
-    }
+			IQueryMasterDao queryMasterDao = sfDAOFactory.getQueryMasterDAO();
+			QtQueryMaster queryMaster = queryMasterDao
+					.getQueryDefinition(queryMasterId);
+			masterInstanceResultType = new MasterInstanceResultResponseType();
 
-    /**
-     * Function to publish patients using publish message format.
-     *
-     * @ejb.interface-method view-type="both"
-     * @ejb.transaction type="Required"
-     *
-     * @param String userId
-     * @param int master id
-      * @param long timeout
-      *
-     * @return InstanceResultResponseType
-     */
-    public InstanceResultResponseType runQueryMaster(String userId,
-        String masterId, long timeout) throws I2B2Exception {
-        InstanceResultResponseType instanceResultResponse = null;
-        UserTransaction transaction = context.getUserTransaction();
+			QueryMasterType queryMasterType = PSMFactory
+					.buildQueryMasterType(queryMaster);
+			// set query master
+			masterInstanceResultType.setQueryMaster(queryMasterType);
 
-        try {
-            transaction.begin();
+			// fetch query instance by queryinstance id and build response
+			QtQueryInstance queryInstance = queryInstanceDao
+					.getQueryInstanceByInstanceId(queryInstanceId);
+			QueryInstanceType queryInstanceType = PSMFactory
+					.buildQueryInstanceType(queryInstance);
+			// set query instance
+			masterInstanceResultType.setQueryInstance(queryInstanceType);
+			// set status
+			masterInstanceResultType.setStatus(responseType.getStatus());
 
-            String sessionId = String.valueOf(System.currentTimeMillis());
+			QueryResultBean queryResultBean = new QueryResultBean();
+			ResultResponseType responseType1 = queryResultBean
+					.getResultInstanceFromQueryInstanceId(dataSourceLookup,
+							userId, queryInstanceId);
 
-            //get querymaster from masterid
-            QueryMasterDao queryMasterDao = new QueryMasterDao();
-            QtQueryMaster queryMaster = queryMasterDao.getQueryDefinition(
-                    masterId);
+			log.debug("Size of result when called thru ejb "
+					+ responseType1.getQueryResultInstance().size());
 
-            if (queryMaster == null) {
-                throw new I2B2Exception(
-                    "Could not find Query master for userid=" + userId +
-                    " masterId=" + masterId);
-            }
+			// set result instance
+			masterInstanceResultType.getQueryResultInstance().addAll(
+					responseType1.getQueryResultInstance());
+			transaction.commit();
+		} catch (Throwable ex) {
+			ex.printStackTrace();
 
-            QueryInstanceDao queryInstanceDao = new QueryInstanceDao();
+			try {
+				transaction.rollback();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			throw new I2B2Exception(ex.getMessage());
+		}
 
-            //create queryinstance using masterid
-            String queryInstanceId = queryInstanceDao.createQueryInstance(queryMaster.getQueryMasterId(),
-                    userId, "group_id", "batch_mode", 5);
+		return masterInstanceResultType;
+	}
 
-            //get sql
-            String generatedSql = queryMaster.getGeneratedSql();
-            PatientSetResultDao patientSetResultDao = new PatientSetResultDao();
+	/**
+	 * Function to publish patients using publish message format.
+	 * 
+	 * @ejb.interface-method view-type="both"
+	 * @ejb.transaction type="Required"
+	 * 
+	 * @param String
+	 *            userId
+	 * @param int master id
+	 * @param long timeout
+	 * 
+	 * @return InstanceResultResponseType
+	 */
+	public InstanceResultResponseType runQueryMaster(
+			DataSourceLookup dataSourceLookup, String userId, String masterId,
+			long timeout) throws I2B2Exception {
+		return null;
 
-            String patientSetId = patientSetResultDao.createPatientSet(queryInstanceId);
-            log.debug("Patient Set ID [" + patientSetId +
-                "] for query instance= " + queryInstanceId);
+	}
 
-            transaction.commit();
-            
-            ResultResponseType responseType = executeSqlInQueue(userId, generatedSql,
-                    sessionId, queryInstanceId, patientSetId, timeout);
+	private ResultResponseType executeSqlInQueue(String domainId,
+			String projectId, String ownerId, String userId,
+			String generatedSql, String sessionId, String queryInstanceId,
+			String patientSetId, String xmlRequest, long timeout)
+			throws Exception {
 
-            transaction.begin();
-            QueryResultBean queryResultBean = new QueryResultBean();
-            ResultResponseType responseType1 = queryResultBean.getResultInstanceFromQueryInstanceId(userId,
-                    queryInstanceId);
-            
-            log.debug("Size of result when called thru ejb " +
-                responseType.getQueryResultInstance().size());
+		QueryManagerBeanUtil qmBeanUtil = new QueryManagerBeanUtil();
 
-            responseType.getQueryResultInstance().addAll(responseType1.getQueryResultInstance());
-            
-            //build InstanceResultResponse
-            QtQueryInstance queryInstance = updateQueryInstanceStatus(responseType,
-                    userId, queryInstanceId);
-            instanceResultResponse = new InstanceResultResponseType();
+		// process query in queue
+		Map returnValues = qmBeanUtil.testSend(domainId, projectId, ownerId,
+				generatedSql, sessionId, queryInstanceId, patientSetId,
+				xmlRequest, timeout);
 
-            QueryInstanceType queryInstanceType = PSMFactory.buildQueryInstanceType(queryInstance);
-            instanceResultResponse.setQueryInstance(queryInstanceType);
-            instanceResultResponse.getQueryResultInstance().addAll(responseType.getQueryResultInstance());
-            transaction.commit();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+		// build response message, if query completed before given timeout
+		String status = (String) returnValues
+				.get(QueryManagerBeanUtil.QUERY_STATUS_PARAM);
+		int queryResultInstanceId = (Integer) returnValues
+				.get(QueryManagerBeanUtil.QT_QUERY_RESULT_INSTANCE_ID_PARAM);
+		log.debug("Query Result Instance id " + queryResultInstanceId);
+		StatusType statusType = new StatusType();
+		StatusType.Condition condition = new StatusType.Condition();
+		condition.setValue(status);
+		condition.setType(status);
+		statusType.getCondition().add(condition);
+		ResultResponseType responseType = new ResultResponseType();
+		responseType.setStatus(statusType);
+		return responseType;
+	}
 
-            try {
-                transaction.rollback();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-            throw new I2B2Exception(ex.getMessage(),ex);
-        }
+	private QtQueryInstance updateQueryInstanceStatus(
+			SetFinderDAOFactory sfDAOFactory, ResultResponseType responseType,
+			String userId, String queryInstanceId) {
+		QtQueryInstance queryInstance = null;
+		String status = ((StatusType.Condition) responseType.getStatus()
+				.getCondition().get(0)).getValue();
 
-        return instanceResultResponse;
-    }
+		IQueryInstanceDao queryInstanceDao = sfDAOFactory.getQueryInstanceDAO();
+		queryInstance = queryInstanceDao
+				.getQueryInstanceByInstanceId(queryInstanceId);
 
-    private ResultResponseType executeSqlInQueue(String userId, String generatedSql,
-        String sessionId, String queryInstanceId,String patientSetId, long timeout)
-        throws Exception {
-        QueryManagerBeanUtil qmBeanUtil = new QueryManagerBeanUtil();
+		queryInstance.setEndDate(new Date(System.currentTimeMillis()));
+		QtQueryStatusType statusType = new QtQueryStatusType();
 
-        //process query in queue
-        Map returnValues = qmBeanUtil.testSend(generatedSql, sessionId,
-                queryInstanceId, patientSetId, timeout);
+		if (status.equalsIgnoreCase("done")) {
+			statusType.setStatusTypeId(6);
+		} else if (status.equalsIgnoreCase("running")) {
+			statusType.setStatusTypeId(5);
+		} else if (status.equalsIgnoreCase("error")) {
+			statusType.setStatusTypeId(4);
+		}
 
-        //build response message, if query completed before given timeout
-        String status = (String) returnValues.get(QueryManagerBeanUtil.QUERY_STATUS_PARAM);
-        int queryResultInstanceId = (Integer) returnValues.get(QueryManagerBeanUtil.QT_QUERY_RESULT_INSTANCE_ID_PARAM);
-        log.debug("Query Result Instance id " + queryResultInstanceId);
-        StatusType statusType = new StatusType();
-        StatusType.Condition condition = new StatusType.Condition();
-        condition.setValue(status);
-        condition.setType(status);
-        statusType.getCondition().add(condition);
-        ResultResponseType responseType = new ResultResponseType(); 
-        responseType.setStatus(statusType);
-        return responseType;
-    }
+		queryInstance.setQtQueryStatusType(statusType);
+		queryInstance = queryInstanceDao.update(queryInstance);
 
-    private QtQueryInstance updateQueryInstanceStatus(
-        ResultResponseType responseType, String userId, String queryInstanceId) {
-        QtQueryInstance queryInstance = null;
-        String status = ((StatusType.Condition) responseType.getStatus()
-                                                            .getCondition()
-                                                            .get(0)).getValue();
-        QueryInstanceDao queryInstanceDao = new QueryInstanceDao();
-        queryInstance = queryInstanceDao.getQueryInstanceByInstanceId(
-                queryInstanceId);
+		return queryInstance;
+	}
 
-        queryInstance.setEndDate(new Date(System.currentTimeMillis()));
-        QtQueryStatusType statusType = new QtQueryStatusType();
+	private String saveQuery(SetFinderDAOFactory sfDAOFactory,
+			String requestXml, String generatedSql) throws Exception {
+		IQueryMasterDao queryMasterDao = sfDAOFactory.getQueryMasterDAO();
+		QtQueryMaster queryMaster = new QtQueryMaster();
+		UserType userType = getUserTypeFromSetfinderHeader(requestXml);
+		String userId = userType.getLogin();
+		String groupId = userType.getGroup();
+		QueryDefinitionType queryDefType = getQueryDefinition(requestXml);
+		edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
 
-        if (status.equalsIgnoreCase("done")) {
-            statusType.setStatusTypeId(6);
-        } else if (status.equalsIgnoreCase("running")) {
-            statusType.setStatusTypeId(5);
-        } else if (status.equalsIgnoreCase("error")) {
-            statusType.setStatusTypeId(4);
-        }
+		queryMaster.setUserId(userId);
+		StringWriter queryDefWriter = new StringWriter();
+		CRCJAXBUtil.getQueryDefJAXBUtil().marshaller(
+				of.createQueryDefinition(queryDefType), queryDefWriter);
 
-        queryInstance.setQtQueryStatusType(statusType);
-        queryInstance = queryInstanceDao.update(queryInstance);
+		queryMaster.setRequestXml(queryDefWriter.toString());
+		queryMaster.setGroupId(groupId);
+		queryMaster.setCreateDate(new Date(System.currentTimeMillis()));
+		queryMaster.setDeleteFlag(QtQueryMaster.DELETE_OFF_FLAG);
+		queryMaster.setGeneratedSql(generatedSql);
+		queryMaster.setName(queryDefType.getQueryName());
 
-        return queryInstance;
-    }
+		String queryMasterId = queryMasterDao.createQueryMaster(queryMaster,
+				requestXml);
 
-    private String saveQuery(String requestXml, String generatedSql)
-        throws Exception {
-        QueryMasterDao queryMasterDao = new QueryMasterDao();
-        QtQueryMaster queryMaster = new QtQueryMaster();
-        UserType userType = getUserTypeFromSetfinderHeader(requestXml);
-        String userId = userType.getLogin();
-        String groupId = userType.getGroup();
-        QueryDefinitionType queryDefType = getQueryDefinition(requestXml);
-        edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
-        
-        queryMaster.setUserId(userId);
-        StringWriter queryDefWriter = new StringWriter();
-        CRCJAXBUtil.getQueryDefJAXBUtil().marshaller(of.createQueryDefinition(queryDefType), queryDefWriter);
-        
-        queryMaster.setRequestXml(queryDefWriter.toString());
-        queryMaster.setGroupId(groupId);
-        queryMaster.setCreateDate(new Date());
-        queryMaster.setDeleteFlag(QtQueryMaster.DELETE_OFF_FLAG);
-        queryMaster.setGeneratedSql(generatedSql);
-        queryMaster.setName(queryDefType.getQueryName());
+		return queryMasterId;
+	}
 
-        String queryMasterId = queryMasterDao.createQueryMaster(queryMaster);
+	private UserType getUserTypeFromSetfinderHeader(String xmlRequest)
+			throws Exception {
 
-        return queryMasterId;
-    }
+		JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
+		JAXBElement jaxbElement = jaxbUtil.unMashallFromString(xmlRequest);
 
-    private UserType getUserTypeFromSetfinderHeader(String xmlRequest) throws Exception {
-        UserType userType  = null;
-        JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
-        JAXBElement jaxbElement = jaxbUtil.unMashallFromString(xmlRequest);
+		if (jaxbElement == null) {
+			throw new Exception(
+					"null value in after unmarshalling request string ");
+		}
 
-        if (jaxbElement == null) {
-            throw new Exception(
-                "null value in after unmarshalling request string ");
-        }
+		RequestMessageType requestMessageType = (RequestMessageType) jaxbElement
+				.getValue();
 
-        RequestMessageType requestMessageType = (RequestMessageType) jaxbElement.getValue();
-        BodyType bodyType = requestMessageType.getMessageBody();
-        JAXBUnWrapHelper unWrapHelper = new JAXBUnWrapHelper();
-        PsmQryHeaderType headerType = (edu.harvard.i2b2.crc.datavo.setfinder.query.PsmQryHeaderType) unWrapHelper.getObjectByClass(bodyType.getAny(),
-                edu.harvard.i2b2.crc.datavo.setfinder.query.PsmQryHeaderType.class);
+		UserType userType = new UserType();
+		userType.setLogin(requestMessageType.getMessageHeader().getSecurity()
+				.getUsername());
+		userType.setGroup(requestMessageType.getMessageHeader().getProjectId());
 
-        if (headerType != null) {
-            userType = headerType.getUser();
-        }
-        if (userType != null && userType.getGroup() == null) { 
-        	userType.setGroup("no_group_id");
-        }
+		return userType;
+	}
 
-        return userType;
-    }
+	private QueryDefinitionRequestType getQueryDefinitionRequestType(
+			String xmlRequest) throws Exception {
+		String queryName = null;
+		QueryDefinitionType queryDef = null;
+		JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
+		JAXBElement jaxbElement = jaxbUtil.unMashallFromString(xmlRequest);
 
-    private QueryDefinitionType getQueryDefinition(String xmlRequest) throws Exception {
-        String queryName = null;
-        QueryDefinitionType queryDef = null;
-        JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
-        JAXBElement jaxbElement = jaxbUtil.unMashallFromString(xmlRequest);
+		if (jaxbElement == null) {
+			throw new Exception(
+					"null value in after unmarshalling request string ");
+		}
 
-        if (jaxbElement == null) {
-            throw new Exception(
-                "null value in after unmarshalling request string ");
-        }
+		RequestMessageType requestMessageType = (RequestMessageType) jaxbElement
+				.getValue();
+		BodyType bodyType = requestMessageType.getMessageBody();
+		JAXBUnWrapHelper unWrapHelper = new JAXBUnWrapHelper();
+		QueryDefinitionRequestType queryDefReqType = (QueryDefinitionRequestType) unWrapHelper
+				.getObjectByClass(bodyType.getAny(),
+						QueryDefinitionRequestType.class);
+		return queryDefReqType;
 
-        RequestMessageType requestMessageType = (RequestMessageType) jaxbElement.getValue();
-        BodyType bodyType = requestMessageType.getMessageBody();
-        JAXBUnWrapHelper unWrapHelper = new JAXBUnWrapHelper();
-        QueryDefinitionRequestType queryDefReqType = (QueryDefinitionRequestType) unWrapHelper.getObjectByClass(bodyType.getAny(),
-                QueryDefinitionRequestType.class);
+	}
 
-        if (queryDefReqType != null) {
-            queryDef = queryDefReqType.getQueryDefinition();
+	public QueryDefinitionType getQueryDefinition(String xmlRequest)
+			throws Exception {
+		QueryDefinitionRequestType queryDefReqType = getQueryDefinitionRequestType(xmlRequest);
+		QueryDefinitionType queryDef = null;
+		if (queryDefReqType != null) {
+			queryDef = queryDefReqType.getQueryDefinition();
+		}
+		return queryDef;
+	}
 
-            if (queryDef != null) {
-                queryName = queryDef.getQueryName();
-            }
-        }
+	/**
+	 * Function to publish patients using publish message format.
+	 * 
+	 * @ejb.interface-method view-type="both"
+	 * @ejb.transaction type="Required"
+	 * 
+	 * @param int session id publish request XML fileName
+	 * 
+	 * @return String publish response XML
+	 */
+	public String getResponseXML(String sessionId) {
+		QueryManagerBeanUtil qmBeanUtil = new QueryManagerBeanUtil();
+		String status = qmBeanUtil.getStatus(sessionId);
+		String response = qmBeanUtil.buildGetQueryResultResponse(sessionId,
+				status);
 
-        return queryDef;
-    }
+		return response;
+	}
 
-    /**
-     * Function to publish patients using publish message format.
-     *
-     * @ejb.interface-method view-type="both"
-     * @ejb.transaction type="Required"
-     *
-     * @param int
-     *            session id publish request XML fileName
-     *
-     * @return String publish response XML
-     */
-    public String getResponseXML(String sessionId) {
-        QueryManagerBeanUtil qmBeanUtil = new QueryManagerBeanUtil();
-        String status = qmBeanUtil.getStatus(sessionId);
-        String response = qmBeanUtil.buildGetQueryResultResponse(sessionId,
-                status);
+	public void setSessionContext(SessionContext context) throws EJBException,
+			RemoteException {
+		this.context = context;
+	}
 
-        return response;
-    }
+	public void ejbCreate() throws CreateException {
+	}
 
+	public void ejbRemove() throws EJBException, RemoteException {
+	}
 
-    public void setSessionContext(SessionContext context)
-        throws EJBException, RemoteException {
-        this.context = context;
-    }
-    public void ejbCreate() throws CreateException {
-    }
-    public void ejbRemove() throws EJBException, RemoteException {
-    }
-    public void ejbActivate() throws EJBException, RemoteException {
-    }
-    public void ejbPassivate() throws EJBException, RemoteException {
-    }
+	public void ejbActivate() throws EJBException, RemoteException {
+	}
+
+	public void ejbPassivate() throws EJBException, RemoteException {
+	}
 }

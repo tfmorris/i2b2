@@ -46,10 +46,10 @@ public class PMResponseMessage {
 			String procMessage = status.getValue();
 			
 			if(procStatus.equals("ERROR")){
-				log.info("Error reported by Ont web Service " + procMessage);				
+				log.error("Error reported by Ont web Service " + procMessage);				
 			}
 			else if(procStatus.equals("WARNING")){
-				log.info("Warning reported by Ont web Service" + procMessage);
+				log.debug("Warning reported by Ont web Service" + procMessage);
 			}	
 			
 		} catch (JAXBUtilException e) {

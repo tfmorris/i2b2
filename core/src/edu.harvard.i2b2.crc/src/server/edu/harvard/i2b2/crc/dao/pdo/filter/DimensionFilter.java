@@ -11,6 +11,7 @@ package edu.harvard.i2b2.crc.dao.pdo.filter;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
+import edu.harvard.i2b2.crc.dao.CRCDAO;
 import edu.harvard.i2b2.crc.datavo.pdo.query.FilterListType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.ItemType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.PanelType;
@@ -20,21 +21,21 @@ import edu.harvard.i2b2.crc.util.ItemKeyUtil;
 /**
  * Class builds "from" and "where" clause of pdo query
  * based on given provider filter
- * $Id: DimensionFilter.java,v 1.1 2007/10/01 19:23:33 rk903 Exp $
+ * $Id: DimensionFilter.java,v 1.2 2008/06/10 14:57:57 rk903 Exp $
  * @author rkuttan
  */
-public class DimensionFilter {
+public class DimensionFilter  {
     private ItemType item = null;
     private String dimensionColumnName = null; 
     private String factTableColumn = null;
-
+    private String schemaName = null;
     /**
      * Parameter constructor
      * @param filterListType
      */
-    public DimensionFilter(ItemType item) {
+    public DimensionFilter(ItemType item,String schemaName) {
         this.item = item;
-       
+       this.schemaName = schemaName;
         
     }
 
@@ -61,9 +62,19 @@ public class DimensionFilter {
                 if (dimCode != null) {
                     dimCode = JDBCUtil.escapeSingleQuote(dimCode);
                 }
+                
+                if (dimCode.trim().length()>0) { 
+	                //check if the dim code ends with "\" other wise add it, 
+	                //so that it matches concept_dimension's concept_path or provider_dimension's provider_path
+	                if (dimCode.lastIndexOf('\\') == dimCode.length()-1) {  
+	                    dimCode = dimCode + "";
+	                } else {
+	                	dimCode = dimCode + "\\";                        
+	                }
+                }
 
                 conceptFromString += ("SELECT " +  item.getFacttablecolumn() +   
-                " FROM "+  item.getDimTablename() + " WHERE " + item.getDimColumnname() + " LIKE " +
+                " FROM "+ this.schemaName+ item.getDimTablename() + " WHERE " + item.getDimColumnname() + " LIKE " +
                 "'" + dimCode + "%'\n");
             
             //check if it is exactly one concept, then add group by clause, other wise union will take care of 

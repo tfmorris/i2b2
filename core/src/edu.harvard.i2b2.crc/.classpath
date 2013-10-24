@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="lib" path="etc/spring"/>
 	<classpathentry kind="src" path="src/client"/>
 	<classpathentry kind="src" path="gensrc"/>
 	<classpathentry kind="src" path="src/test"/>
@@ -42,9 +43,12 @@
 	<classpathentry kind="lib" path="/edu.harvard.i2b2.common/lib/jdom/jdom.jar"/>
 	<classpathentry kind="lib" path="/edu.harvard.i2b2.common/lib/j2ee/jboss-common-jdbc-wrapper.jar"/>
 	<classpathentry kind="lib" path="/edu.harvard.i2b2.common/lib/jdbc/ojdbc14.jar"/>
-	<classpathentry kind="lib" path="etc/spring"/>
 	<classpathentry kind="lib" path="/edu.harvard.i2b2.common/dist/i2b2Common-core.jar" sourcepath="/edu.harvard.i2b2.common"/>
 	<classpathentry kind="lib" path="/edu.harvard.i2b2.common/lib/junit/junit-4.4.jar"/>
 	<classpathentry kind="lib" path="/edu.harvard.i2b2.common/lib/jaxb/activation-1.1.jar"/>
+	<classpathentry kind="lib" path="/edu.harvard.i2b2.common/lib/commons/commons-dbcp-1.2.2.jar"/>
+	<classpathentry kind="lib" path="/edu.harvard.i2b2.common/lib/commons/commons-pool-1.3.jar"/>
+	<classpathentry kind="lib" path="/edu.harvard.i2b2.common/lib/jdbc/sqlserver2005/sqljdbc.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/edu.harvard.i2b2.crc.loader"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

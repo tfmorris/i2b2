@@ -9,38 +9,48 @@
  */
 package edu.harvard.i2b2.crc.dao.pdo;
 
-import edu.harvard.i2b2.common.exception.I2B2DAOException;
-import edu.harvard.i2b2.common.exception.I2B2Exception;
-import edu.harvard.i2b2.common.util.db.JDBCUtil;
-import edu.harvard.i2b2.crc.dao.CRCDAO;
-import edu.harvard.i2b2.crc.dao.pdo.I2B2PdoFactory.ObservationFactBuilder;
-import edu.harvard.i2b2.crc.dao.pdo.output.ObservationFactFactRelated;
-import edu.harvard.i2b2.crc.datavo.pdo.ObservationSet;
-import edu.harvard.i2b2.crc.datavo.pdo.ObservationType;
-import edu.harvard.i2b2.crc.datavo.pdo.PatientDataType;
-import edu.harvard.i2b2.crc.datavo.pdo.query.FactPrimaryKeyType;
-import edu.harvard.i2b2.crc.datavo.pdo.query.OutputOptionType;
-
 import java.io.IOException;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import javax.sql.DataSource;
+
+import edu.harvard.i2b2.crc.datavo.pdo.ObservationSet;
+import edu.harvard.i2b2.crc.datavo.pdo.ObservationType;
+import edu.harvard.i2b2.crc.datavo.pdo.PatientDataType;
+import edu.harvard.i2b2.common.exception.I2B2DAOException;
+import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.common.util.db.JDBCUtil;
+import edu.harvard.i2b2.crc.dao.CRCDAO;
+import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
+import edu.harvard.i2b2.crc.dao.pdo.output.ObservationFactFactRelated;
+import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
+import edu.harvard.i2b2.crc.datavo.pdo.query.FactPrimaryKeyType;
+import edu.harvard.i2b2.crc.datavo.pdo.query.OutputOptionType;
 
 
 /**
  * DAO class for observation fact
- * $Id: ObservationFactDao.java,v 1.9 2007/08/31 14:40:23 rk903 Exp $
+ * $Id: ObservationFactDao.java,v 1.13 2008/07/21 19:53:40 rk903 Exp $
  * @author rkuttan
  * @see FactPrimaryKeyType
  * @see OutputOptionType
  */
-public class ObservationFactDao extends CRCDAO {
+public class ObservationFactDao extends CRCDAO implements IObservationFactDao {
     
+	private DataSourceLookup dataSourceLookup = null;
+	
+	public ObservationFactDao(DataSourceLookup dataSourceLookup,DataSource dataSource) { 
+		setDataSource(dataSource);
+		setDbSchemaName(dataSourceLookup.getFullSchema());
+		this.dataSourceLookup = dataSourceLookup;
+	}
+	
     /**
      * Function returns Observation fact from the primary key.
      * <p>Required fields : <b>patient_num, concept_cd, encounter_num</b>
@@ -58,7 +68,7 @@ public class ObservationFactDao extends CRCDAO {
         ObservationFactFactRelated factRelated = new ObservationFactFactRelated(factOutputOption);
 
         String sql = " SELECT " + factRelated.getSelectClause() + " \n " +
-            " FROM observation_fact obs \n" +
+            " FROM " + getDbSchemaName() + "observation_fact obs \n" +
             " WHERE obs.encounter_num = ? AND \n " +
             " obs.patient_num  = ? AND \n" + " obs.concept_cd = ?  \n";
 
@@ -68,14 +78,18 @@ public class ObservationFactDao extends CRCDAO {
 
         //make given start date to 'mm-dd-yyyy hh24:mi' format
         if (factPrimaryKey.getStartDate() != null) {
-            GregorianCalendar gc = factPrimaryKey.getStartDate()
-                                                 .toGregorianCalendar();
-            String startDateFormat = gc.get(Calendar.MONTH) + "-" +
-                gc.get(Calendar.DAY_OF_MONTH) + "-" + gc.get(Calendar.YEAR) +
-                " " + gc.get(Calendar.HOUR_OF_DAY) + ":" +
-                gc.get(Calendar.MINUTE);
-            sql += (" AND obs.start_date = to_date('" + startDateFormat +
-            " ', 'mm-dd-yyyy hh24:mi') ");
+        	GregorianCalendar gc = factPrimaryKey.getStartDate().toGregorianCalendar();
+        	String sqlFormatedStartDate = ""; 
+        	if (dataSourceLookup.getServerType().equalsIgnoreCase(DAOFactoryHelper.ORACLE)) { 
+        		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
+        		sqlFormatedStartDate = dateFormat.format(gc.getTime());
+	            sql += (" AND obs.start_date = to_date('" + sqlFormatedStartDate +
+	            " ', 'DD-MON-YYYY HH24:MI:SS') ");
+	        } else if (dataSourceLookup.getServerType().equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) { 
+	        	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	        	sqlFormatedStartDate = dateFormat.format(gc.getTime());
+	        	sql += (" AND obs.start_date = '" + sqlFormatedStartDate + "'" );
+        	}
         }
 
         if (factPrimaryKey.getModifierCd() != null) {
@@ -89,7 +103,8 @@ public class ObservationFactDao extends CRCDAO {
 
         try {
             //get db connection
-            conn = getConnection();
+            //conn = getConnection();
+        	conn = getDataSource().getConnection();
 
             //create prepared statement
             stmt = conn.prepareStatement(sql);

@@ -21,6 +21,7 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
+import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.i2b2message.ApplicationType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.InfoType;
@@ -39,12 +40,13 @@ import edu.harvard.i2b2.crc.datavo.i2b2message.StatusType;
  * seperate requesthandler class for each request type.
  * The main processing of for the request will be done inside
  * execute function
- * $Id: RequestHandler.java,v 1.9 2007/08/31 14:48:21 rk903 Exp $
+ * $Id: RequestHandler.java,v 1.10 2008/03/19 22:38:24 rk903 Exp $
  * @author rkuttan
  */
 public abstract class RequestHandler {
     /** log **/
     protected final Log log = LogFactory.getLog(getClass());
+    protected DataSourceLookup dataSourceLookup = null;
 
     /**
      * Function to perform operation on the given
@@ -149,7 +151,8 @@ public abstract class RequestHandler {
         JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
         JAXBElement jaxbElement = jaxbUtil.unMashallFromString(requestXml);
         RequestMessageType requestMessageType = (RequestMessageType) jaxbElement.getValue();
-
+        
+       
         return requestMessageType;
     }
 
@@ -183,5 +186,20 @@ public abstract class RequestHandler {
     	return st;
     }
     
+    protected void setDataSourceLookup(String requestXml) throws JAXBUtilException { 
+    	RequestMessageType reqMessage = getI2B2RequestMessageType(requestXml);
+    	String projectId = reqMessage.getMessageHeader().getProjectId();
+    	String domainId = reqMessage.getMessageHeader().getSecurity().getDomain();
+    	String userId = reqMessage.getMessageHeader().getSecurity().getUsername();
+    	dataSourceLookup = new DataSourceLookup();
+    	dataSourceLookup.setProjectPath(projectId);
+    	dataSourceLookup.setDomainId(domainId);
+    	dataSourceLookup.setOwnerId(userId);
+    	
+    }
+    
+    protected DataSourceLookup getDataSourceLookup() { 
+    	return dataSourceLookup;
+    }
    
 }

@@ -12,8 +12,13 @@ package edu.harvard.i2b2.crc.datavo;
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryResultInstance;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryResultType;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryInstanceType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryMasterType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryResultInstanceType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryResultTypeType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryStatusTypeType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.RequestXmlType;
 
@@ -91,5 +96,47 @@ public class PSMFactory {
         queryInstanceType.setQueryStatusType(queryStatusType);
 
         return queryInstanceType;
+    }
+    
+    
+    /**
+     * Returns QueryInstanceType for the given QtQueryInstance
+     * @param queryInstance
+     * @return QueryInstanceType
+     */
+    public static QueryResultInstanceType buildQueryResultInstanceType(
+        QtQueryResultInstance queryResultInstance) {
+    	QueryResultInstanceType resultInstanceType = new QueryResultInstanceType();
+    	resultInstanceType.setResultInstanceId(queryResultInstance.getResultInstanceId());
+    	resultInstanceType.setQueryInstanceId(queryResultInstance.getQtQueryInstance().getQueryInstanceId());
+    	resultInstanceType.setQueryResultType(buildQueryResultType(queryResultInstance.getQtQueryResultType()));
+    	resultInstanceType.setQueryStatusType(buildQueryStatusType(queryResultInstance.getQtQueryStatusType()));
+    	resultInstanceType.setStartDate(dtoFactory.getXMLGregorianCalendar(queryResultInstance.getStartDate().getTime()));
+    	if (queryResultInstance.getEndDate() != null) { 
+    		resultInstanceType.setEndDate(dtoFactory.getXMLGregorianCalendar(queryResultInstance.getEndDate().getTime()));
+    	}
+    	if (queryResultInstance.getSetSize() != null) {
+    		resultInstanceType.setSetSize(queryResultInstance.getSetSize());
+    	}
+    	return resultInstanceType;
+    }
+    
+    
+    public static QueryResultTypeType buildQueryResultType(QtQueryResultType queryResult) { 
+    	QueryResultTypeType queryResultType = new QueryResultTypeType();
+    	queryResultType.setResultTypeId(String.valueOf(queryResult.getResultTypeId()));
+    	queryResultType.setName(queryResult.getName());
+    	queryResultType.setDescription(queryResult.getDescription());
+    	return queryResultType;
+    }
+    
+    public static QueryStatusTypeType buildQueryStatusType(QtQueryStatusType queryStatus) { 
+    	QueryStatusTypeType queryStatusType = new QueryStatusTypeType();
+        queryStatusType.setDescription(queryStatus
+                                                    .getDescription());
+        queryStatusType.setName(queryStatus.getName());
+        queryStatusType.setStatusTypeId(String.valueOf(queryStatus
+                                                     .getStatusTypeId()));
+        return queryStatusType ;
     }
 }

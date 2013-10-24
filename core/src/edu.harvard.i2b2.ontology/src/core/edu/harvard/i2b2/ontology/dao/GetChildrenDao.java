@@ -52,7 +52,7 @@ public class GetChildrenDao extends JdbcDaoSupport {
 
 		DataSource ds = null;
 		try {
-			ds = OntologyUtil.getInstance().getDataSource();
+			ds = OntologyUtil.getInstance().getDataSource("java:OntologyLocalDS");
 		} catch (I2B2Exception e2) {
 			log.error(e2.getMessage());
 		} 

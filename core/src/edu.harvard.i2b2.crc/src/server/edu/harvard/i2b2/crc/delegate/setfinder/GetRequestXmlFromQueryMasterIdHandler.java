@@ -30,7 +30,7 @@ import javax.ejb.CreateException;
 /**
  * GetRequestXmlFromQueryMasterIdHandler class
  * implements execute method
- * $Id: GetRequestXmlFromQueryMasterIdHandler.java,v 1.5 2007/08/31 14:51:07 rk903 Exp $
+ * $Id: GetRequestXmlFromQueryMasterIdHandler.java,v 1.6 2008/03/19 22:36:37 rk903 Exp $
  * @author rkuttan
  */
 public class GetRequestXmlFromQueryMasterIdHandler extends RequestHandler {
@@ -52,6 +52,7 @@ public class GetRequestXmlFromQueryMasterIdHandler extends RequestHandler {
                     edu.harvard.i2b2.crc.datavo.setfinder.query.PsmQryHeaderType.class);
             masterRequestType = (MasterRequestType) this.getRequestType(requestXml,
                     edu.harvard.i2b2.crc.datavo.setfinder.query.MasterRequestType.class);
+            this.setDataSourceLookup(requestXml);
         } catch (JAXBUtilException jaxbUtilEx) {
             throw new I2B2Exception("Error ", jaxbUtilEx);
         }
@@ -79,7 +80,7 @@ public class GetRequestXmlFromQueryMasterIdHandler extends RequestHandler {
                 userId = userType.getLogin();
             }
 
-            masterResponseType = queryInfoLocal.getRequestXmlFromMasterId(userId,
+            masterResponseType = queryInfoLocal.getRequestXmlFromMasterId(this.getDataSourceLookup(),userId,
                     masterRequestType);
             masterResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));
             

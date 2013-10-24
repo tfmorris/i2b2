@@ -18,8 +18,12 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
+import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
-import edu.harvard.i2b2.crc.dao.setfinder.QueryInstanceDao;
+import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
+import edu.harvard.i2b2.crc.dao.SetFinderDAOFactory;
+import edu.harvard.i2b2.crc.dao.setfinder.IQueryInstanceDao;
+import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.InstanceResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterRequestType;
@@ -51,14 +55,17 @@ public class QueryRunBean implements SessionBean {
 	/**
 	 * 
 	 * 
+	 * @throws I2B2DAOException 
 	 * @ejb.interface-method view-type="both"
 	 * @ejb.transaction type="Required"
 	 * 
 	 * 
 	 */
-	public InstanceResponseType getQueryInstanceFromMasterId(String userId,MasterRequestType masterRequestType) {
+	public InstanceResponseType getQueryInstanceFromMasterId(DataSourceLookup dataSourceLookup,String userId,MasterRequestType masterRequestType) throws I2B2DAOException {
 		String queryMasterId =  masterRequestType.getQueryMasterId();
-		QueryInstanceDao queryInstanceDao = new QueryInstanceDao();
+		SetFinderDAOFactory sfDaoFactory = this.getSetFinderDaoFactory(dataSourceLookup.getDomainId(), dataSourceLookup.getProjectPath(), dataSourceLookup.getOwnerId());
+		
+		IQueryInstanceDao queryInstanceDao = sfDaoFactory.getQueryInstanceDAO();
 		List<QtQueryInstance> queryInstanceList = queryInstanceDao
 				.getQueryInstanceByMasterId(queryMasterId);
 		InstanceResponseType instanceResponseType = new InstanceResponseType();
@@ -91,6 +98,12 @@ public class QueryRunBean implements SessionBean {
 		}
 		return instanceResponseType;
 	}
+	
+	private SetFinderDAOFactory getSetFinderDaoFactory(String domainId,String projectPath,String ownerId) throws I2B2DAOException { 
+	   	 DAOFactoryHelper helper = new DAOFactoryHelper(domainId,projectPath,ownerId); 
+	        SetFinderDAOFactory sfDaoFactory = helper.getDAOFactory().getSetFinderDAOFactory();
+	        return sfDaoFactory;
+	   }
 	
 	public void ejbCreate() throws CreateException {
 	}

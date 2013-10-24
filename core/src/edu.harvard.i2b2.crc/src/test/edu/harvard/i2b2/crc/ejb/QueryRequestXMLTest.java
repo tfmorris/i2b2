@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterInstanceResultResponseType;
 import edu.harvard.i2b2.crc.ejb.QueryManagerRemote;
 import edu.harvard.i2b2.crc.ejb.QueryManagerRemoteHome;
@@ -59,7 +60,8 @@ public class QueryRequestXMLTest  {
 			
 			System.out.println("Start Time"	+ new Date(System.currentTimeMillis()));
 
-			MasterInstanceResultResponseType masterResponse  = mySessionEJB.processQuery(getQueryString());
+			DataSourceLookup dataSourceLookup = new DataSourceLookup();
+			MasterInstanceResultResponseType masterResponse  = mySessionEJB.processQuery(dataSourceLookup,getQueryString());
 			//convert masterInstance to string
 			String response = masterResponse.toString();
 			System.out.print("Response " + response);

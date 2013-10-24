@@ -123,6 +123,17 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    
+    <xs:complexType name="result_type_responseType">
+        <xs:complexContent>
+            <xs:extension base="crc:responseType">
+                <xs:sequence>
+                    <xs:element name="query_result_type" type="crc:query_result_typeType"
+                        minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
 
     <xs:complexType name="master_instance_result_responseType">
         <xs:complexContent>
@@ -136,5 +147,17 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-
+    
+    <xs:complexType name="crc_xml_result_responseType">
+        <xs:complexContent>
+            <xs:extension base="crc:responseType">
+                <xs:sequence>
+                    <xs:element name="query_result_instance" type="crc:query_result_instanceType" />
+                    <xs:element name="crc_xml_result" type="crc:xml_resultType" />
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>       
+    
+    
 </xs:schema>

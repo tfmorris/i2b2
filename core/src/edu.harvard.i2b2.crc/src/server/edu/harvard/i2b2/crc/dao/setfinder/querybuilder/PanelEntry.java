@@ -10,7 +10,7 @@
 package edu.harvard.i2b2.crc.dao.setfinder.querybuilder;
 /**
  * Panel Entry bean class
- * $Id: PanelEntry.java,v 1.3 2007/08/31 14:46:23 rk903 Exp $ 
+ * $Id: PanelEntry.java,v 1.4 2008/07/21 20:04:21 rk903 Exp $ 
  * @author chris
  */
 public class PanelEntry
@@ -24,6 +24,7 @@ public class PanelEntry
 	public int ForInsert = 0;
 	public int FirstPanel = 0;
 	public int totalItemOccurrences = 0;
+	public String totalItemOccurrencesOperator = "";
 	
 	public boolean equals(Object o)
 	{

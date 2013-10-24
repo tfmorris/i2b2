@@ -51,10 +51,11 @@ public abstract class CRCAxisAbstract {
 		messageHeader.setApplicationAcknowledgementType("AL");
 		messageHeader.setCountryCode("US");
 		SecurityType securityType = new SecurityType();
-		securityType.setDomain("demo");
-		securityType.setUsername("demo");
-		securityType.setPassword("demouser");
+		securityType.setDomain("");
+		securityType.setUsername("");
+		securityType.setPassword("");
 		messageHeader.setSecurity(securityType);
+		messageHeader.setProjectId("asthma");
 		return messageHeader;
 	}
 	
@@ -78,7 +79,7 @@ public abstract class CRCAxisAbstract {
 		Options options = new Options();
 		EndpointReference endpointReference = new EndpointReference(serviceUrl);
 		options.setTo(endpointReference);
-		options.setTimeOutInMilliSeconds(1800000);
+		options.setTimeOutInMilliSeconds(2700000);
 		options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
 		options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
 		ServiceClient sender = new ServiceClient();

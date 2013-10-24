@@ -27,7 +27,7 @@ import javax.ejb.CreateException;
 /**
  * RunQueryInstanceFromQueryDefinitionHandler class
  * implements execute method
- * $Id: RunQueryInstanceFromQueryDefinitionHandler.java,v 1.5 2007/08/31 14:51:07 rk903 Exp $
+ * $Id: RunQueryInstanceFromQueryDefinitionHandler.java,v 1.6 2008/03/19 22:36:37 rk903 Exp $
  * @author rkuttan
  */
 public class RunQueryInstanceFromQueryDefinitionHandler extends RequestHandler {
@@ -45,6 +45,7 @@ public class RunQueryInstanceFromQueryDefinitionHandler extends RequestHandler {
             queryDefRequestType = (QueryDefinitionRequestType) getRequestType(requestXml,
                     edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionRequestType.class);
             this.requestXml = requestXml;
+            this.setDataSourceLookup(requestXml);
         } catch (JAXBUtilException jaxbUtilEx) {
             throw new I2B2Exception("Error ", jaxbUtilEx);
         }
@@ -67,7 +68,7 @@ public class RunQueryInstanceFromQueryDefinitionHandler extends RequestHandler {
             QueryManagerLocal queryManagerLocal = queryManagerLocalHome.create();
 
             //response = queryManagerLocal.processQuery(requestXml);
-            masterInstanceResponse = queryManagerLocal.processQuery(requestXml);
+            masterInstanceResponse = queryManagerLocal.processQuery(this.getDataSourceLookup(),requestXml);
             //masterInstanceResponse.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));
             
             //response = this.buildResponseMessage(requestXml, bodyType);

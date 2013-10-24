@@ -51,7 +51,7 @@ public class GetNameInfoDao extends JdbcDaoSupport {
 	public List findNameInfo(final VocabRequestType vocabType, List categories)throws DataAccessException{
 		DataSource ds = null;
 		try {
-			ds = OntologyUtil.getInstance().getDataSource();
+			ds = OntologyUtil.getInstance().getDataSource("java:OntologyLocalDS");
 		} catch (I2B2Exception e2) {
 			log.error(e2.getMessage());
 		} 

@@ -14,11 +14,13 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.DataAccessException;
 
+import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 
-import edu.harvard.i2b2.ontology.dao.GetCategoriesDao;
+import edu.harvard.i2b2.ontology.dao.ConceptDao;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
@@ -34,64 +36,66 @@ public class GetCategoriesHandler extends RequestHandler {
 	private GetReturnType getReturnType = null;
 	private ProjectType projectInfo = null;
 
-	public GetCategoriesHandler(GetCategoriesDataMessage requestMsg) {
-			try {
-				getCategoriesMsg = requestMsg;
-				getReturnType = requestMsg.getReturnType();
-				projectInfo = getRoleInfo(getCategoriesMsg.getMessageHeaderType());	
-			} catch (JAXBUtilException e) {
-				log.error("error setting up getCategoriesHandler");
-				log.error(e.getMessage());
-			} catch (Exception e) {
-				log.error("error setting up getCategoriesHandler");
-				log.error(e.getMessage());
-			}
+	public GetCategoriesHandler(GetCategoriesDataMessage requestMsg) throws I2B2Exception{
+		try {
+			getCategoriesMsg = requestMsg;
+			getReturnType = requestMsg.getReturnType();
+			projectInfo = getRoleInfo(getCategoriesMsg.getMessageHeaderType());	
+			// test sub project with owner = @
+		//	getCategoriesMsg.getMessageHeaderType().setProjectId("Demo/RA_demo/sub_demo/sub-sub/");
+			setDbInfo(getCategoriesMsg.getMessageHeaderType());
+		} catch (JAXBUtilException e) {
+			log.error("error setting up getCategoriesHandler");
+			throw new I2B2Exception("GetCategoriesHandler not configured");
+		}
 
 	}
-	public String execute() {
+	public String execute() throws I2B2Exception{
 		// call ejb and pass input object
-		GetCategoriesDao categoriesDao = new GetCategoriesDao();
+		ConceptDao conceptDao = new ConceptDao();
 		ConceptsType concepts = new ConceptsType();
 		ResponseMessageType responseMessageType = null;
-		List response = null;
-		
+
 		// check to see if we have projectInfo (if not indicates PM service problem)
 		if(projectInfo == null) {
-			log.error("PM service not responding");
-			responseMessageType = MessageFactory.doBuildErrorResponse(getCategoriesMsg.getMessageHeaderType(), "PM service is not responding");
-		}
-			
-		else {
-			try {
-				response = categoriesDao.findRootCategories(getReturnType, projectInfo);
-			} catch (Exception e1) {
-				log.error(e1.getMessage());
-				responseMessageType = MessageFactory.doBuildErrorResponse(getCategoriesMsg.getMessageHeaderType(), "Database error");
-			}
-		}
-		// no db error, but response is empty
-		if ((response == null) && (responseMessageType == null)) {
-			log.debug("query results are empty");
-			responseMessageType = MessageFactory.doBuildErrorResponse(getCategoriesMsg.getMessageHeaderType(), "Query results are empty");
+			String response = null;
+			responseMessageType = MessageFactory.doBuildErrorResponse(getCategoriesMsg.getMessageHeaderType(), "User was not validated");
+			response = MessageFactory.convertToXMLString(responseMessageType);
+			log.debug("USER_INVALID or PM_SERVICE_PROBLEM");
+			return response;	
 		}
 		
-		// no db error; non-empty response received
-		else if(responseMessageType == null) {
-			Iterator it = response.iterator();
-			while (it.hasNext())
-			{
-				ConceptType node = (ConceptType)it.next();
-				concepts.getConcept().add(node);
-			}
-			MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getCategoriesMsg.getMessageHeaderType());          
-			responseMessageType = MessageFactory.createBuildResponse(messageHeader,concepts);
-		}        
-        String responseVdo = "DONE";
+		List response = null;
 		try {
-			responseVdo = MessageFactory.convertToXMLString(responseMessageType);
-		} catch (I2B2Exception e) {
-			log.error(e.getMessage());
+			response = conceptDao.findRootCategories(getReturnType, projectInfo, this.getDbInfo());
+		}catch (I2B2DAOException e1) {
+			responseMessageType = MessageFactory.doBuildErrorResponse(getCategoriesMsg.getMessageHeaderType(), "Database error");
+		} catch (I2B2Exception e1) {
+			responseMessageType = MessageFactory.doBuildErrorResponse(getCategoriesMsg.getMessageHeaderType(), "Database error");
 		}
+
+		// no errors found
+		if(responseMessageType == null) {
+			// no db error, but response is empty
+			if (response == null)  {
+				log.debug("query results are empty");
+				responseMessageType = MessageFactory.doBuildErrorResponse(getCategoriesMsg.getMessageHeaderType(), "Query results are empty");
+			}
+
+			// no db error; non-empty response received
+			else { 
+				Iterator it = response.iterator();
+				while (it.hasNext())
+				{
+					ConceptType node = (ConceptType)it.next();
+					concepts.getConcept().add(node);
+				}
+				MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getCategoriesMsg.getMessageHeaderType());          
+				responseMessageType = MessageFactory.createBuildResponse(messageHeader,concepts);
+			}
+		}
+        String responseVdo = null;
+		responseVdo = MessageFactory.convertToXMLString(responseMessageType);
 		return responseVdo;
 	}    	
 }

@@ -14,8 +14,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.StringWriter;
+import java.util.GregorianCalendar;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import junit.framework.JUnit4TestAdapter;
 
@@ -31,7 +34,9 @@ import edu.harvard.i2b2.crc.datavo.i2b2message.RequestMessageType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.ResponseMessageType;
 
 import edu.harvard.i2b2.crc.datavo.pdo.query.FactOutputOptionType;
+import edu.harvard.i2b2.crc.datavo.pdo.query.FactPrimaryKeyType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.FilterListType;
+import edu.harvard.i2b2.crc.datavo.pdo.query.GetObservationFactByPrimaryKeyRequestType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.GetPDOFromInputListRequestType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.InputOptionListType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.ItemType;
@@ -59,7 +64,7 @@ public class PdoQueryTest extends CRCAxisAbstract {
 	
 	private static QueryResultInstanceType queryResultInstance = null;
 	private  static String testFileDir = null;
-	
+	//:TODO accept server url as runtime parameter 
 	private static String setfinderTargetEPR = 
 			"http://localhost:8080/i2b2/rest/QueryToolService/request";			
 
@@ -75,7 +80,8 @@ public class PdoQueryTest extends CRCAxisAbstract {
 			throw new Exception("please provide test file directory info -Dtestfiledir");
 		}
 		//read test file and store query master;
-		String filename = testFileDir +"\\setfinder_query.xml";
+		String filename = testFileDir +"/setfinder_query.xml";
+		try { 
 		String requestString = getQueryString(filename);
 		System.out.println("test file dir " + testFileDir);
 		OMElement requestElement = convertStringToOMElement(requestString); 
@@ -90,7 +96,10 @@ public class PdoQueryTest extends CRCAxisAbstract {
 		queryResultInstance = masterInstanceResult.getQueryResultInstance().get(0);
 		assertNotNull(queryResultInstance);
 		System.out.println(queryResultInstance.getResultInstanceId());
-		
+		} catch (Exception e) { 
+			e.printStackTrace();
+			throw e;
+		}
 		//queryResultInstance = new  QueryResultInstanceType();
 		//queryResultInstance.setResultInstanceId("4801");
 		
@@ -128,6 +137,7 @@ public class PdoQueryTest extends CRCAxisAbstract {
 		//StatusType.Condition condition = patientDataResponseType.getStatus().getCondition().get(0);
 		//assertEquals(condition.getType(),"DONE","checking crc message status 'DONE'");
 		assertTrue("checking patient set size > 0 ",patientDataResponseType.getPatientData().getPatientSet().getPatient().size()>0);
+		System.out.println(patientDataResponseType.getPatientData().getObservationSet().get(0).getObservation().get(0).getPatientId().getSource());
 	}
 	
 	@Test public void testWholePatient() throws Exception  {
@@ -298,12 +308,22 @@ public class PdoQueryTest extends CRCAxisAbstract {
 		PdoQryHeaderType requestHeaderType = new PdoQryHeaderType();
 		requestHeaderType.setRequestType(PdoRequestTypeType.GET_OBSERVATIONFACT_BY_PRIMARY_KEY);
 		
-		GetPDOFromInputListRequestType pdoRequestType = new GetPDOFromInputListRequestType();
-		pdoRequestType.setFilterList(filterType);
-		pdoRequestType.setInputList(inputType);
-		pdoRequestType.setOutputOption(ouputType);
-		
-		RequestMessageType requestMessageType = buildRequestMessage(requestHeaderType,pdoRequestType);
+
+		GetObservationFactByPrimaryKeyRequestType observationReqType = new GetObservationFactByPrimaryKeyRequestType();
+		FactPrimaryKeyType factPrimaryKey = new FactPrimaryKeyType();
+        
+		factPrimaryKey.setConceptCd("ICD9:410.9");
+		factPrimaryKey.setEventId("1000000011");
+		factPrimaryKey.setModifierCd("@");
+		factPrimaryKey.setObserverId("@");
+		factPrimaryKey.setPatientId("1000000011");
+		//1999-09-24T00:00:00.000-04:00
+		GregorianCalendar gc = new GregorianCalendar(1999, 9, 24, 0,0, 0);
+		DatatypeFactory df = DatatypeFactory.newInstance(); 
+		XMLGregorianCalendar cal =  df.newXMLGregorianCalendar(gc);
+		factPrimaryKey.setStartDate(cal);
+		observationReqType.setFactPrimaryKey(factPrimaryKey);
+		RequestMessageType requestMessageType = buildRequestMessage(requestHeaderType,observationReqType);
 		StringWriter strWriter = new StringWriter();
 		edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
 		CRCJAXBUtil.getJAXBUtil().marshaller(of.createRequest(requestMessageType), strWriter);
@@ -342,7 +362,7 @@ public class PdoQueryTest extends CRCAxisAbstract {
 	
 	private OutputOptionListType getOutputOptionListType() {
 		OutputOptionListType outputOptionListType = new OutputOptionListType();
-		outputOptionListType.setNames(OutputOptionNameType.ASATTRIBUTES);
+		//outputOptionListType.setNames(OutputOptionNameType.ASATTRIBUTES);
 		OutputOptionType outputOptionType = new OutputOptionType(); 
 		outputOptionType.setOnlykeys(false);
 		outputOptionType.setSelect(OutputOptionSelectType.USING_INPUT_LIST);

@@ -67,8 +67,12 @@
 
 
      <message-driven>
-         <ejb-name>querytool.QueryExecutorMDB</ejb-name>                       
+         <ejb-name>querytool.QueryExecutorMDB</ejb-name>  
+                              
          <destination-jndi-name>queue/jms.querytool.QueryExecutor</destination-jndi-name>
+         <!-- 
+         <destination-jndi-name>queue/jms.querytool.QueryExecutorSmall</destination-jndi-name>
+         -->
          <configuration-name>Standard Message Driven Bean</configuration-name>
 
          <resource-ref>
@@ -76,7 +80,41 @@
             <jndi-name>java:/JmsXA</jndi-name>
          </resource-ref>
       </message-driven>
+     
+     <message-driven>
+       <ejb-name>querytool.QueryExecutorSmallMDB</ejb-name>                       
+       <destination-jndi-name>queue/jms.querytool.QueryExecutorSmall</destination-jndi-name>
+       <configuration-name>Small-MDB-Config</configuration-name>
+       
+       <resource-ref>
+         <res-ref-name>jms.QueueFactory</res-ref-name>
+         <jndi-name>java:/JmsXA</jndi-name>
+       </resource-ref>
+     </message-driven>
+     <message-driven>
+       <ejb-name>querytool.QueryExecutorMediumMDB</ejb-name>                       
+       <destination-jndi-name>queue/jms.querytool.QueryExecutorMedium</destination-jndi-name>
+       <configuration-name>Medium-MDB-Config</configuration-name>
+       
+       <resource-ref>
+         <res-ref-name>jms.QueueFactory</res-ref-name>
+         <jndi-name>java:/JmsXA</jndi-name>
+       </resource-ref>
+     </message-driven>
+     
+     <message-driven>
+       <ejb-name>querytool.QueryExecutorLargeMDB</ejb-name>                       
+       <destination-jndi-name>queue/jms.querytool.QueryExecutorLarge</destination-jndi-name>
+       <configuration-name>Large-MDB-Config</configuration-name>
+       
+       <resource-ref>
+         <res-ref-name>jms.QueueFactory</res-ref-name>
+         <jndi-name>java:/JmsXA</jndi-name>
+       </resource-ref>
+     </message-driven>
    </enterprise-beans>
+
+
 
      <!--
        To specify your own assembly descriptor info here, add a file to your
@@ -98,5 +136,92 @@
     | for container settings, you can merge in jboss-container.xml
     | this can contain <invoker-proxy-bindings/> and <container-configurations/>
   -->
+  
+  <container-configurations>
+    
+    <!-- this is the "Standard Message Driven Bean" config with strictMaximumSize set to 10 -->
+    <container-configuration>
+      <container-name>Small-MDB-Config</container-name>
+      <call-logging>false</call-logging>
+      <invoker-proxy-binding-name>message-driven-bean</invoker-proxy-binding-name>
+      <container-interceptors>
+        <interceptor>org.jboss.ejb.plugins.ProxyFactoryFinderInterceptor</interceptor>
+        <interceptor>org.jboss.ejb.plugins.LogInterceptor</interceptor>
+        <interceptor>org.jboss.ejb.plugins.RunAsSecurityInterceptor</interceptor>
+        <!-- CMT -->
+        <interceptor transaction="Container">org.jboss.ejb.plugins.TxInterceptorCMT</interceptor>
+        <interceptor transaction="Container">org.jboss.ejb.plugins.CallValidationInterceptor</interceptor>
+        <interceptor transaction="Container">org.jboss.ejb.plugins.MessageDrivenInstanceInterceptor</interceptor>
+        <!-- BMT -->
+        <interceptor transaction="Bean">org.jboss.ejb.plugins.MessageDrivenInstanceInterceptor</interceptor>
+        <interceptor transaction="Bean">org.jboss.ejb.plugins.MessageDrivenTxInterceptorBMT</interceptor>
+        <interceptor transaction="Bean">org.jboss.ejb.plugins.CallValidationInterceptor</interceptor>
+        <interceptor>org.jboss.resource.connectionmanager.CachedConnectionInterceptor</interceptor>
+      </container-interceptors>
+      <instance-pool>org.jboss.ejb.plugins.MessageDrivenInstancePool</instance-pool>
+      <instance-cache></instance-cache>
+      <persistence-manager></persistence-manager>
+      <container-pool-conf>
+        <MaximumSize>10</MaximumSize>
+        <strictMaximumSize>true</strictMaximumSize>
+      </container-pool-conf>
+    </container-configuration>
+  
+  
+  <container-configuration>
+    <container-name>Medium-MDB-Config</container-name>
+    <call-logging>false</call-logging>
+    <invoker-proxy-binding-name>message-driven-bean</invoker-proxy-binding-name>
+    <container-interceptors>
+      <interceptor>org.jboss.ejb.plugins.ProxyFactoryFinderInterceptor</interceptor>
+      <interceptor>org.jboss.ejb.plugins.LogInterceptor</interceptor>
+      <interceptor>org.jboss.ejb.plugins.RunAsSecurityInterceptor</interceptor>
+      <!-- CMT -->
+      <interceptor transaction="Container">org.jboss.ejb.plugins.TxInterceptorCMT</interceptor>
+      <interceptor transaction="Container">org.jboss.ejb.plugins.CallValidationInterceptor</interceptor>
+      <interceptor transaction="Container">org.jboss.ejb.plugins.MessageDrivenInstanceInterceptor</interceptor>
+      <!-- BMT -->
+      <interceptor transaction="Bean">org.jboss.ejb.plugins.MessageDrivenInstanceInterceptor</interceptor>
+      <interceptor transaction="Bean">org.jboss.ejb.plugins.MessageDrivenTxInterceptorBMT</interceptor>
+      <interceptor transaction="Bean">org.jboss.ejb.plugins.CallValidationInterceptor</interceptor>
+      <interceptor>org.jboss.resource.connectionmanager.CachedConnectionInterceptor</interceptor>
+    </container-interceptors>
+    <instance-pool>org.jboss.ejb.plugins.MessageDrivenInstancePool</instance-pool>
+    <instance-cache></instance-cache>
+    <persistence-manager></persistence-manager>
+    <container-pool-conf>
+      <MaximumSize>5</MaximumSize>
+      <strictMaximumSize>true</strictMaximumSize>
+    </container-pool-conf>
+  </container-configuration>
+ 
+    <container-configuration>
+      <container-name>Large-MDB-Config</container-name>
+      <call-logging>false</call-logging>
+      <invoker-proxy-binding-name>message-driven-bean</invoker-proxy-binding-name>
+      <container-interceptors>
+        <interceptor>org.jboss.ejb.plugins.ProxyFactoryFinderInterceptor</interceptor>
+        <interceptor>org.jboss.ejb.plugins.LogInterceptor</interceptor>
+        <interceptor>org.jboss.ejb.plugins.RunAsSecurityInterceptor</interceptor>
+        <!-- CMT -->
+        <interceptor transaction="Container">org.jboss.ejb.plugins.TxInterceptorCMT</interceptor>
+        <interceptor transaction="Container">org.jboss.ejb.plugins.CallValidationInterceptor</interceptor>
+        <interceptor transaction="Container">org.jboss.ejb.plugins.MessageDrivenInstanceInterceptor</interceptor>
+        <!-- BMT -->
+        <interceptor transaction="Bean">org.jboss.ejb.plugins.MessageDrivenInstanceInterceptor</interceptor>
+        <interceptor transaction="Bean">org.jboss.ejb.plugins.MessageDrivenTxInterceptorBMT</interceptor>
+        <interceptor transaction="Bean">org.jboss.ejb.plugins.CallValidationInterceptor</interceptor>
+        <interceptor>org.jboss.resource.connectionmanager.CachedConnectionInterceptor</interceptor>
+      </container-interceptors>
+      <instance-pool>org.jboss.ejb.plugins.MessageDrivenInstancePool</instance-pool>
+      <instance-cache></instance-cache>
+      <persistence-manager></persistence-manager>
+      <container-pool-conf>
+        <MaximumSize>1</MaximumSize>
+        <strictMaximumSize>true</strictMaximumSize>
+      </container-pool-conf>
+    </container-configuration>
+  </container-configurations>
+
 
 </jboss>

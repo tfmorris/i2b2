@@ -11,7 +11,7 @@ package edu.harvard.i2b2.crc.dao.setfinder.querybuilder;
 
 /**
  * Panel bean class
- * $Id: IdentityPanelEntry.java,v 1.3 2007/08/31 14:46:23 rk903 Exp $
+ * $Id: IdentityPanelEntry.java,v 1.4 2008/07/21 20:04:21 rk903 Exp $
  * @author chris
  */
 public class IdentityPanelEntry extends PanelEntry {
@@ -31,6 +31,7 @@ public class IdentityPanelEntry extends PanelEntry {
         this.Items = p.Items;
         this.OldPanel = p.Panel;
         this.totalItemOccurrences = p.totalItemOccurrences;
+        this.totalItemOccurrencesOperator = p.totalItemOccurrencesOperator;
         this.Panel = identityValue;
         identityValue++;
     }

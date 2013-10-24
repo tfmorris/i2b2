@@ -12,7 +12,7 @@ package edu.harvard.i2b2.crc.dao.setfinder.querybuilder;
 
 /**
  * Implement comparator for ResultEntry
- * $Id: ResultEntry.java,v 1.3 2007/08/31 14:46:23 rk903 Exp $
+ * $Id: ResultEntry.java,v 1.4 2008/07/21 20:04:21 rk903 Exp $
  * @author chris
  */
 public class ResultEntry {
@@ -31,6 +31,7 @@ public class ResultEntry {
     public String Sql0;
     public String Sql1;
     public int totalItemOccurrences = 0;
+    public String totalItemoccurrencesOperator = "";
 
     public ResultEntry(int enct_panels, IdentityPanelEntry p, ItemEntry v) {
         this.AllShort = p.AllShort;
@@ -44,6 +45,7 @@ public class ResultEntry {
         this.Items = p.Items;
         this.Panel = p.Panel;
         totalItemOccurrences = p.totalItemOccurrences;
+        totalItemoccurrencesOperator = p.totalItemOccurrencesOperator;
         this.Sql0 = v.Sql0;
         this.Sql1 = v.Sql1;
         this.SqlX = v.SqlX;

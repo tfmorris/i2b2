@@ -29,7 +29,7 @@ import javax.ejb.CreateException;
 /**
  * RunQueryInstanceFromQueryMasterHandler class
  * implements execute method
- * $Id: RunQueryInstanceFromQueryMasterHandler.java,v 1.6 2007/08/31 14:51:07 rk903 Exp $
+ * $Id: RunQueryInstanceFromQueryMasterHandler.java,v 1.7 2008/03/19 22:36:37 rk903 Exp $
  * @author rkuttan
  */
 public class RunQueryInstanceFromQueryMasterHandler extends RequestHandler {
@@ -50,6 +50,7 @@ public class RunQueryInstanceFromQueryMasterHandler extends RequestHandler {
             headerType = (PsmQryHeaderType) this.getRequestType(requestXml,
                     edu.harvard.i2b2.crc.datavo.setfinder.query.PsmQryHeaderType.class);
             this.requestXml = requestXml;
+            this.setDataSourceLookup(requestXml);
         } catch (JAXBUtilException jaxbUtilEx) {
             throw new I2B2Exception("Error ", jaxbUtilEx);
         }
@@ -75,7 +76,7 @@ public class RunQueryInstanceFromQueryMasterHandler extends RequestHandler {
 
             QueryManagerLocalHome queryManagerLocalHome = qpUtil.getQueryManagerLocalHome();
             QueryManagerLocal queryManagerLocal = queryManagerLocalHome.create();
-            instanceResult = queryManagerLocal.runQueryMaster(userId,
+            instanceResult = queryManagerLocal.runQueryMaster(this.getDataSourceLookup(),userId,
                     masterId, timeout);
             instanceResult.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));
             //construct response xml

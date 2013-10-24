@@ -1,0 +1,28 @@
+/* Stylesheet */
+/*
+Part of the Gridsphere default theme
+Version: $Id: tags.css 4633 2006-03-09 16:44:16Z wehrens $
+*/
+
+/* ****************************************************************************
+    The styles included here are used by the GridSphere UI tag library
+ **************************************************************************** */
+
+/*-------------------------------------------------
+SORTABLE TABLES
+-------------------------------------------------*/
+
+table.sortable a.sortheader {
+    background-color: inherit;
+    color: #FFFFFF;
+    display: block;
+    font-weight: bold;
+    text-decoration: none;
+    vertical-align: middle;
+}
+
+table.sortable span.sortarrow {
+    color: white;
+    text-decoration: none;
+}
+

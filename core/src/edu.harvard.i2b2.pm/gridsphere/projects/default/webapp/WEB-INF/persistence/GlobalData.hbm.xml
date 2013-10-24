@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+        
+<hibernate-mapping>
+    <class
+        name="edu.harvard.i2b2.pm.services.GlobalData"
+        table="pm_global_data"
+        >
+
+        <id
+            name="oid"
+            column="gsoid"
+            type="java.lang.String"
+            length="32"
+            >
+            <generator class="uuid.hex"/>
+
+        </id>
+
+        <property name="name" type="string" column="name"/>
+        <property name="value" type="string" column="value"/>
+    </class>
+
+
+</hibernate-mapping>

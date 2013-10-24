@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<portlet-group>
+    <group-name>default</group-name>
+    <group-description>Global Hive Data</group-description>
+    <group-visibility>PUBLIC</group-visibility>
+    <portlet-role-info>
+        <portlet-class>default#GlobalDataPortlet</portlet-class>
+        <required-role>USER</required-role>
+    </portlet-role-info>
+    <portlet-role-info>
+        <portlet-class>default#RegisteredCellPortlet</portlet-class>
+        <required-role>USER</required-role>
+    </portlet-role-info>
+    <portlet-role-info>
+        <portlet-class>default#EnvironmentDataPortlet</portlet-class>
+        <required-role>USER</required-role>
+    </portlet-role-info>
+</portlet-group>

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 1.1//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.gridlab.gridsphere.portlet.impl.SportletRoleInfo"
+        table="sportletroleinfo"
+        >
+        <cache usage="read-write"/>
+        <id
+            name="oid"
+            column="gsoid"
+            type="java.lang.String"
+            length="32"
+            >
+            <generator class="uuid.hex"/>
+
+        </id>
+
+        <property name="PortletClass" type="string" column="portletclass"/>
+        <property name="Role" type="string" column="portletrole"/>
+        <many-to-one
+            name="sportletRole"
+            class="org.gridlab.gridsphere.portlet.PortletRole">
+        </many-to-one>
+
+    </class>
+</hibernate-mapping>

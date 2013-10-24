@@ -16,8 +16,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 
+import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
+import edu.harvard.i2b2.ontology.dao.ConceptDao;
 import edu.harvard.i2b2.ontology.dao.GetCodeInfoDao;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
@@ -33,84 +35,45 @@ import edu.harvard.i2b2.ontology.ws.MessageFactory;
 	    private static Log log = LogFactory.getLog(GetCodeInfoHandler.class);
 		private GetCodeInfoDataMessage  codeInfoMsg = null;
 		private VocabRequestType vocabType = null;
-		private List categories = null;
+		private ProjectType project = null; 
 		
-		public GetCodeInfoHandler(GetCodeInfoDataMessage requestMsg) {
+		public GetCodeInfoHandler(GetCodeInfoDataMessage requestMsg) throws I2B2Exception {
 			try {
 				codeInfoMsg = requestMsg;
-				vocabType = requestMsg.getVocabRequestType();				
+				vocabType = requestMsg.getVocabRequestType();	
+				setDbInfo(requestMsg.getMessageHeaderType());
 				// test case for bad user
 		//				codeInfoMsg.getMessageHeaderType().getSecurity().setUsername("aaaaaaa");
-				ProjectType project = getRoleInfo(codeInfoMsg.getMessageHeaderType());
-				// if project is null, then user was not validated
-				if(project != null)
-					categories = getCategories(project);
-			} catch (JAXBUtilException e) {
-				log.error("error setting up getCodeInfoHandler");
-				log.error(e.getMessage());
-			} catch (Exception e) {
-				log.error("error setting up getCodeInfoHandler");
-				log.error(e.getMessage());
+				project = getRoleInfo(codeInfoMsg.getMessageHeaderType());
+			}  catch (JAXBUtilException e) {
+				log.error("error setting up codeInfoHandler");
+				throw new I2B2Exception("GetCodeInfoHandler not configured");
 			}
 		}
-		public String execute() {
+		public String execute() throws I2B2Exception {
 			// call ejb and pass input object
-			GetCodeInfoDao codeInfoDao = new GetCodeInfoDao();
+			ConceptDao conceptDao = new ConceptDao();
 			ConceptsType concepts = new ConceptsType();
 			ResponseMessageType responseMessageType = null;
 			
-			// if categories == null, user was not validated
-			if(categories == null) {
+//			 if project == null, user was not validated or PM service problem
+
+			if(project == null) {
 				String response = null;
 				responseMessageType = MessageFactory.doBuildErrorResponse(codeInfoMsg.getMessageHeaderType(), "User was not validated");
-				 try {
-					response = MessageFactory.convertToXMLString(responseMessageType);
-					log.debug("USER_INVALID or PM_SERVICE_NOT_RESPONDING");
-				} catch (I2B2Exception e) {
-					log.error(e.getMessage());
-				}
+				response = MessageFactory.convertToXMLString(responseMessageType);
+				log.debug("USER_INVALID or PM_SERVICE_PROBLEM");
 				return response;	 
 			} 
 			
-			//extract table code
-			String tableCd = vocabType.getCategory();
-			if (tableCd != null) {
-				// test case for table access denied
-				//	tableCd = "aaaaa";	
-				//make sure user has access to this tableCd -- compare to categories list
-				//verify that tableCd is in list of categories' key
-				Iterator it = categories.iterator();
-				Boolean found = false;
-				while (it.hasNext())
-				{
-					ConceptType node = (ConceptType)it.next();
-					String keyCd = StringUtil.getTableCd(node.getKey());
-					if(tableCd.equals(keyCd)){
-						found = true;
-						break;
-					}
-				}
-				if(found == false){
-					String response = null;
-					responseMessageType = MessageFactory.doBuildErrorResponse(codeInfoMsg.getMessageHeaderType(), "Database table access was denied");
-					try {
-						response = MessageFactory.convertToXMLString(responseMessageType);
-						log.debug(response);
-					} catch (I2B2Exception e) {
-						log.error(e.getMessage());
-					}
-					return response;	
-				}
-			}
+
 			List response = null;
 			try {
-				response = codeInfoDao.findCodeInfo(vocabType, categories);
-			} catch (DataAccessException e1) {
-				log.error(e1.getMessage());
+				response = conceptDao.findCodeInfo(vocabType, project, this.getDbInfo());
+			} catch (I2B2DAOException e1) {
 				responseMessageType = MessageFactory.doBuildErrorResponse(codeInfoMsg.getMessageHeaderType(), "Ontology database error");
 			}  catch (I2B2Exception e1) {
-				log.error(e1.getMessage());
-				responseMessageType = MessageFactory.doBuildErrorResponse(codeInfoMsg.getMessageHeaderType(), "Ontology property file error");
+				responseMessageType = MessageFactory.doBuildErrorResponse(codeInfoMsg.getMessageHeaderType(), "Ontology database configuration error");
 			}
 			
 			// no errors found
@@ -134,13 +97,8 @@ import edu.harvard.i2b2.ontology.ws.MessageFactory;
 					responseMessageType = MessageFactory.createBuildResponse(messageHeader,concepts);
 				}    
 			}
-	        String responseVdo = "DONE";
-			try {
-				responseVdo = MessageFactory.convertToXMLString(responseMessageType);
-			} catch (I2B2Exception e) {
-				log.error(e.getMessage());
-			}
-
+	        String responseVdo = null;
+	        responseVdo = MessageFactory.convertToXMLString(responseMessageType);
 			return responseVdo;
 		}
 }

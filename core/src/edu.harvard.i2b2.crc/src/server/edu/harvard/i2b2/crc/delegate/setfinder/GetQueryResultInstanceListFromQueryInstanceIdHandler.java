@@ -31,7 +31,7 @@ import javax.ejb.CreateException;
 /**
  * GetQueryResultInstanceListFromQueryInstanceIdHandler class
  * implements execute method
- * $Id: GetQueryResultInstanceListFromQueryInstanceIdHandler.java,v 1.6 2007/09/21 17:09:08 rk903 Exp $
+ * $Id: GetQueryResultInstanceListFromQueryInstanceIdHandler.java,v 1.7 2008/03/19 22:36:37 rk903 Exp $
  * @author rkuttan
  */
 public class GetQueryResultInstanceListFromQueryInstanceIdHandler
@@ -54,6 +54,7 @@ public class GetQueryResultInstanceListFromQueryInstanceIdHandler
                     edu.harvard.i2b2.crc.datavo.setfinder.query.PsmQryHeaderType.class);
             queryInstanceReqType = (InstanceRequestType) this.getRequestType(requestXml,
                     edu.harvard.i2b2.crc.datavo.setfinder.query.InstanceRequestType.class);
+            this.setDataSourceLookup(requestXml);
         } catch (JAXBUtilException jaxbUtilEx) {
             throw new I2B2Exception("Error ", jaxbUtilEx);
         }
@@ -91,7 +92,7 @@ public class GetQueryResultInstanceListFromQueryInstanceIdHandler
                 //resultResponseType.setStatus();
             }
 
-            resultResponseType = queryResultLocal.getResultInstanceFromQueryInstanceId(userId,
+            resultResponseType = queryResultLocal.getResultInstanceFromQueryInstanceId(this.getDataSourceLookup(),userId,
                     queryInstanceReqType.getQueryInstanceId());
 
             resultResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));

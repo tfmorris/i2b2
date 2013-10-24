@@ -8,11 +8,16 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,6 +35,7 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.crc.axis2.CRCAxisAbstract;
 import edu.harvard.i2b2.crc.dao.setfinder.querybuilder.QueryToolUtil;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
+import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.i2b2message.RequestMessageType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionRequestType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionType;
@@ -53,20 +59,23 @@ public class QueryProcessorUtilTest {
     
 	@Test
 	public  void testSetfinderQueryBuilder() throws Exception { 
-		QueryToolUtil queryUtil = new QueryToolUtil();
-		QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance(); 
-		Connection conn = qpUtil.getManualConnection();
-		  
-		assertNotNull("check database connection not null",conn);
+		DataSourceLookup dataSourceLookup = (DataSourceLookup)QueryProcessorUtil.getInstance().getSpringBeanFactory().getBean("TestDataSourceLookup");
 		
-		String filename = testFileDir + "\\setfinder_query.xml";
+		QueryToolUtil queryUtil = new QueryToolUtil(dataSourceLookup);
+		//QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance(); 
+		//Connection conn = qpUtil.getManualConnection();
+		 Connection conn = null;
+		//assertNotNull("check database connection not null",conn);
+		
+		String filename = testFileDir + "/edu.harvard.i2b2.crc.dao.setfinder.querybuilder/setfinder_query.xml";
 		String xml = CRCAxisAbstract.getQueryString(filename);
 		String sql = queryUtil.generateSQL(conn, xml);
 		assertNotNull("check sql not null",sql);
 		System.out.println("Generated SQL " + sql);
+				
 	}
 	
-	
+	@Ignore
 	@Test
 	public  void testQueryDefinitionDOM() throws Exception { 
 		QueryToolUtil queryUtil = new QueryToolUtil();
@@ -74,7 +83,7 @@ public class QueryProcessorUtilTest {
 		Connection conn = qpUtil.getManualConnection();
 		assertNotNull("check database connection not null",conn);
 		
-		String filename = testFileDir + "\\setfinder_query.xml";
+		String filename = testFileDir + "\\edu.harvard.i2b2.crc.dao.setfinder.querybuilder\\setfinder_query.xml";
 		String xml = CRCAxisAbstract.getQueryString(filename);
 		JAXBUtil  jaxbUtil = CRCJAXBUtil.getJAXBUtil();
 		RequestMessageType reqMsgType = (RequestMessageType)jaxbUtil.unMashallFromString(xml).getValue();
@@ -103,6 +112,16 @@ public class QueryProcessorUtilTest {
 		QueryDefinitionType qftype = (QueryDefinitionType)jaxbElement.getValue();
 		System.out.println("query name "+ qftype.getQueryName());
 		
+	}
+	
+	@Test
+	public void testXmlToSqlDateConverion() throws Exception {
+		DatatypeFactory dataTypeFactory = DatatypeFactory.newInstance();
+		XMLGregorianCalendar cal = dataTypeFactory.newXMLGregorianCalendar("2004-07-15T00:00:00.000-04:00");
+		System.out.println("XMLCalendar Hour " + cal.getHour() + " Gregorian calendar hour " + cal.toGregorianCalendar().get(Calendar.HOUR_OF_DAY));
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
+		System.out.println("SimpleDate Format " + dateFormat.format(cal.toGregorianCalendar().getTime()) + " orginal XML string " + "2004-07-15T00:00:00.000-04:00");
+		System.out.println("DateFormat Format " + DateFormat.getInstance().format(cal.toGregorianCalendar().getTime()));
 	}
 	
 }

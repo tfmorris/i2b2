@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ===================================================================== -->
+<!--                                                                       -->
+<!--  JBoss Server Configuration                                           -->
+<!--                                                                       -->
+<!-- ===================================================================== -->
+
+<!-- $Id: crc-ds.xml,v 1.1 2008/12/11 17:13:58 rk903 Exp $ -->
+
+<datasources>
+  
+  <!-- sample oracle data source config  -->
+  <local-tx-datasource>
+    <jndi-name>QueryToolDemoDS</jndi-name>
+    <connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
+    <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>
+    <user-name>i2b2demodata</user-name>
+    <password>i2b2demodata</password>
+    <idle-timeout-minutes>1</idle-timeout-minutes>
+    <exception-sorter-class-name>org.jboss.resource.adapter.jdbc.vendor.OracleExceptionSorter</exception-sorter-class-name>
+    <metadata>
+      <type-mapping>Oracle9i</type-mapping>
+    </metadata>
+  </local-tx-datasource>
+
+  <!-- sample sqlserver data source config -->
+  <!-- uncomment this if the data source is sqlserver 
+  <local-tx-datasource>
+    <jndi-name>DefaultSQLDS</jndi-name>
+    <connection-url>jdbc:sqlserver://localhost:1433</connection-url>
+    <driver-class>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver-class>
+    <user-name>i2b2demodata</user-name>
+    <password>i2b2demodata</password>
+    <idle-timeout-minutes>1</idle-timeout-minutes>
+    <set-tx-query-timeout>true</set-tx-query-timeout>
+    <metadata>
+      <type-mapping>MS SQLSERVER2000</type-mapping>
+    </metadata>
+  </local-tx-datasource>
+  -->
+</datasources>
+

@@ -42,19 +42,20 @@ import edu.harvard.i2b2.crc.ejb.QueryRunLocalHome;
  * @author rkuttan
  */
 public class QueryProcessorUtil {
-	
-	  /** log **/
-    protected final static Log log = LogFactory.getLog(QueryProcessorUtil.class);
+
+	/** log **/
+	protected final static Log log = LogFactory
+			.getLog(QueryProcessorUtil.class);
 
 	/** property file name which holds application directory name **/
 	public static final String APPLICATION_DIRECTORY_PROPERTIES_FILENAME = "crc_application_directory.properties";
 
 	/** application directory property name **/
 	public static final String APPLICATIONDIR_PROPERTIES = "edu.harvard.i2b2.crc.applicationdir";
-	
+
 	/** application property filename* */
 	public static final String APPLICATION_PROPERTIES_FILENAME = "crc.properties";
-	
+
 	/** property name for query manager ejb present in app property file* */
 	private static final String EJB_LOCAL_JNDI_QUERYMANAGER_PROPERTIES = "queryprocessor.jndi.querymanagerlocal";
 
@@ -72,7 +73,7 @@ public class QueryProcessorUtil {
 
 	/** property name for datasource present in app property file* */
 	private static final String DATASOURCE_JNDI_PROPERTIES = "queryprocessor.jndi.datasource_name";
-	
+
 	/** property name for database connection string in app property file* */
 	private static final String DATABASE_CONNECTION_STRING_PROPERTIES = "queryprocessor.database.connection_string";
 	/** property name for database user in app property file* */
@@ -82,16 +83,35 @@ public class QueryProcessorUtil {
 
 	/** property name for metadata schema name* */
 	private static final String METADATA_SCHEMA_NAME_PROPERTIES = "queryprocessor.db.metadataschema";
-	
+
 	/** property name for metadata schema name* */
 	private static final String PMCELL_WS_URL_PROPERTIES = "queryprocessor.ws.pm.url";
 
-	/** property name for metadata schema name* */
+	/** property name for PM bypass flag **/
 	private static final String PMCELL_BYPASS_FLAG_PROPERTIES = "queryprocessor.ws.pm.bypass";
 
-	/** property name for metadata schema name* */
+	/** property name for PM bypass project role name* */
 	private static final String PMCELL_BYPASS_ROLE_PROPERTIES = "queryprocessor.ws.pm.bypass.role";
-	
+
+	/** property name for pm bypass project name **/
+	private static final String PMCELL_BYPASS_PROJECT_PROPERTIES = "queryprocessor.ws.pm.bypass.project";
+
+	/** property name for metadata schema name* */
+	private static final String DS_LOOKUP_DATASOURCE_PROPERTIES = "queryprocessor.ds.lookup.datasource";
+
+	/** property name for metadata schema name* */
+	private static final String DS_LOOKUP_SCHEMANAME_PROPERTIES = "queryprocessor.ds.lookup.schemaname";
+
+	/** property name for metadata schema name* */
+	private static final String DS_LOOKUP_SERVERTYPE_PROPERTIES = "queryprocessor.ds.lookup.servertype";
+
+	/** property name for ontology url schema name **/
+	private static final String ONTOLOGYCELL_WS_URL_PROPERTIES = "queryprocessor.ws.ontology.url";
+
+	/** spring bean name for datasource **/
+	private static final String DATASOURCE_BEAN_NAME = "dataSource";
+
+	public static final String DEFAULT_SETFINDER_RESULT_BEANNAME = "defaultSetfinderResultType";
 
 	/** class instance field* */
 	private static QueryProcessorUtil thisInstance = null;
@@ -101,7 +121,7 @@ public class QueryProcessorUtil {
 
 	/** field to store application properties * */
 	private static Properties appProperties = null;
-	
+
 	private static Properties loadProperties = null;
 
 	/** field to store app datasource* */
@@ -116,17 +136,18 @@ public class QueryProcessorUtil {
 	private QueryProcessorUtil() {
 	}
 
-	static { 
+	static {
 		try {
 			Class.forName("oracle.jdbc.OracleDriver");
 		} catch (ClassNotFoundException e) {
 			log.error(e);
-	
+
 		}
 	}
-	
+
 	/**
 	 * Return this class instance
+	 * 
 	 * @return QueryProcessorUtil
 	 */
 	public static QueryProcessorUtil getInstance() {
@@ -136,11 +157,10 @@ public class QueryProcessorUtil {
 		}
 		return thisInstance;
 	}
-	
-	
 
 	/**
 	 * Function to get ejb local home for query manager
+	 * 
 	 * @return QueryManagerLocalHome
 	 * @throws I2B2Exception
 	 * @throws ServiceLocatorException
@@ -153,6 +173,7 @@ public class QueryProcessorUtil {
 
 	/**
 	 * Function to get ejb local home for query info
+	 * 
 	 * @return
 	 * @throws I2B2Exception
 	 * @throws ServiceLocatorException
@@ -178,6 +199,7 @@ public class QueryProcessorUtil {
 
 	/**
 	 * Function to get ejb local home for query result
+	 * 
 	 * @return
 	 * @throws I2B2Exception
 	 * @throws ServiceLocatorException
@@ -190,6 +212,7 @@ public class QueryProcessorUtil {
 
 	/**
 	 * Function to get ejb local home for pdo query
+	 * 
 	 * @return
 	 * @throws I2B2Exception
 	 * @throws ServiceLocatorException
@@ -201,38 +224,42 @@ public class QueryProcessorUtil {
 	}
 
 	/**
-	 * Function to create spring bean factory  
+	 * Function to create spring bean factory
+	 * 
 	 * @return BeanFactory
 	 */
-	public BeanFactory getSpringBeanFactory()  {
+	public BeanFactory getSpringBeanFactory() {
 		if (beanFactory == null) {
 			String appDir = null;
-			try { 
-				//read application directory property file via classpath
-				loadProperties = ServiceLocator.getProperties(APPLICATION_DIRECTORY_PROPERTIES_FILENAME);
-				//read directory property
+			try {
+				// read application directory property file via classpath
+				loadProperties = ServiceLocator
+						.getProperties(APPLICATION_DIRECTORY_PROPERTIES_FILENAME);
+				// read directory property
 				appDir = loadProperties.getProperty(APPLICATIONDIR_PROPERTIES);
 
-			} catch (I2B2Exception e) { 
-				log.error(APPLICATION_DIRECTORY_PROPERTIES_FILENAME + "could not be located from classpath ");
+			} catch (I2B2Exception e) {
+				log.error(APPLICATION_DIRECTORY_PROPERTIES_FILENAME
+						+ "could not be located from classpath ");
 			}
-			
-			if (appDir != null) { 
-				FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext("file:" + appDir +"/" + "CRCApplicationContext.xml");
+
+			if (appDir != null) {
+				FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext(
+						"file:" + appDir + "/" + "CRCApplicationContext.xml");
+				beanFactory = ctx.getBeanFactory();
+			} else {
+				FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext(
+						"classpath:" + "CRCApplicationContext.xml");
 				beanFactory = ctx.getBeanFactory();
 			}
-			else { 
-				FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext("classpath:" + "CRCApplicationContext.xml");
-				beanFactory = ctx.getBeanFactory();
-			}
-			
-			
+
 		}
 		return beanFactory;
 	}
 
 	/**
 	 * Function returns database connection from app server
+	 * 
 	 * @return
 	 * @throws I2B2Exception
 	 * @throws SQLException
@@ -245,10 +272,10 @@ public class QueryProcessorUtil {
 		Connection conn = dataSource.getConnection();
 		return conn;
 	}
-	
-	
+
 	/**
 	 * Function returns database connection from app server
+	 * 
 	 * @return
 	 * @throws I2B2Exception
 	 * @throws SQLException
@@ -257,12 +284,14 @@ public class QueryProcessorUtil {
 		String dbConnectionString = getPropertyValue(DATABASE_CONNECTION_STRING_PROPERTIES);
 		String dbUser = getPropertyValue(DATABASE_CONNECTION_USER_PROPERTIES);
 		String dbPassword = getPropertyValue(DATABASE_CONNECTION_PASSWORD_PROPERTIES);
-		return DriverManager.getConnection(dbConnectionString,dbUser,dbPassword); 
+		return DriverManager.getConnection(dbConnectionString, dbUser,
+				dbPassword);
 	}
 
 	/**
-	 * Function to return metadata schema name, 
-	 * which is specified in property file 
+	 * Function to return metadata schema name, which is specified in property
+	 * file
+	 * 
 	 * @return String
 	 * @throws I2B2Exception
 	 */
@@ -272,6 +301,7 @@ public class QueryProcessorUtil {
 
 	/**
 	 * Get Project managment cell's service url
+	 * 
 	 * @return
 	 * @throws I2B2Exception
 	 */
@@ -281,29 +311,71 @@ public class QueryProcessorUtil {
 
 	/**
 	 * Get Project management bypass flag
+	 * 
 	 * @return
 	 * @throws I2B2Exception
 	 */
 	public boolean getProjectManagementByPassFlag() throws I2B2Exception {
-		String  pmByPassFlag = getPropertyValue(PMCELL_BYPASS_FLAG_PROPERTIES);
-		if (pmByPassFlag == null) { 
+		String pmByPassFlag = getPropertyValue(PMCELL_BYPASS_FLAG_PROPERTIES);
+		if (pmByPassFlag == null) {
 			return false;
-		}
-		else if (pmByPassFlag.trim().equalsIgnoreCase("true")) {
+		} else if (pmByPassFlag.trim().equalsIgnoreCase("true")) {
 			return true;
-		}
-		else { 
+		} else {
 			return false;
 		}
 	}
-	
+
 	/**
-	 * Get Project management bypass flag
+	 * Get Project management bypass project role
+	 * 
 	 * @return
 	 * @throws I2B2Exception
 	 */
 	public String getProjectManagementByPassRole() throws I2B2Exception {
-		return getPropertyValue(PMCELL_BYPASS_ROLE_PROPERTIES );
+		return getPropertyValue(PMCELL_BYPASS_ROLE_PROPERTIES);
+	}
+
+	/**
+	 * Get Project management bypass project
+	 * 
+	 * @return
+	 * @throws I2B2Exception
+	 */
+	public String getProjectManagementByPassProject() throws I2B2Exception {
+		return getPropertyValue(PMCELL_BYPASS_PROJECT_PROPERTIES);
+	}
+
+	public String getCRCDBLookupDataSource() throws I2B2Exception {
+		return getPropertyValue(DS_LOOKUP_DATASOURCE_PROPERTIES);
+	}
+
+	public String getCRCDBLookupServerType() throws I2B2Exception {
+		return getPropertyValue(DS_LOOKUP_SERVERTYPE_PROPERTIES);
+	}
+
+	public String getCRCDBLookupSchemaName() throws I2B2Exception {
+		return getPropertyValue(DS_LOOKUP_SCHEMANAME_PROPERTIES);
+	}
+
+	public String getOntologyUrl() throws I2B2Exception {
+		return getPropertyValue(ONTOLOGYCELL_WS_URL_PROPERTIES);
+	}
+
+	/**
+	 * Return app server datasource
+	 * 
+	 * @return datasource
+	 * @throws I2B2Exception
+	 * @throws SQLException
+	 */
+	public DataSource getSpringDataSource(String dataSourceName)
+			throws I2B2Exception {
+		DataSource dataSource = (DataSource) getSpringBeanFactory().getBean(
+				dataSourceName);
+
+		return dataSource;
+
 	}
 
 	// ---------------------
@@ -315,27 +387,35 @@ public class QueryProcessorUtil {
 	 */
 	private String getPropertyValue(String propertyName) throws I2B2Exception {
 		if (appProperties == null) {
-			//read application directory property file
-			loadProperties = ServiceLocator.getProperties(APPLICATION_DIRECTORY_PROPERTIES_FILENAME);
-			//read application directory property
-			String appDir = loadProperties.getProperty(APPLICATIONDIR_PROPERTIES);
-			if (appDir == null) { 
-				throw new I2B2Exception("Could not find " + APPLICATIONDIR_PROPERTIES + "from " + APPLICATION_DIRECTORY_PROPERTIES_FILENAME);
+			// read application directory property file
+			loadProperties = ServiceLocator
+					.getProperties(APPLICATION_DIRECTORY_PROPERTIES_FILENAME);
+			// read application directory property
+			String appDir = loadProperties
+					.getProperty(APPLICATIONDIR_PROPERTIES);
+			if (appDir == null) {
+				throw new I2B2Exception("Could not find "
+						+ APPLICATIONDIR_PROPERTIES + "from "
+						+ APPLICATION_DIRECTORY_PROPERTIES_FILENAME);
 			}
-			String appPropertyFile = appDir+"/"+APPLICATION_PROPERTIES_FILENAME;
-			try { 
-				FileSystemResource fileSystemResource = new FileSystemResource(appPropertyFile);
+			String appPropertyFile = appDir + "/"
+					+ APPLICATION_PROPERTIES_FILENAME;
+			try {
+				FileSystemResource fileSystemResource = new FileSystemResource(
+						appPropertyFile);
 				PropertiesFactoryBean pfb = new PropertiesFactoryBean();
 				pfb.setLocation(fileSystemResource);
 				pfb.afterPropertiesSet();
 				appProperties = (Properties) pfb.getObject();
 			} catch (IOException e) {
-				throw new I2B2Exception(
-						"Application property file("+appPropertyFile+") missing entries or not loaded properly");
+				throw new I2B2Exception("Application property file("
+						+ appPropertyFile
+						+ ") missing entries or not loaded properly");
 			}
 			if (appProperties == null) {
-				throw new I2B2Exception(
-						"Application property file("+appPropertyFile+") missing entries or not loaded properly");
+				throw new I2B2Exception("Application property file("
+						+ appPropertyFile
+						+ ") missing entries or not loaded properly");
 			}
 		}
 
@@ -344,9 +424,9 @@ public class QueryProcessorUtil {
 		if ((propertyValue != null) && (propertyValue.trim().length() > 0)) {
 			;
 		} else {
-			throw new I2B2Exception(
-					"Application property file("+APPLICATION_PROPERTIES_FILENAME+") missing "
-							+ propertyName + " entry");
+			throw new I2B2Exception("Application property file("
+					+ APPLICATION_PROPERTIES_FILENAME + ") missing "
+					+ propertyName + " entry");
 		}
 
 		return propertyValue;

@@ -9,24 +9,23 @@
  */
 package edu.harvard.i2b2.crc.delegate.pdo;
 
+import javax.ejb.CreateException;
+
+import edu.harvard.i2b2.crc.datavo.pdo.PatientDataType;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.ServiceLocatorException;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
-import edu.harvard.i2b2.crc.datavo.i2b2message.ResponseMessageType;
-import edu.harvard.i2b2.crc.datavo.pdo.PatientDataType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.GetObservationFactByPrimaryKeyRequestType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.ejb.PdoQueryLocal;
 import edu.harvard.i2b2.crc.ejb.PdoQueryLocalHome;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
-import javax.ejb.CreateException;
-
 
 /**
  * GetObservationFactFromPrimaryKeyHandler class.
- * $Id: GetObservationFactFromPrimaryKeyHandler.java,v 1.5 2007/09/11 02:10:06 rk903 Exp $
+ * $Id: GetObservationFactFromPrimaryKeyHandler.java,v 1.8 2008/07/21 19:56:56 rk903 Exp $
  * @author rkuttan
  */
 public class GetObservationFactFromPrimaryKeyHandler extends RequestHandler {
@@ -43,6 +42,7 @@ public class GetObservationFactFromPrimaryKeyHandler extends RequestHandler {
         try {
             this.getObservationFactByPrimaryKeyRequestType = (GetObservationFactByPrimaryKeyRequestType) this.getRequestType(requestXml,
                     edu.harvard.i2b2.crc.datavo.pdo.query.GetObservationFactByPrimaryKeyRequestType.class);
+            this.setDataSourceLookup(requestXml);
         } catch (JAXBUtilException jaxbUtilEx) {
             throw new I2B2Exception("Error ", jaxbUtilEx);
         }
@@ -61,7 +61,7 @@ public class GetObservationFactFromPrimaryKeyHandler extends RequestHandler {
         try {
             PdoQueryLocalHome pdoQueryLocalHome = qpUtil.getPdoQueryLocalHome();
             PdoQueryLocal pdoQueryInfoLocal = pdoQueryLocalHome.create();
-            patientDataType = pdoQueryInfoLocal.getObservationFactByPrimaryKey(getObservationFactByPrimaryKeyRequestType);
+            patientDataType = pdoQueryInfoLocal.getObservationFactByPrimaryKey(getDataSourceLookup(),getObservationFactByPrimaryKeyRequestType);
             
             //ResponseMessageType responseMessageType = new ResponseMessageType();
             //responseMessageType.setMessageBody(bodyType);

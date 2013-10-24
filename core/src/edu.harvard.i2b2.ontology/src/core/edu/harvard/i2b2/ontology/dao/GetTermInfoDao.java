@@ -50,7 +50,7 @@ public class GetTermInfoDao extends JdbcDaoSupport {
 		public List findByFullname(final GetTermInfoType termInfoType, List categories) throws DataAccessException{
 			DataSource ds = null;
 			try {
-				ds = OntologyUtil.getInstance().getDataSource();
+				ds = OntologyUtil.getInstance().getDataSource("java:OntologyLocalDS");
 			} catch (I2B2Exception e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();

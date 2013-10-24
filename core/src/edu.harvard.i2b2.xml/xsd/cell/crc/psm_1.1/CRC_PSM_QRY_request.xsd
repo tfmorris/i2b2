@@ -93,14 +93,38 @@
         </xs:complexContent>
     </xs:complexType>
 
+
+    <xs:complexType name="result_type_requestType">
+        <xs:complexContent>
+            <xs:extension base="crc:requestType">
+                <xs:sequence>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
     <xs:complexType name="query_definition_requestType">
         <xs:complexContent>
             <xs:extension base="crc:requestType">
                 <xs:sequence>
                     <xs:element name="query_definition" type="qd:query_definitionType"/>
+                    <xs:element name="result_output_list" type="crc:result_output_optionListType" />
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+   
+    <xs:complexType name="result_output_optionListType">
+        <xs:sequence>
+            <xs:element name="result_output" type="crc:result_output_optionType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+   <xs:complexType name="result_output_optionType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="priority_index" type="xs:int"/>
+        <xs:attribute name="full_name" type="xs:string" />
+    </xs:complexType>
 
+    
+    
 </xs:schema>

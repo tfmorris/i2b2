@@ -40,7 +40,7 @@ public class GetSchemesDao extends JdbcDaoSupport {
 	public List findSchemes(final GetReturnType returnType) throws DataAccessException{
 		DataSource ds = null;
 		try {
-			ds = OntologyUtil.getInstance().getDataSource();
+			ds = OntologyUtil.getInstance().getDataSource("java:OntologyDemoDS");
 		} catch (I2B2Exception e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
@@ -60,11 +60,12 @@ public class GetSchemesDao extends JdbcDaoSupport {
 		
 		// First step is get metadata schema name from properties file.
 		String metadataSchema = "";
-		try {
-			metadataSchema = OntologyUtil.getInstance().getMetaDataSchemaName();
-		} catch (I2B2Exception e1) {
-			log.error(e1.getMessage());
-		}
+		metadataSchema = "i2b2metadata";
+//		try {
+			//metadataSchema = OntologyUtil.getInstance().getMetaDataSchemaName();
+//		} catch (I2B2Exception e1) {
+//			log.error(e1.getMessage());
+//		}
 		
 		String schemesSql = "select distinct " + parameters  + " from " + metadataSchema + "schemes ";
  
@@ -75,28 +76,6 @@ public class GetSchemesDao extends JdbcDaoSupport {
 
 		        scheme.setKey(rs.getString("key")); 
 	            scheme.setName(rs.getString("name"));
-	            if(returnType.getType().equals("core")) {
-//	            	scheme.setBasecode(rs.getString("c_basecode"));
-//	            	child.setLevel(rs.getInt("c_hlevel"));
-//	            	child.setSynonymCd(rs.getString("c_synonym_cd"));
-//	            	child.setVisualattributes(rs.getString("c_visualattributes"));
-//	            	child.setTotalnum(rs.getInt("c_totalnum"));
-//	            	child.setFacttablecolumn(rs.getString("c_facttablecolumn" ));
-//	            	child.setTablename(rs.getString("c_tablename")); 
-//	            	child.setColumnname(rs.getString("c_columnname")); 
-//	            	child.setColumndatatype(rs.getString("c_columndatatype")); 
-//	            	child.setOperator(rs.getString("c_operator")); 
-//	            	child.setDimcode(rs.getString("c_dimcode")); 
-//	            	child.setComment(rs.getString("c_comment")); 
-//	            	child.setTooltip(rs.getString("c_tooltip"));
-	            }
-//	            if(childrenType.isBlob() == true)
-//					try {
-//						child.setMetadataxml(JDBCUtil.getClobString(rs.getClob("c_metadataxml")));
-//					} catch (IOException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
 	            return scheme;
 	        }
 	    };

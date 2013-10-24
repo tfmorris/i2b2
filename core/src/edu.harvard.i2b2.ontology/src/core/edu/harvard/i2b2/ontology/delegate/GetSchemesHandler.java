@@ -16,9 +16,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 
+import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.ontology.dao.GetSchemesDao;
+import edu.harvard.i2b2.ontology.dao.SchemesDao;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
@@ -32,31 +34,28 @@ public class GetSchemesHandler extends RequestHandler {
     private static Log log = LogFactory.getLog(GetSchemesHandler.class);
 	private GetSchemesDataMessage  getSchemesMsg = null;
 	private GetReturnType getReturnType = null;
-	private ProjectType projectInfo = null;
 
-	public GetSchemesHandler(GetSchemesDataMessage requestMsg) {
-			try {
-				getSchemesMsg = requestMsg;
-				getReturnType = requestMsg.getReturnType();		
-			} catch (JAXBUtilException e) {
-				log.error("error setting up getSchemesHandler");
-				log.error(e.getMessage());;
-			} catch (Exception e) {
-				log.error("error setting up getSchemesHandler");
-				log.error(e.getMessage());
-			}
+	public GetSchemesHandler(GetSchemesDataMessage requestMsg) throws I2B2Exception{
+		try {
+			getSchemesMsg = requestMsg;
+			getReturnType = requestMsg.getReturnType();		
+			setDbInfo(requestMsg.getMessageHeaderType());
+		} catch (JAXBUtilException e) {
+			log.error("error setting up getSchemesHandler");
+			throw new I2B2Exception("GetCodeInfoHandler not configured");
+		} 
 
 	}
-	public String execute() {
+	public String execute()throws I2B2Exception{
 		// call ejb and pass input object
-		GetSchemesDao schemesDao = new GetSchemesDao();
+		SchemesDao schemesDao = new SchemesDao();
 		ConceptsType concepts = new ConceptsType();
 		ResponseMessageType responseMessageType = null;
+		
 		List response = null;
 		try {
-			response = schemesDao.findSchemes(getReturnType);
+			response = schemesDao.findSchemes(getReturnType, this.getDbInfo());
 		} catch (DataAccessException e1) {
-			log.error(e1.getMessage());
 			responseMessageType = MessageFactory.doBuildErrorResponse(getSchemesMsg.getMessageHeaderType(), "Database error");
 		}
 		// no errors found 
@@ -79,13 +78,8 @@ public class GetSchemesHandler extends RequestHandler {
 				responseMessageType = MessageFactory.createBuildResponse(messageHeader,concepts);
 			}      
 		}
-		String responseVdo = "DONE";
-		try {
-			responseVdo = MessageFactory.convertToXMLString(responseMessageType);
-		} catch (I2B2Exception e) {
-			log.error(e.getMessage());
-		}
-
+		String responseVdo = null;
+		responseVdo = MessageFactory.convertToXMLString(responseMessageType);
 		return responseVdo;
 	}    
  

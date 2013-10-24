@@ -8,9 +8,10 @@ package edu.harvard.i2b2.crc.datavo.db;
  */
 public class QtXmlResultId  implements java.io.Serializable {
 
+	
     // Fields    
 
-     private Integer xmlResultId;
+     private String xmlResultId;
      private Integer resultInstanceId;
      private String xmlValue;
 
@@ -21,7 +22,7 @@ public class QtXmlResultId  implements java.io.Serializable {
     }
 
     /** full constructor */
-    public QtXmlResultId(Integer xmlResultId, Integer resultInstanceId, String xmlValue) {
+    public QtXmlResultId(String xmlResultId, Integer resultInstanceId, String xmlValue) {
        this.xmlResultId = xmlResultId;
        this.resultInstanceId = resultInstanceId;
        this.xmlValue = xmlValue;
@@ -29,11 +30,11 @@ public class QtXmlResultId  implements java.io.Serializable {
     
    
     // Property accessors
-    public Integer getXmlResultId() {
+    public String getXmlResultId() {
         return this.xmlResultId;
     }
     
-    public void setXmlResultId(Integer xmlResultId) {
+    public void setXmlResultId(String xmlResultId) {
         this.xmlResultId = xmlResultId;
     }
     public Integer getResultInstanceId() {

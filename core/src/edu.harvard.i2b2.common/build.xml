@@ -49,7 +49,7 @@
 			<binding dir="." includes="etc/xsd/i2b2_response_message_bindings.xjb" />
 		</xjc>
 	</target>
-	-->
+	
 	
 	<target name="jaxb_gen" depends="init">
 		 <java dir="." jar="lib/jaxb/jaxb-xjc.jar" fork="true" failonerror="true" >
@@ -59,11 +59,12 @@
 		     <classpath refid="classpath"/>
 		</java>
 	</target>  
-
+    -->
+	
 	<!-- =================================================================== -->
 	<!-- 								COMPILE 							 -->
 	<!-- =================================================================== -->
-	<target name="compile" depends="init,jaxb_gen" description="Compile files without cleaning">
+	<target name="compile" depends="init" description="Compile files without cleaning">
 		<mkdir dir="${classes}" />
 		<javac destdir="${classes}" optimize="${javac.opt}" debug="${javac.debug}">
 			<src path="${src}/core" />
@@ -82,7 +83,9 @@
 		<echo message="${Name}: Creating the archive package!" />
 		<jar destfile="${dist}/${Name}-core.jar">
 			<fileset dir="${classes}">
+				<!--
 				<exclude name="**/datavo/**" />
+				-->
 			</fileset>
 		</jar>
 	</target>
@@ -116,11 +119,13 @@
 				<include name="commons-dbcp*.jar" />
 				<include name="commons-pool*.jar" />
 			</fileset>
-			<fileset dir="${lib}/jdbc" includes="**/*" />
+			<fileset dir="${lib}/jdbc" includes="ojdbc14.jar" />
 			<fileset dir="${lib}/jaxb" includes="**/*" />
 			<fileset dir="${lib}/spring" includes="**/*" />
 			<fileset dir="${lib}/jdom" includes="**/*" />
 			<fileset dir="${lib}/hibernate" includes="ehcache-1.2.3.jar" />
+			<fileset dir="${lib}/jargon" includes="jargon_v1.4.25.jar"/>
+			<fileset dir="${lib}/jdbc/sqlserver2005" includes="sqljdbc.jar"/>
 		</copy>
 	</target>
 

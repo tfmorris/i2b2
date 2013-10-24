@@ -28,7 +28,7 @@ import javax.ejb.CreateException;
 /**
  * GetQueryMasterListFromUserIdHandler class
  * implements execute method
- * $Id: GetQueryMasterListFromUserIdHandler.java,v 1.6 2007/08/31 14:51:07 rk903 Exp $
+ * $Id: GetQueryMasterListFromUserIdHandler.java,v 1.7 2008/03/19 22:36:37 rk903 Exp $
  * @author rkuttan
  */
 public class GetQueryMasterListFromUserIdHandler extends RequestHandler {
@@ -44,6 +44,7 @@ public class GetQueryMasterListFromUserIdHandler extends RequestHandler {
         try {
             userRequestType = (UserRequestType) this.getRequestType(requestXml,
                     edu.harvard.i2b2.crc.datavo.setfinder.query.UserRequestType.class);
+            setDataSourceLookup(requestXml);
         } catch (JAXBUtilException jaxbUtilEx) {
             throw new I2B2Exception("Error ", jaxbUtilEx);
         }
@@ -64,7 +65,7 @@ public class GetQueryMasterListFromUserIdHandler extends RequestHandler {
             QueryInfoLocalHome queryInfoLocalHome = qpUtil.getQueryInfoLocalHome();
             QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
             long initialTime = System.currentTimeMillis();
-            masterResponseType = queryInfoLocal.getQueryMasterListFromUserId(userRequestType);
+            masterResponseType = queryInfoLocal.getQueryMasterListFromUserId(getDataSourceLookup(),userRequestType);
             long finalTime = System.currentTimeMillis();
             long diffTimeMill = finalTime - initialTime;
             long diffTime = diffTimeMill / 1000;

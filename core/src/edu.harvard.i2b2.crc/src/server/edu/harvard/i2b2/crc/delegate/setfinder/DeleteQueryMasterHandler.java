@@ -31,7 +31,7 @@ import javax.ejb.CreateException;
 /**
  * DeleteQueryMasterHandler class
  * implements execute method
- * $Id: DeleteQueryMasterHandler.java,v 1.6 2007/08/31 14:51:07 rk903 Exp $
+ * $Id: DeleteQueryMasterHandler.java,v 1.7 2008/03/19 22:36:37 rk903 Exp $
  * @author rkuttan
  */
 public class DeleteQueryMasterHandler extends RequestHandler {
@@ -47,6 +47,7 @@ public class DeleteQueryMasterHandler extends RequestHandler {
         try {
             masterDeleteRequestType = (MasterDeleteRequestType) getRequestType(requestXml,
                     edu.harvard.i2b2.crc.datavo.setfinder.query.MasterDeleteRequestType.class);
+            this.setDataSourceLookup(requestXml);
         } catch (JAXBUtilException jaxbUtilEx) {
             throw new I2B2Exception("Error ", jaxbUtilEx);
         }
@@ -69,7 +70,7 @@ public class DeleteQueryMasterHandler extends RequestHandler {
             QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
             String userId = masterDeleteRequestType.getUserId();
             String masterId = masterDeleteRequestType.getQueryMasterId();
-            masterResponseType = queryInfoLocal.deleteQueryMaster(userId,masterId);
+            masterResponseType = queryInfoLocal.deleteQueryMaster(getDataSourceLookup(),userId,masterId);
 
             
             masterResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));

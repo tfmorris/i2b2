@@ -9,8 +9,12 @@
  */
 package edu.harvard.i2b2.ontology.ws;
 
+import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.ontology.delegate.RequestHandler;
+import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
+import edu.harvard.i2b2.ontology.ws.MessageFactory;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -76,5 +80,69 @@ public class ExecutorRunnable implements Runnable {
         }
 
         //notify();
+    }
+    
+   public OMElement execute(RequestHandler handler, long waitTime)throws I2B2Exception{
+    	
+    	OMElement returnElement = null;
+    	String ontologyDataResponse = null;
+    	String unknownErrorMessage = "Error message delivered from the remote server \n" +  
+    			"You may wish to retry your last action";
+    	this.setRequestHandler(handler);
+
+    	// timeout test    waitTime=10;   Passed 1/29/08  lcp
+    	
+    	Thread t = new Thread(this);
+        synchronized (t) {
+        	t.start();
+
+        	try {
+        		if (waitTime > 0) {
+        			t.wait(waitTime);
+        		} else {
+        			t.wait();
+        		}
+
+        		ontologyDataResponse = this.getOutputString();
+
+        		if (ontologyDataResponse == null) {
+        			if (this.getJobException() != null) {
+        				log.error("er.jobException is not null");
+        				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+        						unknownErrorMessage);
+        				ontologyDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+
+        			} else if (this.isJobCompleteFlag() == false) {
+        				//<result_waittime_ms>5000</result_waittime_ms>
+        				String timeOuterror = "Remote server timed out \n" +    		
+        				"Result waittime = " +
+        				waitTime +
+        				" ms elapsed,\nPlease try again";
+        				log.error(timeOuterror);
+
+        				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+        						timeOuterror);
+        				ontologyDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+
+        			} else {
+        				log.error("ontology data response is null");
+        				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+        						unknownErrorMessage);
+        				ontologyDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+        			}
+        		}
+        	} catch (InterruptedException e) {
+        		log.error("interrupt exception " + e.getMessage());
+        		ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+        				unknownErrorMessage);
+        		ontologyDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+        	} finally {
+        		t.interrupt();
+        		t = null;
+        	}
+        }
+
+        returnElement = MessageFactory.createResponseOMElementFromString(ontologyDataResponse);
+        return returnElement;
     }
 }

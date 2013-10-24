@@ -51,7 +51,7 @@ public class GetCodeInfoDao extends JdbcDaoSupport {
 	public List findCodeInfo(final VocabRequestType vocabType, final List categories) throws DataAccessException, I2B2Exception{
 		DataSource ds = null;
 		try {
-			ds = OntologyUtil.getInstance().getDataSource();
+			ds = OntologyUtil.getInstance().getDataSource("java:OntologyLocalDS");
 		} catch (I2B2Exception e2) {
 			log.error(e2.getMessage());
 			throw e2;
@@ -140,13 +140,13 @@ public class GetCodeInfoDao extends JdbcDaoSupport {
 		if(tableNames != null){
 			Iterator it = tableNames.iterator();
 			String table = (String)it.next();
-			String tableCdSql = ", (select distinct(c_table_cd) from "+ metadataSchema + "TABLE_ACCESS where c_table_name = '"+ table+ "') as tableCd"; 
+			String tableCdSql = ", (select distinct(c_table_cd) from "+ metadataSchema + "TABLE_ACCESS where c_table_name = '"+  table+ "') as tableCd"; 
 			String basecode = " '" + vocabType.getMatchStr().getValue() + "' ";
-			codeInfoSql = "select " + parameters + tableCdSql + " from " + table + " where upper(c_basecode) =  " + basecode.toUpperCase() 	+ hidden + synonym;;
+			codeInfoSql = "select " + parameters + tableCdSql + " from " + metadataSchema + table + " where upper(c_basecode) =  " + basecode.toUpperCase() 	+ hidden + synonym;;
 			while(it.hasNext()){		
 				table = (String)it.next();
-				tableCdSql = ", (select distinct(c_table_cd) from "+ metadataSchema + "TABLE_ACCESS where c_table_name = '"+ table+ "') as tableCd"; 
-				codeInfoSql = codeInfoSql +  " union select "+ parameters + tableCdSql + " from " + table + " where upper(c_basecode) =  " + basecode.toUpperCase() 
+				tableCdSql = ", (select distinct(c_table_cd) from "+ metadataSchema + "TABLE_ACCESS where c_table_name = '"+  table + "') as tableCd"; 
+				codeInfoSql = codeInfoSql +  " union select "+ parameters + tableCdSql + " from " + metadataSchema + table + " where upper(c_basecode) =  " + basecode.toUpperCase() 
 				+ hidden + synonym;
 			}
 			codeInfoSql = codeInfoSql + " order by c_name ";

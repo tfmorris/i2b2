@@ -9,32 +9,35 @@
  */
 package edu.harvard.i2b2.crc.dao.pdo;
 
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.harvard.i2b2.crc.datavo.pdo.ConceptSet;
+import edu.harvard.i2b2.crc.datavo.pdo.EventSet;
+import edu.harvard.i2b2.crc.datavo.pdo.ObservationSet;
+import edu.harvard.i2b2.crc.datavo.pdo.ObserverSet;
+import edu.harvard.i2b2.crc.datavo.pdo.PatientDataType;
+import edu.harvard.i2b2.crc.datavo.pdo.PatientSet;
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
+import edu.harvard.i2b2.crc.dao.PatientDataDAOFactory;
 import edu.harvard.i2b2.crc.dao.pdo.input.FactRelatedQueryHandler;
+import edu.harvard.i2b2.crc.dao.pdo.input.IFactRelatedQueryHandler;
+import edu.harvard.i2b2.crc.dao.pdo.input.SQLServerFactRelatedQueryHandler;
 import edu.harvard.i2b2.crc.dao.pdo.output.ConceptFactRelated;
 import edu.harvard.i2b2.crc.dao.pdo.output.ObservationFactFactRelated;
 import edu.harvard.i2b2.crc.dao.pdo.output.PatientFactRelated;
 import edu.harvard.i2b2.crc.dao.pdo.output.ProviderFactRelated;
 import edu.harvard.i2b2.crc.dao.pdo.output.VisitFactRelated;
-import edu.harvard.i2b2.crc.datavo.pdo.PatientDataType;
+import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.pdo.query.EventListType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.FilterListType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.InputOptionListType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.OutputOptionListType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.PatientListType;
-import edu.harvard.i2b2.crc.datavo.pdo.ConceptSet;
-import edu.harvard.i2b2.crc.datavo.pdo.EventSet;
-import edu.harvard.i2b2.crc.datavo.pdo.ObservationSet;
-import edu.harvard.i2b2.crc.datavo.pdo.ObserverSet;
-import edu.harvard.i2b2.crc.datavo.pdo.PatientSet;
-//import edu.harvard.i2b2.crc.datavo.tablepdo.PatientSet;
-
-
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -74,7 +77,7 @@ import org.apache.commons.logging.LogFactory;
  *               <patient_set select="using_input_list" onlykeys="false"/>
  *           </ouput_option>
  *			 </b>
- * $Id: PdoQueryHandler.java,v 1.8 2007/08/31 14:40:23 rk903 Exp $
+ * $Id: PdoQueryHandler.java,v 1.12 2008/07/21 19:53:40 rk903 Exp $
  * @author rkuttan
  * @see FactRelatedQueryHandler
  * @see PatientFactRelated
@@ -113,6 +116,8 @@ public class PdoQueryHandler {
     /**instance variable to hold table pdo **/
     private PatientDataType tablePdoType = null;
 
+    private PatientDataDAOFactory pdoDaoFactory = null;
+    
     /**
      * Parameter constructor to initialize helper classes  
      * @param pdoType
@@ -121,7 +126,7 @@ public class PdoQueryHandler {
      * @param outputOptionList
      * @throws I2B2Exception
      */
-    public PdoQueryHandler(String pdoType, InputOptionListType inputList,
+    public PdoQueryHandler(PatientDataDAOFactory pdoDaoFactory,String pdoType, InputOptionListType inputList,
         FilterListType filterList, OutputOptionListType outputOptionList)
         throws I2B2DAOException {
         if (pdoType == null) {
@@ -137,6 +142,9 @@ public class PdoQueryHandler {
         	throw new I2B2DAOException("Input output option lisr should not be null");
         }
 
+
+        this.pdoDaoFactory = pdoDaoFactory;
+        
         this.pdoType = pdoType;
         this.inputList = inputList;
         this.filterList = filterList;
@@ -213,16 +221,22 @@ public class PdoQueryHandler {
         boolean patientFromFact = patientFactRelated.isFactRelated();
         boolean visitFromFact = visitFactRelated.isFactRelated();
 
-        FactRelatedQueryHandler factRelatedQry = null;
+        IFactRelatedQueryHandler factRelatedQry = null;
 
         // PatientDataType patientDataType = new PatientDataType();
 
         //check if this is a fact related query
         if (obsFactSelected || providerSelected || conceptSelected ||
                 patientFromFact || visitFromFact) {
-            factRelatedQry = new FactRelatedQueryHandler(inputList, filterList,
+        	
+        	DataSourceLookup dataSourceLookup = pdoDaoFactory.getDataSourceLookup(); 
+        	if (dataSourceLookup.getServerType().equalsIgnoreCase(DAOFactoryHelper.ORACLE)) { 
+            factRelatedQry = new FactRelatedQueryHandler(pdoDaoFactory.getDataSourceLookup(), inputList, filterList,
                     outputOptionList);
-
+        	} else if (dataSourceLookup.getServerType().equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) { 
+        		factRelatedQry = new SQLServerFactRelatedQueryHandler(pdoDaoFactory.getDataSourceLookup(), inputList, filterList,
+                        outputOptionList);
+        	}
             // execute query
             if (pdoType.equalsIgnoreCase(TABLE_PDO_TYPE)) {
                 List <ObservationSet> tableObservationSet = factRelatedQry.getTablePdoObservationFact();
@@ -300,13 +314,13 @@ public class PdoQueryHandler {
      *   
      */
     private class ProviderSection {
-        FactRelatedQueryHandler factRelatedQry = null;
+        IFactRelatedQueryHandler factRelatedQry = null;
         ObserverSet providerDimensionSet = null;
         ObserverSet observerSet = null;
         String pType = null;
 
         public ProviderSection(String pType,
-            FactRelatedQueryHandler factRelatedQry) {
+            IFactRelatedQueryHandler factRelatedQry) {
             this.factRelatedQry = factRelatedQry;
             this.pType = pType;
         }
@@ -317,8 +331,8 @@ public class PdoQueryHandler {
          */
         public void generateSet()  throws I2B2Exception {
             //check if provider selected
-            PdoQueryProviderDao providerDao = new PdoQueryProviderDao();
-            TablePdoQueryProviderDao tableProviderDao = new TablePdoQueryProviderDao();
+            IPdoQueryProviderDao providerDao = pdoDaoFactory.getPdoQueryProviderDAO();
+            ITablePdoQueryProviderDao tableProviderDao = pdoDaoFactory.getTablePdoQueryProviderDAO();
             List<String> providerFactList = factRelatedQry.getProviderFactList();
             boolean detailFlag = providerFactRelated.isSelectDetail();
             boolean blobFlag = providerFactRelated.isSelectBlob();
@@ -343,13 +357,13 @@ public class PdoQueryHandler {
     }
 
     private class ConceptSection {
-        FactRelatedQueryHandler factRelatedQry = null;
+        IFactRelatedQueryHandler factRelatedQry = null;
         String pType = null;
         ConceptSet conceptSet = null;
         ConceptSet conceptDimensionSet = null;
 
         public ConceptSection(String pType,
-            FactRelatedQueryHandler factRelatedQry) {
+            IFactRelatedQueryHandler factRelatedQry) {
             this.factRelatedQry = factRelatedQry;
             this.pType = pType;
         }
@@ -357,8 +371,8 @@ public class PdoQueryHandler {
         public void generateSet() throws I2B2Exception {
             //			check if concept selected
             List<String> conceptFactList = factRelatedQry.getConceptFactList();
-            PdoQueryConceptDao conceptDao = new PdoQueryConceptDao();
-            TablePdoQueryConceptDao tableConceptDao = new TablePdoQueryConceptDao();
+            IPdoQueryConceptDao conceptDao = pdoDaoFactory.getPdoQueryConceptDAO();
+            ITablePdoQueryConceptDao tableConceptDao = pdoDaoFactory.getTablePdoQueryConceptDAO();
             boolean detailFlag = conceptFactRelated.isSelectDetail();
             boolean blobFlag = conceptFactRelated.isSelectBlob();
             boolean statusFlag = conceptFactRelated.isSelectStatus();
@@ -382,7 +396,7 @@ public class PdoQueryHandler {
     }
 
     private class PatientSection {
-        FactRelatedQueryHandler factRelatedQry = null;
+        IFactRelatedQueryHandler factRelatedQry = null;
         boolean patientFromFact = false;
         boolean fromVisitSet = false;
         boolean fromPatientSet = false;
@@ -391,7 +405,7 @@ public class PdoQueryHandler {
         String pType = null;
 
         public PatientSection(String pType,
-            FactRelatedQueryHandler factRelatedQry, boolean patientFromFact,
+            IFactRelatedQueryHandler factRelatedQry, boolean patientFromFact,
             boolean fromVisitSet, boolean fromPatientSet) {
             this.factRelatedQry = factRelatedQry;
             this.patientFromFact = patientFromFact;
@@ -401,8 +415,8 @@ public class PdoQueryHandler {
         }
 
         public void generateSet() throws Exception {
-            PdoQueryPatientDao pdoQueryPatientDao = new PdoQueryPatientDao();
-            TablePdoQueryPatientDao tablePdoQueryPatientDao = new TablePdoQueryPatientDao();
+            IPdoQueryPatientDao pdoQueryPatientDao = pdoDaoFactory.getPdoQueryPatientDAO();
+            ITablePdoQueryPatientDao tablePdoQueryPatientDao =  pdoDaoFactory.getTablePdoQueryPatientDAO();
 
             //			check if patient dimension is in output option
             boolean detailFlag = patientFactRelated.isSelectDetail();
@@ -466,13 +480,13 @@ public class PdoQueryHandler {
         boolean visitFromFact = false;
         boolean fromVisitSet = false;
         boolean fromPatientSet = false;
-        FactRelatedQueryHandler factRelatedQry = null;
+        IFactRelatedQueryHandler factRelatedQry = null;
         EventSet visitDimensionSet = null;
         EventSet eventSet = null;
         String pType = null;
 
         public VisitSection(String pType,
-            FactRelatedQueryHandler factRelatedQry, boolean visitFromFact,
+            IFactRelatedQueryHandler factRelatedQry, boolean visitFromFact,
             boolean fromVisitSet, boolean fromPatientSet) {
             this.factRelatedQry = factRelatedQry;
             this.visitFromFact = visitFromFact;
@@ -482,8 +496,8 @@ public class PdoQueryHandler {
         }
 
         public void generateSet() throws Exception {
-            PdoQueryVisitDao pdoQueryVisitDao = new PdoQueryVisitDao();
-            TablePdoQueryVisitDao tablePdoQueryVisitDao = new TablePdoQueryVisitDao();
+            IPdoQueryVisitDao pdoQueryVisitDao = pdoDaoFactory.getPdoQueryVisitDAO();
+            ITablePdoQueryVisitDao tablePdoQueryVisitDao = pdoDaoFactory.getTablePdoQueryVisitDAO();
 
             //check if visit is in output option
             boolean detailFlag = visitFactRelated.isSelectDetail();

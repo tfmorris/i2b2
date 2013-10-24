@@ -30,7 +30,7 @@ import javax.ejb.CreateException;
 /**
  * GetQueryInstanceListFromMasterIdHandler class
  * implements execute method
- * $Id: GetQueryInstanceListFromMasterIdHandler.java,v 1.5 2007/08/31 14:51:07 rk903 Exp $
+ * $Id: GetQueryInstanceListFromMasterIdHandler.java,v 1.6 2008/03/19 22:36:37 rk903 Exp $
  * @author rkuttan
  */
 public class GetQueryInstanceListFromMasterIdHandler extends RequestHandler {
@@ -49,6 +49,8 @@ public class GetQueryInstanceListFromMasterIdHandler extends RequestHandler {
                     edu.harvard.i2b2.crc.datavo.setfinder.query.PsmQryHeaderType.class);
             masterRequestType = (MasterRequestType) this.getRequestType(requestXml,
                     edu.harvard.i2b2.crc.datavo.setfinder.query.MasterRequestType.class);
+            this.setDataSourceLookup(requestXml);
+            
         } catch (JAXBUtilException jaxbUtilEx) {
             throw new I2B2Exception("Error ", jaxbUtilEx);
         }
@@ -75,7 +77,7 @@ public class GetQueryInstanceListFromMasterIdHandler extends RequestHandler {
                 userId = userType.getLogin();
             }
 
-            instanceResponseType = queryRunLocal.getQueryInstanceFromMasterId(userId,masterRequestType);
+            instanceResponseType = queryRunLocal.getQueryInstanceFromMasterId(getDataSourceLookup(),userId,masterRequestType);
             instanceResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));
 
 //            ResponseMessageType responseMessageType = new ResponseMessageType();

@@ -11,6 +11,7 @@ package edu.harvard.i2b2.ontology.dao;
 
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
@@ -29,13 +30,14 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
+import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontology.datavo.vdo.GetReturnType;
 import edu.harvard.i2b2.ontology.datavo.vdo.XmlValueType;
 import edu.harvard.i2b2.ontology.util.OntologyUtil;
-import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
 
 public class GetCategoriesDao extends JdbcDaoSupport {
 	
@@ -43,11 +45,11 @@ public class GetCategoriesDao extends JdbcDaoSupport {
     final static String CORE = " c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_totalnum, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_tooltip ";
 	final static String DEFAULT = " c_fullname, c_name ";
 	
-	public List findRootCategories(final GetReturnType returnType, final ProjectType projectInfo) throws DataAccessException{
+	public List findRootCategories(final GetReturnType returnType, final ProjectType projectInfo) throws DataAccessException, I2B2DAOException{
 		
 		DataSource ds = null;
 		try {
-			ds = OntologyUtil.getInstance().getDataSource();
+			ds = OntologyUtil.getInstance().getDataSource("java:OntologyLocalDS");
 		} catch (I2B2Exception e2) {
 			log.error(e2.getMessage());;
 		} 
@@ -72,6 +74,14 @@ public class GetCategoriesDao extends JdbcDaoSupport {
 			log.error(e1.getMessage());
 		}
 //		 First step is to call PM to see what roles/project user belongs to.
+		
+		if (projectInfo.getRole().size() == 0)
+		{
+			log.error("no role found for this user in project: " + projectInfo.getName());
+			I2B2DAOException e = new I2B2DAOException("No role found for user");
+			throw e;
+		}
+		
 		String roles = "( '";
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
@@ -131,6 +141,8 @@ public class GetCategoriesDao extends JdbcDaoSupport {
 				ParameterizedRowMapper<ConceptType> map = new ParameterizedRowMapper<ConceptType>() {
 			        public ConceptType mapRow(ResultSet rs, int rowNum) throws SQLException {
 			        	ConceptType concept = new ConceptType();
+//			        	ResultSetMetaData rsmd = rs.getMetaData();
+//			        	rsmd.get
 			        	if(rs.getClob("c_metadataxml") == null){
 			        		concept.setMetadataxml(null);
 			        	}else {

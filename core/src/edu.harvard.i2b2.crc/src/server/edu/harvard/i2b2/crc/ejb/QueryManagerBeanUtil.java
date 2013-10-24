@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.i2b2.common.util.ServiceLocator;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
+import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.i2b2message.ApplicationType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.InfoType;
@@ -58,7 +59,13 @@ public class QueryManagerBeanUtil {
     protected final Log log = LogFactory.getLog(getClass());
     
 	public final static String RESPONSE_QUEUE_NAME = "queue/jms.querytool.QueryResponse";
-	public final static String UPLOADPROCESSOR_QUEUE_NAME = "queue/jms.querytool.QueryExecutor";
+	//public final static String UPLOADPROCESSOR_QUEUE_NAME = "queue/jms.querytool.QueryExecutor";
+	
+	
+	
+	public final static String SMALL_QUEUE_NAME = "queue/jms.querytool.QueryExecutorSmall";
+	public final static String MEDIUM_QUEUE_NAME = "queue/jms.querytool.QueryExecutorMedium";
+	public final static String LARGE_QUEUE_NAME = "queue/jms.querytool.QueryExecutorLarge";
 	
 	public final static String QUEUE_CONN_FACTORY_NAME = "ConnectionFactory";
 	
@@ -67,6 +74,11 @@ public class QueryManagerBeanUtil {
 	public final static String QUERY_STATUS_PARAM = "QUERY_STATUS_PARAM";
 	public final static String QT_QUERY_RESULT_INSTANCE_ID_PARAM = "QT_QUERY_RESULT_INSTANCE_ID_PARAM";
 	public final static String QUERY_PATIENT_SET_ID_PARAM = "QUERY_PATIENT_SET_ID_PARAM";
+	public final static String XML_REQUEST_PARAM = "XML_REQUEST_PARAM";
+	
+	public final static String DS_LOOKUP_DOMAIN_ID = "DS_LOOKUP_DOMAIN_ID"; 
+	public final static String DS_LOOKUP_PROJECT_ID = "DS_LOOKUP_PROJECT_ID";
+	public final static String DS_LOOKUP_OWNER_ID = "DS_LOOKUP_OWNER_ID";
 	
 	
 	public QueryManagerBeanUtil(){ 
@@ -74,14 +86,15 @@ public class QueryManagerBeanUtil {
 	}
 	
 			
-	public Map testSend(String generatedSql,String sessionId,String queryInstanceId,String patientSetId,  long timeout) throws Exception {
+	public Map testSend(String domainId,String projectId, String ownerId, String generatedSql,String sessionId,String queryInstanceId,String patientSetId, String xmlRequest,
+							long timeout) throws Exception {
 		String status = null;
 		
 		QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
 		ServiceLocator serviceLocator = ServiceLocator.getInstance();
 		QueueConnection conn = serviceLocator.getQueueConnectionFactory(QUEUE_CONN_FACTORY_NAME)
 				.createQueueConnection();
-		Queue sendQueue = serviceLocator.getQueue(UPLOADPROCESSOR_QUEUE_NAME);
+		Queue sendQueue = serviceLocator.getQueue(SMALL_QUEUE_NAME);
 		Queue responseQueue = serviceLocator.getQueue(RESPONSE_QUEUE_NAME);
 		QueueSession session = conn.createQueueSession(false,javax.jms.Session.AUTO_ACKNOWLEDGE);
 		String id = sessionId;
@@ -91,9 +104,13 @@ public class QueryManagerBeanUtil {
 		mapMsg.setJMSCorrelationID(id);
 		mapMsg.setJMSReplyTo(responseQueue);
 
+		mapMsg.setString(XML_REQUEST_PARAM, xmlRequest);
 		mapMsg.setString(QUERY_MASTER_GENERATED_SQL_PARAM , generatedSql);
 		mapMsg.setString(QUERY_INSTANCE_ID_PARAM, queryInstanceId);
 		mapMsg.setString(QUERY_PATIENT_SET_ID_PARAM, patientSetId);
+		mapMsg.setString(DS_LOOKUP_DOMAIN_ID, domainId);
+		mapMsg.setString(DS_LOOKUP_PROJECT_ID, projectId);
+		mapMsg.setString(DS_LOOKUP_OWNER_ID, ownerId);
 		sender.send(mapMsg);
 
 		QueueConnection conn1 = serviceLocator.getQueueConnectionFactory(QUEUE_CONN_FACTORY_NAME)
@@ -117,8 +134,8 @@ public class QueryManagerBeanUtil {
 			queryResultInstanceId  = receivedMsg.getInt(QT_QUERY_RESULT_INSTANCE_ID_PARAM);
 			log.info("RESULT INSTANCE ID " + queryResultInstanceId);
 		}
-		closeAll(sender, rcvr, conn, session);
-		closeAll(sender, rcvr, conn1, recvSession);
+		closeAll(sender, null, conn, session);
+		closeAll(null, rcvr, conn1, recvSession);
 		// closeAllTopic(rcvr,conn1,recvSession);
 		Map returnMap = new HashMap();
 		returnMap.put(QUERY_STATUS_PARAM, status);
@@ -126,11 +143,11 @@ public class QueryManagerBeanUtil {
 		return returnMap;
 	}
 
-	
+	/*
 	public String buildQueryRequestResponse(String requestXml, String status,String sessionId,String masterId, String queryInstanceId,ResultResponseType resultResponseType) throws Exception {
 		return buildObject(requestXml,  status,  sessionId, masterId,queryInstanceId,resultResponseType );
 	}
-
+    */
 	public void writerRepsonseFile(String sessionId, long recordCount) {
 		try  { 
 			BufferedWriter bw = new BufferedWriter(new FileWriter(sessionId));
@@ -142,99 +159,13 @@ public class QueryManagerBeanUtil {
 	}
 	
 	
-	public String  buildObject(String xmlString, String status, String sessionId, String masterId, String queryInstanceId,ResultResponseType resultResponseType ) throws Exception { 
-		JAXBUtil util = CRCJAXBUtil.getJAXBUtil();
-		JAXBElement jaxbElement = util.unMashallFromString(xmlString);
-		RequestMessageType requestMessageType = (RequestMessageType)jaxbElement.getValue();
-		MessageHeaderType messageHeader = requestMessageType.getMessageHeader();
-		
-		//reverse sending and receiving app
-		ApplicationType sendingApp = messageHeader.getSendingApplication(); 
-		ApplicationType receiveApp = messageHeader.getReceivingApplication();
-		messageHeader.setSendingApplication(receiveApp);
-		messageHeader.setReceivingApplication(sendingApp);
-		
-		//set instance num
-		MessageControlIdType messageControlIdType = messageHeader.getMessageControlId();
-		if (messageControlIdType != null) { 
-			messageControlIdType.setInstanceNum(1);
-		}
-		
-		BodyType bodyType = requestMessageType.getMessageBody();
-		
-		StatusType statusType = new StatusType();
-		statusType.setType("DONE");
-		statusType.setValue(sessionId);
-		
-		
-		PollingUrlType pollingType = new PollingUrlType();
-		pollingType.setIntervalMs(100);
-		pollingType.setValue("http://phsi2b2appdev:8080/QueryProcessor/getResult");
-		
-		
-		ResultStatusType resultStatusType = new ResultStatusType();
-		resultStatusType.setStatus(statusType);
-		resultStatusType.setPollingUrl(pollingType);
-		
-		
-		InfoType infoType = new InfoType();
-		infoType.setUrl("http://phsi2b2appdev:8080/QueryProcessor/getStatus");
-		infoType.setValue("Log information");
-		infoType.setValue(String.valueOf(masterId));
-		
-		MasterInstanceResultResponseType mirrType = new  MasterInstanceResultResponseType();
-		QueryMasterType queryMaster = new QueryMasterType();
-		queryMaster.setQueryMasterId(masterId);
-		
-		QueryInstanceType queryInstance = new QueryInstanceType(); 
-		queryInstance.setQueryInstanceId(queryInstanceId);
-		queryInstance.setQueryMasterId(masterId);
-		QueryStatusTypeType queryStatus = new QueryStatusTypeType();
-		//queryStatus.setStatusTypeId(3);
-		queryStatus.setName(status);
-		queryInstance.setQueryStatusType(queryStatus);
-		
-		if (resultResponseType != null) { 
-		 
-			for (QueryResultInstanceType resultInstance: resultResponseType.getQueryResultInstance()) {
-				mirrType.getQueryResultInstance().add(resultInstance);
-			}
-		}
-		
-		mirrType.setQueryInstance(queryInstance);
-		mirrType.setQueryMaster(queryMaster);
-		
 
-		 
-		BodyType newBodyType = new BodyType();
-		edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory psmObjFact = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
-		
-		newBodyType.getAny().add(psmObjFact.createResponse(mirrType));
-		
-		ResponseHeaderType responseHeader = new ResponseHeaderType();
-		responseHeader.setResultStatus(resultStatusType);
-		responseHeader.setInfo(infoType);
-		
-		
-
-		//dtoFactory.addToBodyType(bodyType, responseType);
-		
-		ResponseMessageType responseMessageType = new ResponseMessageType();
-		responseMessageType.setMessageHeader(messageHeader);
-		responseMessageType.setMessageBody(newBodyType);
-		responseMessageType.setResponseHeader(responseHeader);
-		
-		edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
-		StringWriter strWriter = new StringWriter();
-		util.marshaller(of.createResponse(responseMessageType),strWriter);
-		return strWriter.toString();
-	}
-	
 	
 	public long getTimeout(String xmlRequest) throws Exception {
 		JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
 		 JAXBElement jaxbElement =  jaxbUtil.unMashallFromString(xmlRequest);
 		 RequestMessageType requestMessageType = (RequestMessageType)jaxbElement.getValue();
+		 
 		RequestHeaderType requestHeader = requestMessageType.getRequestHeader(); 
 		long  timeOut = 1;
 		if (requestHeader != null && requestHeader.getResultWaittimeMs() >-1) { 
@@ -243,6 +174,22 @@ public class QueryManagerBeanUtil {
 		return timeOut;
 	}	
 	
+	
+	public DataSourceLookup getDataSourceLookupInput(String xmlRequest) throws Exception { 
+		DataSourceLookup dsLookupInput = null;
+		JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
+		JAXBElement jaxbElement =  jaxbUtil.unMashallFromString(xmlRequest);
+		RequestMessageType requestMessageType = (RequestMessageType)jaxbElement.getValue();
+		String projectId = requestMessageType.getMessageHeader().getProjectId(); 
+		String domainId = requestMessageType.getMessageHeader().getSecurity().getDomain();
+		String ownerId =  requestMessageType.getMessageHeader().getSecurity().getUsername();
+		dsLookupInput = new DataSourceLookup();
+		dsLookupInput.setProjectPath(projectId);
+		dsLookupInput.setDomainId(domainId);
+		dsLookupInput.setOwnerId(ownerId);
+		return dsLookupInput;
+		
+	}
 	
 	
 	public  String getStatus(String sessionId) {
@@ -317,7 +264,7 @@ public class QueryManagerBeanUtil {
 
 		PollingUrlType pollUrlType = new PollingUrlType();
 		pollUrlType
-				.setValue("http://phsi2b2appdev:9093/queryProcessor/checkStatus");
+				.setValue("http://localhost:9093/queryProcessor/checkStatus");
 		rsType.setPollingUrl(pollUrlType);
 
 		

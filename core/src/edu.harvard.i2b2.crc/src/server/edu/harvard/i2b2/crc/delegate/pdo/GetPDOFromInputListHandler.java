@@ -9,29 +9,29 @@
  */
 package edu.harvard.i2b2.crc.delegate.pdo;
 
+import javax.ejb.CreateException;
+
+import edu.harvard.i2b2.crc.datavo.pdo.PatientDataType;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.ServiceLocatorException;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
-import edu.harvard.i2b2.crc.datavo.i2b2message.ResponseMessageType;
-import edu.harvard.i2b2.crc.datavo.pdo.PatientDataType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.GetPDOFromInputListRequestType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.ejb.PdoQueryLocal;
 import edu.harvard.i2b2.crc.ejb.PdoQueryLocalHome;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
-import javax.ejb.CreateException;
-
 
 /**
  * GetPDOFromInputListHandler class.
- * $Id: GetPDOFromInputListHandler.java,v 1.7 2007/09/11 02:10:06 rk903 Exp $
+ * $Id: GetPDOFromInputListHandler.java,v 1.10 2008/07/21 19:56:56 rk903 Exp $
  * @author rkuttan
  */
 public class GetPDOFromInputListHandler extends RequestHandler {
     private GetPDOFromInputListRequestType getPDOFromInputListRequestType = null;
 
+    
     /**
     * Constuctor which accepts i2b2 request message xml
     * @param requestXml
@@ -42,6 +42,7 @@ public class GetPDOFromInputListHandler extends RequestHandler {
         try {
             getPDOFromInputListRequestType = (GetPDOFromInputListRequestType) this.getRequestType(requestXml,
                     edu.harvard.i2b2.crc.datavo.pdo.query.GetPDOFromInputListRequestType.class);
+            setDataSourceLookup(requestXml);
         } catch (JAXBUtilException jaxbUtilEx) {
             throw new I2B2Exception("Error ", jaxbUtilEx);
         }
@@ -60,7 +61,7 @@ public class GetPDOFromInputListHandler extends RequestHandler {
         try {
             PdoQueryLocalHome pdoQueryLocalHome = qpUtil.getPdoQueryLocalHome();
             PdoQueryLocal pdoQueryInfoLocal = pdoQueryLocalHome.create();
-            PatientDataType patientDataType = pdoQueryInfoLocal.getPlainPatientData(getPDOFromInputListRequestType);
+            PatientDataType patientDataType = pdoQueryInfoLocal.getPlainPatientData(getDataSourceLookup(),getPDOFromInputListRequestType);
             edu.harvard.i2b2.crc.datavo.pdo.query.PatientDataResponseType pdoResponseType = new edu.harvard.i2b2.crc.datavo.pdo.query.PatientDataResponseType();
             pdoResponseType.setPatientData(patientDataType);
             edu.harvard.i2b2.crc.datavo.pdo.query.ObjectFactory objectFactory = new edu.harvard.i2b2.crc.datavo.pdo.query.ObjectFactory();

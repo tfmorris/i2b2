@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	$Id: build.xml,v 1.14.2.2 2007/11/02 14:22:30 rk903 Exp $
+	$Id: build.xml,v 1.19 2008/09/18 17:52:28 lcp5 Exp $
 -->
 <project basedir="." default="all" name="Ontology Cell">
 
@@ -47,7 +47,7 @@
 					<schema dir="../${i2b2xmlproject}/xsd/cell/pm_1.1" includes="PM_USER.xsd" />
 					<schema dir="../${i2b2xmlproject}/xsd/hive/msg_1.1" includes="i2b2_response.xsd" />
 					<binding dir="." includes="etc/xsd_1.1/i2b2_vdo_bindings.xjb" />
-					<binding dir="." includes="etc/xsd_1.1/i2b2_rspdo_bindings.xjb" />
+			<!--		<binding dir="." includes="etc/xsd_1.1/i2b2_rspdo_bindings.xjb" />  -->
 					<binding dir="." includes="etc/xsd_1.1/i2b2_response_message_bindings.xjb" />
 					<binding dir="." includes="etc/xsd_1.1/i2b2_pm_bindings.xjb" />
 				</xjc>
@@ -130,6 +130,11 @@
 				</fileset>
 			</copy>
 			
+			<copy todir="${jboss.home}/server/default/deploy">
+				<fileset dir="${etc}/jboss">
+				<!--	<exclude name="**/jboss.xml" /> -->
+				</fileset>
+			</copy>
 			
 			<copy todir="${jboss.home}/server/default/deploy/${axis2.war.name}/WEB-INF/services">
 				<fileset dir="${dist}">
@@ -144,6 +149,24 @@
 				</fileset>
 			</copy>
 		</target>
+		
+	<!-- =================================================================== -->
+	<!-- 								JBOSS DEPLOY ARCHIVE ONLY						 -->
+	<!-- =================================================================== -->	<target name="service_deploy">
+		<echo message="${Name}: Copying archive package to app server ${jboss.home}" />
+		<copy todir="${jboss.home}/server/default/deploy">
+			<fileset dir="${dist}">
+				<exclude name="**/**.aar" />
+				<exclude name="**/*client.jar"/>
+			</fileset>
+		</copy>
+		<!-- copy axis archive files to axis directory -->
+		<copy todir="${jboss.home}/server/default/deploy/${axis2.war.name}/WEB-INF/services">
+			<fileset dir="${dist}">
+				<include name="**/**.aar" />
+			</fileset>
+		</copy>
+	</target>
 
 	<!-- ==================================================================== -->
 	<!-- 								WSDL Sample							  -->
@@ -236,6 +259,25 @@
 
 <!-- *********************************************************************
 	$Log: build.xml,v $
+	Revision 1.19  2008/09/18 17:52:28  lcp5
+	server-deploy  target (aar only)
+	
+	Revision 1.18  2008/02/11 17:51:40  lcp5
+	jboss/mulitple jndi datasources changes
+	
+	Revision 1.17  2008/01/08 15:52:58  lcp5
+	removed dashes from a comment
+	
+	Revision 1.16  2007/12/14 16:25:34  lcp5
+	Fixed bug for getCategories case with no role assigned to user.
+	Throws an exception.
+	
+	Fixed build file; commented out  i2b2_rspdo_bindings.xjb
+	Its not necessary and it was causing compile error at UTexasHouston.
+	
+	Revision 1.15  2007/11/09 16:10:52  rk903
+	Issue ID:11 packaging change to deploy i2b2-common.jar inside a aar file
+	
 	Revision 1.14.2.2  2007/11/02 14:22:30  rk903
 	changes to support seperate cell deployment
 	

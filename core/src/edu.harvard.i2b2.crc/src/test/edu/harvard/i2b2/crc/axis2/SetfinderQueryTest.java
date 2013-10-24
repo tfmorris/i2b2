@@ -37,6 +37,10 @@ import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.RequestHeaderType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.RequestMessageType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.ResponseMessageType;
+import edu.harvard.i2b2.crc.datavo.i2b2message.ConditionsType.Condition;
+import edu.harvard.i2b2.crc.datavo.i2b2result.ResultEnvelopeType;
+import edu.harvard.i2b2.crc.datavo.i2b2result.ResultType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.CrcXmlResultResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.InstanceRequestType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.InstanceResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterDeleteRequestType;
@@ -50,7 +54,12 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.PsmRequestTypeType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryInstanceType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryMasterType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryResultInstanceType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.RequestType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultTypeRequestType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultTypeResponseType;
+
+import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultRequestType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.UserRequestType;
@@ -63,6 +72,7 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 
 	private static QueryMasterType queryMaster = null; 
 	private static QueryInstanceType queryInstance = null;
+	private static MasterInstanceResultResponseType masterInstanceResult = null;
 	private static String testFileDir = null;
 	
 	private static  String setfinderUrl = 
@@ -76,7 +86,7 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 			throw new Exception("please provide test file directory info -Dtestfiledir");
 		}
 		//read test file and store query master;
-		String filename = testFileDir + "\\setfinder_query.xml";
+		String filename = testFileDir + "/setfinder_query.xml";
 		String requestString = getQueryString(filename);
 		OMElement requestElement = convertStringToOMElement(requestString); 
 		OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
@@ -87,9 +97,10 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 		ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
 		assertEquals("checking i2b2 message status 'DONE'","DONE",r.getResponseHeader().getResultStatus().getStatus().getType());
 		JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
-		MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+		 masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
 		queryMaster = masterInstanceResult.getQueryMaster();
 		queryInstance = masterInstanceResult.getQueryInstance();
+	
 		assertNotNull("not null check for querymaster",queryMaster);
 		assertNotNull("not null check for queryinstance",queryInstance);
 	}
@@ -261,6 +272,56 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 		assertTrue("checking query result instance list  size > 0 ",resultResponseType.getQueryResultInstance().size()>0);
 	}
 	
+	@Test
+	public void testGetXMLDocumentFromQueryResultInstance() throws Exception { 
+		PsmQryHeaderType requestHeaderType = new PsmQryHeaderType();
+		requestHeaderType.setRequestType(PsmRequestTypeType.CRC_QRY_GET_RESULT_DOCUMENT_FROM_RESULT_INSTANCE_ID);
+		
+		
+		
+		//instanceRequestType.setQueryInstanceId(queryInstance.getQueryInstanceId());
+		QueryResultInstanceType xmlResultInstance = null;
+		for (QueryResultInstanceType resultInstance : masterInstanceResult.getQueryResultInstance()) {
+			if (resultInstance.getQueryResultType().getName().equalsIgnoreCase("PATIENT_GENDER_COUNT_XML")) {
+				xmlResultInstance = resultInstance;
+				break;
+			}
+		}
+		if (xmlResultInstance == null) {
+			System.out.println("Unable to test this case, beacause the request might be missing the some xml result");
+			return;
+		}
+		ResultRequestType resultRequestType = new ResultRequestType();
+		resultRequestType.setQueryResultInstanceId(xmlResultInstance.getResultInstanceId());
+		RequestMessageType requestMessageType = buildRequestMessage(requestHeaderType,resultRequestType);
+		StringWriter strWriter = new StringWriter();
+		edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
+		CRCJAXBUtil.getJAXBUtil().marshaller(of.createRequest(requestMessageType), strWriter);
+		
+		OMElement requestElement = convertStringToOMElement(strWriter.toString()); 
+		OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+		System.out.println(responseElement.toString());
+		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+		ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+		assertEquals("checking i2b2 message status 'DONE'","DONE",r.getResponseHeader().getResultStatus().getStatus().getType());		
+		JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+		CrcXmlResultResponseType crcXmlResultResponse = (CrcXmlResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),CrcXmlResultResponseType.class);
+		//ResultEnvelopeType resultEnvelopeType = (ResultEnvelopeType)helper.getObjectByClass(crcXmlResultResponse.getCrcXmlResult().getXmlValue().getContent(),ResultEnvelopeType.class);
+		//Element doc = (Element)crcXmlResultResponse.getCrcXmlResult().getXmlValue().getContent().get(0);
+		
+		//String resultEnvelope = edu.harvard.i2b2.common.util.xml.XMLUtil.convertDOMElementToString(doc);
+		String resultXmlStr = (String)crcXmlResultResponse.getCrcXmlResult().getXmlValue().getContent().get(0);
+		
+		JAXBElement jaxbElement = CRCJAXBUtil.getJAXBUtil().unMashallFromString(resultXmlStr);
+		ResultEnvelopeType resultEnvelopeType = (ResultEnvelopeType)jaxbElement.getValue();
+		ResultType resultType = (ResultType)helper.getObjectByClass(resultEnvelopeType.getBody().getAny(),ResultType.class);
+		System.out.println(resultType.getName());
+		String statusType = r.getResponseHeader().getResultStatus().getStatus().getType();
+		assertEquals("checking crc message status 'DONE'","DONE",statusType);
+		assertNotNull("Checking for result xml not null",resultType);
+		
+	}
 	
 	@Test
 	public void testRenameQueryMaster() throws Exception { 
@@ -314,6 +375,35 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 		StatusType.Condition condition = masterResponseType.getStatus().getCondition().get(0);
 		assertEquals("checking crc message status 'DONE'","DONE",condition.getType());
 		assertTrue("checking query master list  size > 0 ",masterResponseType.getQueryMaster().size()>0);
+		
+	}
+	
+	@Test
+	public void testGetAllResultType() throws Exception { 
+		PsmQryHeaderType requestHeaderType = new PsmQryHeaderType();
+		requestHeaderType.setRequestType(PsmRequestTypeType.CRC_QRY_GET_RESULT_TYPE);
+		
+		ResultTypeRequestType resultRequestType = new ResultTypeRequestType();
+		
+		
+		RequestMessageType requestMessageType = buildRequestMessage(requestHeaderType,resultRequestType);
+		StringWriter strWriter = new StringWriter();
+		edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
+		CRCJAXBUtil.getJAXBUtil().marshaller(of.createRequest(requestMessageType), strWriter);
+		
+		OMElement requestElement = convertStringToOMElement(strWriter.toString()); 
+		OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+		
+		System.out.println(requestElement);
+		System.out.println(responseElement);
+		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+		ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+		assertEquals("checking i2b2 message status 'DONE'","DONE",r.getResponseHeader().getResultStatus().getStatus().getType());		
+		JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+		ResultTypeResponseType resultResponseType = (ResultTypeResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),ResultTypeResponseType.class);
+		StatusType.Condition condition = resultResponseType.getStatus().getCondition().get(0);
+		assertEquals("checking crc message status 'DONE'","DONE",condition.getType());
+		assertTrue("checking result type list  size > 0 ",resultResponseType.getQueryResultType().size()>0);
 		
 	}
 	

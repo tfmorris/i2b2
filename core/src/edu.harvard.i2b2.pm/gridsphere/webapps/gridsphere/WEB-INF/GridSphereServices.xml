@@ -1,0 +1,181 @@
+<!--
+
+    Portlet Services XML Descriptor
+
+    Edit this file to add/modify GridSphere Portlet Services
+
+
+    $Id: GridSphereServices.xml,v 1.1 2007/08/24 17:24:58 mem61 Exp $
+-->
+
+<portlet-services>
+
+    <service>
+        <name>Portlet Manager Service</name>
+        <description lang="en">Provides Administration Capabilities for Portlet Web Applications</description>
+        <interface>org.gridlab.gridsphere.services.core.registry.PortletManagerService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.registry.impl.PortletManagerServiceImpl</implementation>
+        <!-- this is the internal name and password used by Tomcat manager webapp -->
+        <service-config>
+            <param-name>username</param-name>
+            <param-value>gridsphere</param-value>
+        </service-config>
+        <service-config>
+            <param-name>password</param-name>
+            <param-value>gridsphere</param-value>
+        </service-config>
+    </service>
+
+    <service>
+        <name>Login Service</name>
+        <description lang="en">Provides Login Capabilities</description>
+        <interface>org.gridlab.gridsphere.services.core.user.LoginService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.user.impl.LoginServiceImpl</implementation>
+        <service-config>
+            <param-name>LOGIN_MODULE</param-name>
+            <param-value>org.gridlab.gridsphere.services.core.user.UserManagerService</param-value>
+        </service-config>
+    </service>
+
+    <service>
+        <name>Portal Config Service</name>
+        <description lang="en">Provides GridSphere portal configuration settings</description>
+        <interface>org.gridlab.gridsphere.services.core.portal.PortalConfigService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.portal.impl.PortalConfigServiceImpl</implementation>
+        <service-config>
+            <param-name>canUserCreateNewAccount</param-name>
+            <param-value>false</param-value>
+        </service-config>
+        <service-config>
+            <param-name>mailService</param-name>
+            <param-value></param-value>
+        </service-config>
+    </service>
+
+
+    <service>
+        <name>Global Manager Service</name>
+        <description>an example persistence service</description>
+        <interface>edu.harvard.i2b2.pm.services.GlobalDataService</interface>
+        <implementation>edu.harvard.i2b2.pm.services.impl.GlobalDataServiceImpl</implementation>
+    </service>
+
+
+    <service>
+        <name>Role Manager Service</name>
+        <description lang="en">Provides Role Capabilities to Portal Users</description>
+        <interface>org.gridlab.gridsphere.services.core.security.role.RoleManagerService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.security.role.impl.RoleManagerServiceImpl</implementation>
+    </service>
+
+    <service>
+        <name>Group Manager Service</name>
+        <description lang="en">Provides Group Capabilities to Portal Users</description>
+        <interface>org.gridlab.gridsphere.services.core.security.group.GroupManagerService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.security.group.impl.GroupManagerServiceImpl</implementation>
+    </service>
+
+    <service>
+        <name>User Account Manager Service</name>
+        <description lang="en">Provides User Administration Capabilities</description>
+        <interface>org.gridlab.gridsphere.services.core.user.UserManagerService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.user.impl.UserManagerServiceImpl</implementation>
+        <service-config>
+            <param-name>userid</param-name>
+            <param-value>root</param-value>
+        </service-config>
+        <service-config>
+            <param-name>password</param-name>
+            <param-value></param-value>
+        </service-config>
+    </service>
+
+    <service>
+        <name>Password Manager Service</name>
+        <description lang="en">Provides Password Management Capabilities</description>
+        <interface>org.gridlab.gridsphere.services.core.security.password.PasswordManagerService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.security.password.impl.PasswordManagerServiceImpl</implementation>
+    </service>
+
+    <service>
+        <name>Generic Request Service</name>
+        <description lang="en">Provides Generic Request Capabilities</description>
+        <interface>org.gridlab.gridsphere.services.core.request.RequestService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.request.impl.RequestServiceImpl</implementation>
+    </service>
+
+    <service>
+        <name>Tracker Service</name>
+        <description lang="en">Provides ActionLink/Form Tracking Capabilities</description>
+        <interface>org.gridlab.gridsphere.services.core.tracker.TrackerService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.tracker.impl.TrackerServiceImpl</implementation>
+    </service>
+
+    <service>
+        <name>Layout Manager Service</name>
+        <description lang="en">Provides Layout Management Capabilities</description>
+        <interface>org.gridlab.gridsphere.services.core.layout.LayoutManagerService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.layout.impl.LayoutManagerServiceImpl</implementation>
+    </service>
+
+    <service>
+        <name>File Manager Service</name>
+        <description lang="en">Provides a temporary storage directory for user's files</description>
+        <interface>org.gridlab.gridsphere.services.core.file.FileManagerService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.file.impl.FileManagerServiceImpl</implementation>
+        <service-config>
+            <param-name>tmp_dir</param-name>
+            <param-value>tempdir</param-value>
+        </service-config>
+    </service>
+
+    <service>
+        <name>Text Messaging Service</name>
+        <description lang="en">Provides the ability to send textmessages to different services</description>
+        <interface>org.gridlab.gridsphere.services.core.messaging.TextMessagingService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.messaging.impl.TextMessagingServiceImpl</implementation>
+    </service>
+
+    <service>
+        <name>Locale Service</name>
+        <description lang="en">Manages supported list of locales</description>
+        <interface>org.gridlab.gridsphere.services.core.locale.LocaleService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.locale.impl.LocaleServiceImpl</implementation>
+        <service-config>
+            <param-name>display-locale</param-name>
+            <param-value>en,es,cs,de,nl,fr,hr,hu,pl,it,ar,zh,ja</param-value>
+        </service-config>
+    </service>
+
+    <service>
+        <name>Timer Service</name>
+        <description lang="en">Timer Service</description>
+        <interface>org.gridlab.gridsphere.services.core.timer.TimerService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.timer.impl.TimerServiceImpl</implementation>
+    </service>
+
+    <service>
+        <name>Cache Service</name>
+        <description lang="en">Cache Service</description>
+        <interface>org.gridlab.gridsphere.services.core.cache.CacheService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.cache.impl.CacheServiceImpl</implementation>
+        <service-config>
+            <param-name>isCachingOn</param-name>
+            <param-value>true</param-value>
+        </service-config>
+    </service>
+
+    <service>
+        <name>Secure Directory Service</name>
+        <description lang="en">Provides Secure Directory Capabilities</description>
+        <interface>org.gridlab.gridsphere.services.core.secdir.SecureDirectoryService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.secdir.impl.SecureDirectoryServiceImpl</implementation>
+    </service>
+
+    <service>
+        <name>Chart Service</name>
+        <description lang="en">Provides chart generation and management capabilities</description>
+        <interface>org.gridlab.gridsphere.services.core.charts.ChartService</interface>
+        <implementation>org.gridlab.gridsphere.services.core.charts.impl.ChartServiceImpl</implementation>
+    </service>
+</portlet-services>

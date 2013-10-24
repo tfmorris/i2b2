@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
@@ -33,7 +34,7 @@ import edu.harvard.i2b2.common.util.ServiceLocator;
  * This utility class provides support for
  * fetching resources like datasouce, to read application
  * properties, to get ejb home,etc.
- * $Id: OntologyUtil.java,v 1.9 2007/10/15 18:00:33 lcp5 Exp $
+ * $Id: OntologyUtil.java,v 1.15 2009/01/08 19:27:01 lcp5 Exp $
  * @author rkuttan
  */
 public class OntologyUtil {
@@ -50,13 +51,16 @@ public class OntologyUtil {
     private static final String DATASOURCE_JNDI_PROPERTIES = "ontology.jndi.datasource_name";
 
     /** property name for metadata schema name**/
-    private static final String METADATA_SCHEMA_NAME_PROPERTIES = "ontology.db.metadataschema";
+    private static final String METADATA_SCHEMA_NAME_PROPERTIES = "ontology.bootstrapdb.metadataschema";
 
     /** spring bean name for datasource **/
     private static final String DATASOURCE_BEAN_NAME = "dataSource";
 
     /** property name for PM endpoint reference **/
     private static final String PM_WS_EPR = "ontology.ws.pm.url";
+    
+    /** property name for PM webservice method **/
+    private static final String PM_WS_METHOD = "ontology.ws.pm.webServiceMethod";
 
     /** property name for PM bypass **/
     private static final String PM_BYPASS = "ontology.ws.pm.bypass";
@@ -67,6 +71,10 @@ public class OntologyUtil {
     /** property name for PM bypass role **/
     private static final String PM_BYPASS_ROLE = "ontology.ws.pm.bypass.role";
 
+    /** property name for ONT_TERM_DELIMITER **/
+    private static final String ONT_TERM_DELIMITER = "ontology.terminal.delimiter";
+    
+    
     /** class instance field**/
     private static OntologyUtil thisInstance = null;
 
@@ -157,6 +165,15 @@ public class OntologyUtil {
     }
 
     /**
+     * Return PM cell web service method
+     * @return
+     * @throws I2B2Exception
+     */
+    public String getPmWebServiceMethod() throws I2B2Exception {
+        return getPropertyValue(PM_WS_METHOD).trim();
+    }
+    
+    /**
      * Return PM bypass flag
      * @return
      * @throws I2B2Exception
@@ -184,30 +201,31 @@ public class OntologyUtil {
     }
 
     /**
+     * Return Ontology terminal delimiter
+     * @return
+     * @throws I2B2Exception
+     */
+    public Boolean getOntTerminalDelimiter() throws I2B2Exception {
+        return Boolean.valueOf(getPropertyValue(ONT_TERM_DELIMITER).trim());
+    }
+    
+    
+    /**
      * Return app server datasource
      * @return datasource
      * @throws I2B2Exception
      * @throws SQLException
      */
-    public DataSource getDataSource() throws I2B2Exception {
-        DataSource dataSource = (DataSource) getSpringBeanFactory()
-                                                 .getBean(DATASOURCE_BEAN_NAME);
-
-        return dataSource;
+    public DataSource getDataSource(String dataSourceName) throws I2B2Exception {
+        //DataSource dataSource = (DataSource) getSpringBeanFactory()
+                                              //   .getBean(DATASOURCE_BEAN_NAME);
+    	
+    	dataSource = (DataSource) serviceLocator.getAppServerDataSource(dataSourceName);
+    	return dataSource;
+  
     }
 
-    /**
-     * Return pooled database connection
-     * @return connection
-     * @throws I2B2Exception
-     * @throws SQLException
-     */
-    public Connection getConnection() throws I2B2Exception, SQLException {
-        DataSource dataSource = getDataSource();
-        Connection conn = dataSource.getConnection();
-
-        return conn;
-    }
+    
 
     //---------------------
     // private methods here

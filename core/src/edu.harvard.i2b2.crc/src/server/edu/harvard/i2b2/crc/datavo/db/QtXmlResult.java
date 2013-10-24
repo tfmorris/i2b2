@@ -10,7 +10,7 @@ public class QtXmlResult  implements java.io.Serializable {
 
     // Fields    
 
-     private Integer xmlResultId;
+     private String xmlResultId;
      private QtQueryResultInstance qtQueryResultInstance;
      private String xmlValue;
 
@@ -21,11 +21,11 @@ public class QtXmlResult  implements java.io.Serializable {
     }
 
 	/** minimal constructor */
-    public QtXmlResult(Integer xmlResultId) {
+    public QtXmlResult(String xmlResultId) {
         this.xmlResultId = xmlResultId;
     }
     /** full constructor */
-    public QtXmlResult(Integer xmlResultId, QtQueryResultInstance qtQueryResultInstance, String xmlValue) {
+    public QtXmlResult(String xmlResultId, QtQueryResultInstance qtQueryResultInstance, String xmlValue) {
        this.xmlResultId = xmlResultId;
        this.qtQueryResultInstance = qtQueryResultInstance;
        this.xmlValue = xmlValue;
@@ -33,11 +33,11 @@ public class QtXmlResult  implements java.io.Serializable {
     
    
     // Property accessors
-    public Integer getXmlResultId() {
+    public String getXmlResultId() {
         return this.xmlResultId;
     }
     
-    public void setXmlResultId(Integer xmlResultId) {
+    public void setXmlResultId(String xmlResultId) {
         this.xmlResultId = xmlResultId;
     }
     public QtQueryResultInstance getQtQueryResultInstance() {
