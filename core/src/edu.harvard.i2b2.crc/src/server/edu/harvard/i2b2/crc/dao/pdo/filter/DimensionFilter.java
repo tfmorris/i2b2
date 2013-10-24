@@ -21,7 +21,7 @@ import edu.harvard.i2b2.crc.util.ItemKeyUtil;
 /**
  * Class builds "from" and "where" clause of pdo query
  * based on given provider filter
- * $Id: DimensionFilter.java,v 1.2 2008/06/10 14:57:57 rk903 Exp $
+ * $Id: DimensionFilter.java,v 1.3 2009/01/08 19:38:57 rk903 Exp $
  * @author rkuttan
  */
 public class DimensionFilter  {

@@ -6,7 +6,7 @@
 <!--                                                                       -->
 <!-- ===================================================================== -->
 
-<!-- $Id: crc-ds.xml,v 1.1 2008/12/11 17:13:58 rk903 Exp $ -->
+<!-- $Id: crc-ds.xml,v 1.2 2010/02/08 19:37:07 mem61 Exp $ -->
 
 <datasources>
   
@@ -28,7 +28,7 @@
   <!-- uncomment this if the data source is sqlserver 
   <local-tx-datasource>
     <jndi-name>DefaultSQLDS</jndi-name>
-    <connection-url>jdbc:sqlserver://localhost:1433</connection-url>
+    <connection-url>jdbc:sqlserver://localhost:1433;DatabaseName=i2b2demodata</connection-url>
     <driver-class>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver-class>
     <user-name>i2b2demodata</user-name>
     <password>i2b2demodata</password>

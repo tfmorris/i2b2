@@ -14,67 +14,67 @@ import java.sql.SQLException;
 
 import edu.harvard.i2b2.crc.datavo.pdo.query.OutputOptionType;
 
-
 /**
- * Class to generate select, join, where clause
- * for Visit dimenstion based on pdo's  OutputOptionType
- * $Id: VisitFactRelated.java,v 1.4 2007/08/31 14:43:33 rk903 Exp $
+ * Class to generate select, join, where clause for Visit dimenstion based on
+ * pdo's OutputOptionType $Id: VisitFactRelated.java,v 1.4 2007/08/31 14:43:33
+ * rk903 Exp $
+ * 
  * @author rkuttan
  */
 public class VisitFactRelated extends FactRelated {
-    public VisitFactRelated(OutputOptionType outputOptionType) {
-        super(outputOptionType);
-    }
+	public VisitFactRelated(OutputOptionType outputOptionType) {
+		super(outputOptionType);
+	}
 
-    public String getSelectClause() {
-        String selectClause = "";
+	public String getSelectClause() {
+		String selectClause = "";
 
-        if (isSelected()) {
-            selectClause = " visit.encounter_num visit_encounter_num, visit.patient_num visit_patient_num ";
+		if (isSelected()) {
+			selectClause = " visit.encounter_num visit_encounter_num, visit.patient_num visit_patient_num ";
 
-            if (isSelectDetail()) {
-                selectClause += ", visit.inout_cd visit_inout_cd, visit.location_cd visit_location_cd, visit.location_path visit_location_path, visit.start_date visit_start_date,visit.end_date visit_end_date ";
-            }
+			if (isSelectDetail()) {
+				selectClause += ", visit.inout_cd visit_inout_cd, visit.location_cd visit_location_cd, visit.location_path visit_location_path, visit.start_date visit_start_date,visit.end_date visit_end_date,visit.active_status_cd visit_active_status_cd ";
+			}
 
-            if (isSelectBlob()) {
-                selectClause += ", visit.visit_blob visit_visit_blob ";
-            }
+			if (isSelectBlob()) {
+				selectClause += ", visit.visit_blob visit_visit_blob ";
+			}
 
-            if (isSelectStatus()) {
-                selectClause += " , visit.update_date visit_update_date, visit.download_date visit_download_date, visit.import_date visit_import_date, visit.sourcesystem_cd visit_sourcesystem_cd, visit.upload_id visit_upload_id ";
-            }
-        }
+			if (isSelectStatus()) {
+				selectClause += " , visit.update_date visit_update_date, visit.download_date visit_download_date, visit.import_date visit_import_date, visit.sourcesystem_cd visit_sourcesystem_cd, visit.upload_id visit_upload_id ";
+			}
+		}
 
-        return selectClause;
-    }
+		return selectClause;
+	}
 
-    public String joinClause() {
-        if (isSelected()) {
-            return " left join VISIT_DIMENSION   visit   on (obs.encounter_num = visit.encounter_num and  obs.patient_num = visit.patient_num) ";
-        } else {
-            return "";
-        }
-    }
+	public String joinClause() {
+		if (isSelected()) {
+			return " left join VISIT_DIMENSION   visit   on (obs.encounter_num = visit.encounter_num and  obs.patient_num = visit.patient_num) ";
+		} else {
+			return "";
+		}
+	}
 
-    public String[] getAliasFieldName() {
-        // get select clause and fetch corresponding data to build visit
-        // dimension
-        String selectClause = getSelectClause();
-        String[] fields = selectClause.split(",");
-        int i = 0;
-        String[] aliasFieldName = new String[fields.length];
+	public String[] getAliasFieldName() {
+		// get select clause and fetch corresponding data to build visit
+		// dimension
+		String selectClause = getSelectClause();
+		String[] fields = selectClause.split(",");
+		int i = 0;
+		String[] aliasFieldName = new String[fields.length];
 
-        while (i <= fields.length) {
-            aliasFieldName[i] = fields[i].substring(fields[i].indexOf(' '),
-                    fields[i].length());
-            i++;
-        }
+		while (i <= fields.length) {
+			aliasFieldName[i] = fields[i].substring(fields[i].indexOf(' '),
+					fields[i].length());
+			i++;
+		}
 
-        return aliasFieldName;
-    }
+		return aliasFieldName;
+	}
 
-    public int getEncounterNumFromResultSet(ResultSet resultSet)
-        throws SQLException {
-        return resultSet.getInt("obs_encounter_num");
-    }
+	public int getEncounterNumFromResultSet(ResultSet resultSet)
+			throws SQLException {
+		return resultSet.getInt("obs_encounter_num");
+	}
 }

@@ -74,10 +74,10 @@ public class QueryResultBean implements SessionBean {
 		for(QtQueryResultInstance resultInstance: queryResultInstanceList) { 
 			
 			QueryResultInstanceType queryResultInstanceType = PSMFactory.buildQueryResultInstanceType(resultInstance);
-			System.out.println("RESULT INSTANCE " + resultInstance.getResultInstanceId() );
+			//System.out.println("RESULT INSTANCE " + resultInstance.getResultInstanceId() );
 			resultResponseType.getQueryResultInstance().add(queryResultInstanceType);
 		}
-		System.out.print("SIZE OF RESULT INSTANCE "+ resultResponseType.getQueryResultInstance().size());
+		//System.out.print("SIZE OF RESULT INSTANCE "+ resultResponseType.getQueryResultInstance().size());
 		return resultResponseType;
 	}
 	

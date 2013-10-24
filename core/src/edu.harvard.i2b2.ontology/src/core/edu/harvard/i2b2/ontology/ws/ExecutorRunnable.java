@@ -82,7 +82,7 @@ public class ExecutorRunnable implements Runnable {
         //notify();
     }
     
-   public OMElement execute(RequestHandler handler, long waitTime)throws I2B2Exception{
+ /*  public OMElement execute(RequestHandler handler, long waitTime)throws I2B2Exception{
     	
     	OMElement returnElement = null;
     	String ontologyDataResponse = null;
@@ -97,10 +97,15 @@ public class ExecutorRunnable implements Runnable {
         	t.start();
 
         	try {
-        		if (waitTime > 0) {
-        			t.wait(waitTime);
-        		} else {
-        			t.wait();
+        		int count = 0;
+        		while((ontologyDataResponse == null)&&(count<2)){
+        			if (waitTime > 0) {
+        				t.wait(waitTime);
+        			} else {
+        				t.wait();
+        			}
+        			count++;
+        			log.debug("ontology ER loop" + count);
         		}
 
         		ontologyDataResponse = this.getOutputString();
@@ -108,6 +113,10 @@ public class ExecutorRunnable implements Runnable {
         		if (ontologyDataResponse == null) {
         			if (this.getJobException() != null) {
         				log.error("er.jobException is not null");
+        				log.error(this.getJobException().getMessage());
+        				log.error(this.getJobException().getStackTrace());
+        		    	
+        		    	log.info("waitTime is " + waitTime);
         				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
         						unknownErrorMessage);
         				ontologyDataResponse = MessageFactory.convertToXMLString(responseMsgType);
@@ -120,13 +129,17 @@ public class ExecutorRunnable implements Runnable {
         				" ms elapsed,\nPlease try again";
         				log.error(timeOuterror);
 
+        				log.error("for " + this.getRequestHandler().getClass().getName() +
+        						" and loop count = " + count);
+     
         				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
         						timeOuterror);
         				ontologyDataResponse = MessageFactory.convertToXMLString(responseMsgType);
 
         			} else {
         				log.error("ontology data response is null");
-        				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+        			   	log.info("waitTime is " + waitTime);
+        			   	ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
         						unknownErrorMessage);
         				ontologyDataResponse = MessageFactory.convertToXMLString(responseMsgType);
         			}
@@ -144,5 +157,5 @@ public class ExecutorRunnable implements Runnable {
 
         returnElement = MessageFactory.createResponseOMElementFromString(ontologyDataResponse);
         return returnElement;
-    }
+    }*/
 }

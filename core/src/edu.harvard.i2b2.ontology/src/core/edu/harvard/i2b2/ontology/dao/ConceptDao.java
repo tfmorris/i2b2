@@ -638,24 +638,28 @@ public class ConceptDao extends JdbcDaoSupport {
 		String synonym = "";
 		if(vocabType.isSynonyms() == false)
 			synonym = " and c_synonym_cd = 'N'";
-		
-		
+
+		// I have to do this the hard way because there are a dynamic number of codes to pass in
+		String value = vocabType.getMatchStr().getValue();
+		if(value.contains("'")){
+			value = vocabType.getMatchStr().getValue().replaceAll("'", "''");
+		}
 		 String whereClause = null;
 			
 		    if(vocabType.getMatchStr().getStrategy().equals("exact")) {
-		    	whereClause = " where upper(c_basecode) = '" + vocabType.getMatchStr().getValue().toUpperCase()+ "'";
+		    	whereClause = " where upper(c_basecode) = '" + value.toUpperCase()+ "'";
 		    }
 		    
 		    else if(vocabType.getMatchStr().getStrategy().equals("left")){
-		    	whereClause = " where upper(c_basecode) like '" + vocabType.getMatchStr().getValue().toUpperCase() + "%'";
+		    	whereClause = " where upper(c_basecode) like '" + value.toUpperCase() + "%'";
 		    }
 		    
 		    else if(vocabType.getMatchStr().getStrategy().equals("right")) {
-		    	whereClause = " where upper(c_basecode) like " + "'%" + vocabType.getMatchStr().getValue().toUpperCase() + "'";
+		    	whereClause = " where upper(c_basecode) like " + "'%" + value.toUpperCase() + "'";
 		    }
 		    
 		    else if(vocabType.getMatchStr().getStrategy().equals("contains")) {
-		    	whereClause = " where upper(c_basecode) like " +  "'%" + vocabType.getMatchStr().getValue().toUpperCase() + "%'";
+		    	whereClause = " where upper(c_basecode) like " +  "'%" + value.toUpperCase() + "%'";
 		    }
 		    
 

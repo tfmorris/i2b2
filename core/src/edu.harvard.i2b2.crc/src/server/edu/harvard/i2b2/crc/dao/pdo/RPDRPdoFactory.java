@@ -19,17 +19,20 @@ import edu.harvard.i2b2.common.util.db.JDBCUtil;
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.crc.datavo.pdo.BlobType;
 import edu.harvard.i2b2.crc.datavo.pdo.ConceptType;
+import edu.harvard.i2b2.crc.datavo.pdo.EidType;
 import edu.harvard.i2b2.crc.datavo.pdo.EventType;
 import edu.harvard.i2b2.crc.datavo.pdo.ObservationType;
 import edu.harvard.i2b2.crc.datavo.pdo.ObserverType;
 import edu.harvard.i2b2.crc.datavo.pdo.ParamType;
 import edu.harvard.i2b2.crc.datavo.pdo.PatientIdType;
 import edu.harvard.i2b2.crc.datavo.pdo.PatientType;
+import edu.harvard.i2b2.crc.datavo.pdo.PidType;
+import edu.harvard.i2b2.crc.datavo.pdo.PidType.PatientId;
 
 /**
  * Class to build individual sections of table pdo xml like
  * patient,concept,observationfact from the given {@link java.sql.ResultSet}
- * $Id: RPDRPdoFactory.java,v 1.14 2008/08/07 14:25:05 rk903 Exp $
+ * $Id: RPDRPdoFactory.java,v 1.20 2009/11/14 16:41:26 rk903 Exp $
  * 
  * @author rkuttan
  */
@@ -136,15 +139,16 @@ public class RPDRPdoFactory {
 
 			if (obsFactBlobFlag) {
 				Clob observationClob = rowSet.getClob("obs_observation_blob");
-
-				try {
-					BlobType blobType = new BlobType();
-					blobType.getContent().add(
-							JDBCUtil.getClobString(observationClob));
-					observation.setObservationBlob(blobType);
-				} catch (IOException ioEx) {
-					ioEx.printStackTrace();
-					throw ioEx;
+				if (observationClob != null) {
+					try {
+						BlobType blobType = new BlobType();
+						blobType.getContent().add(
+								JDBCUtil.getClobString(observationClob));
+						observation.setObservationBlob(blobType);
+					} catch (IOException ioEx) {
+						ioEx.printStackTrace();
+						throw ioEx;
+					}
 				}
 			}
 
@@ -169,6 +173,7 @@ public class RPDRPdoFactory {
 
 				observation.setSourcesystemCd(rowSet
 						.getString("obs_sourcesystem_cd"));
+				observation.setUploadId(rowSet.getString("obs_upload_id"));
 			}
 
 			return observation;
@@ -317,6 +322,8 @@ public class RPDRPdoFactory {
 
 				patientDimensionType.setSourcesystemCd(rowSet
 						.getString("patient_sourcesystem_cd"));
+				patientDimensionType.setUploadId(rowSet
+						.getString("patient_upload_id"));
 			}
 
 			return patientDimensionType;
@@ -392,6 +399,9 @@ public class RPDRPdoFactory {
 
 				providerDimensionType.setSourcesystemCd(rowSet
 						.getString("provider_sourcesystem_cd"));
+				providerDimensionType.setUploadId(rowSet
+						.getString("provider_upload_id"));
+
 			}
 
 			return providerDimensionType;
@@ -468,6 +478,9 @@ public class RPDRPdoFactory {
 
 				conceptDimensionType.setSourcesystemCd(rowSet
 						.getString("concept_sourcesystem_cd"));
+
+				conceptDimensionType.setUploadId(rowSet
+						.getString("concept_upload_id"));
 			}
 
 			return conceptDimensionType;
@@ -527,11 +540,19 @@ public class RPDRPdoFactory {
 				visitDimensionType.getParam().add(locationParamType);
 
 				ParamType siteParamType = new ParamType();
-				locationParamType.setName(rowSet
-						.getString("visit_location_path"));
-				locationParamType.setColumn("site_cd");
+				siteParamType.setName(rowSet.getString("visit_location_path"));
+				siteParamType.setColumn("location_path");
+				// locationParamType.setColumn("site_cd");
 				siteParamType.setValue(rowSet.getString("visit_location_path"));
 				visitDimensionType.getParam().add(siteParamType);
+
+				ParamType activeStatusParamType = new ParamType();
+				activeStatusParamType.setValue(rowSet
+						.getString("visit_active_status_cd"));
+				activeStatusParamType.setName(rowSet
+						.getString("active_status_name"));
+				activeStatusParamType.setColumn("active_status_cd");
+				visitDimensionType.getParam().add(activeStatusParamType);
 
 				Date startDate = rowSet.getTimestamp("visit_start_date");
 
@@ -581,9 +602,175 @@ public class RPDRPdoFactory {
 
 				visitDimensionType.setSourcesystemCd(rowSet
 						.getString("visit_sourcesystem_cd"));
+
+				visitDimensionType.setUploadId(rowSet
+						.getString("visit_upload_id"));
 			}
 
 			return visitDimensionType;
+		}
+	}
+
+	/*
+	 * Inner class to build pid section in table PDO format
+	 */
+	public static class PidBuilder {
+		boolean pmDetailFlag = false;
+		boolean pmBlobFlag = false;
+		boolean pmStatusFlag = false;
+
+		public PidBuilder(boolean detailFlag, boolean blobFlag,
+				boolean statusFlag) {
+			this.pmDetailFlag = detailFlag;
+			this.pmBlobFlag = blobFlag;
+			this.pmStatusFlag = statusFlag;
+		}
+
+		/**
+		 * Read one record from resultset and build concept set
+		 * 
+		 * @param rowSet
+		 * @param source
+		 * @return ConceptSet.Concept
+		 * @throws SQLException
+		 * @throws IOException
+		 */
+		public PidType buildPidSet(ResultSet rowSet) throws SQLException,
+				IOException {
+			PidType.PatientMapId patientMapType = new PidType.PatientMapId();
+			patientMapType.setValue(rowSet.getString("pm_patient_ide"));
+			patientMapType.setSource(rowSet.getString("pm_patient_ide_source"));
+
+			PatientId patientId = new PatientId();
+			patientId.setValue(rowSet.getString("pm_patient_num"));
+
+			PidType pidType = new PidType();
+			pidType.setPatientId(patientId);
+			pidType.getPatientMapId().add(patientMapType);
+			// patientMapType.setValue(rowSet.getString("pm_patient_num"));
+
+			if (pmDetailFlag) {
+				patientMapType.setStatus(rowSet
+						.getString("pm_patient_ide_status"));
+			}
+
+			if (pmBlobFlag) {
+				; // no blob field in the mapping table
+			}
+
+			if (pmStatusFlag) {
+				if (rowSet.getTimestamp("pm_update_date") != null) {
+					patientMapType.setUpdateDate(dtoFactory
+							.getXMLGregorianCalendar(rowSet.getTimestamp(
+									"pm_update_date").getTime()));
+				}
+
+				if (rowSet.getTimestamp("pm_download_date") != null) {
+					patientMapType.setDownloadDate(dtoFactory
+							.getXMLGregorianCalendar(rowSet.getTimestamp(
+									"pm_download_date").getTime()));
+				}
+
+				if (rowSet.getTimestamp("pm_import_date") != null) {
+					patientMapType.setImportDate(dtoFactory
+							.getXMLGregorianCalendar(rowSet.getTimestamp(
+									"pm_import_date").getTime()));
+				}
+
+				patientMapType.setSourcesystemCd(rowSet
+						.getString("pm_sourcesystem_cd"));
+				patientMapType.setUploadId(rowSet.getString("pm_upload_id"));
+
+			}
+
+			return pidType;
+		}
+	}
+
+	/*
+	 * Inner class to build pid section in table PDO format
+	 */
+	public static class EidBuilder {
+		boolean pmDetailFlag = false;
+		boolean pmBlobFlag = false;
+		boolean pmStatusFlag = false;
+
+		public EidBuilder(boolean detailFlag, boolean blobFlag,
+				boolean statusFlag) {
+			this.pmDetailFlag = detailFlag;
+			this.pmBlobFlag = blobFlag;
+			this.pmStatusFlag = statusFlag;
+		}
+
+		/**
+		 * Read one record from resultset and build concept set
+		 * 
+		 * @param rowSet
+		 * @param source
+		 * @return ConceptSet.Concept
+		 * @throws SQLException
+		 * @throws IOException
+		 */
+		public EidType buildEidSet(ResultSet rowSet) throws SQLException,
+				IOException {
+			EidType.EventMapId eventMapType = new EidType.EventMapId();
+			eventMapType.setValue(rowSet.getString("em_encounter_ide"));
+			eventMapType.setSource(rowSet.getString("em_encounter_ide_source"));
+			eventMapType.setPatientId(rowSet.getString("em_patient_ide"));
+			eventMapType.setPatientIdSource(rowSet
+					.getString("em_patient_ide_source"));
+
+			EidType.EventId eventId = new EidType.EventId();
+			eventId.setValue(rowSet.getString("em_encounter_num"));
+
+			EidType eidType = new EidType();
+			eidType.setEventId(eventId);
+			eidType.getEventMapId().add(eventMapType);
+			// patientMapType.setValue(rowSet.getString("pm_patient_num"));
+
+			if (pmDetailFlag) {
+				eventMapType.setStatus(rowSet
+						.getString("em_encounter_ide_status"));
+				eventId.setStatus(eventMapType.getStatus());
+			}
+
+			if (pmBlobFlag) {
+				; // no blob field in the mapping table
+			}
+
+			if (pmStatusFlag) {
+				if (rowSet.getTimestamp("em_update_date") != null) {
+					eventMapType.setUpdateDate(dtoFactory
+							.getXMLGregorianCalendar(rowSet.getTimestamp(
+									"em_update_date").getTime()));
+					eventId.setUpdateDate(eventMapType.getUpdateDate());
+				}
+
+				if (rowSet.getTimestamp("em_download_date") != null) {
+					eventMapType.setDownloadDate(dtoFactory
+							.getXMLGregorianCalendar(rowSet.getTimestamp(
+									"em_download_date").getTime()));
+					eventId.setDownloadDate(eventMapType.getDownloadDate());
+				}
+
+				if (rowSet.getTimestamp("em_import_date") != null) {
+					eventMapType.setImportDate(dtoFactory
+							.getXMLGregorianCalendar(rowSet.getTimestamp(
+									"em_import_date").getTime()));
+					eventId.setImportDate(eventMapType.getImportDate());
+				}
+
+				eventMapType.setSourcesystemCd(rowSet
+						.getString("em_sourcesystem_cd"));
+				eventId.setSourcesystemCd(eventMapType.getSourcesystemCd());
+
+				eventMapType.setUploadId(rowSet.getString("em_upload_id"));
+				eventId.setUploadId(eventMapType.getUploadId());
+			}
+
+			// 
+
+			return eidType;
 		}
 	}
 }

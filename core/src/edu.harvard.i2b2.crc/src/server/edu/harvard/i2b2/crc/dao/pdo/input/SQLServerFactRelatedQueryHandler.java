@@ -15,16 +15,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import javax.sql.DataSource;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.jdbc.object.BatchSqlUpdate;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
@@ -37,8 +32,10 @@ import edu.harvard.i2b2.crc.dao.pdo.PdoQueryHandler;
 import edu.harvard.i2b2.crc.dao.pdo.RPDRPdoFactory;
 import edu.harvard.i2b2.crc.dao.pdo.filter.DimensionFilter;
 import edu.harvard.i2b2.crc.dao.pdo.output.ConceptFactRelated;
+import edu.harvard.i2b2.crc.dao.pdo.output.EidFactRelated;
 import edu.harvard.i2b2.crc.dao.pdo.output.ObservationFactFactRelated;
 import edu.harvard.i2b2.crc.dao.pdo.output.PatientFactRelated;
+import edu.harvard.i2b2.crc.dao.pdo.output.PidFactRelated;
 import edu.harvard.i2b2.crc.dao.pdo.output.ProviderFactRelated;
 import edu.harvard.i2b2.crc.dao.pdo.output.VisitFactRelated;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
@@ -89,6 +86,10 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 	/** helper class for concepts in pdo * */
 	private ConceptFactRelated conceptFactRelated = null;
 
+	private PidFactRelated pidFactRelated = null;
+
+	private EidFactRelated eidFactRelated = null;
+
 	/** helper class for observation fact in pdo * */
 	private ObservationFactFactRelated obsFactFactRelated = null;
 	/** to store unique patient number list present in fact* */
@@ -117,8 +118,13 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 
 	private DataSourceLookup dataSourceLookup = null;
 
-	public static final String TEMP_PDO_OBSFACT_TABLE = "#TEMP_PDO_OBSFACT";
+	// public static final String TEMP_PDO_OBSFACT_TABLE = "#TEMP_PDO_OBSFACT";
 	public static final String TEMP_PDO_INPUTLIST_TABLE = "#TEMP_PDO_INPUTLIST";
+	public static final String TEMP_FACT_PARAM_TABLE = "#TEMP_FACT_PARAM_TABLE";
+	// public static final String TEMP_PDO_INPUTLIST_TABLE1 =
+	// "#TEMP_PDO_INPUTLIST1";
+
+	private List<String> panelSqlList = new ArrayList<String>();
 
 	/**
 	 * Constructor with parameter
@@ -144,6 +150,8 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 				.getConceptSetUsingFilterList());
 		obsFactFactRelated = new ObservationFactFactRelated(outputOptionList
 				.getObservationSet());
+		pidFactRelated = new PidFactRelated(outputOptionList.getPidSet());
+		eidFactRelated = new EidFactRelated(outputOptionList.getEidSet());
 
 		// check if concept filter present
 		if ((filterList != null) && (filterList.getPanel() != null)
@@ -175,6 +183,8 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 				// generate sql
 				String querySql = buildQuery(null,
 						PdoQueryHandler.PLAIN_PDO_TYPE);
+				panelSqlList.add(buildQueryCommon(null,
+						PdoQueryHandler.PLAIN_PDO_TYPE));
 				log.debug("Executing sql[" + querySql + "]");
 				// execute fullsql
 				resultSet = executeQuery(conn, querySql, sqlParamCount,
@@ -186,14 +196,34 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 					// generate sql
 					String querySql = buildQuery(panel,
 							PdoQueryHandler.PLAIN_PDO_TYPE);
+					panelSqlList.add(buildQueryCommon(panel,
+							PdoQueryHandler.PLAIN_PDO_TYPE));
 					log.debug("Executing sql[" + querySql + "]");
 					// execute fullsql
 					sqlParamCount = panel.getItem().size();
+					if (panel.getInvert() == 1) {
+						sqlParamCount++;
+					}
+					long startTimeSql = System.currentTimeMillis();
 					resultSet = executeQuery(conn, querySql, sqlParamCount,
 							createTempTable);
+					// set createTempTable flag to false after the first
+					// iteration
+					createTempTable = false;
+					long endTimeSql = System.currentTimeMillis();
+					long totalTimeSql = endTimeSql - startTimeSql;
+					System.out
+							.println("******* Total time to execute observation sql"
+									+ totalTimeSql);
+					long startTime = System.currentTimeMillis();
 					// build facts
 					observationFactSetList.add(buildPDOFact(resultSet, panel
 							.getName()));
+					long endTime = System.currentTimeMillis();
+					long totalTime = endTime - startTime;
+					System.out
+							.println("******* Total time to build observation "
+									+ totalTime);
 				}
 			}
 		} catch (SQLException sqlEx) {
@@ -203,7 +233,13 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 		} finally {
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn);
+				// deleteTempTable(conn);
+				try {
+					inputOptionListHandler.deleteTempTable(conn);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			// close connection
 			try {
@@ -242,6 +278,8 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 				String querySql = buildQuery(null,
 						PdoQueryHandler.PLAIN_PDO_TYPE);
 				log.debug("Executing sql[" + querySql + "]");
+				panelSqlList.add(buildQueryCommon(null,
+						PdoQueryHandler.PLAIN_PDO_TYPE));
 				// execute fullsql
 				resultSet = executeQuery(conn, querySql, sqlParamCount,
 						createTempTable);
@@ -253,13 +291,30 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 					String querySql = buildQuery(panel,
 							PdoQueryHandler.TABLE_PDO_TYPE);
 					log.debug("Executing sql[" + querySql + "]");
+					panelSqlList.add(buildQueryCommon(panel,
+							PdoQueryHandler.TABLE_PDO_TYPE));
 					sqlParamCount = panel.getItem().size();
+					if (panel.getInvert() == 1) {
+						sqlParamCount++;
+					}
+					long startTimeSql = System.currentTimeMillis();
 					// execute fullsql
 					resultSet = executeQuery(conn, querySql, sqlParamCount,
 							createTempTable);
+					long endTimeSql = System.currentTimeMillis();
+					long totalTimeSql = endTimeSql - startTimeSql;
+					System.out
+							.println("******* Total time to execute observation sql"
+									+ totalTimeSql);
+					long startTime = System.currentTimeMillis();
 					// build facts
 					observationSetList.add(buildTablePDOFact(resultSet, panel
 							.getName()));
+					long endTime = System.currentTimeMillis();
+					long totalTime = endTime - startTime;
+					System.out
+							.println("******* Total time to build observation "
+									+ totalTime);
 					createTempTable = false;
 				}
 			}
@@ -270,7 +325,17 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 		} finally {
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn);
+				/*
+				 * IInputOptionListHandler inputOptionListHandler = PDOFactory
+				 * .buildInputListHandler(inputList, dataSourceLookup);
+				 */
+				try {
+
+					inputOptionListHandler.deleteTempTable(conn);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			// close connection
 			try {
@@ -319,19 +384,19 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 		return visitFactList;
 	}
 
-	/**
-	 * This is the main function to build query for plain and table pdo request
-	 * 
-	 * @param pdoType
-	 * @return String
-	 * @throws I2B2DAOException
-	 */
-	public String buildQuery(PanelType panel, String pdoType)
+	public String buildTotalQuery(PanelType panel, String pdoType)
+			throws I2B2DAOException {
+		// TODO Auto-generated method stub
+		return buildQueryCommon(panel, pdoType);
+	}
+
+	private String buildQueryCommon(PanelType panel, String pdoType)
 			throws I2B2DAOException {
 		String obsFactSelectClause = null;
 
 		if (obsFactFactRelated != null) {
-			obsFactSelectClause = obsFactFactRelated.getSelectClause();
+			obsFactSelectClause = obsFactFactRelated
+					.getSelectClauseWithoutBlob();
 
 			if (obsFactSelectClause.length() <= 0) {
 				obsFactSelectClause = obsFactFactRelated
@@ -345,7 +410,10 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 			tableLookupJoinClause = getLookupJoinClause(obsFactFactRelated
 					.isSelectDetail(), obsFactFactRelated.isSelectBlob(),
 					obsFactFactRelated.isSelectStatus());
-			obsFactSelectClause += " , concept_lookup.name_char concept_name, provider_lookup.name_char provider_name, modifier_lookup.name_char modifier_name,location_lookup.name_char location_name ";
+			obsFactSelectClause += " , concept_lookup.name_char concept_name, provider_lookup.name_char provider_name, modifier_lookup.name_char modifier_name";
+			if (obsFactFactRelated.isSelectDetail()) {
+				obsFactSelectClause += " , location_lookup.name_char location_name ";
+			}
 		}
 
 		String fullWhereClause = "";
@@ -359,6 +427,14 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 			inputOptionListHandler = new VisitListTypeHandler(dataSourceLookup,
 					inputList.getEventList());
 			fullWhereClause = " obs.encounter_num IN  \n";
+		} else if (inputList.getPidList() != null) {
+			inputOptionListHandler = new PidListTypeHandler(dataSourceLookup,
+					inputList.getPidList());
+			fullWhereClause = " obs.patient_num IN  ";
+		} else if (inputList.getEidList() != null) {
+			inputOptionListHandler = new EidListTypeHandler(dataSourceLookup,
+					inputList.getEidList());
+			fullWhereClause = " obs.encounter_num IN  ";
 		} else {
 			throw new I2B2DAOException(
 					"Input option list does not contain visit or patient list");
@@ -370,8 +446,14 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 		String factByConceptSql = "";
 		String factWithoutFilterSql = "";
 
-		String mainQuerySql = "SELECT * FROM ( \n";
+		String mainSelectBlobClause = " ";
+		if (obsFactFactRelated.isSelectBlob()) {
+			mainSelectBlobClause = " , observation_blob obs_observation_blob";
+		}
 
+		// String mainQuerySql = "SELECT * FROM ( \n";
+		String mainQuerySql = "SELECT b.* " + mainSelectBlobClause + " FROM "
+				+ this.getDbSchemaName() + "observation_FACT obs ,( \n";
 		try {
 			if (panel != null) {
 				factByConceptSql = factQueryWithDimensionFilter(
@@ -396,7 +478,9 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 			throw new I2B2DAOException(i2b2Ex.getMessage(), i2b2Ex);
 		}
 
-		mainQuerySql += "   ) as final where rnum >= 0 ";
+		mainQuerySql += "   ) as b where rnum >= 0 ";
+		mainQuerySql += " and obs.encounter_num = b.obs_encounter_num and obs.patient_num = b.obs_patient_num  ";
+		mainQuerySql += "  and obs.concept_cd = b.obs_concept_cd and obs.provider_id = b.obs_provider_id and obs.start_date  = b.obs_start_date and obs.modifier_cd = b.obs_modifier_cd ";
 
 		TotalItemOccurrences totOccurance = panel.getTotalItemOccurrences();
 		if (totOccurance != null && totOccurance.getValue() > 1) {
@@ -415,6 +499,21 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 			mainQuerySql += " AND seqNumber " + totOccuranceOperator
 					+ totOcurranceValue;
 		}
+
+		return mainQuerySql;
+
+	}
+
+	/**
+	 * This is the main function to build query for plain and table pdo request
+	 * 
+	 * @param pdoType
+	 * @return String
+	 * @throws I2B2DAOException
+	 */
+	public String buildQuery(PanelType panel, String pdoType)
+			throws I2B2DAOException {
+		String mainQuerySql = this.buildQueryCommon(panel, pdoType);
 		mainQuerySql += " ORDER BY obs_patient_num,obs_start_date,obs_concept_cd,rnum";
 		return mainQuerySql;
 	}
@@ -586,10 +685,10 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 		}
 
 		if (totalItemOccurance > 1) {
-			factByProviderSql = "SELECT /*+ FIRST_ROWS(200000) */ a.*, row_number() over(order by obs_patient_num) as rnum FROM (\n"
+			factByProviderSql = "SELECT  a.*, row_number() over(order by obs_patient_num) as rnum FROM (\n"
 					+ factByProviderSql;
 		} else {
-			factByProviderSql = "SELECT /*+ FIRST_ROWS(200000) */ a.*, row_number() over(order by obs_patient_num) as rnum FROM (\n"
+			factByProviderSql = "SELECT  a.*, row_number() over(order by obs_patient_num) as rnum FROM (\n"
 					+ factByProviderSql;
 		}
 
@@ -610,7 +709,7 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 	 */
 	private String factQueryWithoutFilter(String obsFactSelectClause,
 			String tableLookupJoinClause, String fullWhereClause) {
-		String factSql = "SELECT /*+ FIRST_ROWS(200000) */ b.*, ROWNUM rnum FROM (\n";
+		String factSql = "SELECT  b.*, ROWNUM rnum FROM (\n";
 		factSql += (" SELECT /*+ index (obs OBFACT_PATCON_SDED_NVTV_IDX)*/ "
 				+ obsFactSelectClause + " FROM " + this.getDbSchemaName() + "observation_FACT obs\n");
 
@@ -634,57 +733,25 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 			boolean statusFlag) {
 		String joinClause = " ";
 
+		joinClause = " left JOIN "
+				+ this.getDbSchemaName()
+				+ "code_lookup modifier_lookup \n"
+				+ " ON (obs.modifier_cd = modifier_lookup.code_Cd AND modifier_lookup.column_cd = 'MODIFIER_CD') \n"
+				+ " left JOIN " + this.getDbSchemaName()
+				+ "concept_dimension concept_lookup \n"
+				+ " ON (obs.concept_cd = concept_lookup.concept_Cd) \n"
+				+ " left JOIN " + this.getDbSchemaName()
+				+ "provider_dimension provider_lookup \n"
+				+ " ON (obs.provider_id = provider_lookup.provider_id) \n";
+
 		if (detailFlag) {
-			joinClause = " left JOIN "
-					+ this.getDbSchemaName()
-					+ "code_lookup modifier_lookup \n"
-					+ " ON (obs.modifier_cd = modifier_lookup.code_Cd AND modifier_lookup.column_cd = 'MODIFIER_CD') \n"
-					+ " left JOIN "
-					+ this.getDbSchemaName()
-					+ "concept_dimension concept_lookup \n"
-					+ " ON (obs.concept_cd = concept_lookup.concept_Cd) \n"
-					+ " left JOIN "
-					+ this.getDbSchemaName()
-					+ "provider_dimension provider_lookup \n"
-					+ " ON (obs.provider_id = provider_lookup.provider_id) \n"
-					+ " left JOIN "
+			joinClause += " left JOIN "
 					+ this.getDbSchemaName()
 					+ "code_lookup location_lookup \n"
 					+ " ON (obs.location_Cd = location_lookup.code_Cd AND location_lookup.column_cd = 'LOCATION_CD') \n";
 		}
 
 		return joinClause;
-	}
-
-	private void upLoadTempTable(Connection conn) throws SQLException {
-		List<String> enumList = inputOptionListHandler.getEnumerationList();
-		// ArrayDescriptor desc =
-		// ArrayDescriptor.createDescriptor("QT_PDO_QRY_INT_ARRAY",
-		// conn1);
-
-		// oracle.sql.ARRAY paramArray = new oracle.sql.ARRAY(desc, conn1,
-		// enumList.toArray(new String[] { }));
-
-		// create temp table
-		java.sql.Statement tempStmt = conn.createStatement();
-		String createTempInputListTable = "create table "
-				+ TEMP_PDO_INPUTLIST_TABLE + " ( input_id varchar(100) )";
-		tempStmt.executeUpdate(createTempInputListTable);
-		// load to temp table
-		// TempInputListInsert inputListInserter = new
-		// TempInputListInsert(dataSource,TEMP_PDO_INPUTLIST_TABLE);
-		// inputListInserter.setBatchSize(100);
-		int i = 0;
-		for (String singleValue : enumList) {
-			tempStmt.addBatch("insert into " + TEMP_PDO_INPUTLIST_TABLE
-					+ " values ('" + singleValue + "' )");
-			i++;
-			if (i % 100 == 0) {
-				tempStmt.executeBatch();
-
-			}
-		}
-		tempStmt.executeBatch();
 	}
 
 	private void deleteTempTable(Connection conn) {
@@ -721,13 +788,13 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 	 */
 	private void addToDistinctList(String encounterNum, String patientNum,
 			String providerId, String conceptCd) {
-		if (visitFactRelated.isSelected()) {
+		if (visitFactRelated.isSelected() || eidFactRelated.isSelected()) {
 			if (!visitFactList.contains(encounterNum)) {
 				visitFactList.add(encounterNum);
 			}
 		}
 
-		if (patientFactRelated.isSelected()) {
+		if (patientFactRelated.isSelected() || pidFactRelated.isSelected()) {
 			if (!patientFactList.contains(patientNum)) {
 				patientFactList.add(patientNum);
 			}
@@ -744,6 +811,7 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 				conceptFactList.add(conceptCd);
 			}
 		}
+
 	}
 
 	/**
@@ -766,7 +834,8 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 			}
 		} else if (inputOptionListHandler.isEnumerationSet()) {
 			if (createTempTable) {
-				upLoadTempTable(conn);
+				// upLoadTempTable(conn);
+				inputOptionListHandler.uploadEnumerationValueToTempTable(conn);
 			}
 		}
 
@@ -836,7 +905,7 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 		while (rowSet.next()) {
 			ObservationType observation = null;
 			observation = observationFactBuilder.buildObservationSet(rowSet,
-					"i2b2");
+					"HIVE");
 
 			if (obsFactFactRelated.isSelected()) {
 				currentObservationSet.getObservation().add(observation);
@@ -850,34 +919,6 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 		}
 
 		return currentObservationSet;
-	}
-
-	/**
-	 * Patient_Mapping insert code.
-	 */
-	protected class TempInputListInsert extends BatchSqlUpdate {
-
-		/**
-		 * Create a new instance of Patient_MappingInsert.
-		 * 
-		 * @param ds
-		 *            the DataSource to use for the insert
-		 */
-		protected TempInputListInsert(DataSource ds, String tempTableName) {
-
-			super(ds, "INSERT INTO " + tempTableName + "  (" + "INPUT_ID" + ")"
-					+ " VALUES(?)");
-			declareParameter(new SqlParameter(Types.VARCHAR));
-			compile();
-		}
-
-		protected void insert(String id) {
-
-			// do self insert
-			Object[] objs = new Object[] { id };
-			super.update(objs);
-		}
-
 	}
 
 	private String generatePanelDateConstrain(
@@ -931,4 +972,9 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 		}
 		return dateConstrainSql;
 	}
+
+	public List<String> getPanelSqlList() {
+		return this.panelSqlList;
+	}
+
 }

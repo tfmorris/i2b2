@@ -10,6 +10,16 @@
     
     <xs:element name="filterlistType" type="crc:filter_listType"/>
     
+    
+    <xs:complexType name="GetPDOTemplate_requestType">
+        <xs:complexContent>
+            <xs:extension base="crc:requestType">
+                <xs:sequence>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
         <xs:complexType name="GetPDOFromInputList_requestType">
         <xs:complexContent>
             <xs:extension base="crc:requestType">
@@ -82,7 +92,7 @@
         </xs:sequence>
     </xs:complexType>        
     
-
+  
      <xs:complexType name="GetConceptByPrimaryKey_requestType">
         <xs:complexContent>
             <xs:extension base="crc:requestType">
@@ -124,9 +134,13 @@
    		<xs:choice>
 		    <xs:element name="patient_list" type="crc:patient_listType" maxOccurs="1"/>
 		    <xs:element name="event_list" type="crc:event_listType" maxOccurs="1"/>
-	      </xs:choice>    
+   		    <xs:element name="pid_list" type="crc:pid_listType" maxOccurs="1"/>
+   		    <xs:element name="eid_list" type="crc:eid_listType" maxOccurs="1"/>
+        </xs:choice>    
     </xs:complexType>
 
+  
+    
     <xs:complexType name="output_option_listType">
         <xs:all>
             <xs:element name="observation_set" type="crc:fact_output_optionType" minOccurs="0"/>
@@ -135,6 +149,7 @@
             <xs:element name="observer_set_using_filter_list" type="crc:output_optionType" minOccurs="0"/>
             <xs:element name="concept_set_using_filter_list" type="crc:output_optionType" minOccurs="0"/>
             <xs:element name="pid_set" type="crc:output_optionType" minOccurs="0"/>
+            <xs:element name="eid_set" type="crc:output_optionType" minOccurs="0"/>
             <xs:element name="dimension_set" type="crc:dimension_output_optionType"  minOccurs="0"/>
         </xs:all>
         <xs:attribute name="phi" type="crc:outputOptionPhiType" />
@@ -220,6 +235,43 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:complexType name="pid_listType">
+        <xs:complexContent>
+            <xs:extension base="crc:rangeType">
+                <xs:choice>
+                    <xs:element name="pid" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:simpleContent>
+                                <xs:extension base="xs:string">
+                                    <xs:attribute name="index" type="xs:int" use="required"/>
+                                    <xs:attribute name="source" type="xs:string" use="required"/>
+                                </xs:extension>
+                            </xs:simpleContent>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:choice>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="eid_listType">
+        <xs:complexContent>
+            <xs:extension base="crc:rangeType">
+                <xs:choice>
+                    <xs:element name="eid" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:simpleContent>
+                                <xs:extension base="xs:string">
+                                    <xs:attribute name="index" type="xs:int" use="required"/>
+                                    <xs:attribute name="source" type="xs:string" use="required"/>
+                                </xs:extension>
+                            </xs:simpleContent>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:choice>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
     
     <xs:complexType name="observer_listType">
         <xs:sequence>

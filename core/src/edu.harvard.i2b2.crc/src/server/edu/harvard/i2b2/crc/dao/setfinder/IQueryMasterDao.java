@@ -17,6 +17,14 @@ public interface IQueryMasterDao {
 			String i2b2RequestXml);
 
 	/**
+	 * Write query sql for the master id
+	 * 
+	 * @param masterId
+	 * @param generatedSql
+	 */
+	public void updateQuerySQL(String masterId, String generatedSql);
+
+	/**
 	 * Returns list of query master by user id
 	 * 
 	 * @param userId

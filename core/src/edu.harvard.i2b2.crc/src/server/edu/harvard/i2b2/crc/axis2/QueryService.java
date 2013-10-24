@@ -23,6 +23,8 @@ import org.springframework.util.Assert;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
+import edu.harvard.i2b2.crc.delegate.loader.LoaderQueryRequestDelegate;
+import edu.harvard.i2b2.crc.delegate.loader.PublishDataRequestHandler;
 import edu.harvard.i2b2.crc.delegate.pdo.PdoQueryRequestDelegate;
 import edu.harvard.i2b2.crc.delegate.setfinder.QueryRequestDelegate;
 import edu.harvard.i2b2.crc.loader.ws.ProviderRestService;
@@ -35,7 +37,7 @@ import edu.harvard.i2b2.crc.loader.ws.ProviderRestService;
  * <li>For example http://localhost:8080/axis2/services/crc/serfinderrequest
  * http://localhost:8080/axis2/services/crc/pdorequest
  * 
- * $Id: QueryService.java,v 1.13 2008/09/08 14:14:09 rk903 Exp $
+ * $Id: QueryService.java,v 1.14 2009/09/10 19:32:06 rk903 Exp $
  * 
  * @author rkuttan
  * @see QueryRequestDelegate
@@ -82,8 +84,24 @@ public class QueryService {
 		Assert.notNull(request,
 				"publish data request OMElement must not be null");
 		log.debug("Inside publish data request " + request);
-		ProviderRestService rs = new ProviderRestService();
-		return rs.publishDataRequest(request);
+		LoaderQueryRequestDelegate queryDelegate = new LoaderQueryRequestDelegate();
+		OMElement responseElement = null;
+		try {
+			String requestXml = request.toString();
+			PublishDataRequestHandler handler = new PublishDataRequestHandler(
+					requestXml);
+			String response = queryDelegate.handleRequest(requestXml, handler);
+			responseElement = buildOMElementFromString(response);
+
+		} catch (XMLStreamException e) {
+			log.error("xml stream exception", e);
+		} catch (I2B2Exception e) {
+			log.error("i2b2 exception", e);
+		} catch (Throwable e) {
+			log.error("Throwable", e);
+		}
+		return responseElement;
+
 	}
 
 	public OMElement getLoadDataStatusRequest(OMElement request) {

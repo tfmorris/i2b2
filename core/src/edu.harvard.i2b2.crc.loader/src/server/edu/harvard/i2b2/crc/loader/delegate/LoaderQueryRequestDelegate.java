@@ -97,10 +97,10 @@ public class LoaderQueryRequestDelegate extends RequestHandlerDelegate {
 					return response;
 				}
 
-				log.info("project name from PM " + projectType.getName());
-				log.info("project id from PM " + projectType.getId());
+				log.debug("project name from PM " + projectType.getName());
+				log.debug("project id from PM " + projectType.getId());
 				if (projectType.getRole().get(0) != null) {
-					log.info("Project role from PM "
+					log.debug("Project role from PM "
 							+ projectType.getRole().get(0));
 				} else {
 					log.warn("project role not set for user ["

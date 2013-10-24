@@ -34,172 +34,181 @@ import edu.harvard.i2b2.crc.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.ResultStatusType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.StatusType;
 
-
 /**
- * Top level class to process the request. There will be
- * seperate requesthandler class for each request type.
- * The main processing of for the request will be done inside
- * execute function
- * $Id: RequestHandler.java,v 1.10 2008/03/19 22:38:24 rk903 Exp $
+ * Top level class to process the request. There will be seperate requesthandler
+ * class for each request type. The main processing of for the request will be
+ * done inside execute function $Id: RequestHandler.java,v 1.10 2008/03/19
+ * 22:38:24 rk903 Exp $
+ * 
  * @author rkuttan
  */
 public abstract class RequestHandler {
-    /** log **/
-    protected final Log log = LogFactory.getLog(getClass());
-    protected DataSourceLookup dataSourceLookup = null;
+	/** log **/
+	protected final Log log = LogFactory.getLog(getClass());
+	protected DataSourceLookup dataSourceLookup = null;
 
-    /**
-     * Function to perform operation on the given
-     * request
-     * @return response xml message
-     */
-    public abstract BodyType execute() throws I2B2Exception;
+	/**
+	 * Function to perform operation on the given request
+	 * 
+	 * @return response xml message
+	 */
+	public abstract BodyType execute() throws I2B2Exception;
 
-    /**
-     * Class to fetch specific request message
-     * from i2b2 message xml
-     * @param requestXml
-     * @param classname
-     * @return  object which is of type classname
-     * @throws JAXBUtilException
-     */
-    protected Object getRequestType(String requestXml, Class classname)
-        throws JAXBUtilException {
-        Object returnObject = null;
+	/**
+	 * Class to fetch specific request message from i2b2 message xml
+	 * 
+	 * @param requestXml
+	 * @param classname
+	 * @return object which is of type classname
+	 * @throws JAXBUtilException
+	 */
+	protected Object getRequestType(String requestXml, Class classname)
+			throws JAXBUtilException {
+		Object returnObject = null;
 
-        JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
-        JAXBElement jaxbElement = jaxbUtil.unMashallFromString(requestXml);
-        RequestMessageType requestMessageType = (RequestMessageType) jaxbElement.getValue();
-        BodyType bodyType = requestMessageType.getMessageBody();
-        JAXBUnWrapHelper unWrapHelper = new JAXBUnWrapHelper();
-        //get request header type
-        returnObject = unWrapHelper.getObjectByClass(bodyType.getAny(),
-                classname);
+		JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
+		JAXBElement jaxbElement = jaxbUtil.unMashallFromString(requestXml);
+		RequestMessageType requestMessageType = (RequestMessageType) jaxbElement
+				.getValue();
+		BodyType bodyType = requestMessageType.getMessageBody();
+		JAXBUnWrapHelper unWrapHelper = new JAXBUnWrapHelper();
+		// get request header type
+		returnObject = unWrapHelper.getObjectByClass(bodyType.getAny(),
+				classname);
 
-        return returnObject;
-    }
+		return returnObject;
+	}
 
-    /**
-     * Function to build response message type
-     * using given bodytype and request xml
-     * @param requestXml
-     * @param bodyType
-     * @return i2b2 response message xml
-     * @throws JAXBUtilException
-     */
-    protected String buildResponseMessage(String requestXml, BodyType bodyType)
-        throws JAXBUtilException {
-        JAXBUtil util = CRCJAXBUtil.getJAXBUtil();
-        RequestMessageType requestMsgType = getI2B2RequestMessageType(requestXml);
-        MessageHeaderType messageHeader = requestMsgType.getMessageHeader();
+	/**
+	 * Function to build response message type using given bodytype and request
+	 * xml
+	 * 
+	 * @param requestXml
+	 * @param bodyType
+	 * @return i2b2 response message xml
+	 * @throws JAXBUtilException
+	 */
+	protected String buildResponseMessage(String requestXml, BodyType bodyType)
+			throws JAXBUtilException {
+		JAXBUtil util = CRCJAXBUtil.getJAXBUtil();
+		RequestMessageType requestMsgType = getI2B2RequestMessageType(requestXml);
+		MessageHeaderType messageHeader = requestMsgType.getMessageHeader();
 
-        //reverse sending and receiving app
-        ApplicationType sendingApp = messageHeader.getSendingApplication();
-        ApplicationType receiveApp = messageHeader.getReceivingApplication();
-        messageHeader.setSendingApplication(receiveApp);
-        messageHeader.setReceivingApplication(sendingApp);
+		// reverse sending and receiving app
+		ApplicationType sendingApp = messageHeader.getSendingApplication();
+		ApplicationType receiveApp = messageHeader.getReceivingApplication();
+		messageHeader.setSendingApplication(receiveApp);
+		messageHeader.setReceivingApplication(sendingApp);
 
-        //set instance num
-        MessageControlIdType messageControlIdType = messageHeader.getMessageControlId();
+		// set instance num
+		MessageControlIdType messageControlIdType = messageHeader
+				.getMessageControlId();
 
-        if (messageControlIdType != null) {
-            messageControlIdType.setInstanceNum(1);
-        }
+		if (messageControlIdType != null) {
+			messageControlIdType.setInstanceNum(1);
+		}
 
-        StatusType statusType = new StatusType();
-        statusType.setType("DONE");
+		StatusType statusType = new StatusType();
+		statusType.setType("DONE");
 
-        //:TODO statusType.setValue(sessionId);
-        PollingUrlType pollingType = new PollingUrlType();
-        pollingType.setIntervalMs(100);
+		// :TODO statusType.setValue(sessionId);
+		PollingUrlType pollingType = new PollingUrlType();
+		pollingType.setIntervalMs(100);
 
-        //:TODO value come from property file
-        //pollingType.setValue("http://phsi2b2appdev:8080/QueryProcessor/getResult");
-        ResultStatusType resultStatusType = new ResultStatusType();
-        resultStatusType.setStatus(statusType);
-        resultStatusType.setPollingUrl(pollingType);
+		// :TODO value come from property file
+		// pollingType.setValue(
+		// "http://phsi2b2appdev:8080/QueryProcessor/getResult");
+		ResultStatusType resultStatusType = new ResultStatusType();
+		resultStatusType.setStatus(statusType);
+		resultStatusType.setPollingUrl(pollingType);
 
-        InfoType infoType = new InfoType();
-        //:TODO value come from property file
-        //infoType.setUrl("http://phsi2b2appdev:8080/QueryProcessor/getStatus");
-        infoType.setValue("Log information");
+		InfoType infoType = new InfoType();
+		// :TODO value come from property file
+		//infoType.setUrl("http://phsi2b2appdev:8080/QueryProcessor/getStatus");
+		infoType.setValue("Log information");
 
-        ResponseHeaderType responseHeader = new ResponseHeaderType();
-        responseHeader.setResultStatus(resultStatusType);
-        responseHeader.setInfo(infoType);
+		ResponseHeaderType responseHeader = new ResponseHeaderType();
+		responseHeader.setResultStatus(resultStatusType);
+		responseHeader.setInfo(infoType);
 
-        ResponseMessageType responseMessageType = new ResponseMessageType();
-        responseMessageType.setMessageHeader(messageHeader);
-        responseMessageType.setResponseHeader(responseHeader);
-        responseMessageType.setMessageBody(bodyType);
+		ResponseMessageType responseMessageType = new ResponseMessageType();
+		responseMessageType.setMessageHeader(messageHeader);
+		responseMessageType.setResponseHeader(responseHeader);
+		responseMessageType.setMessageBody(bodyType);
 
-        edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
-        StringWriter strWriter = new StringWriter();
-        util.marshaller(of.createResponse(responseMessageType), strWriter);
+		edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
+		StringWriter strWriter = new StringWriter();
+		util.marshaller(of.createResponse(responseMessageType), strWriter);
 
-        return strWriter.toString();
-    }
+		return strWriter.toString();
+	}
 
-    /**
-     * Function to unmarshall i2b2 request message type
-     * @param requestXml
-     * @return RequestMessageType
-     * @throws JAXBUtilException
-     */
-    protected RequestMessageType getI2B2RequestMessageType(String requestXml)
-        throws JAXBUtilException {
-        JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
-        JAXBElement jaxbElement = jaxbUtil.unMashallFromString(requestXml);
-        RequestMessageType requestMessageType = (RequestMessageType) jaxbElement.getValue();
-        
-       
-        return requestMessageType;
-    }
+	/**
+	 * Function to unmarshall i2b2 request message type
+	 * 
+	 * @param requestXml
+	 * @return RequestMessageType
+	 * @throws JAXBUtilException
+	 */
+	protected RequestMessageType getI2B2RequestMessageType(String requestXml)
+			throws JAXBUtilException {
+		JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
+		JAXBElement jaxbElement = jaxbUtil.unMashallFromString(requestXml);
+		RequestMessageType requestMessageType = (RequestMessageType) jaxbElement
+				.getValue();
 
-    /**
-     * Function marshall i2b2 response message type
-     * @param responseMessageType
-     * @return
-     */
-    protected String getResponseString(ResponseMessageType responseMessageType) {
-        StringWriter strWriter = new StringWriter();
+		return requestMessageType;
+	}
 
-        try {
-            edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
-            JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
-            jaxbUtil.marshaller(of.createResponse(responseMessageType),
-                strWriter);
-        } catch (JAXBUtilException e) {
-            log.error("Error while generating response message" +
-                e.getMessage());
-        }
+	/**
+	 * Function marshall i2b2 response message type
+	 * 
+	 * @param responseMessageType
+	 * @return
+	 */
+	protected String getResponseString(ResponseMessageType responseMessageType) {
+		StringWriter strWriter = new StringWriter();
 
-        return strWriter.toString();
-    }
-    
-    protected edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType buildCRCStausType(String statusType,String message) {
-    	edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType st = new edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType();
-    	edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType.Condition condition = new edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType.Condition();
-    	condition.setType(statusType);
-    	condition.setValue(message);
-    	st.getCondition().add(condition);
-    	return st;
-    }
-    
-    protected void setDataSourceLookup(String requestXml) throws JAXBUtilException { 
-    	RequestMessageType reqMessage = getI2B2RequestMessageType(requestXml);
-    	String projectId = reqMessage.getMessageHeader().getProjectId();
-    	String domainId = reqMessage.getMessageHeader().getSecurity().getDomain();
-    	String userId = reqMessage.getMessageHeader().getSecurity().getUsername();
-    	dataSourceLookup = new DataSourceLookup();
-    	dataSourceLookup.setProjectPath(projectId);
-    	dataSourceLookup.setDomainId(domainId);
-    	dataSourceLookup.setOwnerId(userId);
-    	
-    }
-    
-    protected DataSourceLookup getDataSourceLookup() { 
-    	return dataSourceLookup;
-    }
-   
+		try {
+			edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
+			JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
+			jaxbUtil.marshaller(of.createResponse(responseMessageType),
+					strWriter);
+		} catch (JAXBUtilException e) {
+			log.error("Error while generating response message"
+					+ e.getMessage());
+		}
+
+		return strWriter.toString();
+	}
+
+	protected edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType buildCRCStausType(
+			String statusType, String message) {
+		edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType st = new edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType();
+		edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType.Condition condition = new edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType.Condition();
+		condition.setType(statusType);
+		condition.setValue(message);
+		st.getCondition().add(condition);
+		return st;
+	}
+
+	protected void setDataSourceLookup(String requestXml)
+			throws JAXBUtilException {
+		RequestMessageType reqMessage = getI2B2RequestMessageType(requestXml);
+		String projectId = reqMessage.getMessageHeader().getProjectId();
+		String domainId = reqMessage.getMessageHeader().getSecurity()
+				.getDomain();
+		String userId = reqMessage.getMessageHeader().getSecurity()
+				.getUsername();
+		dataSourceLookup = new DataSourceLookup();
+		dataSourceLookup.setProjectPath(projectId);
+		dataSourceLookup.setDomainId(domainId);
+		dataSourceLookup.setOwnerId(userId);
+
+	}
+
+	protected DataSourceLookup getDataSourceLookup() {
+		return dataSourceLookup;
+	}
+
 }

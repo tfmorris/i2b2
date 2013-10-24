@@ -27,12 +27,13 @@ import org.apache.axis2.client.ServiceClient;
 
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.crc.datavo.i2b2message.MessageHeaderType;
+import edu.harvard.i2b2.crc.datavo.i2b2message.PasswordType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.RequestHeaderType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.SecurityType;
 
 /**
- * Class to hold helper functions to 
- * pack and unwrap xml payload 
+ * Class to hold helper functions to pack and unwrap xml payload
+ * 
  * @author rkuttan
  */
 public abstract class CRCAxisAbstract {
@@ -42,59 +43,66 @@ public abstract class CRCAxisAbstract {
 		messageHeader.setHl7VersionCompatible(new BigDecimal("2.4"));
 		edu.harvard.i2b2.crc.datavo.i2b2message.ApplicationType appType = new edu.harvard.i2b2.crc.datavo.i2b2message.ApplicationType();
 		appType.setApplicationName("i2b2 Project Management");
-		appType.setApplicationVersion("1.0"); 
+		appType.setApplicationVersion("1.0");
 		messageHeader.setSendingApplication(appType);
 		Date currentDate = new Date();
 		DTOFactory factory = new DTOFactory();
-		messageHeader.setDatetimeOfMessage(factory.getXMLGregorianCalendar(currentDate.getTime()));
+		messageHeader.setDatetimeOfMessage(factory
+				.getXMLGregorianCalendar(currentDate.getTime()));
 		messageHeader.setAcceptAcknowledgementType("AL");
 		messageHeader.setApplicationAcknowledgementType("AL");
 		messageHeader.setCountryCode("US");
 		SecurityType securityType = new SecurityType();
-		securityType.setDomain("");
-		securityType.setUsername("");
-		securityType.setPassword("");
+		securityType.setDomain("demo");
+		securityType.setUsername("demo");
+		PasswordType ptype = new PasswordType();
+		ptype.setValue("demouser");
+		securityType.setPassword(ptype);
 		messageHeader.setSecurity(securityType);
-		messageHeader.setProjectId("asthma");
+		messageHeader.setProjectId("Demo");
 		return messageHeader;
 	}
-	
+
 	public static RequestHeaderType generateRequestHeader() {
-		RequestHeaderType reqHeaderType = new RequestHeaderType(); 
+		RequestHeaderType reqHeaderType = new RequestHeaderType();
 		reqHeaderType.setResultWaittimeMs(90000);
 		return reqHeaderType;
 	}
-	
-	public static String getQueryString(String filename) throws Exception  { 
+
+	public static String getQueryString(String filename) throws Exception {
 		StringBuffer queryStr = new StringBuffer();
-		DataInputStream dataStream = new DataInputStream(new FileInputStream(filename));
-		while(dataStream.available()>0) {
+		DataInputStream dataStream = new DataInputStream(new FileInputStream(
+				filename));
+		while (dataStream.available() > 0) {
 			queryStr.append(dataStream.readLine() + "\n");
 		}
 		System.out.println("queryStr" + queryStr);
-		return queryStr.toString();	
+		return queryStr.toString();
 	}
-	
-	public static ServiceClient getServiceClient(String serviceUrl) throws Exception {
+
+	public static ServiceClient getServiceClient(String serviceUrl)
+			throws Exception {
 		Options options = new Options();
 		EndpointReference endpointReference = new EndpointReference(serviceUrl);
 		options.setTo(endpointReference);
 		options.setTimeOutInMilliSeconds(2700000);
 		options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-		options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
+		options.setProperty(Constants.Configuration.ENABLE_REST,
+				Constants.VALUE_TRUE);
 		ServiceClient sender = new ServiceClient();
 		sender.setOptions(options);
 		return sender;
 	}
-	
-	public static OMElement convertStringToOMElement(String requestXmlString) throws Exception { 
-		StringReader strReader = new StringReader(requestXmlString);
-        XMLInputFactory xif = XMLInputFactory.newInstance();
-        XMLStreamReader reader = xif.createXMLStreamReader(strReader);
 
-        StAXOMBuilder builder = new StAXOMBuilder(reader);
-        OMElement lineItem = builder.getDocumentElement();
-        return lineItem;
+	public static OMElement convertStringToOMElement(String requestXmlString)
+			throws Exception {
+		StringReader strReader = new StringReader(requestXmlString);
+		XMLInputFactory xif = XMLInputFactory.newInstance();
+		XMLStreamReader reader = xif.createXMLStreamReader(strReader);
+
+		StAXOMBuilder builder = new StAXOMBuilder(reader);
+		OMElement lineItem = builder.getDocumentElement();
+		return lineItem;
 	}
-	
+
 }

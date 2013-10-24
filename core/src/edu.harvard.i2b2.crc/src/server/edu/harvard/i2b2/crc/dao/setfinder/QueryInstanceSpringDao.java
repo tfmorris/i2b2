@@ -9,32 +9,25 @@
  */
 package edu.harvard.i2b2.crc.dao.setfinder;
 
-import edu.harvard.i2b2.common.exception.I2B2DAOException;
-import edu.harvard.i2b2.crc.dao.CRCDAO;
-import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
-import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
-import edu.harvard.i2b2.crc.datavo.db.IntegerStringUserType;
-import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
-import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
-import edu.harvard.i2b2.crc.datavo.db.QtQueryResultInstance;
-import edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Date;
+import java.util.List;
 
-import org.hibernate.Hibernate;
-import org.hibernate.Query;
-import org.hibernate.Session;
+import javax.sql.DataSource;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.SqlUpdate;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import javax.sql.DataSource;
+import edu.harvard.i2b2.crc.dao.CRCDAO;
+import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
+import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType;
 
 /**
  * Class to handle persistance operation of Query instance i.e. each run of
@@ -133,18 +126,43 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 	 * @param queryInstance
 	 * @return QtQueryInstance
 	 */
-	public QtQueryInstance update(QtQueryInstance queryInstance) {
+	public QtQueryInstance update(QtQueryInstance queryInstance,
+			boolean appendMessageFlag) {
 
 		Integer statusTypeId = (queryInstance.getQtQueryStatusType() != null) ? queryInstance
 				.getQtQueryStatusType().getStatusTypeId()
 				: null;
+		String messageUpdate = "";
+		if (appendMessageFlag) {
+			String concatOperator = "";
+			if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.ORACLE)) {
+				concatOperator = "||";
+				messageUpdate = " MESSAGE = nvl(MESSAGE,'') " + concatOperator
+						+ " ? ";
+			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.SQLSERVER)) {
+				concatOperator = "+";
+				messageUpdate = " MESSAGE = isnull(Cast(MESSAGE as nvarchar(4000)),'') "
+						+ concatOperator + " ? ";
+				// Cast(notes as nvarchar(4000))
+			}
+
+		} else {
+			messageUpdate = " MESSAGE = ?";
+		}
 		String sql = "UPDATE "
 				+ getDbSchemaName()
-				+ "QT_QUERY_INSTANCE set USER_ID = ?, GROUP_ID = ?,BATCH_MODE = ?,END_DATE = ? ,STATUS_TYPE_ID = ? where query_instance_id = ? ";
-		jdbcTemplate.update(sql, new Object[] { queryInstance.getUserId(),
-				queryInstance.getGroupId(), queryInstance.getBatchMode(),
+				+ "QT_QUERY_INSTANCE set USER_ID = ?, GROUP_ID = ?,BATCH_MODE = ?,END_DATE = ? ,STATUS_TYPE_ID = ?, "
+				+ messageUpdate + " where query_instance_id = ? ";
+		jdbcTemplate.update(sql, new Object[] {
+				queryInstance.getUserId(),
+				queryInstance.getGroupId(),
+				queryInstance.getBatchMode(),
 				queryInstance.getEndDate(),
-				statusTypeId, queryInstance.getQueryInstanceId() });
+				statusTypeId,
+				(queryInstance.getMessage() == null) ? "" : queryInstance
+						.getMessage(), queryInstance.getQueryInstanceId() });
 		return queryInstance;
 	}
 
@@ -239,9 +257,10 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 		}
 	}
 
-	private  class QtQueryInstanceRowMapper implements RowMapper {
-		QueryStatusTypeSpringDao statusTypeDao = new QueryStatusTypeSpringDao(dataSource,dataSourceLookup);
-		
+	private class QtQueryInstanceRowMapper implements RowMapper {
+		QueryStatusTypeSpringDao statusTypeDao = new QueryStatusTypeSpringDao(
+				dataSource, dataSourceLookup);
+
 		public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
 			QtQueryInstance queryInstance = new QtQueryInstance();
 			queryInstance.setQueryInstanceId(rs.getString("QUERY_INSTANCE_ID"));
@@ -250,11 +269,13 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 			queryInstance.setQtQueryMaster(queryMaster);
 			queryInstance.setUserId(rs.getString("USER_ID"));
 			queryInstance.setGroupId(rs.getString("GROUP_ID"));
-			queryInstance.setBatchMode(rs.getString("GROUP_ID"));
+			queryInstance.setBatchMode(rs.getString("BATCH_MODE"));
 			queryInstance.setStartDate(rs.getTimestamp("START_DATE"));
 			queryInstance.setEndDate(rs.getTimestamp("END_DATE"));
-			int statusTypeId =  rs.getInt("STATUS_TYPE_ID");
-			queryInstance.setQtQueryStatusType(statusTypeDao.getQueryStatusTypeById(statusTypeId));
+			queryInstance.setMessage(rs.getString("MESSAGE"));
+			int statusTypeId = rs.getInt("STATUS_TYPE_ID");
+			queryInstance.setQtQueryStatusType(statusTypeDao
+					.getQueryStatusTypeById(statusTypeId));
 			queryInstance.setDeleteFlag(rs.getString("DELETE_FLAG"));
 			return queryInstance;
 		}

@@ -480,54 +480,55 @@ public class FolderDao extends JdbcDaoSupport {
 	            child.setName(rs.getString("c_name"));
 //	            child.setTooltip(rs.getString("c_tooltip"));
 	            child.setWorkXmlI2B2Type(rs.getString("c_work_xml_i2b2_type"));
-	            Clob xml_clob = rs.getClob("c_work_xml");
-	            try {
-					if(xml_clob != null){
-						String c_xml = JDBCUtil.getClobString(xml_clob);
-			//			Log log2 = LogFactory.getLog(FolderDao.class);
-			//			log2.debug("CLOB STRING TO CHECK");
-			//			log2.debug(c_xml);
-						if ((c_xml!=null)&&(c_xml.trim().length()>0)&&(!c_xml.equals("(null)")))
-						{
-							Element rootElement = null;
-							try{
-								Document doc = XMLUtil.convertStringToDOM(c_xml);
-								rootElement = doc.getDocumentElement();
-							} catch (I2B2Exception e) {
-								log.error(e.getMessage());
-								child.setWorkXml(null);
-							}
-							if (rootElement != null) {
-							/*	try {
-									log2.debug("ROOT ELEMENT TO CHECK");
-									String test = XMLUtil.convertDOMElementToString(rootElement);
-									log2.debug(test);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}*/
-								
-								if(child.getWorkXmlI2B2Type().equals("CONCEPT")  ) {
-									NodeList nameElements = rootElement.getElementsByTagName("name");
-									nameElements.item(0).setTextContent(renameChildType.getName());	   
-
-									NodeList synonymElements = rootElement.getElementsByTagName("synonym_cd");
-									if(synonymElements.item(0) != null)
-										synonymElements.item(0).setTextContent("Y");
-
-								}
-								XmlValueType xml = new XmlValueType();
-								xml.getAny().add(rootElement);
-								child.setWorkXml(xml); 
-							}	
-						}
-					}else {
-						child.setWorkXml(null);
-					}
-				} catch (IOException e1) {
-					log.error(e1.getMessage());
-					child.setWorkXml(null);
-				} 
+	            
+//	            Clob xml_clob = rs.getClob("c_work_xml");
+//	            try {
+//					if(xml_clob != null){
+//						String c_xml = JDBCUtil.getClobString(xml_clob);
+//			//			Log log2 = LogFactory.getLog(FolderDao.class);
+//			//			log2.debug("CLOB STRING TO CHECK");
+//			//			log2.debug(c_xml);
+//						if ((c_xml!=null)&&(c_xml.trim().length()>0)&&(!c_xml.equals("(null)")))
+//						{
+//							Element rootElement = null;
+//							try{
+//								Document doc = XMLUtil.convertStringToDOM(c_xml);
+//								rootElement = doc.getDocumentElement();
+//							} catch (I2B2Exception e) {
+//								log.error(e.getMessage());
+//								child.setWorkXml(null);
+//							}
+//							if (rootElement != null) {
+//							/*	try {
+//									log2.debug("ROOT ELEMENT TO CHECK");
+//									String test = XMLUtil.convertDOMElementToString(rootElement);
+//									log2.debug(test);
+//								} catch (Exception e) {
+//									// TODO Auto-generated catch block
+//									e.printStackTrace();
+//								}*/
+//								
+//								if(child.getWorkXmlI2B2Type().equals("CONCEPT")  ) {
+//									NodeList nameElements = rootElement.getElementsByTagName("name");
+//									nameElements.item(0).setTextContent(renameChildType.getName());	   
+//
+//									NodeList synonymElements = rootElement.getElementsByTagName("synonym_cd");
+//									if(synonymElements.item(0) != null)
+//										synonymElements.item(0).setTextContent("Y");
+//
+//								}
+//								XmlValueType xml = new XmlValueType();
+//								xml.getAny().add(rootElement);
+//								child.setWorkXml(xml); 
+//							}	
+//						}
+//					}else {
+//						child.setWorkXml(null);
+//					}
+//				} catch (IOException e1) {
+//					log.error(e1.getMessage());
+//					child.setWorkXml(null);
+//				} 
 	            return child;
 	        }
 		};
@@ -558,10 +559,12 @@ public class FolderDao extends JdbcDaoSupport {
 			String updateSql = "update " + metadataSchema+tableName  + " set c_name = ?, c_work_xml = ? where c_index = ? ";
 
 			String newXml = null;
-			Element newXmlElement = node.getWorkXml().getAny().get(0);
-			if(newXmlElement != null)
+//			Element newXmlElement = node.getWorkXml().getAny().get(0);
+			Element newXmlElement = renameChildType.getWorkXml().getAny().get(0);
+			if(newXmlElement != null){
 				newXml = XMLUtil.convertDOMElementToString(newXmlElement);
-
+//				log.debug(newXml);				
+			}
 			try {
 				numRowsRenamed = jt.update(updateSql, renameChildType.getName(), newXml, index);
 			} catch (DataAccessException e) {
@@ -926,7 +929,7 @@ public class FolderDao extends JdbcDaoSupport {
 //	            	child.setHierarchy("\\\\" + tableCd + rs.getString("c_hierarchy")); 
 	            	child.setIndex("\\\\" + tableCd + "\\" + rs.getString("c_index")); 
 	            }
-	            log.debug("getMapper: " + child.getIndex());
+	      //      log.debug("getMapper: " + child.getIndex());
 		        child.setName(rs.getString("c_name"));
 	            if(!(type.equals("default"))) {
 	            	child.setUserId(rs.getString("c_user_id"));
@@ -968,16 +971,16 @@ public class FolderDao extends JdbcDaoSupport {
 	            					child.setWorkXml(xml);
 	            				}
 	            				else {
-	            					log.debug("rootElement is null");
+	    //        					log.debug("rootElement is null");
 	            					child.setWorkXml(null);
 	            				}
 	            			}else {
-	            				log.debug("work xml is null");
+	         //   				log.debug("work xml is null");
 	            				child.setWorkXml(null);
 	            			}
 	            		}
 	            		else {
-            				log.debug("work xml is null");
+            //				log.debug("work xml is null");
             				child.setWorkXml(null);
             			}
 	            	} catch (Exception e) {
@@ -1012,16 +1015,16 @@ public class FolderDao extends JdbcDaoSupport {
 	            					child.setWorkXmlSchema(xml);
 	            				}
 	            				else {
-	            					log.debug("rootElement is null");
+	//            					log.debug("rootElement is null");
 	            					child.setWorkXmlSchema(null);
 	            				}
 	            			}else {
-	            				log.debug("work xml schema is null");
+	 //           				log.debug("work xml schema is null");
 	            				child.setWorkXmlSchema(null);
 	            			}
 	            		}
 	            		else {
-            				log.debug("work xml schema is null");
+     //       				log.debug("work xml schema is null");
             				child.setWorkXmlSchema(null);
             			}
 	            	} catch (Exception e) {

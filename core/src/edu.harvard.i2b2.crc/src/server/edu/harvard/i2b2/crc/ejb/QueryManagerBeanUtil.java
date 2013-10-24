@@ -33,11 +33,7 @@ import edu.harvard.i2b2.common.util.ServiceLocator;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
-import edu.harvard.i2b2.crc.datavo.i2b2message.ApplicationType;
-import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.InfoType;
-import edu.harvard.i2b2.crc.datavo.i2b2message.MessageControlIdType;
-import edu.harvard.i2b2.crc.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.PollingUrlType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.RequestHeaderType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.RequestMessageType;
@@ -45,58 +41,52 @@ import edu.harvard.i2b2.crc.datavo.i2b2message.ResponseHeaderType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.ResultStatusType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.StatusType;
-import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterInstanceResultResponseType;
-import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryInstanceType;
-import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryMasterType;
-import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryResultInstanceType;
-import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryStatusTypeType;
-import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultResponseType;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 public class QueryManagerBeanUtil {
 
-	 /** log **/
-    protected final Log log = LogFactory.getLog(getClass());
-    
+	/** log **/
+	protected final Log log = LogFactory.getLog(getClass());
+
 	public final static String RESPONSE_QUEUE_NAME = "queue/jms.querytool.QueryResponse";
-	//public final static String UPLOADPROCESSOR_QUEUE_NAME = "queue/jms.querytool.QueryExecutor";
-	
-	
-	
+	// public final static String UPLOADPROCESSOR_QUEUE_NAME =
+	// "queue/jms.querytool.QueryExecutor";
+
 	public final static String SMALL_QUEUE_NAME = "queue/jms.querytool.QueryExecutorSmall";
 	public final static String MEDIUM_QUEUE_NAME = "queue/jms.querytool.QueryExecutorMedium";
 	public final static String LARGE_QUEUE_NAME = "queue/jms.querytool.QueryExecutorLarge";
-	
+
 	public final static String QUEUE_CONN_FACTORY_NAME = "ConnectionFactory";
-	
+
 	public final static String QUERY_MASTER_GENERATED_SQL_PARAM = "QUERY_MASTER_GENERATED_SQL_PARAM";
 	public final static String QUERY_INSTANCE_ID_PARAM = "QUERY_INSTANCE_ID_PARAM";
 	public final static String QUERY_STATUS_PARAM = "QUERY_STATUS_PARAM";
 	public final static String QT_QUERY_RESULT_INSTANCE_ID_PARAM = "QT_QUERY_RESULT_INSTANCE_ID_PARAM";
 	public final static String QUERY_PATIENT_SET_ID_PARAM = "QUERY_PATIENT_SET_ID_PARAM";
 	public final static String XML_REQUEST_PARAM = "XML_REQUEST_PARAM";
-	
-	public final static String DS_LOOKUP_DOMAIN_ID = "DS_LOOKUP_DOMAIN_ID"; 
+
+	public final static String DS_LOOKUP_DOMAIN_ID = "DS_LOOKUP_DOMAIN_ID";
 	public final static String DS_LOOKUP_PROJECT_ID = "DS_LOOKUP_PROJECT_ID";
 	public final static String DS_LOOKUP_OWNER_ID = "DS_LOOKUP_OWNER_ID";
-	
-	
-	public QueryManagerBeanUtil(){ 
-		
+
+	public QueryManagerBeanUtil() {
+
 	}
-	
-			
-	public Map testSend(String domainId,String projectId, String ownerId, String generatedSql,String sessionId,String queryInstanceId,String patientSetId, String xmlRequest,
-							long timeout) throws Exception {
+
+	public Map testSend(String domainId, String projectId, String ownerId,
+			String generatedSql, String sessionId, String queryInstanceId,
+			String patientSetId, String xmlRequest, long timeout)
+			throws Exception {
 		String status = null;
-		
+
 		QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
 		ServiceLocator serviceLocator = ServiceLocator.getInstance();
-		QueueConnection conn = serviceLocator.getQueueConnectionFactory(QUEUE_CONN_FACTORY_NAME)
-				.createQueueConnection();
+		QueueConnection conn = serviceLocator.getQueueConnectionFactory(
+				QUEUE_CONN_FACTORY_NAME).createQueueConnection();
 		Queue sendQueue = serviceLocator.getQueue(SMALL_QUEUE_NAME);
 		Queue responseQueue = serviceLocator.getQueue(RESPONSE_QUEUE_NAME);
-		QueueSession session = conn.createQueueSession(false,javax.jms.Session.AUTO_ACKNOWLEDGE);
+		QueueSession session = conn.createQueueSession(false,
+				javax.jms.Session.AUTO_ACKNOWLEDGE);
 		String id = sessionId;
 		String selector = "JMSCorrelationID='" + id + "'";
 		QueueSender sender = session.createSender(sendQueue);
@@ -105,7 +95,7 @@ public class QueryManagerBeanUtil {
 		mapMsg.setJMSReplyTo(responseQueue);
 
 		mapMsg.setString(XML_REQUEST_PARAM, xmlRequest);
-		mapMsg.setString(QUERY_MASTER_GENERATED_SQL_PARAM , generatedSql);
+		mapMsg.setString(QUERY_MASTER_GENERATED_SQL_PARAM, generatedSql);
 		mapMsg.setString(QUERY_INSTANCE_ID_PARAM, queryInstanceId);
 		mapMsg.setString(QUERY_PATIENT_SET_ID_PARAM, patientSetId);
 		mapMsg.setString(DS_LOOKUP_DOMAIN_ID, domainId);
@@ -113,25 +103,26 @@ public class QueryManagerBeanUtil {
 		mapMsg.setString(DS_LOOKUP_OWNER_ID, ownerId);
 		sender.send(mapMsg);
 
-		QueueConnection conn1 = serviceLocator.getQueueConnectionFactory(QUEUE_CONN_FACTORY_NAME)
-				.createQueueConnection();
+		QueueConnection conn1 = serviceLocator.getQueueConnectionFactory(
+				QUEUE_CONN_FACTORY_NAME).createQueueConnection();
 		conn1.start();
 		QueueSession recvSession = conn1.createQueueSession(false,
 				javax.jms.Session.AUTO_ACKNOWLEDGE);
-	
-		QueueReceiver rcvr = recvSession.createReceiver(responseQueue,selector);
+
+		QueueReceiver rcvr = recvSession
+				.createReceiver(responseQueue, selector);
 		MapMessage receivedMsg = (MapMessage) rcvr.receive(timeout);
 
-		int queryResultInstanceId  = 0;
+		int queryResultInstanceId = 0;
 		if (receivedMsg == null) {
 			status = "RUNNING";
 			log.info("STATUS IS RUNNING " + status);
 		} else {
 			String responseObj = (String) receivedMsg.getString("para1");
-			log.info("Got back response from executor "
-					+ responseObj);
+			log.info("Got back response from executor " + responseObj);
 			status = "DONE";
-			queryResultInstanceId  = receivedMsg.getInt(QT_QUERY_RESULT_INSTANCE_ID_PARAM);
+			queryResultInstanceId = receivedMsg
+					.getInt(QT_QUERY_RESULT_INSTANCE_ID_PARAM);
 			log.info("RESULT INSTANCE ID " + queryResultInstanceId);
 		}
 		closeAll(sender, null, conn, session);
@@ -144,55 +135,57 @@ public class QueryManagerBeanUtil {
 	}
 
 	/*
-	public String buildQueryRequestResponse(String requestXml, String status,String sessionId,String masterId, String queryInstanceId,ResultResponseType resultResponseType) throws Exception {
-		return buildObject(requestXml,  status,  sessionId, masterId,queryInstanceId,resultResponseType );
-	}
-    */
+	 * public String buildQueryRequestResponse(String requestXml, String
+	 * status,String sessionId,String masterId, String
+	 * queryInstanceId,ResultResponseType resultResponseType) throws Exception {
+	 * return buildObject(requestXml, status, sessionId,
+	 * masterId,queryInstanceId,resultResponseType ); }
+	 */
 	public void writerRepsonseFile(String sessionId, long recordCount) {
-		try  { 
+		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(sessionId));
 			bw.write(String.valueOf(recordCount));
 			bw.close();
-		} catch (IOException ioE) { 
+		} catch (IOException ioE) {
 			ioE.printStackTrace();
 		}
 	}
-	
-	
 
-	
 	public long getTimeout(String xmlRequest) throws Exception {
 		JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
-		 JAXBElement jaxbElement =  jaxbUtil.unMashallFromString(xmlRequest);
-		 RequestMessageType requestMessageType = (RequestMessageType)jaxbElement.getValue();
-		 
-		RequestHeaderType requestHeader = requestMessageType.getRequestHeader(); 
-		long  timeOut = 1;
-		if (requestHeader != null && requestHeader.getResultWaittimeMs() >-1) { 
+		JAXBElement jaxbElement = jaxbUtil.unMashallFromString(xmlRequest);
+		RequestMessageType requestMessageType = (RequestMessageType) jaxbElement
+				.getValue();
+
+		RequestHeaderType requestHeader = requestMessageType.getRequestHeader();
+		long timeOut = 1;
+		if (requestHeader != null && requestHeader.getResultWaittimeMs() > -1) {
 			timeOut = requestHeader.getResultWaittimeMs();
 		}
 		return timeOut;
-	}	
-	
-	
-	public DataSourceLookup getDataSourceLookupInput(String xmlRequest) throws Exception { 
+	}
+
+	public DataSourceLookup getDataSourceLookupInput(String xmlRequest)
+			throws Exception {
 		DataSourceLookup dsLookupInput = null;
 		JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
-		JAXBElement jaxbElement =  jaxbUtil.unMashallFromString(xmlRequest);
-		RequestMessageType requestMessageType = (RequestMessageType)jaxbElement.getValue();
-		String projectId = requestMessageType.getMessageHeader().getProjectId(); 
-		String domainId = requestMessageType.getMessageHeader().getSecurity().getDomain();
-		String ownerId =  requestMessageType.getMessageHeader().getSecurity().getUsername();
+		JAXBElement jaxbElement = jaxbUtil.unMashallFromString(xmlRequest);
+		RequestMessageType requestMessageType = (RequestMessageType) jaxbElement
+				.getValue();
+		String projectId = requestMessageType.getMessageHeader().getProjectId();
+		String domainId = requestMessageType.getMessageHeader().getSecurity()
+				.getDomain();
+		String ownerId = requestMessageType.getMessageHeader().getSecurity()
+				.getUsername();
 		dsLookupInput = new DataSourceLookup();
 		dsLookupInput.setProjectPath(projectId);
 		dsLookupInput.setDomainId(domainId);
 		dsLookupInput.setOwnerId(ownerId);
 		return dsLookupInput;
-		
+
 	}
-	
-	
-	public  String getStatus(String sessionId) {
+
+	public String getStatus(String sessionId) {
 		String status = "UNKNOWN";
 		// check directory
 		File file = new File(sessionId);
@@ -207,10 +200,10 @@ public class QueryManagerBeanUtil {
 				// check jms
 				QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
 				ServiceLocator serviceLocator = ServiceLocator.getInstance();
-				conn1 = serviceLocator.getQueueConnectionFactory("ConnectionFactory")
-						.createQueueConnection();
+				conn1 = serviceLocator.getQueueConnectionFactory(
+						"ConnectionFactory").createQueueConnection();
 				conn1.start();
-				
+
 				responseQueue = serviceLocator.getQueue(RESPONSE_QUEUE_NAME);
 				recvSession = conn1.createQueueSession(false,
 						javax.jms.Session.AUTO_ACKNOWLEDGE);
@@ -224,17 +217,16 @@ public class QueryManagerBeanUtil {
 
 				if (receivedMsg == null) {
 					log.debug("No Reply Message Received");
-						status = "PROCESSING";
-					 
+					status = "PROCESSING";
+
 				} else {
 					String responseObj = (String) receivedMsg
 							.getString("para1");
-					log.debug("got back response from executor "
-							+ responseObj);
+					log.debug("got back response from executor " + responseObj);
 					status = "DONE";
 				}
 			} catch (Exception e) {
-				status="ERROR";
+				status = "ERROR";
 				e.printStackTrace();
 			} finally {
 				closeAll(null, rcvr, conn1, recvSession);
@@ -244,10 +236,6 @@ public class QueryManagerBeanUtil {
 		return status;
 
 	}
-	
-	
-	
-	
 
 	public String buildGetQueryResultResponse(String sessionId, String status) {
 		StringWriter strWriter = new StringWriter();
@@ -267,19 +255,19 @@ public class QueryManagerBeanUtil {
 				.setValue("http://localhost:9093/queryProcessor/checkStatus");
 		rsType.setPollingUrl(pollUrlType);
 
-		
-		//MessageType messageType = dtoFactory.buildMessageType(infoType, rsType);
+		// MessageType messageType = dtoFactory.buildMessageType(infoType,
+		// rsType);
 		ResponseHeaderType responseHeader = new ResponseHeaderType();
 		responseHeader.setInfo(infoType);
 		responseHeader.setResultStatus(rsType);
 		ResponseMessageType responseMessageType = new ResponseMessageType();
 		responseMessageType.setResponseHeader(responseHeader);
-		
-		
+
 		try {
 			JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
 			edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
-			jaxbUtil.marshaller(of.createResponse(responseMessageType), strWriter);
+			jaxbUtil.marshaller(of.createResponse(responseMessageType),
+					strWriter);
 			log.debug("i2b2 Response XML " + strWriter.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -287,7 +275,6 @@ public class QueryManagerBeanUtil {
 		return strWriter.toString();
 	}
 
-	
 	public void closeAll(QueueSender send, QueueReceiver recv,
 			QueueConnection conn, QueueSession session) {
 		try {
@@ -300,10 +287,10 @@ public class QueryManagerBeanUtil {
 
 			if (conn != null) {
 				conn.stop();
-				if (conn != null) { 
+				if (conn != null) {
 					conn.close();
 				}
-				
+
 			}
 
 			if (session != null) {
@@ -314,7 +301,5 @@ public class QueryManagerBeanUtil {
 		}
 
 	}
-	
-	
-}
 
+}

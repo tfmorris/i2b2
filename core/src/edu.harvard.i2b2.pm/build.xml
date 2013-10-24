@@ -1,10 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	$Id: build.xml,v 1.3 2010/02/03 18:19:26 mem61 Exp $
+-->
 <project basedir="." default="all" name="Project Management Cell">
 
 	
 	<property name="Project" value="edu.harvard.i2b2.pm" />
 
+	<property file="etc/spring/pm_application_directory.properties"/>
+	
 	<!-- ========== Executable Targets ======================================== -->
-	<property name="Name" value="PM" />
+	<property name="Name" value="ProjectManagement" />
 	<import file="../edu.harvard.i2b2.common/common_build.xml" />
 
 	<!-- =================================================================== -->
@@ -13,10 +19,8 @@
 	<target name="init" depends="common_init,common-classpath" description="Prepare for build">
 		<path id="classpath">
 			<path refid="common-classpath" />
-			<fileset dir="${lib}">
-				<include name="**/*.jar" />
-			</fileset>
 			<pathelement location="${classes}" />
+			<pathelement location="lib/jcifs-1.3.3.jar" />
 			<pathelement location="../${i2b2CommonProject}/dist/i2b2Common-core.jar" />
 		</path>
 
@@ -37,16 +41,16 @@
 	<!-- =================================================================== -->
 	<!-- 								COMMON JAXB GENERATION 				 -->
 	<!-- =================================================================== -->
-	<target name="jaxb_gen" depends="init" description="Generate JAXB classes for i2b2 and Patient Data messages">
-		<xjc destdir="${gensrc}" removeOldOutput="no">
-			<schema dir="../${i2b2xmlproject}/xsd/cell/pm_1.1" includes="PM_USER.xsd" />
-			<schema dir="../${i2b2xmlproject}/xsd/hive/msg_1.1" includes="i2b2_response.xsd" />
-			<schema dir="../${i2b2xmlproject}/xsd/cell/pm_1.1" includes="i2b2_version_msg.xsd" />
-			<binding dir="." includes="etc/xsd_1.1/i2b2_pm_bindings.xjb" />
-			<binding dir="." includes="etc/xsd_1.1/i2b2_response_message_bindings.xjb" />
-			<binding dir="." includes="etc/xsd_1.1/i2b2_version_bindings.xjb" />
-		</xjc>
-	</target>
+	<target name="jaxb_gen" depends="init" description="Generate JAXB classes for i2b2 and Vocab Data messages">
+				<xjc destdir="${gensrc}" removeOldOutput="no">
+					<schema dir="../${i2b2xmlproject}/xsd/cell/pm_1.1" includes="PM_USER.xsd" />
+					<schema dir="../${i2b2xmlproject}/xsd/hive/msg_1.1" includes="i2b2_response.xsd" />
+					<schema dir="../${i2b2xmlproject}/xsd/cell/pm_1.1" includes="i2b2_version_msg.xsd" />
+					<binding dir="." includes="etc/xsd_1.1/i2b2_pm_bindings.xjb" />
+					<binding dir="." includes="etc/xsd_1.1/i2b2_response_message_bindings.xjb" />
+					<binding dir="." includes="etc/xsd_1.1/i2b2_version_bindings.xjb" />
+				</xjc>
+		</target>
 
 	<!-- =================================================================== -->
 	<!-- 								COMPILE 							 -->
@@ -54,10 +58,9 @@
 	<target name="compile" depends="init,jaxb_gen" description="Compile files without cleaning">
 		<mkdir dir="${classes}" />
 		<javac destdir="${classes}" optimize="${javac.opt}" debug="${javac.debug}">
-			<src path="${src}/core" />
+			<src path="${src}" />
 			<src path="${gensrc}" />
-			<src path="${src}/test" />
-			<src path="${src}/sample" />
+		<!--	<src path="${src}/test" />  -->
 			<classpath refid="classpath" />
 		</javac>
 	</target>
@@ -69,82 +72,93 @@
 	<target name="dist"  description="package application for distribution/deployment">
 		<echo message="${Name}: Creating the archive package!" />
 		<antcall target="axis2aar" />
-		<antcall target="jar_core" /> 
-		<antcall target="services_core" />
-	<!--	<antcall target="axis2_wsdl_sample_aar" /> -->
+		<antcall target="jar_core" />
 	</target>
 	
 	<!-- Axis2 archive file -->
 	<target name="axis2aar" depends="compile" description="Create Axis2 archive file">
 		<jar compress="true" jarfile="${dist}/${Name}.aar">
 			<fileset dir="${classes}">
-				<include name="**/ws/**" />
+				<include name="**/**" /> 
+				<exclude name="**/datavo/**" />
 			</fileset>
 			<zipfileset dir="${etc}/axis2/" prefix="META-INF" includes="services.xml" />
 			<zipfileset dir="../${i2b2CommonProject}/dist/" prefix="lib" includes="*.jar"/>
+						
 		</jar>
 	</target>
 	<!-- Jar core file -->
-	<target name="jar_core" depends="compile" description="Create PM core jar">
+	<target name="jar_core" depends="compile" description="Create Work core jar">
 		<jar compress="true" jarfile="${dist}/${Name}-core.jar">
 			<fileset dir="${classes}">
 				<include name="**/datavo/**" />
+				</fileset> 
+			<zipfileset dir="${etc}/axis2/" prefix="META-INF" includes="services.xml" />
+		</jar> 
+		</target>
+
+	<!-- =================================================================== -->
+	<!-- 								SERVER DIST							 -->
+	<!-- =================================================================== -->
+	<target name="dist-server"  description="package application for distribution/deployment">
+		<echo message="${Name}: Creating the server archive package!" />
+		<jar compress="true" jarfile="${dist}/${Name}-Server.jar">
+			<fileset dir="${etc}/spring">
+				<include name="**" />
 			</fileset>
-			<zipfileset dir="../${i2b2CommonProject}/dist/" prefix="lib" includes="*.jar"/>
-		</jar>
-	</target> 
-	<!-- Jar services file -->
-	<target name="services_core" depends="compile" description="Create PM gridsphere services jar">
-		<jar compress="true" jarfile="${dist}/${Name}-services.jar">
-			<fileset dir="${classes}">
-				<include name="**/services/**" />
-			</fileset>
-			<zipfileset dir="../${i2b2CommonProject}/dist/" prefix="lib" includes="*.jar"/>
 		</jar>
 	</target>
 
-
+	
 	<!-- =================================================================== -->
 	<!-- 								ALL 								 -->
 	<!-- =================================================================== -->
 	<target name="all" depends="dist">
 	</target>
+	
+	<!-- =================================================================== -->
+	<!-- 								JBOSS DEPLOY 						 -->
+	<!-- =================================================================== -->
+	<target name="deploy"  description="Deployment step:copy distribution jar files to app server">
+			<echo message="${Name}: Copying archive package to app server ${jboss.home}" />
+			<copy todir="${jboss.home}/server/default/deploy">
+				<fileset dir="${dist}">
+					<exclude name="**/**.aar" />
+					<exclude name="**/*client.jar"/>
+				</fileset>
+			</copy>
+			
+	<copy todir="${jboss.home}/server/default/deploy">
+		<fileset dir="${etc}/jboss">
+		<!--	<exclude name="**/jboss.xml" /> -->
+		</fileset>
+	</copy>
+			
+			<copy todir="${jboss.home}/server/default/deploy/${axis2.war.name}/WEB-INF/services">
+				<fileset dir="${dist}">
+					<include name="**/**.aar" />
+				</fileset>
+			</copy>
+		</target>
 
-
-	<!-- ==================================================================== -->
-	<!-- 								WSDL Sample							  -->
-	<!-- ==================================================================== -->
-	<target name="axis2_wsdl_sample_aar" depends="compile" description="">
-		<jar compress="true" jarfile="${dist}/${Name}_wsdl_sample.aar">
-			<fileset dir="${classes}">
-				<include name="**/wsdl/**" />
-				<include name="**/ws/**" />
+	<!-- =================================================================== -->
+	<!-- 								JBOSS DEPLOY ARCHIVE ONLY						 -->
+	<!-- =================================================================== -->	<target name="service_deploy">
+		<echo message="${Name}: Copying archive package to app server ${jboss.home}" />
+		<copy todir="${jboss.home}/server/default/deploy">
+			<fileset dir="${dist}">
+				<exclude name="**/**.aar" />
+				<exclude name="**/*client.jar"/>
 			</fileset>
-			<zipfileset dir="${src}/sample/resources/" prefix="META-INF" includes="services.xml" />
-			<zipfileset dir="${src}/sample/resources/" prefix="META-INF" includes="PMSoapService.wsdl" />
-		</jar>
+		</copy>
+		<!-- copy axis archive files to axis directory -->
+		<copy todir="${jboss.home}/server/default/deploy/${axis2.war.name}/WEB-INF/services">
+			<fileset dir="${dist}">
+				<include name="**/**.aar" />
+			</fileset>
+		</copy>
 	</target>
-
-	<!-- ==================================================================== -->
-	<!-- 								Test Client							  -->
-	<!-- ==================================================================== -->
-	<target name="run_client" depends="compile" description="To test service, run REST and SOAP client">
-		<!-- run rest client -->
-		<echo message="Running RESTClient .. " />
-		<java classname="edu.harvard.i2b2.pm.ws.PMServiceRESTTest" fork="true" failonerror="true" maxmemory="128m">
-			<arg value="-h" />
-			<classpath refid="classpath" />
-		</java>
-
-		<!-- run soap client -->
-		<echo message="Running SoapClient .. " />
-		<java classname="edu.harvard.i2b2.pm.ws.wsdl.PMSoapClient" fork="true" failonerror="true" maxmemory="128m">
-			<arg value="-h" />
-			<classpath refid="classpath" />
-		</java>
-		
-	</target>
-
+	
 	<!-- ==================================================================== -->
 	<!-- 							Tomcat	start						  	  -->
 	<!-- ==================================================================== -->
@@ -170,7 +184,7 @@
 	<!-- 							Tomcat	Deploy						  	  -->
 	<!-- ==================================================================== -->
 	<!-- Before running this target, make sure Tomcat is stopped -->
-	<target name="tomcat-deploy" depends="all" description="Deploy Axis2 archive and its dependend files to tomcat. 
+	<target name="tomcat-deploy" depends="dist" description="Deploy Axis2 archive and its dependend files to tomcat. 
 					Before running this target, make sure Tomcat is stopped">
 		<fail unless="tomcat.home" message="You need to specify the Tomcat home: -Dtomcat.home=c:/tomcat or use build.properties" />
 		<property name="axis2lib.dir" value="${tomcat.home}/webapps/axis2/WEB-INF/lib" />
@@ -178,13 +192,10 @@
 		<property name="i2b2common.dir" value="../${i2b2CommonProject}/" />
 		<property name="i2b2commonjaxb.dir" value="${i2b2common.dir}/lib/jaxb/" />
 
-		<copy todir="${axis2lib.dir}" file="dist/PM-core.jar" overwrite="yes" /> 
-
+		<copy todir="${axis2lib.dir}" file="dist/Workplace-core.jar" overwrite="yes" />
 		<!--
-		<copy todir="${axis2lib.dir}" file="${i2b2common.dir}/dist/i2b2Common-core.jar" overwrite="yes" />
+		<copy todir="${axis2lib.dir}" file="${i2b2common.dir}/dist/i2b2Common-Core.jar" overwrite="yes" />
 		-->
-  		<copy todir="${tomcat.home}/shared/lib" file="dist/PM-services.jar" overwrite="yes" />
-		<copy todir="gridsphere/lib" file="dist/PM-services.jar" overwrite="yes" />
 		<copy todir="${axis2lib.dir}">
 			<fileset dir="${i2b2commonjaxb.dir}">
 				<exclude name="jaxb1*.jar" />
@@ -199,3 +210,4 @@
 	</target>
 
 </project>
+

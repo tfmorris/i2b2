@@ -9,11 +9,14 @@
  */
 package edu.harvard.i2b2.crc.delegate.pdo;
 
+import java.util.List;
+
 import javax.xml.bind.JAXBElement;
 
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jboss.cache.Node;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.exception.StackTraceUtil;
@@ -31,6 +34,7 @@ import edu.harvard.i2b2.crc.datavo.pdo.query.PdoRequestTypeType;
 import edu.harvard.i2b2.crc.datavo.pm.ProjectType;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
 import edu.harvard.i2b2.crc.delegate.pm.PMServiceDriver;
+import edu.harvard.i2b2.crc.util.CacheUtil;
 
 /**
  * PDO query request delegate class $Id: PdoQueryRequestDelegate.java,v 1.16
@@ -93,9 +97,11 @@ public class PdoQueryRequestDelegate extends RequestHandlerDelegate {
 							requestXml, procStatus, bodyType);
 					return response;
 				}
+
 				PMServiceDriver pmServiceDriver = new PMServiceDriver();
 				ProjectType projectType = pmServiceDriver.checkValidUser(
 						securityType, projectId);
+				// projectType.getRole()
 				if (projectType == null) {
 					procStatus = new StatusType();
 					procStatus.setType("ERROR");
@@ -110,11 +116,23 @@ public class PdoQueryRequestDelegate extends RequestHandlerDelegate {
 				log.debug("project name from PM " + projectType.getName());
 				log.debug("project id from PM " + projectType.getId());
 				if (projectType.getRole() != null) {
-					log.error("Project role not set for the user ");
-
-				} else {
 					log.debug("project role from PM "
 							+ projectType.getRole().get(0));
+					this.putRoles(projectId, securityType.getUsername(),
+							securityType.getDomain(), projectType.getRole());
+
+					Node rootNode = CacheUtil.getCache().getRoot();
+					List<String> roles = (List<String>) rootNode
+							.get(securityType.getDomain() + "/" + projectId
+									+ "/" + securityType.getUsername());
+					if (roles != null) {
+						log.debug("User Roles count " + roles.size());
+					}
+
+				} else {
+
+					log.error("Project role not set for the user ");
+
 				}
 			} catch (AxisFault e) {
 				procStatus = new StatusType();
@@ -161,13 +179,22 @@ public class PdoQueryRequestDelegate extends RequestHandlerDelegate {
 				GetObservationFactFromPrimaryKeyHandler handler = new GetObservationFactFromPrimaryKeyHandler(
 						requestXml);
 				responseBodyType = handler.execute();
+			} else if (headerType.getRequestType().equals(
+					PdoRequestTypeType.GET_PDO_TEMPLATE)) {
+				GetPDOTemplateHandler handler = new GetPDOTemplateHandler(
+						requestXml);
+				responseBodyType = handler.execute();
 			}
 			procStatus = new StatusType();
 			procStatus.setType("DONE");
 			procStatus.setValue("DONE");
 
+			long startTime = System.currentTimeMillis();
 			response = I2B2MessageResponseFactory.buildResponseMessage(
 					requestXml, procStatus, responseBodyType, true);
+			long endTime = System.currentTimeMillis();
+			long totalTime = endTime - startTime;
+			log.debug("Total time to pdo  jaxb  " + totalTime);
 
 		} catch (JAXBUtilException e) {
 			log.error("JAXBUtil exception", e);

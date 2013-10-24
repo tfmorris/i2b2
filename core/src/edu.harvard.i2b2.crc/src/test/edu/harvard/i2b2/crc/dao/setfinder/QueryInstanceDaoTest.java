@@ -70,7 +70,7 @@ public class QueryInstanceDaoTest {
 		QtQueryInstance queryInstance = qiDAO
 				.getQueryInstanceByInstanceId(queryInstanceId);
 		queryInstance.getQtQueryStatusType().setStatusTypeId(3);
-		qiDAO.update(queryInstance);
+		qiDAO.update(queryInstance, false);
 	}
 
 }

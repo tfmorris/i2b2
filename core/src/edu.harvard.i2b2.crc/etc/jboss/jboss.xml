@@ -61,6 +61,8 @@
         </method-attributes>
       </session>
       
+     
+     
     <!--
       write a merge file jboss-webservices.ent for webservice-description 
     -->
@@ -162,7 +164,7 @@
       <instance-cache></instance-cache>
       <persistence-manager></persistence-manager>
       <container-pool-conf>
-        <MaximumSize>10</MaximumSize>
+        <MaximumSize>1000</MaximumSize>
         <strictMaximumSize>true</strictMaximumSize>
       </container-pool-conf>
     </container-configuration>

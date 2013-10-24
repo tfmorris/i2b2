@@ -31,7 +31,7 @@ import edu.harvard.i2b2.crc.datavo.pdo.PatientType;
  * Class to build individual sections of plain pdo xml like
  * patient,concept,observationfact from the given {@link java.sql.ResultSet}
  * 
- * $Id: I2B2PdoFactory.java,v 1.15 2008/08/07 14:25:05 rk903 Exp $
+ * $Id: I2B2PdoFactory.java,v 1.19 2009/11/14 16:53:58 rk903 Exp $
  * 
  * @author rkuttan
  */
@@ -174,6 +174,8 @@ public class I2B2PdoFactory {
 
 				observationFactType.setSourcesystemCd(rowSet
 						.getString("obs_sourcesystem_cd"));
+				observationFactType.setUploadId(rowSet
+						.getString("obs_upload_id"));
 			}
 
 			return observationFactType;
@@ -332,6 +334,8 @@ public class I2B2PdoFactory {
 
 				patientDimensionType.setSourcesystemCd(rowSet
 						.getString("patient_sourcesystem_cd"));
+				patientDimensionType.setUploadId(rowSet
+						.getString("patient_upload_id"));
 			}
 
 			return patientDimensionType;
@@ -413,6 +417,8 @@ public class I2B2PdoFactory {
 
 				providerDimensionType.setSourcesystemCd(rowSet
 						.getString("provider_sourcesystem_cd"));
+				providerDimensionType.setUploadId(rowSet
+						.getString("provider_upload_id"));
 			}
 
 			return providerDimensionType;
@@ -466,10 +472,14 @@ public class I2B2PdoFactory {
 			}
 
 			if (conceptBlobFlag) {
-				BlobType conceptBlobType = new BlobType();
-				conceptBlobType.getContent().add(
-						rowSet.getBlob("concept_concept_blob"));
-				conceptDimensionType.setConceptBlob(conceptBlobType);
+				Clob conceptClob = rowSet.getClob("concept_concept_blob");
+
+				if (conceptClob != null) {
+					BlobType conceptBlobType = new BlobType();
+					conceptBlobType.getContent().add(
+							JDBCUtil.getClobString(conceptClob));
+					conceptDimensionType.setConceptBlob(conceptBlobType);
+				}
 			}
 
 			if (conceptStatusFlag) {
@@ -493,6 +503,8 @@ public class I2B2PdoFactory {
 
 				conceptDimensionType.setSourcesystemCd(rowSet
 						.getString("concept_sourcesystem_cd"));
+				conceptDimensionType.setUploadId(rowSet
+						.getString("concept_upload_id"));
 			}
 
 			return conceptDimensionType;
@@ -547,9 +559,15 @@ public class I2B2PdoFactory {
 				visitDimensionType.getParam().add(locationParamType);
 
 				ParamType siteParamType = new ParamType();
-				locationParamType.setColumn("site_cd");
+				siteParamType.setColumn("location_path");
 				siteParamType.setValue(rowSet.getString("visit_location_path"));
 				visitDimensionType.getParam().add(siteParamType);
+
+				ParamType activeStatusParamType = new ParamType();
+				siteParamType.setColumn("active_status_cd");
+				siteParamType.setValue(rowSet
+						.getString("visit_active_status_cd"));
+				visitDimensionType.getParam().add(activeStatusParamType);
 
 				Date startDate = rowSet.getTimestamp("visit_start_date");
 
@@ -598,6 +616,8 @@ public class I2B2PdoFactory {
 
 				visitDimensionType.setSourcesystemCd(rowSet
 						.getString("visit_sourcesystem_cd"));
+				visitDimensionType.setUploadId(rowSet
+						.getString("visit_upload_id"));
 			}
 
 			return visitDimensionType;

@@ -28,6 +28,7 @@ import org.apache.axis2.client.ServiceClient;
 
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.crc.loader.datavo.i2b2message.MessageHeaderType;
+import edu.harvard.i2b2.crc.loader.datavo.i2b2message.PasswordType;
 import edu.harvard.i2b2.crc.loader.datavo.i2b2message.RequestHeaderType;
 import edu.harvard.i2b2.crc.loader.datavo.i2b2message.SecurityType;
 
@@ -54,7 +55,10 @@ public abstract class CRCAxisAbstract {
 		SecurityType securityType = new SecurityType();
 		securityType.setDomain("demo");
 		securityType.setUsername("demo");
-		securityType.setPassword("demouser");
+		PasswordType ptype = new PasswordType();
+		ptype.setValue("demouser");
+
+		securityType.setPassword(ptype);
 		messageHeader.setSecurity(securityType);
 		return messageHeader;
 	}

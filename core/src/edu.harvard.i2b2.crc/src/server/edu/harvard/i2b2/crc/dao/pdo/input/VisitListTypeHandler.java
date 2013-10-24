@@ -9,18 +9,25 @@
  */
 package edu.harvard.i2b2.crc.dao.pdo.input;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.crc.dao.CRCDAO;
 import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
+import edu.harvard.i2b2.crc.dao.setfinder.IQueryResultInstanceDao;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryResultInstance;
 import edu.harvard.i2b2.crc.datavo.pdo.query.EventListType;
+import edu.harvard.i2b2.crc.datavo.pdo.query.EventListType.EventId;
 
 /**
  * Handler class for visit/event list type to generate "where" clause for pdo
- * request $Id: VisitListTypeHandler.java,v 1.11 2008/11/05 16:11:45 rk903 Exp $
+ * request $Id: VisitListTypeHandler.java,v 1.17 2009/10/23 19:54:02 rk903 Exp $
  * 
  * @author rkuttan
  */
@@ -32,6 +39,7 @@ public class VisitListTypeHandler extends CRCDAO implements
 	private String encounterSetCollId = "";
 	private List<String> encounterNumList = null;
 	private DataSourceLookup dataSourceLookup = null;
+	private boolean deleteTempTableFlag = false;
 
 	/**
 	 * Constructor accepts {@link EventListType}
@@ -64,6 +72,10 @@ public class VisitListTypeHandler extends CRCDAO implements
 
 	public int getMaxIndex() {
 		return maxIndex;
+	}
+
+	public void setMaxIndex(int maxIndex) {
+		visitListType.setMax(maxIndex);
 	}
 
 	public boolean isCollectionId() {
@@ -99,7 +111,7 @@ public class VisitListTypeHandler extends CRCDAO implements
 
 		if (visitListType.getPatientEventCollId() != null) {
 			// set patient set coll id
-			this.encounterSetCollId = visitListType.getPatientEventCollId();
+			this.encounterSetCollId = this.getCollectionId();
 
 			// set sql string
 			sqlString = "select eset.encounter_num from "
@@ -112,53 +124,11 @@ public class VisitListTypeHandler extends CRCDAO implements
 			}
 		} else if ((visitListType.getEventId() != null)
 				&& (visitListType.getEventId().size() > 0)) {
-			ArrayList<String> encounterNumArrayList = new ArrayList<String>();
 
-			for (EventListType.EventId encounterNum : visitListType
-					.getEventId()) {
-				// TODO see if we can use index value from encounterNum
-				encounterNumArrayList.add(encounterNum.getValue());
-			}
+			String tempTableName = this.getTempTableName();
 
-			if (maxIndex > visitListType.getEventId().size()) {
-				// log.warn("max size is more than list size");
-				maxIndex = visitListType.getEventId().size();
-			}
+			sqlString = " select char_param1 from " + tempTableName + "  ";
 
-			// set int List
-			if (minIndex < maxIndex) {
-				this.encounterNumList = encounterNumArrayList.subList(minIndex,
-						maxIndex);
-			} else if (minIndex == maxIndex && minIndex > 0) {
-				// check if maxIndex is equal to last index
-				if (maxIndex == visitListType.getEventId().size() - 1) {
-					this.encounterNumList = new ArrayList();
-					this.encounterNumList.add(encounterNumArrayList
-							.get(maxIndex));
-				} else {
-					this.encounterNumList = encounterNumArrayList.subList(
-							minIndex, maxIndex);
-				}
-			} else {
-				maxIndex = encounterNumArrayList.size();
-				this.encounterNumList = encounterNumArrayList.subList(minIndex,
-						maxIndex);
-			}
-
-			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.ORACLE)) {
-				// set sql string
-				sqlString = " SELECT * FROM TABLE (?) ";
-			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
-				sqlString = " select encounter_num from ( select encounter_num,row_number() over(order by encounter_num) as rnum  from "
-						+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE
-						+ " ) as v ";
-				if (minIndex <= maxIndex) {
-					sqlString += " where rnum between " + minIndex + " and "
-							+ maxIndex;
-				}
-			}
 		} else if (visitListType.getEntireEventSet() != null) {
 			// by default get first 100 rows
 			if ((minIndex == 0) && (maxIndex == 0)) {
@@ -203,7 +173,7 @@ public class VisitListTypeHandler extends CRCDAO implements
 					+ "qt_patient_enc_collection eset where eset.result_instance_id = ? ";
 
 			if (minIndex < maxIndex) {
-				sqlString += (" and eset.set_index betweeen " + minIndex
+				sqlString += (" and eset.set_index between " + minIndex
 						+ " and " + maxIndex);
 			}
 		}
@@ -212,10 +182,178 @@ public class VisitListTypeHandler extends CRCDAO implements
 	}
 
 	public List<String> getEnumerationList() {
+		ArrayList<String> encounterNumArrayList = new ArrayList<String>();
+
+		for (EventListType.EventId encounterNum : visitListType.getEventId()) {
+			// TODO see if we can use index value from encounterNum
+			encounterNumArrayList.add(encounterNum.getValue());
+		}
+
+		if (maxIndex > visitListType.getEventId().size()) {
+			// log.warn("max size is more than list size");
+			maxIndex = visitListType.getEventId().size();
+		}
+
+		// set int List
+		if (minIndex < maxIndex) {
+			this.encounterNumList = encounterNumArrayList.subList(minIndex,
+					maxIndex);
+		} else if (minIndex == maxIndex && minIndex > 0) {
+			// check if maxIndex is equal to last index
+			if (maxIndex == visitListType.getEventId().size() - 1) {
+				this.encounterNumList = new ArrayList();
+				this.encounterNumList.add(encounterNumArrayList.get(maxIndex));
+			} else {
+				this.encounterNumList = encounterNumArrayList.subList(minIndex,
+						maxIndex);
+			}
+		} else {
+			maxIndex = encounterNumArrayList.size();
+			this.encounterNumList = encounterNumArrayList.subList(minIndex,
+					maxIndex);
+		}
+
 		return this.encounterNumList;
 	}
 
 	public String getCollectionId() {
+		if (isCollectionId()) {
+			encounterSetCollId = visitListType.getPatientEventCollId();
+		} else {
+
+		}
 		return encounterSetCollId;
+	}
+
+	public String generateMinIndexSql(String panelSql) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * Returns input list's size. if the list is collection id, then collection
+	 * set size, if the list is entire set, then total rows in dimension table
+	 * if the list is enumeration, then size of enumeration set
+	 * 
+	 * @return
+	 * @throws I2B2DAOException
+	 */
+	public int getInputSize() throws I2B2DAOException {
+		if (this.isEnumerationSet()) {
+			return visitListType.getEventId().size();
+		} else if (this.isCollectionId()) {
+			DAOFactoryHelper helper = new DAOFactoryHelper(dataSourceLookup
+					.getDomainId(), dataSourceLookup.getProjectPath(),
+					dataSourceLookup.getOwnerId());
+			IQueryResultInstanceDao resultInstanceDao = helper.getDAOFactory()
+					.getSetFinderDAOFactory().getPatientSetResultDAO();
+
+			QtQueryResultInstance resultInstance = resultInstanceDao
+					.getResultInstanceById(this.getCollectionId());
+			return resultInstance.getSetSize();
+		} else if (this.isEntireSet()) {
+			return 1000;
+		} else {
+			return 0;
+		}
+	}
+
+	public void uploadEnumerationValueToTempTable(Connection conn)
+			throws SQLException {
+
+		String tempTableName = this.getTempTableName();
+		deleteTempTableFlag = true;
+		// create temp table
+		java.sql.Statement tempStmt = conn.createStatement();
+		if (dataSourceLookup.getServerType().equalsIgnoreCase(
+				DAOFactoryHelper.SQLSERVER)) {
+			String createTempInputListTable = "create table "
+					+ getTempTableName()
+					+ " (set_index int, char_param1 varchar(100) )";
+			tempStmt.executeUpdate(createTempInputListTable);
+		}
+		int i = 0, j = 1;
+
+		List<EventId> pidList = visitListType.getEventId();
+		List<EventId> finalPidList = new ArrayList<EventId>();
+
+		if (maxIndex > visitListType.getEventId().size()) {
+			// log.warn("max size is more than list size");
+			maxIndex = visitListType.getEventId().size();
+		}
+		if (minIndex < maxIndex) {
+			finalPidList = pidList.subList(minIndex, maxIndex);
+		} else if (minIndex == maxIndex && minIndex > 0) {
+			// check if maxIndex is equal to last index
+			if (maxIndex == visitListType.getEventId().size() - 1) {
+				finalPidList.add(pidList.get(maxIndex));
+			} else {
+				finalPidList = pidList.subList(minIndex, maxIndex);
+			}
+
+		} else {
+			maxIndex = pidList.size();
+			finalPidList = pidList.subList(minIndex, maxIndex);
+		}
+
+		PreparedStatement preparedStmt = conn.prepareStatement("insert into "
+				+ tempTableName + "(set_index,char_param1)  values (?,?)");
+		for (EventId pid : finalPidList) {
+			preparedStmt.setInt(1, j++);
+			preparedStmt.setString(2, pid.getValue());
+
+			preparedStmt.addBatch();
+			i++;
+			if (i % 100 == 0) {
+				preparedStmt.executeBatch();
+
+			}
+
+		}
+		preparedStmt.executeBatch();
+	}
+
+	public void deleteTempTable(Connection conn) throws SQLException {
+		if (!deleteTempTableFlag) {
+			return;
+		}
+		Statement deleteStmt = null;
+		try {
+			deleteStmt = conn.createStatement();
+
+			if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.SQLSERVER)) {
+				conn.createStatement().executeUpdate(
+						"drop table " + getTempTableName());
+			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.ORACLE)) {
+				System.out.println("delete table " + getTempTableName());
+				conn.createStatement().executeUpdate(
+						"delete  " + getTempTableName());
+			}
+		} catch (SQLException sqle) {
+			throw sqle;
+		} finally {
+			try {
+				deleteStmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	private String getTempTableName() {
+		String tempTableName = "";
+		if (dataSourceLookup.getServerType().equalsIgnoreCase(
+				DAOFactoryHelper.ORACLE)) {
+			tempTableName = this.getDbSchemaName()
+					+ FactRelatedQueryHandler.TEMP_PARAM_TABLE;
+		} else {
+			tempTableName = this.getDbSchemaName()
+					+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE;
+		}
+		return tempTableName;
 	}
 }

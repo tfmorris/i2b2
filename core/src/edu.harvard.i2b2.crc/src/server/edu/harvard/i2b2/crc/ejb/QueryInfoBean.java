@@ -27,17 +27,26 @@ import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
 import edu.harvard.i2b2.crc.dao.SetFinderDAOFactory;
+import edu.harvard.i2b2.crc.dao.setfinder.IQueryInstanceDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IQueryMasterDao;
+import edu.harvard.i2b2.crc.dao.setfinder.IQueryResultInstanceDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IQueryResultTypeDao;
 import edu.harvard.i2b2.crc.datavo.PSMFactory;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryResultInstance;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryResultType;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.InstanceResultResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterRequestType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterResponseType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryInstanceType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryMasterType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryResultInstanceType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryResultTypeType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.RequestXmlType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultTypeResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.UserRequestType;
 
@@ -252,6 +261,109 @@ public class QueryInfoBean implements SessionBean {
 		queryMasterType.setName(queryNewName);
 		masterResponseType.getQueryMaster().add(queryMasterType);
 		return masterResponseType;
+	}
+
+	/**
+	 * Function to update query result instance description
+	 * 
+	 * @ejb.interface-method view-type="both"
+	 * @ejb.transaction type="Required"
+	 * 
+	 * @param String
+	 *            resultInstanceId
+	 * @param Strign
+	 *            description
+	 * 
+	 * @return Master Query response XML
+	 */
+	public ResultResponseType updateResultInstanceDescription(
+			DataSourceLookup dataSourceLookup, String resultInstanceId,
+			String newDescription) throws I2B2Exception {
+		SetFinderDAOFactory sfDaoFactory = this.getSetFinderDaoFactory(
+				dataSourceLookup.getDomainId(), dataSourceLookup
+						.getProjectPath(), dataSourceLookup.getOwnerId());
+		IQueryResultInstanceDao queryResultInstanceDao = sfDaoFactory
+				.getPatientSetResultDAO();
+
+		queryResultInstanceDao.updateResultInstanceDescription(
+				resultInstanceId, newDescription);
+		QtQueryResultInstance updatedQueryResultInstance = queryResultInstanceDao
+				.getResultInstanceById(resultInstanceId);
+
+		ResultResponseType resultResponseType = new ResultResponseType();
+		QueryResultInstanceType resultInstanceType = PSMFactory
+				.buildQueryResultInstanceType(updatedQueryResultInstance);
+		resultResponseType.getQueryResultInstance().add(resultInstanceType);
+		return resultResponseType;
+	}
+
+	/**
+	 * Function to update query instance with cancel status
+	 * 
+	 * @ejb.interface-method view-type="both"
+	 * @ejb.transaction type="Required"
+	 * 
+	 * @param String
+	 *            instanceId
+	 * 
+	 * @return Instance Query response XML
+	 */
+	public InstanceResultResponseType cancelQueryInstance(
+			DataSourceLookup dataSourceLookup, String instanceId)
+			throws I2B2Exception {
+		InstanceResultResponseType instanceResultResponseType = new InstanceResultResponseType();
+		SetFinderDAOFactory sfDaoFactory = this.getSetFinderDaoFactory(
+				dataSourceLookup.getDomainId(), dataSourceLookup
+						.getProjectPath(), dataSourceLookup.getOwnerId());
+		// get query instance by id and change the status type to cancelled.
+		IQueryInstanceDao queryInstanceDao = sfDaoFactory.getQueryInstanceDAO();
+		QtQueryInstance queryInstance = queryInstanceDao
+				.getQueryInstanceByInstanceId(instanceId);
+		QtQueryStatusType queryStatusType = queryInstance
+				.getQtQueryStatusType();
+		int queryStatusTypeId = queryStatusType.getStatusTypeId();
+		// check if the query is already completed
+		if ((queryStatusTypeId == 3 || queryStatusTypeId == 4
+				|| queryStatusTypeId == 6 || queryStatusTypeId == 10)) {
+			log.error("Query instance  [" + instanceId
+					+ "] is already finished");
+			throw new I2B2Exception("Query instance  [" + instanceId
+					+ "] is already finished");
+		}
+		// check if the query is already cancelled
+		if (queryStatusTypeId == 9) {
+			log.warn("Already the query [" + instanceId
+					+ "] is in Cancelled state");
+		}
+		queryStatusType.setStatusTypeId(9);
+
+		queryInstance.setQtQueryStatusType(queryStatusType);
+		queryInstanceDao.update(queryInstance, false);
+		queryInstance = queryInstanceDao
+				.getQueryInstanceByInstanceId(instanceId);
+
+		IQueryResultInstanceDao queryResultInstanceDao = sfDaoFactory
+				.getPatientSetResultDAO();
+		List<QtQueryResultInstance> resultInstanceList = queryResultInstanceDao
+				.getResultInstanceList(instanceId);
+		QueryInstanceType queryInstanceResponse = PSMFactory
+				.buildQueryInstanceType(queryInstance);
+		instanceResultResponseType.setQueryInstance(queryInstanceResponse);
+
+		// update cancelled status to all the result instance
+		String resultInstanceId = "";
+		int statusTypeId = 0;
+		for (QtQueryResultInstance resultInstance : resultInstanceList) {
+			resultInstanceId = resultInstance.getResultInstanceId();
+			queryResultInstanceDao.updatePatientSet(resultInstanceId, 9, 0);
+			resultInstance.getQtQueryStatusType().setStatusTypeId(9);
+			QueryResultInstanceType resultInstanceResponse = PSMFactory
+					.buildQueryResultInstanceType(resultInstance);
+			instanceResultResponseType.getQueryResultInstance().add(
+					resultInstanceResponse);
+		}
+
+		return instanceResultResponseType;
 	}
 
 	/**

@@ -3,12 +3,12 @@ package edu.harvard.i2b2.crc.dao.setfinder;
 import java.util.List;
 
 import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
-import edu.harvard.i2b2.crc.datavo.db.QtQueryResultInstance;
 
 public interface IQueryInstanceDao {
 
 	/**
 	 * Function to create query instance
+	 * 
 	 * @param queryMasterId
 	 * @param userId
 	 * @param groupId
@@ -20,28 +20,29 @@ public interface IQueryInstanceDao {
 			String groupId, String batchMode, int statusId);
 
 	/**
-	 * Returns list of query instance for
-	 * the given master id
+	 * Returns list of query instance for the given master id
+	 * 
 	 * @param queryMasterId
-	 * @return  List<QtQueryInstance>
+	 * @return List<QtQueryInstance>
 	 */
 	@SuppressWarnings("unchecked")
 	public List<QtQueryInstance> getQueryInstanceByMasterId(String queryMasterId);
 
 	/**
 	 * Find query instance by id
+	 * 
 	 * @param queryInstanceId
 	 * @return QtQueryInstance
 	 */
 	public QtQueryInstance getQueryInstanceByInstanceId(String queryInstanceId);
 
-	
-
 	/**
 	 * Update query instance
+	 * 
 	 * @param queryInstance
 	 * @return QtQueryInstance
 	 */
-	public QtQueryInstance update(QtQueryInstance queryInstance);
+	public QtQueryInstance update(QtQueryInstance queryInstance,
+			boolean appendMessageFlag);
 
 }

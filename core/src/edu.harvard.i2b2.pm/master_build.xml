@@ -1,4 +1,4 @@
-<project name="PM master build">
+<project name="edu.harvard.i2b2.pm">
 
 	<import file="build.xml" />
 
@@ -9,19 +9,10 @@
 		</subant>
 		<!-- copy lib to genlib -->
 		<copy_genlibs module="${i2b2CommonProject}" />
-		<!-- call buil.xml -->
-		<subant target="tomcat-deploy">
+		<!-- call build.xml -->
+		<subant target="dist">
 			<fileset dir="." includes="build.xml" />
-		</subant>
-		<subant target="install">
-			<fileset dir="." includes="gridsphere/build.xml" />
-		</subant>
-		<subant target="install">
-			<fileset dir="." includes="gridsphere/projects/default/build.xml" />
-		</subant>
-		<subant target="install">
-			<fileset dir="." includes="gridsphere/projects/i2b2project/build.xml" />
-		</subant>
+			</subant>
 	</target>
 
 

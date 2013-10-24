@@ -9,9 +9,18 @@
  */
 package edu.harvard.i2b2.crc.delegate.setfinder;
 
+import java.util.List;
+
+import javax.ejb.CreateException;
+import javax.management.MalformedObjectNameException;
+
+import org.jboss.cache.Cache;
+
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.ServiceLocatorException;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
+import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
+import edu.harvard.i2b2.crc.dao.IDAOFactory;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterInstanceResultResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionRequestType;
@@ -19,75 +28,115 @@ import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
 import edu.harvard.i2b2.crc.ejb.QueryManagerLocal;
 import edu.harvard.i2b2.crc.ejb.QueryManagerLocalHome;
+import edu.harvard.i2b2.crc.ejb.role.PriviledgeLocal;
+import edu.harvard.i2b2.crc.util.CacheUtil;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
-import javax.ejb.CreateException;
-
-
 /**
- * RunQueryInstanceFromQueryDefinitionHandler class
- * implements execute method
- * $Id: RunQueryInstanceFromQueryDefinitionHandler.java,v 1.6 2008/03/19 22:36:37 rk903 Exp $
+ * RunQueryInstanceFromQueryDefinitionHandler class implements execute method
+ * $Id: RunQueryInstanceFromQueryDefinitionHandler.java,v 1.6 2008/03/19
+ * 22:36:37 rk903 Exp $
+ * 
  * @author rkuttan
  */
 public class RunQueryInstanceFromQueryDefinitionHandler extends RequestHandler {
-    QueryDefinitionRequestType queryDefRequestType = null;
-    String requestXml = null;
+	QueryDefinitionRequestType queryDefRequestType = null;
+	String requestXml = null;
 
-    /**
-    * Constuctor which accepts i2b2 request message xml
-    * @param requestXml
-    * @throws I2B2Exception
-    */
-    public RunQueryInstanceFromQueryDefinitionHandler(String requestXml)
-        throws I2B2Exception {
-        try {
-            queryDefRequestType = (QueryDefinitionRequestType) getRequestType(requestXml,
-                    edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionRequestType.class);
-            this.requestXml = requestXml;
-            this.setDataSourceLookup(requestXml);
-        } catch (JAXBUtilException jaxbUtilEx) {
-            throw new I2B2Exception("Error ", jaxbUtilEx);
-        }
-    }
+	/**
+	 * Constuctor which accepts i2b2 request message xml
+	 * 
+	 * @param requestXml
+	 * @throws I2B2Exception
+	 */
+	public RunQueryInstanceFromQueryDefinitionHandler(String requestXml)
+			throws I2B2Exception {
+		try {
+			queryDefRequestType = (QueryDefinitionRequestType) getRequestType(
+					requestXml,
+					edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionRequestType.class);
+			this.requestXml = requestXml;
+			this.setDataSourceLookup(requestXml);
+		} catch (JAXBUtilException jaxbUtilEx) {
+			throw new I2B2Exception("Error ", jaxbUtilEx);
+		}
+	}
 
-    /**
-    * Perform operation for the given request
-    * using business class(ejb) and return response
-     * @throws I2B2Exception
-    * @see edu.harvard.i2b2.crc.delegate.RequestHandler#execute()
-    */
-    public BodyType execute() throws I2B2Exception {
-        QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
-        String response = null;
-        BodyType bodyType = new BodyType();
-        MasterInstanceResultResponseType masterInstanceResponse = null;
-        try {
-            QueryManagerLocalHome queryManagerLocalHome = qpUtil.getQueryManagerLocalHome();
+	/**
+	 * Perform operation for the given request using business class(ejb) and
+	 * return response
+	 * 
+	 * @throws I2B2Exception
+	 * @see edu.harvard.i2b2.crc.delegate.RequestHandler#execute()
+	 */
+	public BodyType execute() throws I2B2Exception {
+		QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
+		String response = null;
+		BodyType bodyType = new BodyType();
+		MasterInstanceResultResponseType masterInstanceResponse = null;
+		try {
+			PriviledgeLocal privilegeLocal = qpUtil.getPriviledgeLocal();
 
-            QueryManagerLocal queryManagerLocal = queryManagerLocalHome.create();
+			DAOFactoryHelper daoFactoryHelper = new DAOFactoryHelper(this
+					.getDataSourceLookup().getDomainId(), getDataSourceLookup()
+					.getProjectPath(), getDataSourceLookup().getOwnerId());
 
-            //response = queryManagerLocal.processQuery(requestXml);
-            masterInstanceResponse = queryManagerLocal.processQuery(this.getDataSourceLookup(),requestXml);
-            //masterInstanceResponse.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));
-            
-            //response = this.buildResponseMessage(requestXml, bodyType);
-        } catch (I2B2Exception e) {
-        	masterInstanceResponse = new MasterInstanceResultResponseType();
-        	masterInstanceResponse.setStatus(this.buildCRCStausType(RequestHandlerDelegate.ERROR_TYPE, e.getMessage()));
-        } catch (ServiceLocatorException e) {
-            log.error(e);
-            throw new I2B2Exception("Servicelocator exception", e);
-        } catch (CreateException e) {
-            log.error(e);
-            throw new I2B2Exception("Ejb create exception", e);
-        } finally { 
-        	edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory psmObjFactory =
-                new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
-            bodyType.getAny()
-                    .add(psmObjFactory.createResponse(masterInstanceResponse));
-        }
+			Cache cache = null;
+			try {
+				cache = CacheUtil.getCache();
+			} catch (MalformedObjectNameException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// domainId + "/" + projectId + "/" + userId;
+			String rolePath = getDataSourceLookup().getDomainId() + "/"
+					+ getDataSourceLookup().getProjectPath() + "/"
+					+ getDataSourceLookup().getOwnerId();
 
-        return bodyType;
-    }
+			List<String> roles = (List<String>) cache.getRoot().get(rolePath);
+			System.out.println("Roles from get " + rolePath);
+			if (roles != null) {
+				System.out.println("Roles from size " + roles.size());
+			} else {
+				System.out.println("Roles from get is null ");
+			}
+
+			IDAOFactory daoFactory = daoFactoryHelper.getDAOFactory();
+			privilegeLocal.checkPriviledge(daoFactory,
+					"SETFINDER_QRY_WITH_DATAOBFSC", roles);
+
+			QueryManagerLocalHome queryManagerLocalHome = qpUtil
+					.getQueryManagerLocalHome();
+
+			QueryManagerLocal queryManagerLocal = queryManagerLocalHome
+					.create();
+
+			// response = queryManagerLocal.processQuery(requestXml);
+			masterInstanceResponse = queryManagerLocal.processQuery(this
+					.getDataSourceLookup(), requestXml);
+			// masterInstanceResponse.setStatus(this.buildCRCStausType(
+			// RequestHandlerDelegate.DONE_TYPE, "DONE"));
+
+			// response = this.buildResponseMessage(requestXml, bodyType);
+		} catch (I2B2Exception e) {
+			masterInstanceResponse = new MasterInstanceResultResponseType();
+			masterInstanceResponse.setStatus(this.buildCRCStausType(
+					RequestHandlerDelegate.ERROR_TYPE, e.getMessage()));
+		} catch (ServiceLocatorException e) {
+			log.error(e);
+			throw new I2B2Exception("Servicelocator exception", e);
+		} catch (CreateException e) {
+			log.error(e);
+			throw new I2B2Exception("Ejb create exception", e);
+		} finally {
+			edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory psmObjFactory = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
+			bodyType.getAny().add(
+					psmObjFactory.createResponse(masterInstanceResponse));
+		}
+
+		return bodyType;
+	}
 }

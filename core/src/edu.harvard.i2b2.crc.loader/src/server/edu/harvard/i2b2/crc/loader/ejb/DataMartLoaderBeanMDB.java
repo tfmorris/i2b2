@@ -38,6 +38,7 @@ import edu.harvard.i2b2.crc.loader.dao.IUploaderDAOFactory;
 import edu.harvard.i2b2.crc.loader.dao.LoaderDAOFactoryHelper;
 import edu.harvard.i2b2.crc.loader.dao.UniqueKeyException;
 import edu.harvard.i2b2.crc.loader.dao.UploadStatusDAOI;
+import edu.harvard.i2b2.crc.loader.datavo.i2b2message.PasswordType;
 import edu.harvard.i2b2.crc.loader.datavo.i2b2message.SecurityType;
 import edu.harvard.i2b2.crc.loader.datavo.loader.UploadStatus;
 import edu.harvard.i2b2.crc.loader.datavo.loader.query.DataListType;
@@ -64,6 +65,7 @@ public class DataMartLoaderBeanMDB implements MessageListener {
 	public final static String DS_LOOKUP_OWNER_ID = "DS_LOOKUP_OWNER_ID";
 	public final static String I2B2_USER_ID = "I2B2_USER_ID";
 	public final static String I2B2_PASSWORD = "I2B2_PASSWORD";
+	public final static String I2B2_PASSWORD_ISTOKEN = "false";
 	public final static String IROD_FILESYSTEM_STORAGE_RESOURCE = "IROD_FILESYSTEM_STORAGE_RESOURCE";
 
 	@EJB(name = "DataMartLoader")
@@ -125,7 +127,7 @@ public class DataMartLoaderBeanMDB implements MessageListener {
 				publishMessage = msg.getText();
 				String userId = msg.getStringProperty(I2B2_USER_ID);
 				String password = msg.getStringProperty(I2B2_PASSWORD);
-
+				boolean password_istoken = msg.getBooleanProperty(I2B2_PASSWORD_ISTOKEN);
 				uploadId = msg.getIntProperty(UPLOAD_ID);
 
 				String fileSystemDefaultStorageResource = msg
@@ -157,7 +159,11 @@ public class DataMartLoaderBeanMDB implements MessageListener {
 				SecurityType securityType = new SecurityType();
 				securityType.setDomain(dsLookupDomainId);
 				securityType.setUsername(userId);
-				securityType.setPassword(password);
+				PasswordType ptype = new PasswordType();
+				ptype.setValue(password);
+				ptype.setIsToken(password_istoken);
+				
+				securityType.setPassword(ptype);
 				String localUploadFile = createLocalFile(uploadId,
 						publishMessage, securityType, dsLookupProjectId,
 						fileSystemDefaultStorageResource);

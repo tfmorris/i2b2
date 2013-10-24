@@ -11,6 +11,9 @@
 package edu.harvard.i2b2.workplace.ws;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.workplace.delegate.RequestHandler;
+import edu.harvard.i2b2.workplace.ws.ExecutorRunnable;
+import edu.harvard.i2b2.workplace.ws.MessageFactory;
 import edu.harvard.i2b2.workplace.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.workplace.delegate.AddChildHandler;
 import edu.harvard.i2b2.workplace.delegate.AnnotateChildHandler;
@@ -84,8 +87,8 @@ public class WorkplaceService {
         
         //do Workplace query processing inside thread, so that  
         // service could send back message with timeout error.     
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new GetChildrenHandler(childrenDataMsg), waitTime);
+   //     ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new GetChildrenHandler(childrenDataMsg), waitTime);
         
     }
     
@@ -138,8 +141,8 @@ public class WorkplaceService {
         //do Workplace query processing inside thread, so that  
         // service could sends back message with timeout error.
   
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new GetFoldersByProjectHandler(foldersDataMsg), waitTime);
+   //    ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new GetFoldersByProjectHandler(foldersDataMsg), waitTime);
         
     }
 
@@ -177,8 +180,8 @@ public class WorkplaceService {
 
         //do Workplace query processing inside thread, so that  
         // service could send back message with timeout error.     
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new GetFoldersByUserIdHandler(foldersDataMsg), waitTime);
+  //      ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new GetFoldersByUserIdHandler(foldersDataMsg), waitTime);
         
     }
     
@@ -213,8 +216,8 @@ public class WorkplaceService {
 
         //do Workplace query processing inside thread, so that  
         // service could send back message with timeout error.     
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new DeleteChildHandler(deleteDataMsg), waitTime);
+     //   ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new DeleteChildHandler(deleteDataMsg), waitTime);
         
     }    
     
@@ -250,8 +253,8 @@ public class WorkplaceService {
 
         //do Workplace query processing inside thread, so that  
         // service could send back message with timeout error.     
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new MoveChildHandler(moveDataMsg), waitTime);
+    //    ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new MoveChildHandler(moveDataMsg), waitTime);
     }
     
     
@@ -286,8 +289,8 @@ public class WorkplaceService {
 
     	//do Workplace query processing inside thread, so that  
     	// service could send back message with timeout error. 
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new RenameChildHandler(renameDataMsg), waitTime);
+   //     ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new RenameChildHandler(renameDataMsg), waitTime);
         
     }    
     
@@ -322,8 +325,8 @@ public class WorkplaceService {
 
     	//do Workplace query processing inside thread, so that  
     	// service could send back message with timeout error. 
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new AnnotateChildHandler(annotateDataMsg), waitTime);
+   //    ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new AnnotateChildHandler(annotateDataMsg), waitTime);
         
     }    
     
@@ -358,10 +361,92 @@ public class WorkplaceService {
 
     	//do Workplace query processing inside thread, so that  
     	// service could send back message with timeout error. 
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new AddChildHandler(addDataMsg), waitTime);
+    //    ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new AddChildHandler(addDataMsg), waitTime);
         
     }    
-    
+    private OMElement execute(RequestHandler handler, long waitTime)throws I2B2Exception{
+        //do workplace processing inside thread, so that  
+        // service could send back message with timeout error.  
+        	OMElement returnElement = null;
+        	
+        	String unknownErrorMessage = "Error message delivered from the remote server \n" +  
+    		"You may wish to retry your last action";
+        	
+        	
+        	ExecutorRunnable er = new ExecutorRunnable();        
+
+        	er.setRequestHandler(handler);
+
+        	Thread t = new Thread(er);
+        	String workplaceDataResponse = null;
+
+        	synchronized (t) {
+        		t.start();
+
+//        		try {
+//        			if (waitTime > 0) {
+//        				t.wait(waitTime);
+//        			} else {
+//        				t.wait();
+//        			}
+        			
+        		try {
+        			long startTime = System.currentTimeMillis();
+        			long deltaTime = -1;
+        			while((er.isJobCompleteFlag() == false)&& (deltaTime < waitTime)){
+        				if (waitTime > 0) {
+        					t.wait(waitTime - deltaTime);
+        					deltaTime = System.currentTimeMillis() - startTime;
+        				} else {
+        					t.wait();
+        				}
+        			}
+
+            		workplaceDataResponse = er.getOutputString();
+
+            		if (workplaceDataResponse == null) {
+            			if (er.getJobException() != null) {
+            				log.error("er.jobException is " + er.getJobException().getMessage());
+            		    	
+            		    	log.info("waitTime is " + waitTime);
+            				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+            						unknownErrorMessage);
+            				workplaceDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+
+            			} else if (er.isJobCompleteFlag() == false) {
+            				//<result_waittime_ms>5000</result_waittime_ms>
+            				String timeOuterror = "Remote server timed out \n" +    		
+            				"Result waittime = " +
+            				waitTime +
+            				" ms elapsed,\nPlease try again";
+            				log.error(timeOuterror);
+            				log.debug("workplace waited " + deltaTime + "ms for " + er.getRequestHandler().getClass().getName());
+            				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+            						timeOuterror);
+            				workplaceDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+
+            			} else {
+            				log.error("workplace  data response is null");
+            			   	log.info("waitTime is " + waitTime);
+            				log.debug("workplace waited " + deltaTime + "ms for " + er.getRequestHandler().getClass().getName());
+            			   	ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+            						unknownErrorMessage);
+            				workplaceDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+            			}
+            		}
+        		} catch (InterruptedException e) {
+        			log.error(e.getMessage());
+        			throw new I2B2Exception("Thread error while running Workplace job ");
+        		} finally {
+        			t.interrupt();
+        			er = null;
+        			t = null;
+        		}
+        	}
+        	returnElement = MessageFactory.createResponseOMElementFromString(workplaceDataResponse);
+
+        	return returnElement;
+        }
     
 }

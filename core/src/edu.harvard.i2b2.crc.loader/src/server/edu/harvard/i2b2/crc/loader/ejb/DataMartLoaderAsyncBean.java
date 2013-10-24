@@ -108,7 +108,7 @@ public class DataMartLoaderAsyncBean implements DataMartLoaderAsyncBeanRemote,
 				throw new I2B2Exception(errorMsg);
 			} else {
 				userId = i2b2SecurityType.getUsername();
-				password = i2b2SecurityType.getPassword();
+				password = i2b2SecurityType.getPassword().getValue();
 
 			}
 			PublishDataRequestType publishType = null;
@@ -265,7 +265,9 @@ public class DataMartLoaderAsyncBean implements DataMartLoaderAsyncBeanRemote,
 			message.setStringProperty(DataMartLoaderBeanMDB.I2B2_USER_ID,
 					securityType.getUsername());
 			message.setStringProperty(DataMartLoaderBeanMDB.I2B2_PASSWORD,
-					securityType.getPassword());
+					securityType.getPassword().getValue());
+			message.setBooleanProperty(DataMartLoaderBeanMDB.I2B2_PASSWORD_ISTOKEN,
+					securityType.getPassword().isIsToken());
 
 			message.setStringProperty(
 					DataMartLoaderBeanMDB.DS_LOOKUP_DOMAIN_ID,

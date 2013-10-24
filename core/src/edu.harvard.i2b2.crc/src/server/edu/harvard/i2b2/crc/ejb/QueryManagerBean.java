@@ -33,14 +33,12 @@ import edu.harvard.i2b2.crc.dao.IDAOFactory;
 import edu.harvard.i2b2.crc.dao.SetFinderDAOFactory;
 import edu.harvard.i2b2.crc.dao.setfinder.IQueryInstanceDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IQueryMasterDao;
-import edu.harvard.i2b2.crc.dao.setfinder.IQueryRequestDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IQueryResultInstanceDao;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
 import edu.harvard.i2b2.crc.datavo.PSMFactory;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
-import edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.RequestMessageType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.InstanceResultResponseType;
@@ -124,17 +122,8 @@ public class QueryManagerBean implements SessionBean {
 					dsLookupInput.getProjectPath(), dsLookupInput.getOwnerId());
 			IDAOFactory daoFactory = daoFactoryHelper.getDAOFactory();
 			sfDAOFactory = daoFactory.getSetFinderDAOFactory();
-			// get timeout information
-			IQueryRequestDao requestDao = sfDAOFactory.getQueryRequestDAO();
-			String generatedSql = requestDao.buildSql(xmlRequest);
-			if (generatedSql == null) {
-				throw new I2B2Exception(
-						"Database error unable to generate sql from query definition");
-			} else if (generatedSql.trim().length() < 1) {
-				throw new I2B2Exception(
-						"Database error unable to generate sql from query definition");
-			}
 
+			String generatedSql = null;
 			String queryMasterId = saveQuery(sfDAOFactory, xmlRequest,
 					generatedSql);
 
@@ -145,7 +134,8 @@ public class QueryManagerBean implements SessionBean {
 			String userId = userType.getLogin();
 			String groupId = userType.getGroup();
 			String queryInstanceId = queryInstanceDao.createQueryInstance(
-					queryMasterId, userId, groupId, "batch_mode", 5);
+					queryMasterId, userId, groupId,
+					QueryExecutorMDB.SMALL_QUEUE, 5);
 			log.debug("New Query instance id " + queryInstanceId);
 
 			IQueryResultInstanceDao patientSetResultDao = sfDAOFactory
@@ -291,34 +281,6 @@ public class QueryManagerBean implements SessionBean {
 		ResultResponseType responseType = new ResultResponseType();
 		responseType.setStatus(statusType);
 		return responseType;
-	}
-
-	private QtQueryInstance updateQueryInstanceStatus(
-			SetFinderDAOFactory sfDAOFactory, ResultResponseType responseType,
-			String userId, String queryInstanceId) {
-		QtQueryInstance queryInstance = null;
-		String status = ((StatusType.Condition) responseType.getStatus()
-				.getCondition().get(0)).getValue();
-
-		IQueryInstanceDao queryInstanceDao = sfDAOFactory.getQueryInstanceDAO();
-		queryInstance = queryInstanceDao
-				.getQueryInstanceByInstanceId(queryInstanceId);
-
-		queryInstance.setEndDate(new Date(System.currentTimeMillis()));
-		QtQueryStatusType statusType = new QtQueryStatusType();
-
-		if (status.equalsIgnoreCase("done")) {
-			statusType.setStatusTypeId(6);
-		} else if (status.equalsIgnoreCase("running")) {
-			statusType.setStatusTypeId(5);
-		} else if (status.equalsIgnoreCase("error")) {
-			statusType.setStatusTypeId(4);
-		}
-
-		queryInstance.setQtQueryStatusType(statusType);
-		queryInstance = queryInstanceDao.update(queryInstance);
-
-		return queryInstance;
 	}
 
 	private String saveQuery(SetFinderDAOFactory sfDAOFactory,

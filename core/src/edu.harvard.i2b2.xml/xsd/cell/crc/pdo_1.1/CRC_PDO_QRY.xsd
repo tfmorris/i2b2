@@ -128,6 +128,14 @@
                     <xs:documentation>[getquerydef]</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
+            <xs:enumeration value="get_pdo_template">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <requestType>GetPDOTemplate_requestType</requestType>
+                        <responseType>patient_data_responseType</responseType>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:enumeration>
         </xs:restriction>
     </xs:simpleType>
 

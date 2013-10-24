@@ -57,8 +57,10 @@ public class GetChildrenHandler extends RequestHandler {
 		try {
 			response = childDao.findChildrenByParent(getChildrenType, projectInfo, this.getDbInfo());
 		} catch (I2B2DAOException e1) {
+			log.error(e1.getMessage());
 			responseMessageType = MessageFactory.doBuildErrorResponse(getChildrenMsg.getMessageHeaderType(), "Database error");
 		} catch (I2B2Exception e1) {
+			log.error(e1.getMessage());
 			responseMessageType = MessageFactory.doBuildErrorResponse(getChildrenMsg.getMessageHeaderType(), "Database error");
 		}
 
@@ -101,10 +103,14 @@ public class GetChildrenHandler extends RequestHandler {
 				}
 				MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getChildrenMsg.getMessageHeaderType());          
 				responseMessageType = MessageFactory.createBuildResponse(messageHeader,folders);
+				
 			}     
 		}
         String responseWdo = null;
+       
 		responseWdo = MessageFactory.convertToXMLString(responseMessageType);
+		if(responseWdo == null)
+			log.error("GetChildren responseWdo is null");
 		return responseWdo;
 	}
     

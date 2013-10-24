@@ -83,7 +83,7 @@ public class ExecutorRunnable implements Runnable {
         //notify();
     }
     
-    
+ /*   
     public OMElement execute(RequestHandler handler, long waitTime)throws I2B2Exception{
     	
     	OMElement returnElement = null;
@@ -93,23 +93,33 @@ public class ExecutorRunnable implements Runnable {
     	this.setRequestHandler(handler);
 
     	// timeout test    waitTime=10;   Passed 1/29/08  lcp
-    	
+
     	Thread t = new Thread(this);
         synchronized (t) {
         	t.start();
 
         	try {
-        		if (waitTime > 0) {
-        			t.wait(waitTime);
-        		} else {
-        			t.wait();
+        		int count = 0;
+        		while((workplaceDataResponse == null)&&(count<2)){
+        			if (waitTime > 0) {
+        				t.wait(waitTime);
+        			} else {
+        				t.wait();
+        			}
+        			count++;
+        			log.debug("workplace ER loop" + count);
         		}
 
         		workplaceDataResponse = this.getOutputString();
-
         		if (workplaceDataResponse == null) {
         			if (this.getJobException() != null) {
+        				
         				log.error("er.jobException is not null");
+        				log.error(this.getJobException().getMessage());
+        				log.error(this.getJobException().getStackTrace());
+        		    	
+        		    	log.info("waitTime is " + waitTime);
+        		    	
         				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
         						unknownErrorMessage);
         				workplaceDataResponse = MessageFactory.convertToXMLString(responseMsgType);
@@ -121,13 +131,17 @@ public class ExecutorRunnable implements Runnable {
         				waitTime +
         				" ms elapsed,\nPlease try again";
         				log.error(timeOuterror);
-
+        				log.error("for " + this.getRequestHandler().getClass().getName() +
+        						" and loop count = " + count);
+     
         				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
         						timeOuterror);
         				workplaceDataResponse = MessageFactory.convertToXMLString(responseMsgType);
 
         			} else {
         				log.error("workplace data response is null");
+        		    	log.info("waitTime is " + waitTime);
+        		    	
         				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
         						unknownErrorMessage);
         				workplaceDataResponse = MessageFactory.convertToXMLString(responseMsgType);
@@ -146,5 +160,5 @@ public class ExecutorRunnable implements Runnable {
 
         returnElement = MessageFactory.createResponseOMElementFromString(workplaceDataResponse);
         return returnElement;
-    }
+    }*/
 }

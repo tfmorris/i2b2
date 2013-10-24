@@ -10,6 +10,8 @@
  */
 package edu.harvard.i2b2.ontology.ws;
 
+import javax.xml.stream.XMLStreamException;
+
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.ontology.delegate.GetCategoriesHandler;
@@ -18,6 +20,7 @@ import edu.harvard.i2b2.ontology.delegate.GetCodeInfoHandler;
 import edu.harvard.i2b2.ontology.delegate.GetNameInfoHandler;
 import edu.harvard.i2b2.ontology.delegate.GetSchemesHandler;
 import edu.harvard.i2b2.ontology.delegate.GetTermInfoHandler;
+import edu.harvard.i2b2.ontology.delegate.RequestHandler;
 import edu.harvard.i2b2.ontology.ws.MessageFactory;
 
 import org.apache.axiom.om.OMElement;
@@ -76,8 +79,9 @@ public class OntologyService {
 
         //do Ontology query processing inside thread, so that  
         // service could sends back message with timeout error.     
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new GetChildrenHandler(childrenDataMsg), waitTime);
+   //     ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new GetChildrenHandler(childrenDataMsg), waitTime);
+        
     }
     
     /**
@@ -125,8 +129,8 @@ public class OntologyService {
 
         //do Ontology query processing inside thread, so that  
         // service could sends back message with timeout error.
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new GetCategoriesHandler(categoriesDataMsg), waitTime);
+  //      ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new GetCategoriesHandler(categoriesDataMsg), waitTime);
     }
     
     /**
@@ -174,8 +178,8 @@ public class OntologyService {
 
         //do Ontology query processing inside thread, so that  
         // service could sends back message with timeout error.
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new GetSchemesHandler(schemesDataMsg), waitTime);
+ //       ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new GetSchemesHandler(schemesDataMsg), waitTime);
     }
     
     
@@ -224,8 +228,8 @@ public class OntologyService {
         //do Ontology query processing inside thread, so that  
         // service could sends back message with timeout error.
  
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new GetCodeInfoHandler(codeInfoDataMsg), waitTime);
+   //     ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new GetCodeInfoHandler(codeInfoDataMsg), waitTime);
     }
     
     /**
@@ -273,8 +277,8 @@ public class OntologyService {
         //do Ontology query processing inside thread, so that  
         // service could sends back message with timeout error.
  
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new GetNameInfoHandler(nameInfoDataMsg), waitTime);
+   //     ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new GetNameInfoHandler(nameInfoDataMsg), waitTime);
     }
     
     /**
@@ -325,7 +329,96 @@ public class OntologyService {
         //do Ontology query processing inside thread, so that  
         // service could sends back message with timeout error.
  
-        ExecutorRunnable er = new ExecutorRunnable();        
-        return er.execute(new GetTermInfoHandler(termInfoDataMsg), waitTime);
+    //    ExecutorRunnable er = new ExecutorRunnable();        
+        return execute(new GetTermInfoHandler(termInfoDataMsg), waitTime);
     }
+    
+    private OMElement execute(RequestHandler handler, long waitTime)throws I2B2Exception{
+    //do Ontology query processing inside thread, so that  
+    // service could sends back message with timeout error.  
+    	OMElement returnElement = null;
+    	
+    	String unknownErrorMessage = "Error message delivered from the remote server \n" +  
+		"You may wish to retry your last action";
+    	
+    	
+    	ExecutorRunnable er = new ExecutorRunnable();        
+
+    	er.setRequestHandler(handler);
+
+    	Thread t = new Thread(er);
+    	String ontologyDataResponse = null;
+
+    	synchronized (t) {
+    		t.start();
+
+//    		try {
+//    			if (waitTime > 0) {
+//    				t.wait(waitTime);
+//    			} else {
+//    				t.wait();
+//    			}
+    			
+    		try {
+    			long startTime = System.currentTimeMillis();
+    			long deltaTime = -1;
+    			while((er.isJobCompleteFlag() == false)&& (deltaTime < waitTime)){
+    				if (waitTime > 0) {
+    					t.wait(waitTime - deltaTime);
+    					deltaTime = System.currentTimeMillis() - startTime;
+    				} else {
+    					t.wait();
+    				}
+    			}
+
+        		ontologyDataResponse = er.getOutputString();
+
+        		if (ontologyDataResponse == null) {
+        			if (er.getJobException() != null) {
+        				log.error("er.jobException is " + 
+        						er.getJobException().getMessage());
+        		    	
+        		    	log.info("waitTime is " + waitTime);
+        		    	
+        				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+        						unknownErrorMessage);
+        				ontologyDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+
+        			} else if (er.isJobCompleteFlag() == false) {
+        				//<result_waittime_ms>5000</result_waittime_ms>
+        				String timeOuterror = "Remote server timed out \n" +    		
+        				"Result waittime = " +
+        				waitTime +
+        				" ms elapsed,\nPlease try again";
+        				log.error(timeOuterror);
+        				
+        				log.debug("ontology waited " + deltaTime + "ms for " + er.getRequestHandler().getClass().getName() );
+        				
+        				ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+        						timeOuterror);
+        				ontologyDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+
+        			} else {
+        				log.error("ontology data response is null");
+        			   	log.info("waitTime is " + waitTime);
+        				log.debug("ontology waited " + deltaTime + "ms for " + er.getRequestHandler().getClass().getName() );
+        			   	ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+        						unknownErrorMessage);
+        				ontologyDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+        			}
+        		}
+    		} catch (InterruptedException e) {
+    			log.error(e.getMessage());
+    			throw new I2B2Exception("Thread error while running Ontology job ");
+    		} finally {
+    			t.interrupt();
+    			er = null;
+    			t = null;
+    		}
+    	}
+    	returnElement = MessageFactory.createResponseOMElementFromString(ontologyDataResponse);
+
+    	return returnElement;
+    }
+    
 }

@@ -27,9 +27,12 @@ import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
 import edu.harvard.i2b2.crc.dao.CRCDAO;
 import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
+import edu.harvard.i2b2.crc.dao.pdo.input.FactRelatedQueryHandler;
+import edu.harvard.i2b2.crc.dao.pdo.input.IInputOptionListHandler;
 import edu.harvard.i2b2.crc.dao.pdo.input.PatientListTypeHandler;
 import edu.harvard.i2b2.crc.dao.pdo.input.SQLServerFactRelatedQueryHandler;
 import edu.harvard.i2b2.crc.dao.pdo.input.VisitListTypeHandler;
+import edu.harvard.i2b2.crc.dao.pdo.output.PatientFactRelated;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.pdo.PatientSet;
 import edu.harvard.i2b2.crc.datavo.pdo.PatientType;
@@ -77,6 +80,7 @@ public class TablePdoQueryPatientDao extends CRCDAO implements
 		RPDRPdoFactory.PatientBuilder patientBuilder = new RPDRPdoFactory.PatientBuilder(
 				detailFlag, blobFlag, statusFlag);
 		PreparedStatement query = null;
+		String tempTableName = "";
 		try {
 			// execute fullsql
 			conn = getDataSource().getConnection();
@@ -111,33 +115,37 @@ public class TablePdoQueryPatientDao extends CRCDAO implements
 				// load to temp table
 				// execute sql
 				log.debug("creating temp table");
+				tempTableName = this.getDbSchemaName()
+						+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE;
 				java.sql.Statement tempStmt = conn.createStatement();
 
 				try {
-					tempStmt
-							.executeUpdate("drop table "
-									+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE);
+					tempStmt.executeUpdate("drop table " + tempTableName);
 				} catch (SQLException sqlex) {
 					;
 				}
 
-				uploadTempTable(tempStmt, patientNumList);
+				uploadTempTable(tempStmt, tempTableName, patientNumList);
 				String finalSql = "SELECT "
 						+ selectClause
 						+ " FROM "
 						+ getDbSchemaName()
 						+ "patient_dimension patient "
 						+ joinClause
-						+ " WHERE patient.patient_num IN (select distinct input_id FROM "
-						+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE
-						+ ") order by patient_num";
+						+ " WHERE patient.patient_num IN (select distinct char_param1 FROM "
+						+ tempTableName + ") order by patient_num";
 				log.debug("Executing [" + finalSql + "]");
 
 				query = conn.prepareStatement(finalSql);
 
 			}
-
+			long startTimeSql = System.currentTimeMillis();
 			ResultSet resultSet = query.executeQuery();
+			long endTimeSql = System.currentTimeMillis();
+			long totalTimeSql = endTimeSql - startTimeSql;
+			System.out.println("********* Total time for visit sql ****"
+					+ totalTimeSql);
+			long startTime = System.currentTimeMillis();
 			// JdbcRowSet rowSet = new JdbcRowSetImpl(resultSet);
 			while (resultSet.next()) {
 				PatientType patient = patientBuilder.buildPatientSet(resultSet,
@@ -145,6 +153,10 @@ public class TablePdoQueryPatientDao extends CRCDAO implements
 				patientSet.getPatient().add(patient);
 
 			}
+			long endTime = System.currentTimeMillis();
+			long totalTime = endTimeSql - startTimeSql;
+			System.out.println("********* Total time for visit objects ****"
+					+ totalTime);
 
 		} catch (SQLException sqlEx) {
 			log.error("", sqlEx);
@@ -155,7 +167,7 @@ public class TablePdoQueryPatientDao extends CRCDAO implements
 		} finally {
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn);
+				deleteTempTable(conn, tempTableName);
 			}
 
 			try {
@@ -210,36 +222,30 @@ public class TablePdoQueryPatientDao extends CRCDAO implements
 						.setInt(1, Integer.parseInt(patientSetCollectionId));
 
 			} else if (patientListTypeHandler.isEnumerationSet()) {
-				String serverType = dataSourceLookup.getServerType();
-				if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
-					oracle.jdbc.driver.OracleConnection conn1 = (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
-							.getUnderlyingConnection();
-					ArrayDescriptor desc = ArrayDescriptor.createDescriptor(
-							"QT_PDO_QRY_STRING_ARRAY", conn1);
-					oracle.sql.ARRAY paramArray = new oracle.sql.ARRAY(desc,
-							conn1, patientListTypeHandler
-									.getIntListFromPatientNumList().toArray(
-											new String[] {}));
-					preparedStmt = conn1.prepareStatement(mainSqlString);
-					preparedStmt.setArray(1, paramArray);
-				} else if (serverType
-						.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
-					log.debug("creating temp table");
-					java.sql.Statement tempStmt = conn.createStatement();
-					uploadTempTable(tempStmt, patientListTypeHandler
-							.getIntListFromPatientNumList());
-					preparedStmt = conn.prepareStatement(mainSqlString);
-				}
+
+				patientListTypeHandler.uploadEnumerationValueToTempTable(conn);
+				preparedStmt = conn.prepareStatement(mainSqlString);
+
 			} else {
 				preparedStmt = conn.prepareStatement(mainSqlString);
 			}
+			long startTimeSql = System.currentTimeMillis();
 			ResultSet resultSet = preparedStmt.executeQuery();
+			long endTimeSql = System.currentTimeMillis();
+			long totalTimeSql = endTimeSql - startTimeSql;
+			System.out.println("********* Total time for patient sql ****"
+					+ totalTimeSql);
+			long startTime = System.currentTimeMillis();
 			// JdbcRowSet rowSet = new JdbcRowSetImpl(resultSet);
 			while (resultSet.next()) {
 				PatientType patient = patientBuilder.buildPatientSet(resultSet,
 						"i2b2");
 				patientSet.getPatient().add(patient);
 			}
+			long endTime = System.currentTimeMillis();
+			long totalTime = endTimeSql - startTimeSql;
+			System.out.println("********* Total time for patient objects ****"
+					+ totalTime);
 
 		} catch (SQLException sqlEx) {
 			sqlEx.printStackTrace();
@@ -247,9 +253,13 @@ public class TablePdoQueryPatientDao extends CRCDAO implements
 			log.error("", ioEx);
 			throw new I2B2DAOException("IO exception", ioEx);
 		} finally {
-			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn);
+			if (patientListTypeHandler.isEnumerationSet()) {
+				try {
+					patientListTypeHandler.deleteTempTable(conn);
+				} catch (SQLException e) {
+
+					e.printStackTrace();
+				}
 			}
 			try {
 				JDBCUtil.closeJdbcResource(null, preparedStmt, conn);
@@ -316,25 +326,10 @@ public class TablePdoQueryPatientDao extends CRCDAO implements
 						.parseInt(encounterSetCollectionId));
 
 			} else if (visitListTypeHandler.isEnumerationSet()) {
-				String serverType = dataSourceLookup.getServerType();
-				if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
-					oracle.jdbc.driver.OracleConnection conn1 = (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
-							.getUnderlyingConnection();
-					ArrayDescriptor desc = ArrayDescriptor.createDescriptor(
-							"QT_PDO_QRY_STRING_ARRAY", conn1);
-					oracle.sql.ARRAY paramArray = new oracle.sql.ARRAY(desc,
-							conn1, visitListTypeHandler.getEnumerationList()
-									.toArray(new String[] {}));
-					preparedStmt = conn1.prepareStatement(mainSqlString);
-					preparedStmt.setArray(1, paramArray);
-				} else if (serverType
-						.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
-					log.debug("creating temp table");
-					java.sql.Statement tempStmt = conn.createStatement();
-					uploadTempTable(tempStmt, visitListTypeHandler
-							.getEnumerationList());
-					preparedStmt = conn.prepareStatement(mainSqlString);
-				}
+
+				visitListTypeHandler.uploadEnumerationValueToTempTable(conn);
+				preparedStmt = conn.prepareStatement(mainSqlString);
+
 			} else {
 				preparedStmt = conn.prepareStatement(mainSqlString);
 			}
@@ -353,9 +348,12 @@ public class TablePdoQueryPatientDao extends CRCDAO implements
 			log.error("", ioEx);
 			throw new I2B2DAOException("IO exception", ioEx);
 		} finally {
-			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn);
+			if (visitListTypeHandler.isEnumerationSet()) {
+				try {
+					visitListTypeHandler.deleteTempTable(conn);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
 			try {
 				JDBCUtil.closeJdbcResource(null, preparedStmt, conn);
@@ -437,23 +435,20 @@ public class TablePdoQueryPatientDao extends CRCDAO implements
 		return joinClause;
 	}
 
-	private void uploadTempTable(Statement tempStmt, List<String> patientNumList)
-			throws SQLException {
-		String createTempInputListTable = "create table "
-				+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE
-				+ " ( input_id varchar(100) )";
+	private void uploadTempTable(Statement tempStmt, String tempTableName,
+			List<String> patientNumList) throws SQLException {
+		String createTempInputListTable = "create table " + tempTableName
+				+ " ( char_param1 varchar(100) )";
 		tempStmt.executeUpdate(createTempInputListTable);
-		log.debug("created temp table"
-				+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE);
+		log.debug("created temp table" + tempTableName);
 		// load to temp table
 		// TempInputListInsert inputListInserter = new
 		// TempInputListInsert(dataSource,TEMP_PDO_INPUTLIST_TABLE);
 		// inputListInserter.setBatchSize(100);
 		int i = 0;
 		for (String singleValue : patientNumList) {
-			tempStmt.addBatch("insert into "
-					+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE
-					+ " values ('" + singleValue + "' )");
+			tempStmt.addBatch("insert into " + tempTableName + " values ('"
+					+ singleValue + "' )");
 			log.debug("adding batch" + singleValue);
 			i++;
 			if (i % 100 == 0) {
@@ -466,16 +461,12 @@ public class TablePdoQueryPatientDao extends CRCDAO implements
 		tempStmt.executeBatch();
 	}
 
-	private void deleteTempTable(Connection conn) {
+	private void deleteTempTable(Connection conn, String tempTableName) {
 
 		Statement deleteStmt = null;
 		try {
 			deleteStmt = conn.createStatement();
-			conn
-					.createStatement()
-					.executeUpdate(
-							"drop table "
-									+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE);
+			conn.createStatement().executeUpdate("drop table " + tempTableName);
 		} catch (SQLException sqle) {
 			;
 		} finally {
@@ -486,6 +477,137 @@ public class TablePdoQueryPatientDao extends CRCDAO implements
 				e.printStackTrace();
 			}
 		}
+
+	}
+
+	public PatientSet getPatientByFact(List<String> panelSqlList,
+			List<Integer> sqlParamCountList,
+			IInputOptionListHandler inputOptionListHandler, boolean detailFlag,
+			boolean blobFlag, boolean statusFlag) throws I2B2DAOException {
+
+		PatientSet patientSet = new PatientSet();
+		RPDRPdoFactory.PatientBuilder patientBuilder = new RPDRPdoFactory.PatientBuilder(
+				detailFlag, blobFlag, statusFlag);
+		PatientFactRelated patientFactRelated = new PatientFactRelated(
+				buildOutputOptionType(detailFlag, blobFlag, statusFlag));
+		String selectClause = getSelectClause(detailFlag, blobFlag, statusFlag);
+		String joinClause = getLookupJoinClause(detailFlag, blobFlag,
+				statusFlag);
+		String serverType = dataSourceLookup.getServerType();
+		String factTempTable = "";
+		Connection conn = null;
+		PreparedStatement query = null;
+		try {
+			conn = dataSource.getConnection();
+			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
+				factTempTable = this.getDbSchemaName()
+						+ FactRelatedQueryHandler.TEMP_FACT_PARAM_TABLE;
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+				log.debug("creating temp table");
+				java.sql.Statement tempStmt = conn.createStatement();
+				factTempTable = this.getDbSchemaName()
+						+ SQLServerFactRelatedQueryHandler.TEMP_FACT_PARAM_TABLE;
+				try {
+					tempStmt.executeUpdate("drop table " + factTempTable);
+				} catch (SQLException sqlex) {
+					;
+				}
+				String createTempInputListTable = "create table "
+						+ factTempTable
+						+ " ( set_index int, char_param1 varchar(500) )";
+				tempStmt.executeUpdate(createTempInputListTable);
+				log.debug("created temp table" + factTempTable);
+			}
+			// if the inputlist is enumeration, then upload the enumerated input
+			// to temp table.
+			// the uploaded enumerated input will be used in the fact join.
+			if (inputOptionListHandler.isEnumerationSet()) {
+				inputOptionListHandler.uploadEnumerationValueToTempTable(conn);
+			}
+			String insertSql = "";
+			int i = 0;
+			int sqlParamCount = 0;
+			ResultSet resultSet = null;
+			for (String panelSql : panelSqlList) {
+				insertSql = " insert into "
+						+ factTempTable
+						+ "(char_param1) select distinct obs_patient_num from ( "
+						+ panelSql + ") b";
+
+				log.debug("Executing SQL [ " + insertSql + "]");
+				sqlParamCount = sqlParamCountList.get(i++);
+				// conn.createStatement().executeUpdate(insertSql);
+				executeUpdateSql(insertSql, conn, sqlParamCount,
+						inputOptionListHandler);
+
+			}
+
+			String finalSql = "SELECT "
+					+ selectClause
+					+ " FROM "
+					+ getDbSchemaName()
+					+ "patient_dimension patient "
+					+ joinClause
+					+ " where patient_num in (select distinct char_param1 from "
+					+ factTempTable + ") order by patient_num";
+			log.debug("Executing SQL [" + finalSql + "]");
+			System.out.println("Final Sql " + finalSql);
+
+			query = conn.prepareStatement(finalSql);
+
+			resultSet = query.executeQuery();
+
+			while (resultSet.next()) {
+				PatientType patient = patientBuilder.buildPatientSet(resultSet,
+						"i2b2");
+				patientSet.getPatient().add(patient);
+			}
+		} catch (SQLException sqlEx) {
+			log.error("", sqlEx);
+			throw new I2B2DAOException("sql exception", sqlEx);
+		} catch (IOException ioEx) {
+			log.error("", ioEx);
+			throw new I2B2DAOException("IO exception", ioEx);
+		} finally {
+			if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.SQLSERVER)) {
+				deleteTempTable(conn, factTempTable);
+			}
+			if (inputOptionListHandler != null
+					&& inputOptionListHandler.isEnumerationSet()) {
+				try {
+					inputOptionListHandler.deleteTempTable(conn);
+				} catch (SQLException e) {
+
+					e.printStackTrace();
+				}
+			}
+			try {
+
+				JDBCUtil.closeJdbcResource(null, query, conn);
+			} catch (SQLException sqlEx) {
+				sqlEx.printStackTrace();
+			}
+		}
+		return patientSet;
+
+	}
+
+	private void executeUpdateSql(String totalSql, Connection conn,
+			int sqlParamCount, IInputOptionListHandler inputOptionListHandler)
+			throws SQLException {
+
+		PreparedStatement stmt = conn.prepareStatement(totalSql);
+
+		System.out.println(totalSql + " [ " + sqlParamCount + " ]");
+		if (inputOptionListHandler.isCollectionId()) {
+			for (int i = 1; i <= sqlParamCount; i++) {
+				stmt.setInt(i, Integer.parseInt(inputOptionListHandler
+						.getCollectionId()));
+			}
+		}
+
+		stmt.executeUpdate();
 
 	}
 

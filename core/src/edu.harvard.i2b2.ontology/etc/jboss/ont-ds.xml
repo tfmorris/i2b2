@@ -6,7 +6,7 @@
 <!--                                                                       -->
 <!-- ===================================================================== -->
 
-<!-- $Id: ont-ds.xml,v 1.5 2008/10/01 20:17:12 lcp5 Exp $ -->
+<!-- $Id: ont-ds.xml,v 1.7 2010/02/05 20:27:21 lcp5 Exp $ -->
 
 <datasources>
   <!-- sample sqlserver OntologyBootStrapDS   -->
@@ -14,8 +14,8 @@
       <jndi-name>OntologyBootStrapDS_SQLSERVER</jndi-name>      
       <driver-class>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver-class>
       <connection-url>jdbc:sqlserver://localhost:1433</connection-url>
-      <user-name>metadata_uname</user-name>
-      <password>metadata_pswd</password>
+      <user-name>i2b2hive_uname</user-name>
+      <password>i2b2hive_pswd</password>
       <metadata>
         <type-mapping>MS SQLSERVER2000</type-mapping>
       </metadata>
@@ -37,5 +37,13 @@
       <connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
       <user-name>i2b2metadata</user-name>
       <password>i2b2metadata_pswd</password>
+    </local-tx-datasource>
+    
+     <local-tx-datasource>
+    <jndi-name>OntologyDemo2DS</jndi-name>
+      <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>      
+      <connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
+      <user-name>i2b2metadata2</user-name>
+      <password>i2b2metadata2_pswd</password>
     </local-tx-datasource>
 </datasources>

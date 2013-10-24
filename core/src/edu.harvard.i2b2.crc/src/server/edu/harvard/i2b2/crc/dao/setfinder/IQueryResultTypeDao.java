@@ -8,6 +8,7 @@ public interface IQueryResultTypeDao {
 
 	/**
 	 * Returns list of query master by user id
+	 * 
 	 * @param userId
 	 * @return List<QtQueryMaster>
 	 */
@@ -16,16 +17,18 @@ public interface IQueryResultTypeDao {
 
 	/**
 	 * Returns list of query master by user id
+	 * 
 	 * @param userId
 	 * @return List<QtQueryMaster>
 	 */
 	@SuppressWarnings("unchecked")
-	public QtQueryResultType getQueryResultTypeByName(String resultName);
-	
+	public List<QtQueryResultType> getQueryResultTypeByName(String resultName);
+
 	/**
 	 * Get all result type
+	 * 
 	 * @return List<QtQueryResultType>
 	 */
-	public List<QtQueryResultType> getAllQueryResultType() ;
+	public List<QtQueryResultType> getAllQueryResultType();
 
 }

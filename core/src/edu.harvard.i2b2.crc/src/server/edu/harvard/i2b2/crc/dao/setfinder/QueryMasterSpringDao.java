@@ -73,6 +73,20 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 	}
 
 	/**
+	 * Write query sql for the master id
+	 * 
+	 * @param masterId
+	 * @param generatedSql
+	 */
+	public void updateQuerySQL(String masterId, String generatedSql) {
+		String sql = "UPDATE "
+				+ getDbSchemaName()
+				+ "QT_QUERY_MASTER set  GENERATED_SQL = ? where query_master_id = ?";
+		jdbcTemplate.update(sql, new Object[] { generatedSql, masterId });
+		// jdbcTemplate.update(sql);
+	}
+
+	/**
 	 * Returns list of query master by user id
 	 * 
 	 * @param userId
@@ -89,10 +103,10 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 						DAOFactoryHelper.SQLSERVER)) {
 			sql += " top " + fetchSize;
 		}
-		sql += " query_master_id,name,user_id,group_id,create_date,delete_date,null as request_xml,delete_flag,generated_sql from "
+		sql += " query_master_id,name,user_id,group_id,create_date,delete_date,null as request_xml,delete_flag,generated_sql, null as i2b2_request_xml, null as master_type_cd, null as plugin_id from "
 				+ getDbSchemaName()
 				+ "qt_query_master "
-				+ " where user_id = ? and delete_flag = ?";
+				+ " where user_id = ? and delete_flag = ? and master_type_cd is NULL";
 
 		sql += " order by create_date desc  ";
 
@@ -125,10 +139,10 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 						DAOFactoryHelper.SQLSERVER)) {
 			sql += " top " + fetchSize;
 		}
-		sql += " query_master_id,name,user_id,group_id,create_date,delete_date,null as request_xml,delete_flag,generated_sql from "
+		sql += " query_master_id,name,user_id,group_id,create_date,delete_date,null as request_xml,delete_flag,generated_sql,null as i2b2_request_xml, null as master_type_cd, null as plugin_id from "
 				+ getDbSchemaName()
 				+ "qt_query_master "
-				+ " where group_id = ? and delete_flag = ? ";
+				+ " where group_id = ? and delete_flag = ? and master_type_cd is NULL";
 
 		sql += " order by create_date desc  ";
 
@@ -150,9 +164,7 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 	 * @return QtQueryMaster
 	 */
 	public QtQueryMaster getQueryDefinition(String masterId) {
-		String sql = "select query_master_id,name,user_id,group_id,create_date,delete_date, request_xml,delete_flag,generated_sql from "
-				+ getDbSchemaName()
-				+ "qt_query_master "
+		String sql = "select * from " + getDbSchemaName() + "qt_query_master "
 				+ " where query_master_id = ? and delete_flag = ? ";
 		QtQueryMaster queryMaster = null;
 		try {
@@ -260,8 +272,8 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 				INSERT_ORACLE = "INSERT INTO "
 						+ dbSchemaName
 						+ "QT_QUERY_MASTER "
-						+ "(QUERY_MASTER_ID, NAME, USER_ID, GROUP_ID,CREATE_DATE,DELETE_DATE,REQUEST_XML,DELETE_FLAG,GENERATED_SQL,I2B2_REQUEST_XML) "
-						+ "VALUES (?,?,?,?,?,?,?,?,?,?)";
+						+ "(QUERY_MASTER_ID, NAME, USER_ID, GROUP_ID,MASTER_TYPE_CD,PLUGIN_ID,CREATE_DATE,DELETE_DATE,REQUEST_XML,DELETE_FLAG,GENERATED_SQL,I2B2_REQUEST_XML) "
+						+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 				setSql(INSERT_ORACLE);
 				SEQUENCE_ORACLE = "select " + dbSchemaName
 						+ "QT_SQ_QM_QMID.nextval from dual";
@@ -271,12 +283,14 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 				INSERT_SQLSERVER = "INSERT INTO "
 						+ dbSchemaName
 						+ "QT_QUERY_MASTER "
-						+ "( NAME, USER_ID, GROUP_ID,CREATE_DATE,DELETE_DATE,REQUEST_XML,DELETE_FLAG,GENERATED_SQL,I2B2_REQUEST_XML) "
-						+ "VALUES (?,?,?,?,?,?,?,?,?)";
+						+ "( NAME, USER_ID, GROUP_ID,MASTER_TYPE_CD,PLUGIN_ID,CREATE_DATE,DELETE_DATE,REQUEST_XML,DELETE_FLAG,GENERATED_SQL,I2B2_REQUEST_XML) "
+						+ "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 				this.setSql(INSERT_SQLSERVER);
 			}
 			this.dataSourceLookup = dataSourceLookup;
 
+			declareParameter(new SqlParameter(Types.VARCHAR));
+			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
@@ -300,7 +314,8 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 					DAOFactoryHelper.SQLSERVER)) {
 				object = new Object[] { queryMaster.getName(),
 						queryMaster.getUserId(), queryMaster.getGroupId(),
-						queryMaster.getCreateDate(),
+						queryMaster.getMasterTypeCd(),
+						queryMaster.getPluginId(), queryMaster.getCreateDate(),
 						queryMaster.getDeleteDate(),
 						queryMaster.getRequestXml(),
 						queryMaster.getDeleteFlag(),
@@ -313,7 +328,9 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 				queryMasterIdentityId = jdbc.queryForInt(SEQUENCE_ORACLE);
 				object = new Object[] { queryMasterIdentityId,
 						queryMaster.getName(), queryMaster.getUserId(),
-						queryMaster.getGroupId(), queryMaster.getCreateDate(),
+						queryMaster.getGroupId(),
+						queryMaster.getMasterTypeCd(),
+						queryMaster.getPluginId(), queryMaster.getCreateDate(),
 						queryMaster.getDeleteDate(),
 						queryMaster.getRequestXml(),
 						queryMaster.getDeleteFlag(),
@@ -334,11 +351,14 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 			queryMaster.setName(rs.getString("NAME"));
 			queryMaster.setUserId(rs.getString("USER_ID"));
 			queryMaster.setGroupId(rs.getString("GROUP_ID"));
+			queryMaster.setMasterTypeCd(rs.getString("MASTER_TYPE_CD"));
+			queryMaster.setPluginId(rs.getString("PLUGIN_ID"));
 			queryMaster.setCreateDate(rs.getTimestamp("CREATE_DATE"));
 			queryMaster.setDeleteDate(rs.getTimestamp("DELETE_DATE"));
 			queryMaster.setRequestXml(rs.getString("REQUEST_XML"));
 			queryMaster.setDeleteFlag(rs.getString("DELETE_FLAG"));
 			queryMaster.setGeneratedSql(rs.getString("GENERATED_SQL"));
+			queryMaster.setI2b2RequestXml(rs.getString("I2B2_REQUEST_XML"));
 			return queryMaster;
 		}
 	}

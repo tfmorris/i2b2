@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,25 +19,33 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
+import org.apache.axis2.AxisFault;
 import org.springframework.beans.factory.BeanFactory;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
-import edu.harvard.i2b2.common.util.ServiceLocator;
+import edu.harvard.i2b2.common.exception.StackTraceUtil;
 import edu.harvard.i2b2.crc.dao.CRCDAO;
 import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
 import edu.harvard.i2b2.crc.dao.SetFinderDAOFactory;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryResultInstance;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType;
+import edu.harvard.i2b2.crc.datavo.i2b2message.SecurityType;
+import edu.harvard.i2b2.crc.datavo.pm.RoleType;
+import edu.harvard.i2b2.crc.datavo.pm.RolesType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultOutputOptionListType;
-import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultOutputOptionType;
+import edu.harvard.i2b2.crc.delegate.ejbpm.EJBPMUtil;
+import edu.harvard.i2b2.crc.util.I2B2RequestMessageHelper;
+import edu.harvard.i2b2.crc.util.PMServiceAccountUtil;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 
-	private DataSourceLookup dataSourceLookup = null;
+	private DataSourceLookup dataSourceLookup = null,
+			originalDataSourceLookup = null;
 	private static Map generatorMap = null;
 	private static String defaultResultType = null;
 
@@ -49,10 +57,12 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 	}
 
 	public QueryExecutorDao(DataSource dataSource,
-			DataSourceLookup dataSourceLookup) {
+			DataSourceLookup dataSourceLookup,
+			DataSourceLookup originalDataSourceLookup) {
 		setDataSource(dataSource);
 		setDbSchemaName(dataSourceLookup.getFullSchema());
 		this.dataSourceLookup = dataSourceLookup;
+		this.originalDataSourceLookup = originalDataSourceLookup;
 	}
 
 	/**
@@ -66,17 +76,26 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 	 * @return query result instance id
 	 * @throws I2B2DAOException
 	 */
-	public String executeSQL(UserTransaction transaction, int transactionTimeout,DataSourceLookup dsLookup,
-			SetFinderDAOFactory sfDAOFactory, String sqlString,
-			String queryInstanceId, String patientSetId,
+	public String executeSQL(UserTransaction transaction,
+			int transactionTimeout, DataSourceLookup dsLookup,
+			SetFinderDAOFactory sfDAOFactory, String requestXml,
+			String sqlString, String queryInstanceId, String patientSetId,
 			ResultOutputOptionListType resultOutputList)
-			throws CRCTimeOutException,I2B2DAOException {
+			throws CRCTimeOutException, I2B2DAOException {
 		// StringTokenizer st = new StringTokenizer(sqlString,"<*>");
 		String singleSql = null;
 		int recordCount = 0;
 		// int patientSetId = 0;
 		javax.transaction.TransactionManager tm = null;
 		UserTransaction ut = transaction;
+
+		try {
+			ut.setTransactionTimeout(transactionTimeout);
+		} catch (SystemException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+
 		boolean errorFlag = false, timeOutErrorFlag = false;
 		Statement stmt = null;
 		ResultSet resultSet = null;
@@ -96,200 +115,120 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 			TEMP_TABLE = getDbSchemaName() + "QUERY_GLOBAL_TEMP";
 			TEMP_DX_TABLE = getDbSchemaName() + "DX";
 		}
+		Exception exception = null;
+
+		InitialContext context;
 		try {
-			InitialContext context = new InitialContext();
+			context = new InitialContext();
+
+			// Using transaction manager instead of usertransaction
+			// because the usertransaction needs the datasource to be XA.
 			tm = (javax.transaction.TransactionManager) context
 					.lookup("java:/TransactionManager");
+
 			if (tm == null) {
 				log.error("TransactionManager is null");
 			}
 
 			// ut = sessionContext.getUserTransaction();
 			// ut.begin();
-		
-			tm.begin();
-			// change status of result instance to running
 
+			tm.begin();
+
+			// change status of result instance to running
 			IQueryResultInstanceDao psResultDao = sfDAOFactory
 					.getPatientSetResultDAO();
 			psResultDao.updatePatientSet(patientSetId, 2, 0);
 			tm.commit();
-			// ut.commit();
-			String[] sqls = sqlString.split("<\\*>");
-			// manualConnection =
-			// QueryProcessorUtil.getInstance().getManualConnection();
-			manualConnection = ServiceLocator.getInstance()
-					.getAppServerDataSource(dsLookup.getDataSource())
-					.getConnection();
-			// manualConnection =
-			// QueryProcessorUtil.getInstance().getSpringDataSource(dsLookup.getDataSource()).getConnection();
-			// manualConnection =
-			// QueryProcessorUtil.getInstance().getConnection();
-			stmt = manualConnection.createStatement();
-			int count = 0;
 
-			if (dsLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
-				String checkDeleteGlobalTempTable = "drop table " + TEMP_TABLE;
-				String checkDeleteCountTable = "drop table " + TEMP_DX_TABLE;
-				Statement clearTempStmt = manualConnection.createStatement();
-				try {
-					clearTempStmt.executeUpdate(checkDeleteGlobalTempTable);
-				} catch (SQLException dEx) {
-					;
-				}
-				try {
-					clearTempStmt.executeUpdate(checkDeleteCountTable);
-				} catch (SQLException dEx) {
-					;
-				}
-				clearTempStmt.close();
-				String createSql = "CREATE  TABLE " + TEMP_TABLE + " ( "
-						+ " ENCOUNTER_NUM int, " + " PATIENT_NUM int, "
-						+ " PANEL_COUNT int, " + " fact_count int, "
-						+ " fact_panels int " + " )";
-
-				stmt.executeUpdate(createSql);
-				createSql = " CREATE  TABLE " + TEMP_DX_TABLE + "  ( "
-						+ " ENCOUNTER_NUM int, " + " PATIENT_NUM int " + " ) ";
-				stmt.executeUpdate(createSql);
-				if (dsLookup.getServerType().equalsIgnoreCase(
-						DAOFactoryHelper.SQLSERVER)) {
-					String indexSql = "create index tempIndex on "
-							+ this.getDbSchemaName()
-							+ "#global_temp_table (patient_num,panel_count)";
-					log.debug("Executing sql [ " + indexSql + " ]");
-					stmt.executeUpdate(indexSql);
-				}
+			// check if the sql is stored, else generate and store
+			IQueryMasterDao queryMasterDao = sfDAOFactory.getQueryMasterDAO();
+			IQueryInstanceDao queryInstaneDao = sfDAOFactory
+					.getQueryInstanceDAO();
+			QtQueryInstance queryInstance = queryInstaneDao
+					.getQueryInstanceByInstanceId(queryInstanceId);
+			String masterId = queryInstance.getQtQueryMaster()
+					.getQueryMasterId();
+			QtQueryMaster queryMaster = queryMasterDao
+					.getQueryDefinition(masterId);
+			String generatedSql = queryMaster.getGeneratedSql();
+			if (generatedSql == null) {
+				generatedSql = "";
 			}
-			//set transaction timeout
-			stmt.setQueryTimeout(transactionTimeout);
-			
-			
-			while (count < sqls.length) {
-				singleSql = sqls[count++];
-				log.debug("Executing sql [" + singleSql + "]"
-						+ " for query instance= " + queryInstanceId);
-				int rows = stmt.executeUpdate(singleSql);
-				log.debug("Rows affected [" + rows + "] for query instance");
-				if (this.dataSourceLookup.getServerType().equalsIgnoreCase(
-						DAOFactoryHelper.SQLSERVER)) {
-					log.debug("UPDATE STATISTICS " + this.getDbSchemaName()
-							+ "#global_temp_table ");
-					stmt.executeUpdate("UPDATE STATISTICS "
-							+ this.getDbSchemaName() + "#global_temp_table ");
+			String missingItemMessage = null;
+			boolean missingItemFlag = false;
+			if (generatedSql.trim().length() == 0) {
+				// generate sql and store
+				IQueryRequestDao requestDao = sfDAOFactory.getQueryRequestDAO();
+				String[] sqlResult = requestDao.buildSql(requestXml);
+				generatedSql = sqlResult[0];
+				missingItemMessage = sqlResult[1];
+				// if (generatedSql == null) {
+				// throw new I2B2Exception(
+				// "Database error unable to generate sql from query definition")
+				// ;
+				// } else if (generatedSql.trim().length() < 1) {
+				// throw new I2B2Exception(
+				// "Database error unable to generate sql from query definition")
+				// ;
+				// }
+				tm.begin();
+				queryMasterDao.updateQuerySQL(masterId, generatedSql);
+				tm.commit();
+
+				if (missingItemMessage != null
+						&& missingItemMessage.trim().length() > 1) {
+					missingItemFlag = true;
+					tm.begin();
+					queryInstance.setEndDate(new Date(System
+							.currentTimeMillis()));
+					// queryInstance.setMessage(missingItemMessage);
+					setQueryInstanceStatus(sfDAOFactory, queryInstanceId, 4,
+							missingItemMessage);
+					// update the error status to result instance
+					setQueryResultInstanceStatus(sfDAOFactory, queryInstanceId,
+							4, missingItemMessage);
+					// queryInstaneDao.update(queryInstance, true);
+					tm.commit();
 				}
 
 			}
+			if (missingItemFlag == false) {
+				QueryExecutorHelperDao helperDao = new QueryExecutorHelperDao(
+						dataSource, dataSourceLookup, originalDataSourceLookup);
+				helperDao.executeQuery(transaction, transactionTimeout,
+						dsLookup, sfDAOFactory, requestXml, sqlString,
+						queryInstanceId, patientSetId, resultOutputList,
+						generatedSql, tm, ut);
 
-			String fetchSql = " select count(patient_num) as patient_num_count from "
-					+ TEMP_DX_TABLE;
-			Statement countStmt = manualConnection.createStatement();
-			resultSet = countStmt.executeQuery(fetchSql);
-			int i = 0;
-
-			while (resultSet.next() && (i++ < 10)) {
-				recordCount = resultSet.getInt("patient_num_count");
-				log.debug("Calculated Patient set size :[" + recordCount
-						+ "] for query instance= " + queryInstanceId);
 			}
-			countStmt.close();
-			resultSet.close();
-
-			tm.begin();
-			//ut.begin();
-
-			callResultGenerator(resultOutputList, manualConnection,
-					sfDAOFactory, patientSetId, queryInstanceId, TEMP_DX_TABLE);
-
-			// delete temp table
-			String deleteGlobalTempTable = "";
-			String deleteCountTable = "";
-			if (dsLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
-				deleteGlobalTempTable = "drop table " + TEMP_TABLE;
-				deleteCountTable = "drop table " + TEMP_DX_TABLE;
-			} else if (dsLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.ORACLE)) {
-
-				deleteGlobalTempTable = "delete from " + TEMP_TABLE;
-				deleteCountTable = "delete from " + TEMP_DX_TABLE;
-			}
-
-			Statement deleteStmt = manualConnection.createStatement();
-			Statement deleteStmt1 = manualConnection.createStatement();
-			deleteStmt.executeUpdate(deleteGlobalTempTable);
-			deleteStmt1.executeUpdate(deleteCountTable);
-			deleteStmt.close();
-			deleteStmt1.close();
-
-			// update set size and result status
-			// IQueryResultInstanceDao patientSetResultDao = sfDAOFactory
-			// .getPatientSetResultDAO();
-			// patientSetResultDao.updatePatientSet(patientSetId, 3,
-			// recordCount);
-			// update query instance restult status
-			setQueryInstanceStatus(sfDAOFactory,queryInstanceId,6) ;
-			tm.commit();
-			 //ut.commit();
-			 log.debug("Query executor completed processing query instance[ " + queryInstanceId + " ]" );
-		} catch (com.microsoft.sqlserver.jdbc.SQLServerException sqlServerEx) {
-			errorFlag = true;
-			if (sqlServerEx.getMessage().indexOf("timed out")>-1) {
-				timeOutErrorFlag = true;
-				throw new CRCTimeOutException(sqlServerEx.getMessage(),sqlServerEx);
-			} else { 
-				log.error("Sqlserver error while executing sql", sqlServerEx);
-				throw new I2B2DAOException("Sqlserver error while executing sql", sqlServerEx);
-			}
-			
-		} catch (SQLException sqlEx) {
-			if (sqlEx.toString().indexOf("ORA-01013")>-1) { 
-				timeOutErrorFlag = true;
-				throw new CRCTimeOutException(sqlEx.getMessage(),sqlEx);
-			}
-			errorFlag = true;
-			log.error("Error while executing sql", sqlEx);
-			throw new I2B2DAOException("Error while executing sql", sqlEx);
-		} catch (I2B2Exception i2b2Ex) {
-			errorFlag = true;
-			log.error("Error getting manual connection ", i2b2Ex);
-			throw new I2B2DAOException("Error getting manual connection ",
-					i2b2Ex);
-
-		} catch (IllegalStateException e) {
-			errorFlag = true;
-			e.printStackTrace();
-			throw new I2B2DAOException("IllegalState exception", e);
-		} catch (SystemException e) {
-			errorFlag = true;
-			e.printStackTrace();
-			throw new I2B2DAOException("System exception", e);
-		} catch (NotSupportedException e) {
-			errorFlag = true;
-			e.printStackTrace();
-			throw new I2B2DAOException("System exception", e);
-		} catch (SecurityException e) {
-			errorFlag = true;
-			e.printStackTrace();
-			throw new I2B2DAOException("SecurityException", e);
-		} catch (RollbackException e) {
-			errorFlag = true;
-			e.printStackTrace();
-			throw new I2B2DAOException("RollbackException", e);
-		} catch (HeuristicMixedException e) {
-			errorFlag = true;
-			e.printStackTrace();
-			throw new I2B2DAOException("HeuristicMixedException", e);
-		} catch (HeuristicRollbackException e) {
-			errorFlag = true;
-			e.printStackTrace();
-			throw new I2B2DAOException("HeuristicRollbackException", e);
 		} catch (NamingException e) {
+			exception = e;
 			errorFlag = true;
-			e.printStackTrace();
-			throw new I2B2DAOException("HeuristicRollbackException", e);
-		}  finally {
+		} catch (NotSupportedException e) {
+			exception = e;
+			errorFlag = true;
+		} catch (SystemException e) {
+			exception = e;
+			errorFlag = true;
+		} catch (SecurityException e) {
+			exception = e;
+			errorFlag = true;
+		} catch (IllegalStateException e) {
+			exception = e;
+			errorFlag = true;
+		} catch (RollbackException e) {
+			exception = e;
+			errorFlag = true;
+		} catch (HeuristicMixedException e) {
+			exception = e;
+			errorFlag = true;
+		} catch (HeuristicRollbackException e) {
+			exception = e;
+			errorFlag = true;
+		} catch (CRCTimeOutException e) {
+			throw e;
+		} finally {
 			// close resultset and statement
 			try {
 				if (resultSet != null) {
@@ -308,8 +247,8 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 
 			if (tm != null && errorFlag) {
 				try {
+					// tm.rollback();
 					tm.rollback();
-					 //ut.rollback();
 				} catch (IllegalStateException e) {
 					e.printStackTrace();
 				} catch (SecurityException e) {
@@ -324,9 +263,24 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 										+ queryInstanceId + "]");
 						if (sfDAOFactory != null) {
 							// update set size and result status
+							// tm.begin();
 							tm.begin();
-						
-							setQueryInstanceStatus(sfDAOFactory,queryInstanceId,4) ;
+							String stacktrace = StackTraceUtil
+									.getStackTrace(exception);
+							if (stacktrace != null) {
+								if (stacktrace.length() > 2000) {
+									stacktrace = stacktrace.substring(0, 1998);
+								} else {
+									stacktrace = stacktrace.substring(0,
+											stacktrace.length());
+								}
+							}
+							setQueryInstanceStatus(sfDAOFactory,
+									queryInstanceId, 4, stacktrace);
+							// update the error status to result instance
+							setQueryResultInstanceStatus(sfDAOFactory,
+									queryInstanceId, 4, stacktrace);
+							// tm.commit();
 							tm.commit();
 							log.info("Updated error status to query instance["
 									+ queryInstanceId + "]");
@@ -342,104 +296,90 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 							e1.printStackTrace();
 						}
 					}
-				} 
+				}
 			}
 		}
-
 		return patientSetId;
 	}
 
-	@SuppressWarnings("unchecked")
-	private void callResultGenerator(
-			ResultOutputOptionListType resultOutputList,
-			Connection manualConnection, SetFinderDAOFactory sfDAOFactory,
-			String patientSetId, String queryInstanceId, String TEMP_DX_TABLE)
-			throws I2B2DAOException {
-
-		Map param = new HashMap();
-		SetFinderConnection sfConn = new SetFinderConnection(manualConnection);
-		param.put("SetFinderConnection", sfConn);
-		param.put("SetFinderDAOFactory", sfDAOFactory);
-		param.put("PatientSetId", patientSetId);
-		param.put("QueryInstanceId", queryInstanceId);
-		param.put("TEMP_DX_TABLE", TEMP_DX_TABLE);
-
-		if (resultOutputList != null) {
-			if (resultOutputList.getResultOutput() != null
-					&& resultOutputList.getResultOutput().size() > 0) {
-				List<ResultOutputOptionType> resultOptionList = resultOutputList
-						.getResultOutput();
-				for (ResultOutputOptionType resultOutputOption : resultOptionList) {
-					String resultName = resultOutputOption.getName()
-							.toUpperCase();
-					String resultInstanceId = getQueryResultInstanceId(
-							sfDAOFactory, queryInstanceId, resultName);
-					param.put("ResultInstanceId", resultInstanceId);
-					param.put("ResultOptionName", resultName);
-					runGenerator(resultName, param);
-				}
-			} else { 
-				log.warn("No result output process to run, the <result_output_option> is empty");
-			}
-
-		} else {
-			String resultType = defaultResultType;
-			// perform patient set
-			String resultInstanceId = getQueryResultInstanceId(sfDAOFactory,
-					queryInstanceId, defaultResultType);
-			param.put("ResultInstanceId", resultInstanceId);
-			runGenerator(resultType, param);
-		}
-	}
-
-	private void runGenerator(String resultName, Map param)
-			throws I2B2DAOException {
-		String generatorClassName = (String) generatorMap.get(resultName);
-		Class generatorClass;
-		IResultGenerator resultGenerator;
-		try {
-			generatorClass = Class.forName(generatorClassName, true, Thread
-					.currentThread().getContextClassLoader());
-			if (generatorClass == null) {
-				throw new I2B2DAOException(
-						"Generator class not configured for result name["
-								+ resultName + "] ");
-			}
-			resultGenerator = (IResultGenerator) generatorClass.newInstance();
-			resultGenerator.generateResult(param);
-		} catch (ClassNotFoundException e) {
-			throw new I2B2DAOException(
-					"Class not found for the generator class["
-							+ generatorClassName + "] ", e);
-		} catch (InstantiationException e) {
-			throw new I2B2DAOException("Could not initialize generator class["
-					+ generatorClassName + "] ", e);
-		} catch (IllegalAccessException e) {
-			throw new I2B2DAOException(
-					"Illegal Access Exception for generator class["
-							+ generatorClassName + "] ", e);
-		}
-	}
-
-	private String getQueryResultInstanceId(SetFinderDAOFactory sfDAOFactory,
-			String queryInstanceId, String resultName) {
-		IQueryResultInstanceDao resultInstanceDao = sfDAOFactory
-				.getPatientSetResultDAO();
-		QtQueryResultInstance resultInstance = resultInstanceDao
-				.getResultInstanceByQueryInstanceIdAndName(queryInstanceId,
-						resultName);
-		return resultInstance.getResultInstanceId();
-	}
-	
-	private void setQueryInstanceStatus(SetFinderDAOFactory sfDAOFactory,String queryInstanceId,int statusTypeId) { 
+	private void setQueryInstanceStatus(SetFinderDAOFactory sfDAOFactory,
+			String queryInstanceId, int statusTypeId, String message) {
 		IQueryInstanceDao queryInstanceDao = sfDAOFactory.getQueryInstanceDAO();
-		QtQueryInstance queryInstance = queryInstanceDao.getQueryInstanceByInstanceId(queryInstanceId);
+		QtQueryInstance queryInstance = queryInstanceDao
+				.getQueryInstanceByInstanceId(queryInstanceId);
 
 		QtQueryStatusType queryStatusType = new QtQueryStatusType();
-		queryStatusType.setStatusTypeId(6);
+		queryStatusType.setStatusTypeId(statusTypeId);
 		queryInstance.setQtQueryStatusType(queryStatusType);
 		queryInstance.setEndDate(new Date(System.currentTimeMillis()));
-		queryInstanceDao.update(queryInstance);
+		queryInstance.setMessage(message);
+		queryInstanceDao.update(queryInstance, true);
+	}
+
+	private void setQueryResultInstanceStatus(SetFinderDAOFactory sfDAOFactory,
+			String queryInstanceId, int statusTypeId, String message) {
+		IQueryResultInstanceDao queryResultInstanceDao = sfDAOFactory
+				.getPatientSetResultDAO();
+		List<QtQueryResultInstance> resultInstanceList = queryResultInstanceDao
+				.getResultInstanceList(queryInstanceId);
+		for (QtQueryResultInstance queryResultInstance : resultInstanceList) {
+			queryResultInstanceDao.updatePatientSet(queryResultInstance
+					.getResultInstanceId(), statusTypeId, message, 0, 0, "");
+		}
+
+	}
+
+	/**
+	 * Call PM to get user roles. The security info is taken from the request
+	 * xml
+	 * 
+	 * @param requestXml
+	 * @return
+	 * @throws I2B2Exception
+	 */
+	public List<String> getRoleFromPM(String requestXml) throws I2B2Exception {
+
+		I2B2RequestMessageHelper reqMsgHelper = new I2B2RequestMessageHelper(
+				requestXml);
+		SecurityType origSecurityType = reqMsgHelper.getSecurityType();
+		String projectId = reqMsgHelper.getProjectId();
+
+		SecurityType serviceSecurityType = PMServiceAccountUtil
+				.getServiceSecurityType(origSecurityType.getDomain());
+		EJBPMUtil callPMUtil = new EJBPMUtil(serviceSecurityType, projectId);
+		List<String> roleList = new ArrayList<String>();
+		try {
+			RolesType rolesType = callPMUtil.callGetRole(origSecurityType
+					.getUsername(), projectId);
+
+			RoleType roleType = null;
+			for (java.util.Iterator<RoleType> iterator = rolesType.getRole()
+					.iterator(); iterator.hasNext();) {
+				roleType = iterator.next();
+				roleList.add(roleType.getRole());
+			}
+
+		} catch (AxisFault e) {
+			throw new I2B2Exception(" Failed to get user role from PM "
+					+ StackTraceUtil.getStackTrace(e));
+		}
+		return roleList;
+		/*
+		 * I2B2RequestMessageHelper reqMsgHelper = new I2B2RequestMessageHelper(
+		 * requestXml); SecurityType securityType =
+		 * reqMsgHelper.getSecurityType(); String projectId =
+		 * reqMsgHelper.getProjectId(); // get roles from pm driver
+		 * PMServiceDriver serviceDriver = new PMServiceDriver(); ProjectType
+		 * projectType = null;
+		 * 
+		 * try { projectType = serviceDriver.checkValidUser(securityType,
+		 * projectId); } catch (AxisFault e) { e.printStackTrace(); throw new
+		 * I2B2Exception(" Failed to get user role from PM " +
+		 * StackTraceUtil.getStackTrace(e)); } catch (JAXBUtilException e) {
+		 * e.printStackTrace(); throw new
+		 * I2B2Exception(" Failed to get user role from PM " +
+		 * StackTraceUtil.getStackTrace(e)); } return projectType.getRole();
+		 */
 	}
 
 }

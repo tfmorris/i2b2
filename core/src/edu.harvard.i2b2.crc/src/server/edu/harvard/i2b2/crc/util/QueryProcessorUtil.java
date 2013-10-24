@@ -15,10 +15,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.Scheduler;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -32,6 +35,9 @@ import edu.harvard.i2b2.crc.ejb.QueryInfoLocalHome;
 import edu.harvard.i2b2.crc.ejb.QueryManagerLocalHome;
 import edu.harvard.i2b2.crc.ejb.QueryResultLocalHome;
 import edu.harvard.i2b2.crc.ejb.QueryRunLocalHome;
+import edu.harvard.i2b2.crc.ejb.analysis.CronEjbLocal;
+import edu.harvard.i2b2.crc.ejb.analysis.StartAnalysisLocal;
+import edu.harvard.i2b2.crc.ejb.role.PriviledgeLocal;
 
 /**
  * This is the CRC application's main utility class This utility class provides
@@ -108,10 +114,26 @@ public class QueryProcessorUtil {
 	/** property name for ontology url schema name **/
 	private static final String ONTOLOGYCELL_WS_URL_PROPERTIES = "queryprocessor.ws.ontology.url";
 
+	private static final String ONTOLOGYCELL_ROOT_WS_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.url";
+
+	private static final String ONTOLOGYCELL_GETTERMINFO_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.operation.getterminfo";
+
+	private static final String ONTOLOGYCELL_GETCHILDREN_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.operation.getchildren";
+
 	/** spring bean name for datasource **/
 	private static final String DATASOURCE_BEAN_NAME = "dataSource";
 
 	public static final String DEFAULT_SETFINDER_RESULT_BEANNAME = "defaultSetfinderResultType";
+
+	public static final String PAGING_OBSERVATION_SIZE = "edu.harvard.i2b2.crc.pdo.paging.observation.size";
+
+	public static final String PAGING_MINPERCENT = "edu.harvard.i2b2.crc.pdo.paging.inputlist.minpercent";
+
+	public static final String PAGING_MINSIZE = "edu.harvard.i2b2.crc.pdo.paging.inputlist.minsize";
+
+	public static final String PAGING_METHOD = "edu.harvard.i2b2.crc.pdo.paging.method";
+
+	public static final String PAGING_ITERATION = "edu.harvard.i2b2.crc.pdo.paging.iteration";
 
 	/** class instance field* */
 	private static QueryProcessorUtil thisInstance = null;
@@ -155,7 +177,23 @@ public class QueryProcessorUtil {
 			thisInstance = new QueryProcessorUtil();
 			serviceLocator = ServiceLocator.getInstance();
 		}
+
+		// start cron job
+		// startCronJob();
+
 		return thisInstance;
+	}
+
+	private static void startCronJob() {
+		CronEjbLocal cronLocal;
+		try {
+			cronLocal = thisInstance.getCronLocal();
+			cronLocal.start();
+		} catch (I2B2Exception e) {
+
+			e.printStackTrace();
+		}
+
 	}
 
 	/**
@@ -221,6 +259,46 @@ public class QueryProcessorUtil {
 			ServiceLocatorException {
 		return (PdoQueryLocalHome) serviceLocator
 				.getLocalHome(getPropertyValue(EJB_LOCAL_JNDI_PDOQUERY_PROPERTIES));
+	}
+
+	public StartAnalysisLocal getStartAnalysisLocal() throws I2B2Exception {
+		InitialContext ctx;
+		try {
+			ctx = new InitialContext();
+			return (StartAnalysisLocal) ctx.lookup("QP1/StartAnalysis/local");
+		} catch (NamingException e) {
+			throw new I2B2Exception("Bean lookup error ", e);
+		}
+	}
+
+	public CronEjbLocal getCronLocal() throws I2B2Exception {
+		InitialContext ctx;
+		try {
+			ctx = new InitialContext();
+			return (CronEjbLocal) ctx.lookup("QP1/CronEjb/local");
+		} catch (NamingException e) {
+			throw new I2B2Exception("Bean lookup error ", e);
+		}
+	}
+
+	public PriviledgeLocal getPriviledgeLocal() throws I2B2Exception {
+		InitialContext ctx;
+		try {
+			ctx = new InitialContext();
+			return (PriviledgeLocal) ctx.lookup("QP1/PriviledgeBean/local");
+		} catch (NamingException e) {
+			throw new I2B2Exception("Bean lookup error ", e);
+		}
+	}
+
+	public Scheduler getQuartzScheduler() throws I2B2Exception {
+		InitialContext ctx;
+		try {
+			ctx = new InitialContext();
+			return (Scheduler) ctx.lookup("Quartz");
+		} catch (NamingException e) {
+			throw new I2B2Exception("Bean lookup error ", e);
+		}
 	}
 
 	/**
@@ -326,6 +404,32 @@ public class QueryProcessorUtil {
 		}
 	}
 
+	public long getPagingObservationSize() throws I2B2Exception {
+		String obsPageSizeStr = getPropertyValue(PAGING_OBSERVATION_SIZE);
+		return Long.parseLong(obsPageSizeStr);
+	}
+
+	public int getPagingInputListMinPercent() throws I2B2Exception {
+		String pagingMinPercent = getPropertyValue(PAGING_MINPERCENT);
+		return Integer.parseInt(pagingMinPercent);
+	}
+
+	public int getPagingInputListMinSize() throws I2B2Exception {
+		String pagingMinSize = getPropertyValue(PAGING_MINSIZE);
+		return Integer.parseInt(pagingMinSize);
+	}
+
+	public String getPagingMethod() throws I2B2Exception {
+		String pagingMethod = getPropertyValue(PAGING_METHOD);
+		return pagingMethod;
+	}
+
+	public int getPagingIterationCount() throws I2B2Exception {
+		String pagingIteration = getPropertyValue(PAGING_ITERATION);
+		return Integer.parseInt(pagingIteration);
+
+	}
+
 	/**
 	 * Get Project management bypass project role
 	 * 
@@ -376,6 +480,10 @@ public class QueryProcessorUtil {
 
 		return dataSource;
 
+	}
+
+	public String getCRCPropertyValue(String propertyName) throws I2B2Exception {
+		return getPropertyValue(propertyName);
 	}
 
 	// ---------------------

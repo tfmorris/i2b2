@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.crc.loader.dao.LoaderDAOFactoryHelper;
+import edu.harvard.i2b2.crc.loader.datavo.i2b2message.PasswordType;
 import edu.harvard.i2b2.crc.loader.datavo.i2b2message.SecurityType;
 import edu.harvard.i2b2.crc.loader.datavo.loader.DataSourceLookup;
 import edu.harvard.i2b2.crc.loader.datavo.loader.query.PublishMessageTest;
@@ -69,7 +70,10 @@ public class DataMartLoaderTest {
 				+ filename);
 		SecurityType securityType = new SecurityType();
 		securityType.setUsername("test_user");
-		securityType.setPassword("test_user_password");
+		PasswordType ptype = new PasswordType();
+		ptype.setValue("test_user_password");
+
+		securityType.setPassword(ptype);
 
 		// load the file and build this jaxb object
 		loaderBean.load(dataSourceLookup, requestString, securityType, 1000,
@@ -86,7 +90,9 @@ public class DataMartLoaderTest {
 
 		SecurityType securityType = new SecurityType();
 		securityType.setUsername("test_user");
-		securityType.setPassword("test_user_password");
+		PasswordType ptype = new PasswordType();
+		ptype.setValue("test_user_password");
+		securityType.setPassword(ptype);
 
 		// load the file and build this jaxb object
 		loaderBean.load(dataSourceLookup, requestString, securityType, 1000,

@@ -39,11 +39,13 @@
     <!-- 
     <xs:element name="sql" type="xs:string"/>
     --> 
-    <!-- query master is made top level elment for previous query drag and drop -->
+    <!-- query master is made top level element for previous query drag and drop -->
     <xs:element name="query_master" type="crc:query_masterType"/>
-    <!-- query result is made top level elment for previous query drag and drop -->
+    <!-- query instance is made top level element for previous query drag and drop -->
+    <xs:element name="query_instance" type="crc:query_instanceType"/>
+     <!-- query result is made top level element for previous query drag and drop -->
     <xs:element name="query_result_instance" type="crc:query_result_instanceType"/>
-    
+   
     <xs:complexType name="psm_qry_headerType">
         <xs:complexContent>
             <xs:extension base="crc:headerType">
@@ -204,6 +206,14 @@
                     </xs:appinfo>
                 </xs:annotation>
             </xs:enumeration>
+            <xs:enumeration value="CRC_QRY_updateResultInstanceDescription">
+            <xs:annotation>
+                <xs:appinfo>
+                    <requestType>result_requestType</requestType>
+                    <responseType>result_responseType</responseType>
+                </xs:appinfo>
+            </xs:annotation>
+            </xs:enumeration>
             <xs:enumeration value="CRC_QRY_getResultDocument_fromResultInstanceId">
                 <xs:annotation>
                     <xs:appinfo>
@@ -217,6 +227,22 @@
                     <xs:appinfo>
                         <requestType>result_type_requestType</requestType>
                         <responseType>result_type_responseType</responseType>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CRC_QRY_runQueryInstance_fromAnalysisDefinition">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <requestType>analysis_definition_requestType</requestType>
+                        <responseType>master_instance_result_responseType</responseType>
+                    </xs:appinfo>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="CRC_QRY_cancelQuery">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <requestType>instance_requestType</requestType>
+                        <responseType>instance_result_responseType</responseType>
                     </xs:appinfo>
                 </xs:annotation>
             </xs:enumeration>

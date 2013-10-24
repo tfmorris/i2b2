@@ -233,6 +233,9 @@ public class MessageFactory {
         if(folders != null)
         	bodyType = createBodyType(folders);
         
+        else
+        	log.error("creating response with null body type ");
+        
         respMessageType = createResponseMessageType(messageHeaderType, respHeader,
                 bodyType);
         
