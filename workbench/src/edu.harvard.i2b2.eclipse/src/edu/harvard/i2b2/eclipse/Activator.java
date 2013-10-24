@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+* Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+* are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -12,6 +12,7 @@ package edu.harvard.i2b2.eclipse;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.*;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -38,6 +39,7 @@ public class Activator extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		//registerP2Policy(context);
 	}
 
 	/*

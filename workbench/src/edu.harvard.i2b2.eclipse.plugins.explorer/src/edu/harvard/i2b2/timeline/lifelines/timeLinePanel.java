@@ -12,6 +12,17 @@
 package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragGestureEvent;
+import java.awt.dnd.DragGestureRecognizer;
+import java.awt.dnd.DragGestureListener;
+import java.awt.dnd.DragSource;
+import java.awt.dnd.DragSourceListener;
+import java.awt.dnd.InvalidDnDOperationException;
+
+
 import java.awt.event.*;
 
 import java.util.*;
@@ -19,6 +30,22 @@ import java.io.*;
 
 import javax.swing.*;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.Workbench;
+import org.eclipse.ui.internal.WorkbenchPage;
+import org.eclipse.ui.internal.registry.ViewRegistry;
+import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.part.WorkbenchPart;
+import org.eclipse.ui.views.IViewDescriptor;
+import org.eclipse.ui.views.IViewRegistry;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
@@ -26,14 +53,15 @@ import edu.harvard.i2b2.timeline.excentric.*;
 import edu.harvard.i2b2.timeline.external.*;
 import edu.harvard.i2b2.crcxmljaxb.datavo.dnd.DndType;
 import edu.harvard.i2b2.common.datavo.pdo.PatientDataType;
+import edu.harvard.i2b2.eclipse.ICommonMethod;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.explorer.dataModel.PDOResponseMessageModel;
 import edu.harvard.i2b2.explorer.datavo.ExplorerJAXBUtil;
-import edu.harvard.i2b2.explorer.ui.ExplorerC;
+import edu.harvard.i2b2.explorer.ui.ExplorerComposite;
 import edu.harvard.i2b2.navigator.Application;
 
 //this is the timeline panel that gets displayed
-public class timeLinePanel extends ScrollingPanel
+public class TimeLinePanel extends ScrollingPanel
 implements ActionListener, MouseListener, MouseMotionListener    {
 	
 	public final int ATTRNUM = 3;
@@ -69,10 +97,12 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	private MenuItem linkMenuItem[] = new MenuItem[20];
 	private MenuItem attrMenuItem[] = new MenuItem[3];
 	private int item=0;
-	private genRecord selected = null;
+	private GenRecord selected = null;
 	private String note = null;
 	private String key = null;
 	
+	private ViewPart textAnalyzerView;
+//	private Display timeLineDisplay;
 	// for excentric
 	/**
 	 * Idle object triggering the timeout when the user doesn't move.
@@ -131,14 +161,14 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		if(!threadTest)
 			repaint(); // threadtest
 		else
-			record.changed = true;
+			Record.changed = true;
 	}
 	
 	public void start() {
 		if(!threadTest)
 			repaint(); // threadtest
 		else
-			record.changed = true;
+			Record.changed = true;
 	}
 	
 	public int width, height, dataheight; // 3/28/98  width is used when scale is initialized. 12/17/97 made public
@@ -160,15 +190,15 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	// that already?
 	
 	private MyDate dateMin, dateMax, validDateMin, validDateMax;
-	private scale aScale;
+	private Scale aScale;
 	private MyRectangle rects[];
 	public static int MOUSE_MOVE = 1;
 	public static int DEFAULT = 0;
 	public static int START = 2;
-	public static newApplet theApplet;
+	public static NewApplet theApplet;
 	// added by dan to stop multiple yellow tags from coming up:
 	int oldi = -1;
-	private aggregate aggregates[];
+	private Aggregate aggregates[];
 	private int aggregateNumber = 0;
 	public static int selectedIndex = -1; // made public and static temporarily for illustration purposes
 	private int font1TextHeight;  
@@ -183,19 +213,19 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	Color lp = new Color(255,200,255); // stands for lightpurple
 	Color lb = new Color(255,245,200); // stands for lightbrown was 255,236,200
 	Color db = new Color(255,236,175); // stands for darkbrown
-	facet afacetRecord; // list of facets
+	Facet afacetRecord; // list of facets
 	// what the data hashtable gets loaded into, a list of facets (i.e. genrecords)
-	storyRecord aStoryRecord; // descendant of genrecord
-	hourstoryRecord anhourStoryRecord; // descendant of genrecord
+	StoryRecord aStoryRecord; // descendant of genrecord
+	HourstoryRecord anhourStoryRecord; // descendant of genrecord
 	Hashtable afacetList; // comes from a facetrecord, not list of facets but rather: list of whats in facet
-	genRecord aGenRecord; // basically contains only info on the type of record
+	GenRecord aGenRecord; // basically contains only info on the type of record
 	
-	record thisApplet;
+	Record thisApplet;
 	Image image1;
 	
 	MyDate today;
 	
-	public timeLinePanel (int width, int height,record thisApplet,MyDate today) {
+	public TimeLinePanel (int width, int height,Record thisApplet,MyDate today) {
 		setLabelFont(12);  // default font size is 12
 		testChoice = new Choice();
 		testMenu = new Menu("test");
@@ -206,6 +236,8 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		int strWidth;
 		this.width = width;
 		this.height = height;
+
+	//	timeLineDisplay = PlatformUI.getWorkbench().getDisplay();
 		
 		//Default values for the zooming options when starting up
 		ResourceTable.put(new String("zoom_ratio"),new Integer(1));/* Added 11/23 - Partha*/
@@ -214,20 +246,20 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		
 		//int rectWidth = 10; // this determines how big the rectange is.. penwidth is now the largest
 		// rectangle width on the present line (if sameline is true)
-		dateMin = new MyDate(1,1,record.theData.getMinDate().getYear(),0,0);
+		dateMin = new MyDate(1,1,Record.theData.getMinDate().getYear(),0,0);
 		// remember: theData is a loadrecord
-		dateMax = new MyDate(1,1,record.theData.getMaxDate().getYear()+1,0,0);
+		dateMax = new MyDate(1,1,Record.theData.getMaxDate().getYear()+1,0,0);
 		validDateMin = new MyDate(dateMin); // "valid" will change with scale see "listen" function below
 		validDateMax = new MyDate(dateMax);
-		recordTable = record.theData.getRecordTable(); // theData is a loadrecord.... table = hash
+		recordTable = Record.theData.getRecordTable(); // theData is a loadrecord.... table = hash
 		// i.e. above is the main data in a hashtable, each entry is actually a facet 1/13/98 dan
 		n_key = recordTable.size();
 		keyLabels = new String[n_key];
-		facet afacetRecord;
+		Facet afacetRecord;
 		//MyDate lastEndDate = new MyDate(1,1,2010);
 		
 		idleO = new Idle() {
-			public void idle(int x, int y) { timeLinePanel.this.idle(x, y, true); }
+			public void idle(int x, int y) { TimeLinePanel.this.idle(x, y, true); }
 			public void active(int x, int y) { }
 		};
 		idleO.register(this);
@@ -236,7 +268,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		this.addMouseMotionListener(this);
 		
 		for(i = 0, lwinWidth = 0; i < n_key; i++){
-			afacetRecord = (facet)(recordTable.get(new Integer(i)));
+			afacetRecord = (Facet)(recordTable.get(new Integer(i)));
 			keyLabels[i] = (String)(afacetRecord.getKey());
 			
 			strWidth = (int)(fontMetrics.stringWidth(keyLabels[i]));
@@ -248,7 +280,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		rwinWidth = width - lwinWidth - 4; // width of right window?
 		rwinOffset = lwinWidth + 2; // = maximum with of a key + 2 + 6
 		//rwinOffset = 20; // making this zero removed the facet titles for some reason...
-		aScale = new scale(rwinWidth, dateMin, dateMax,today);
+		aScale = new Scale(rwinWidth, dateMin, dateMax,today);
 	}
 	
 	public int getWidth(){
@@ -290,9 +322,9 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		
 		if(noRects) {
 			n_key = recordTable.size();
-			facet tempFacet;
+			Facet tempFacet;
 			for(int a=0;a<n_key;a++) {
-				tempFacet = (facet)(recordTable.get(new Integer(a)));
+				tempFacet = (Facet)(recordTable.get(new Integer(a)));
 				if(tempFacet.checkBoxContains(x,y)) {
 					tempFacet.checkBoxClick();
 					repaint();
@@ -319,12 +351,12 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 				MyDate begin = fullSelectedStartDate(x,y); 
 				MyDate ending = fullSelectedEndDate(x,y); 
 				
-				((mainPanel)getParent()).theYearSlider.adjust(10,begin,ending,rwinOffset);// 10 for event type, change this!
+				((MainPanel)getParent()).theYearSlider.adjust(10,begin,ending,rwinOffset);// 10 for event type, change this!
 				
 				if(aScale.getMode().equals("month"))
-					((mainPanel)getParent()).theMonthSlider.adjust(10,begin,ending,rwinOffset);
+					((MainPanel)getParent()).theMonthSlider.adjust(10,begin,ending,rwinOffset);
 				if(aScale.getMode().equals("day"))
-					((mainPanel)getParent()).theWeekSlider.adjust(10,begin,ending,rwinOffset);
+					((MainPanel)getParent()).theWeekSlider.adjust(10,begin,ending,rwinOffset);
 			}
 			else    {
 				rubber = true;
@@ -334,7 +366,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 			return;
 		}
 		else if(e.isControlDown() ) {  // control click on aggregate to search on storyRecord label (in other words.. find the storyRecord you are above too); at first try, this zoomed on controlclick so this was fixed below
-			genRecord selectedRecord = inRegion(x,y,true,false);
+			GenRecord selectedRecord = inRegion(x,y,true,false);
 			if (selectedRecord != null)   {
 				relabeling = true; 
 				grep(getLabel(x,y));
@@ -344,7 +376,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		else {
 			if ( e.getClickCount() == 2 )	{  
 				for(int a=0;a<n_key;a++) {
-					facet tempFacet = (facet)(recordTable.get(new Integer(a)));
+					Facet tempFacet = (Facet)(recordTable.get(new Integer(a)));
 					if(tempFacet.checkTitleContains(x,y)) {
 						if(System.getProperty("identityService").equals("")) {
 							return;
@@ -429,8 +461,9 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 					}  	           
 				}
 				
-				genRecord selectedRecord = inRegion(x,y,true,false); 
+				GenRecord selectedRecord = inRegion(x,y,true,false); 
 				if(selectedRecord != null) {
+
 					String msg = selectedRecord.getInputLine();
 					String [] msgs = msg.split(",");
 					String [] xtras = msgs[7].split("\\$\\$");
@@ -439,11 +472,15 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 					String concept_cd = xtras[2];
 					
 					//String concept_cd = msgs[7].substring(msgs[7].lastIndexOf("$$")+2, msgs[7].lastIndexOf("\""));
+				
 					
-					if (!System.getProperty("applicationName").equals("BIRN") && (!(("LCS-I2B2:c1009c".indexOf(concept_cd)>=0) || ("LCS-I2B2:c1010c".indexOf(concept_cd)>=0)
-							|| ("LCS-I2B2:c1011c".indexOf(concept_cd)>=0) || ("LCS-I2B2:pul".indexOf(concept_cd)>=0)))) {
-						return;
-					}
+					// changing to valueTypeCd == 'B' and blob not equal null below instead of concept code checks
+			//		if (!System.getProperty("applicationName").equals("BIRN") && (!(("LCS-I2B2:c1009c".indexOf(concept_cd)>=0) || ("LCS-I2B2:c1010c".indexOf(concept_cd)>=0)
+			//				|| ("LCS-I2B2:c1011c".indexOf(concept_cd)>=0) || ("LCS-I2B2:pul".indexOf(concept_cd)>=0)))) {
+			//			return;
+			//		}
+					
+
 					
 					String patientNumber = xtras[1]; //msgs[7].substring(msgs[7].indexOf("$$")+2, msgs[7].lastIndexOf("$$"));            	  
 					String start_date = msgs[1];
@@ -477,10 +514,17 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 					// [3] is PDO 
 					note = blobdata[0];
 					
+					
+					if (!System.getProperty("applicationName").equals("BIRN") && (!blobdata[1].equals("B"))){
+						return;
+					}
+					
+					
+					
 					Application app;
 					app = new Application();
 					app.setClassName("edu.harvard.i2b2.timeline.external.NotesViewer");
-					if(	(blobdata[1].equals("B")) && (blobdata[2].equals("X")) )
+					if(	(blobdata[1].equals("B")) && ((blobdata[2].trim()).equals("X")) )
 							app.setEncrypted(true);
 					else 
 						app.setEncrypted(false);
@@ -534,20 +578,69 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 						System.out.println("Error marshalling Explorer drag text");
 					} 
 					
-					System.out.println("DND content: "+strWriter.toString());
+					
+					
+				//	System.out.println("DND content: "+strWriter.toString());
 					final String dndXmlData = strWriter.toString();
-					java.awt.EventQueue.invokeLater(new Runnable() {
-						  public void run() {
-							  new TextViewerFrame(note, dndXmlData).setVisible(true);
-						  }
-					 });
+				
+					// get text analyzer View (NEW)
+					/*
+					textAnalyzerView = getView("edu.harvard.i2b2.eclipse.plugins.textanalyzer.views.textAnalyzerView");
+				
+					if(textAnalyzerView != null){		
+						java.awt.EventQueue.invokeLater(new Runnable() {
+							public void run() {	  
+								((ICommonMethod)textAnalyzerView).doSomething(dndXmlData);
+							}
+						});
 					}
+					*/
+
+
+					//  OR REVERT TO TEXT FRAME VIEWER
+					//else {
+						java.awt.EventQueue.invokeLater(new Runnable() {
+							public void run() {
+								new TextViewerFrame(note, dndXmlData).setVisible(true);
+							}
+						});
+			//		}
+				
+					// REPLACE ABOVE WITH THIS ON RELEASE OF TEXT ANALYZER
+					// view is not open send a message to have it started
+					
+				//	else {
+				//		JOptionPane.showMessageDialog(this, "Text Analyzer plugin not active \n " +
+				//				"Use Window -> Show View \n" +
+				//				"To open this view and try again");
+				//		return;
+				//	}
+					
+					/*  Failed attempt to open text analyzer view if it did not exist yet.
+							--- was not able to get IViewPart ...
+					else{
+					java.awt.EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							TextAnalyzerView view = new TextAnalyzerView();
+							try {
+								view.init(view.getViewSite());
+							} catch (PartInitException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					});
+				}*/
+					
+					
 					return;
-				}   	  
-			
+				}
+			}   	  
+
 			if ( e.getClickCount() == 1 ) {   
-				genRecord selectedRecord = inRegion(x,y,true,false); 
+				GenRecord selectedRecord = inRegion(x,y,true,false); 
 				if(selectedRecord != null) {
+			//		DragLabel drgL = new DragLabel("this is a test");
 					/* String msg = selectedRecord.getInputLine();
 					 String [] msgs = msg.split(",");
 					 if(msgs[4].equalsIgnoreCase("p2")) {
@@ -631,7 +724,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		
 		if (e.getSource() == attrMenuItem[0])  {
 			search = true;
-			myColor mycolor = new myColor("dummy");
+			MyColor mycolor = new MyColor("dummy");
 			if (mycolor.getColorString(selected.getRectColor()).equals("red"))
 				grep(mycolor.getColorString(selected.getRectColor()) + "|severe");
 			else
@@ -652,7 +745,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	
 	public void paint(Graphics g)   {
 		
-		facet aFacet = null;
+		Facet aFacet = null;
 		noRects = true;
 		int scrollBarY = 0;
 		
@@ -665,7 +758,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 			Vector streamlist = new Vector(), substreamlist;
 			
 			for(int i = 0; i < n_key; i++) {
-				aFacet = (facet)(recordTable.get(new Integer(i)));
+				aFacet = (Facet)(recordTable.get(new Integer(i)));
 				
 				// checkbox, for opening and closing facets... really should be drawn in
 				// facet class, but unless that becomes a component class the mouseclick
@@ -680,7 +773,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 				// 1/9/97, dan.. right pointing arrow if closed, down pointing arrow if open
 				
 				//System.out.println("scrollbar value: " + record.theTabPanel.tlpScroll.getValue());
-				if(scrollBarY >= record.theTabPanel.tlpScroll.getValue())  {
+				if(scrollBarY >= Record.theTabPanel.tlpScroll.getValue())  {
 					
 					if(!aFacet.enabled) {
 						int[] xCoordinates = {1,10,1};
@@ -710,9 +803,9 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 							descent = 2;
 							
 							for (int j=0; j<streamlist.size(); j++) {
-								storyRecord textstream;
+								StoryRecord textstream;
 								
-								textstream = (storyRecord)streamlist.elementAt(j);
+								textstream = (StoryRecord)streamlist.elementAt(j);
 								
 								g.setColor(aFacet.backgroundColor);
 								g.fillRect(textstream.getLabelX(), textstream.getLabelY()+textstream.currentY-getFontTextHeight()-2, textstream.getLabelWidth(), getFontTextHeight()); 
@@ -723,12 +816,12 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 							
 							// animation starts
 							for (int j=0; j<streamlist.size(); j++) {
-								storyRecord textstream;
+								StoryRecord textstream;
 								
-								textstream = (storyRecord)streamlist.elementAt(j);
+								textstream = (StoryRecord)streamlist.elementAt(j);
 								//textstream.draw(currentY, this, false, true, true, false, false);
 								g.setColor(Color.black);
-								g.setFont(record.theTabPanel.theTimeLinePanel.fontMetrics1.getFont());
+								g.setFont(Record.theTabPanel.theTimeLinePanel.fontMetrics1.getFont());
 								g.drawString(textstream.getCause(), textstream.streamX, textstream.streamY+textstream.currentY-descent);
 								
 								try {
@@ -782,14 +875,14 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 			if (rubber)    // only needs to draw the rubber band and clipping is much more efficient than the redraw
 				ofg.drawRect(rubber_startX, rubber_startY, rubber_endX-rubber_startX, rubber_endY-rubber_startY);
 			
-			if (record.excentric)   {
+			if (Record.excentric)   {
 				if (cursor != null) {
 					cursor.paint(ofg);
 				}
 				labels.paint(ofg);
 			}
 			
-			if (record.infotip && infoTipLabel != null) {
+			if (Record.infotip && infoTipLabel != null) {
 				infoTipLabel.paint(ofg);
 			}
 			
@@ -802,10 +895,10 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		}     // end if noRects
 		// snm - scrollbar changed here?
 		if (scrollBarY > height)
-			record.theTabPanel.tlpScroll.setVisible(true);
+			Record.theTabPanel.tlpScroll.setVisible(true);
 		else {
-			record.theTabPanel.tlpScroll.setVisible(false);
-			record.theTabPanel.tlpScroll.setValue(0);
+			Record.theTabPanel.tlpScroll.setVisible(false);
+			Record.theTabPanel.tlpScroll.setValue(0);
 		}  
 		loop: if (inClick > 0) {/* this portion till end of paint modified 11/20*/
 			while (inClick != zoom_steps) {
@@ -837,7 +930,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		}
 	}
 	
-	public static void setApplet(newApplet inApplet) {
+	public static void setApplet(NewApplet inApplet) {
 		theApplet = inApplet;
 	}
 	
@@ -851,27 +944,27 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		Point p = new Point(x, y);
 		//Vector streamlist = new Vector();
 		Vector substreamlist;
-		facet aFacet = null;
+		Facet aFacet = null;
 		
 		cursor = new LiteRect(new Rectangle(x-cursor_radius, y-cursor_radius, 
 				2*cursor_radius, 2*cursor_radius),1, Color.red, null);
-		if (record.excentric)   {
+		if (Record.excentric)   {
 			// Julia, 10/12/98, move the following three lines here so that the excentric layout can be changed via control panel
 			int column=1;
-			if (record.column[1])   column = 2;
+			if (Record.column[1])   column = 2;
 			System.out.println(getSize().height);
 			layout = new StableLayout(getSize().width, getSize().height, column);
 			
 			for(int i = 0; i < n_key; i++) {
-				aFacet = (facet)(recordTable.get(new Integer(i)));
+				aFacet = (Facet)(recordTable.get(new Integer(i)));
 				substreamlist = aFacet.rubber_band(x, y, cursor_radius);
 				for (int j=0; j<substreamlist.size(); j++)  {
 					//streamlist.addElement(substreamlist.elementAt(j));
-					storyRecord thisRecord = (storyRecord)(substreamlist.elementAt(j));
+					StoryRecord thisRecord = (StoryRecord)(substreamlist.elementAt(j));
 					int centerX = thisRecord.startX + (thisRecord.getBarArea().intersection(cursor.getBounds())).width/2;
 					int centerY = thisRecord.startY + thisRecord.getBarArea().height/2;
 					if (!thisRecord.getCause().equals(" "))   {
-						if (record.column[1]) {
+						if (Record.column[1]) {
 							labels.addElement(new LiteDisplacedLabel(thisRecord.getCause(), 
 									new Point(centerX, centerY),
 									new Point(centerX, centerY),
@@ -895,8 +988,8 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 				layout_labels(p);
 			repaint_rect(labels.getBounds().union(cursor.getBounds()));
 		}
-		else if (record.infotip)    {  	
-			genRecord selectedRecord = inRegion(x,y,true,false);
+		else if (Record.infotip)    {  	
+			GenRecord selectedRecord = inRegion(x,y,true,false);
 			if (selectedRecord != null)   {
 				String msg = selectedRecord.getInputLine();
 				String [] msgs = msg.split(",");
@@ -999,14 +1092,14 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	 * Remove the infotip label.
 	 */
 	public void hide_labels() {
-		if (record.excentric && cursor != null) {
+		if (Record.excentric && cursor != null) {
 			//System.out.println("hide labels");
 			Rectangle r = labels.getBounds().union(cursor.getBounds());
 			labels.removeAllElements();
 			cursor = null;
 			repaint_rect(r);
 		}
-		else if (record.infotip && infoTipLabel != null)  {
+		else if (Record.infotip && infoTipLabel != null)  {
 			Rectangle r = infoTipLabel.getBounds();
 			infoTipLabel = null;
 			repaint_rect(r);
@@ -1020,12 +1113,12 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	public void track_focus(int x, int y, boolean layout) {
 		boolean shown = (cursor != null);
 		hide_labels();
-		if (record.excentric)   {
+		if (Record.excentric)   {
 			if (shown &&
 					dist2(x - last_x, y - last_y) <	(cursor_radius * cursor_radius))
 				idle(x, y, layout);
 		}
-		else if (record.infotip)
+		else if (Record.infotip)
 			idle(x, y, layout);
 	}
 	
@@ -1044,12 +1137,12 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	 * to figure that out.
 	 */
 	void idle(int x, int y, boolean layout) {
-		if (record.excentric && cursor == null) {
+		if (Record.excentric && cursor == null) {
 			show_labels(x, y, layout);
 			last_x = x;
 			last_y = y;
 		}
-		else if (record.infotip)   
+		else if (Record.infotip)   
 			show_labels(x, y, layout);
 	}
 	
@@ -1088,16 +1181,16 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		
 		if(!threadTest)
 			repaint();// threadtest
-		record.changed = true;
+		Record.changed = true;
 	}
 	
 	public MyDate selectedStartDate(int x,int y) {
 		
-		facet tempFacet;
-		genRecord selectedRecord = null;
+		Facet tempFacet;
+		GenRecord selectedRecord = null;
 		
 		for(int a=0;a<n_key;a++) {
-			tempFacet = (facet)(recordTable.get(new Integer(a)));
+			tempFacet = (Facet)(recordTable.get(new Integer(a)));
 			if(tempFacet.contains(x,y)) {
 				selectedRecord = tempFacet.getSelected(x,y);
 			}
@@ -1107,11 +1200,11 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	
 	public MyDate selectedEndDate(int x,int y) {
 		
-		facet tempFacet;
-		genRecord selectedRecord = null;
+		Facet tempFacet;
+		GenRecord selectedRecord = null;
 		
 		for(int a=0;a<n_key;a++) {
-			tempFacet = (facet)(recordTable.get(new Integer(a)));
+			tempFacet = (Facet)(recordTable.get(new Integer(a)));
 			if(tempFacet.contains(x,y)) {
 				selectedRecord = tempFacet.getSelected(x,y); 
 			}
@@ -1123,11 +1216,11 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	
 	public MyDate fullSelectedStartDate(int x,int y) {
 		
-		facet tempFacet;
-		genRecord selectedRecord = null;
+		Facet tempFacet;
+		GenRecord selectedRecord = null;
 		
 		for(int a=0;a<n_key;a++) {
-			tempFacet = (facet)(recordTable.get(new Integer(a)));
+			tempFacet = (Facet)(recordTable.get(new Integer(a)));
 			if(tempFacet.contains(x,y)) {
 				selectedRecord = tempFacet.getSelected(x,y);
 			}
@@ -1138,11 +1231,11 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	
 	public MyDate fullSelectedEndDate(int x,int y) {
 		
-		facet tempFacet;
-		genRecord selectedRecord = null;
+		Facet tempFacet;
+		GenRecord selectedRecord = null;
 		
 		for(int a=0;a<n_key;a++) {
-			tempFacet = (facet)(recordTable.get(new Integer(a)));
+			tempFacet = (Facet)(recordTable.get(new Integer(a)));
 			if(tempFacet.contains(x,y)) {
 				selectedRecord = tempFacet.getSelected(x,y); 
 			}
@@ -1152,14 +1245,14 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	
 	// 1/7/98 for shift-click to url.
 	
-	public genRecord getSelection(int x,int y) { // should be: get most specific, i.e. storyRecord?
+	public GenRecord getSelection(int x,int y) { // should be: get most specific, i.e. storyRecord?
 		
 		// probably also need to check if anything IS selected
-		facet tempFacet;
-		genRecord selectedRecord = null;
+		Facet tempFacet;
+		GenRecord selectedRecord = null;
 		
 		for(int a=0;a<n_key;a++) {
-			tempFacet = (facet)(recordTable.get(new Integer(a)));
+			tempFacet = (Facet)(recordTable.get(new Integer(a)));
 			if(tempFacet.contains(x,y)) {
 				selectedRecord = tempFacet.getSelected(x,y); 
 			}
@@ -1175,11 +1268,11 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		// probably also need to check if anything IS selected in  functions too... (like selected
 		// EndDate...
 		
-		facet tempFacet;
-		genRecord selectedRecord = null;
+		Facet tempFacet;
+		GenRecord selectedRecord = null;
 		
 		for(int a=0;a<n_key;a++) {
-			tempFacet = (facet)(recordTable.get(new Integer(a)));
+			tempFacet = (Facet)(recordTable.get(new Integer(a)));
 			if(tempFacet.contains(x,y)) {
 				return false;
 			}
@@ -1188,12 +1281,11 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	}
 	
 	// 10/30/98
-	public genRecord inRegion(int x, int y, boolean data, boolean label) { 
-		facet tempFacet;
-		
+	public GenRecord inRegion(int x, int y, boolean data, boolean label) { 
+		Facet tempFacet;
 		for(int a=0;a<n_key;a++) {
-			tempFacet = (facet)(recordTable.get(new Integer(a)));
-			genRecord selectedRecord = tempFacet.inRegion(x,y,data,label,10);
+			tempFacet = (Facet)(recordTable.get(new Integer(a)));
+			GenRecord selectedRecord = tempFacet.inRegion(x,y,data,label,10);
 			if(selectedRecord != null) { 
 				//System.out.println("current x, y: "+x+","+y);
 				//Rectangle r = ((storyRecord) selectedRecord).getBarArea();
@@ -1213,7 +1305,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		
 	}
 	
-	public scale getScale() {
+	public Scale getScale() {
 		
 		return aScale;
 		
@@ -1222,7 +1314,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	public boolean existsPreviousEvent(Hashtable afacetList,int j) {
 		
 		for(int k=j;k>0;k--) {
-			genRecord agenRecord = (genRecord)afacetList.get(new Integer(k));
+			GenRecord agenRecord = (GenRecord)afacetList.get(new Integer(k));
 			if( !(agenRecord.getCause().equals("nolabel")) )
 				return true;
 			else
@@ -1236,7 +1328,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	public int previousEventWidth( Hashtable afacetList,int j) {
 		
 		for(int k=j;k>0;k--) {
-			genRecord aGenRecord = (genRecord)afacetList.get(new Integer(k));
+			GenRecord aGenRecord = (GenRecord)afacetList.get(new Integer(k));
 			if( !(aGenRecord.getCause().equals("nolabel")) )
 				return aGenRecord.getRectWidth();
 		}
@@ -1249,8 +1341,8 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		
 		double scaleFactor = (double) ( (double)rwinWidth/ (double) (aScale.getDateMin()).MinDiff( aScale.getDateMax() ));
 		
-		MyDate dateMinTemp = record.theData.getMinDate();
-		MyDate dateMaxTemp = record.theData.getMaxDate();
+		MyDate dateMinTemp = Record.theData.getMinDate();
+		MyDate dateMaxTemp = Record.theData.getMaxDate();
 		
 		long diff = validDateMin.MinDiff(validDateMax);
 		
@@ -1303,24 +1395,24 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	
 	// returns true if the aggregate is not in the present scale
 	
-	public boolean offScale(genRecord checkThis) {
+	public boolean offScale(GenRecord checkThis) {
 		
 		return (aScale.offScale(checkThis.getStartdate(),checkThis.getEnddate()));   
 		
 	}
-	public MyDate scaleMin(genRecord checkThis)   {
+	public MyDate scaleMin(GenRecord checkThis)   {
 		return (aScale.scaleMin(checkThis.getStartdate()));
 	}
 	
-	public MyDate scaleMax(genRecord checkThis)   {
+	public MyDate scaleMax(GenRecord checkThis)   {
 		return (aScale.scaleMax(checkThis.getEnddate()));
 	}
 	
 	public void grep(String searchString) {
 		n_key = recordTable.size();
-		facet tempFacet;
+		Facet tempFacet;
 		for(int a=0;a<n_key;a++) {
-			tempFacet = (facet)(recordTable.get(new Integer(a)));
+			tempFacet = (Facet)(recordTable.get(new Integer(a)));
 			tempFacet.select(searchString); 
 		}     
 		repaint();
@@ -1329,11 +1421,11 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	// 3/11/98 dan added function fof grep on control-click
 	
 	public String getLabel(int x,int y) {
-		genRecord selectedRecord = null;
-		facet tempFacet; 
+		GenRecord selectedRecord = null;
+		Facet tempFacet; 
 		
 		for(int a=0;a<n_key;a++) {
-			tempFacet = (facet)(recordTable.get(new Integer(a)));
+			tempFacet = (Facet)(recordTable.get(new Integer(a)));
 			if(tempFacet.contains(x,y)) {
 				selectedRecord = tempFacet.getSelected(x,y); 
 			}
@@ -1379,12 +1471,12 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		if(!(newMin.after(newMax))) {
 			for (int slideValue = 1; slideValue < 11; slideValue++)
 			{
-				((mainPanel)getParent()).theYearSlider.adjust(slideValue,newMin,newMax,rwinOffset);// 10 for event type, change this!
+				((MainPanel)getParent()).theYearSlider.adjust(slideValue,newMin,newMax,rwinOffset);// 10 for event type, change this!
 				
 				if(aScale.getMode().equals("month"))
-					((mainPanel)getParent()).theMonthSlider.adjust(slideValue,newMin,newMax,rwinOffset);
+					((MainPanel)getParent()).theMonthSlider.adjust(slideValue,newMin,newMax,rwinOffset);
 				if(aScale.getMode().equals("day"))
-					((mainPanel)getParent()).theWeekSlider.adjust(slideValue,newMin,newMax,rwinOffset);
+					((MainPanel)getParent()).theWeekSlider.adjust(slideValue,newMin,newMax,rwinOffset);
 				
 				validDateMin = new MyDate(newMin.getMonth(),newMin.getDay(),newMin.getYear(),newMin.getHour(),newMin.getMin());
 				validDateMax = new MyDate(newMax.getMonth(),newMax.getDay(),newMax.getYear(),newMax.getHour(),newMin.getMin());
@@ -1395,7 +1487,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 						coordToDate(lwinWidth).getYear(),
 						coordToDate(lwinWidth).getHour(),
 						coordToDate(lwinWidth).getMin());
-				record.theTabPanel.upBar.listen(validDateMin, validDateMax);
+				Record.theTabPanel.upBar.listen(validDateMin, validDateMax);
 				//System.out.println("Before Paint");
 			}
 			
@@ -1405,7 +1497,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 				// threadtest
 			}else{
 				// System.out.println("Waiting6");
-				record.changed = true;
+				Record.changed = true;
 			}
 						
 			/*try {
@@ -1469,20 +1561,20 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 			newMax = new MyDate(dateMax.getMonth(),dateMax.getDay(),dateMax.getYear(),dateMax.getHour(),dateMin.getMin());
 		
 		if( newMin.after(dateMin) && dateMax.after(newMax) ) {
-			((mainPanel)getParent()).theYearSlider.adjust(10,newMin,newMax,rwinOffset);// 10 for event type, change this!
+			((MainPanel)getParent()).theYearSlider.adjust(10,newMin,newMax,rwinOffset);// 10 for event type, change this!
 			
 			if(aScale.getMode().equals("month"))
-				((mainPanel)getParent()).theMonthSlider.adjust(10,newMin,newMax,rwinOffset);
+				((MainPanel)getParent()).theMonthSlider.adjust(10,newMin,newMax,rwinOffset);
 			if(aScale.getMode().equals("day"))
-				((mainPanel)getParent()).theWeekSlider.adjust(10,newMin,newMax,rwinOffset);
+				((MainPanel)getParent()).theWeekSlider.adjust(10,newMin,newMax,rwinOffset);
 		}
 		else {
-			((mainPanel)getParent()).theYearSlider.adjust(10,dateMin,dateMax,rwinOffset);// 10 for event type, change this!
+			((MainPanel)getParent()).theYearSlider.adjust(10,dateMin,dateMax,rwinOffset);// 10 for event type, change this!
 			
 			if(aScale.getMode().equals("month"))
-				((mainPanel)getParent()).theMonthSlider.adjust(10,dateMin,dateMax,rwinOffset);
+				((MainPanel)getParent()).theMonthSlider.adjust(10,dateMin,dateMax,rwinOffset);
 			if(aScale.getMode().equals("day"))
-				((mainPanel)getParent()).theWeekSlider.adjust(10,dateMin,dateMax,rwinOffset);
+				((MainPanel)getParent()).theWeekSlider.adjust(10,dateMin,dateMax,rwinOffset);
 		}
 		outClick++;
 	}     
@@ -1494,7 +1586,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 			// trying out single click for jump 1/13/98 ( dan ) at same time as trying double click
 			// zoom
 			System.out.println("Before ShowStatus 0");
-			genRecord selected = getSelection(x,y);
+			GenRecord selected = getSelection(x,y);
 			
 			if(selected == null) {
 				return;
@@ -1522,7 +1614,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		if(!threadTest)
 			repaint(); 
 		else
-			record.changed = true;
+			Record.changed = true;
 	}
 	
 	public int getTimeLinePanelDataheight() {
@@ -1531,7 +1623,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	
 	private String getKey()
 	{
-		key = ExplorerC.noteKey;
+//		key = ExplorerC.noteKey;
 		String path = null;
 		
 		if(key == null) {
@@ -1624,7 +1716,9 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		if(key == null) {
 			return null;
 		}
-		
+		else{
+			UserInfoBean.getInstance().setKey(key);
+		}
 		return key;
 	}
 	
@@ -1753,18 +1847,19 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	
 	public String decryptBlob(String blob)
 	{		
+		key = UserInfoBean.getInstance().getKey();
 		if (key == null || key.length() == 0)
 			getKey();
-		noteCryptUtil util = new noteCryptUtil(key);
+		NoteCryptUtil util = new NoteCryptUtil(key);
 		if(util == null) {
 			JOptionPane.showMessageDialog(this, "Not a valid key");
 			return "Not a valid key";
 		}
 		String deNote = util.decryptNotes(blob);
-		System.out.println("notes: " + deNote);
+//		System.out.println("notes: " + deNote);
 		
 		if(!deNote.equalsIgnoreCase("[I2B2-Error] Invalid key")) {
-			ExplorerC.noteKey = new String(key);
+			ExplorerComposite.noteKey = new String(key);
 		}
 		
 		return deNote;
@@ -2031,4 +2126,46 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		
 		return icd9;
 	}
+
+	private ViewPart getView(String viewId){
+		IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+		IWorkbenchPage[] pages = windows[0].getPages();
+		return (ViewPart) pages[0].findView(viewId);
+	}
+
+	
+/*	public class DragLabel extends JLabel {
+		  public DragLabel(String s) {
+		    this.setText(s);
+		    this.dragSource = DragSource.getDefaultDragSource();
+		    this.dgListener = new DGListener();
+		    this.dsListener = new DSListener();
+
+		    // component, action, listener
+		    this.dragSource.createDefaultDragGestureRecognizer(
+		      this, DnDConstants.ACTION_COPY, this.dgListener );
+		  }
+		  private DragSource dragSource;
+		  private DragGestureListener dgListener;
+		  private DragSourceListener dsListener;
+		}
+
+	public class DGListener implements DragGestureListener {
+		public void dragGestureRecognized(DragGestureEvent e){
+			
+		try {
+		    Transferable transferable = ... 
+		    //initial cursor, transferable, dsource listener      
+		    e.startDrag(DragSource.DefaultCopyNoDrop, transferable, dsListener);
+		    // or if dragSource is an instance variable:
+		    // dragSource.startDrag(e, DragSource.DefaultCopyNoDrop, transferable, 
+		//dsListener);
+		      }catch( InvalidDnDOperationException idoe ) {
+		    System.err.println( idoe );
+		      }
+		}
+
+	}*/
+	
+	
 }

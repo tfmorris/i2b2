@@ -96,7 +96,8 @@ public class SoapClientTest {
 							MessageHeaderType messageHeader = reqMsg.getMessageHeader(); 
 							messageHeader.getSecurity().setDomain("partners");			 
 							messageHeader.getSecurity().setUsername("demo");
-							messageHeader.getSecurity().setPassword("demouser");
+							//
+//							messageHeader.getSecurity().setPassword("demouser");
 							RequestHeaderType reqHeader  = reqMsg.getRequestHeader();
 							BodyType bodyType = reqMsg.getBodyType(data) ;
 							RequestMessageType reqMessageType = reqMsg.getRequestMessageType(messageHeader,

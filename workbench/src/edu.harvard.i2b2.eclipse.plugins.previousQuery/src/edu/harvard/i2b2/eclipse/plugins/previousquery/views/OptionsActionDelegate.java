@@ -1,8 +1,9 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
+ *  
  * 
  * Contributors: 
  *     Wensong Pan
@@ -19,7 +20,9 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 public class OptionsActionDelegate implements IWorkbenchWindowActionDelegate {
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
 	 */
 	public void dispose() {
@@ -27,15 +30,20 @@ public class OptionsActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#init(org.eclipse.ui.IWorkbenchWindow)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.eclipse.ui.IWorkbenchWindowActionDelegate#init(org.eclipse.ui.
+	 * IWorkbenchWindow)
 	 */
 	public void init(IWorkbenchWindow window) {
 		// TODO Auto-generated method stub
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
 	public void run(IAction action) {
@@ -44,8 +52,12 @@ public class OptionsActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action
+	 * .IAction, org.eclipse.jface.viewers.ISelection)
 	 */
 	public void selectionChanged(IAction action, ISelection selection) {
 		// TODO Auto-generated method stub

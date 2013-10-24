@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
  *   
  *     Wensong Pan
- *     Janice Donahoe (documentation for on-line help)
  *     
  */
 package edu.harvard.i2b2.eclipse.plugins.explorer.views;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 //import org.eclipse.swt.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.help.IWorkbenchHelpSystem;
@@ -26,8 +26,10 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 
 import edu.harvard.i2b2.eclipse.ICommonMethod;
-import edu.harvard.i2b2.explorer.ui.ExplorerC;
-import edu.harvard.i2b2.timeline.lifelines.record;
+import edu.harvard.i2b2.eclipse.UserInfoBean;
+import edu.harvard.i2b2.explorer.data.QueryMasterData;
+import edu.harvard.i2b2.explorer.ui.ExplorerComposite;
+import edu.harvard.i2b2.timeline.lifelines.Record;
 
 /**
  *  Class: ExplorerView 
@@ -35,7 +37,6 @@ import edu.harvard.i2b2.timeline.lifelines.record;
  *  This class defines the Explorer View to the
  *  Eclipse workbench
  *  
- *  @author Wensong Pan
  */
 
 
@@ -43,13 +44,12 @@ public class ExplorerView extends ViewPart implements ICommonMethod {
 	public static final String ID = "edu.harvard.i2b2.eclipse.plugins.explorer.views.ExplorerView";
     private static final Log log = LogFactory.getLog(ExplorerView.class);
 	
-	//setup context help
-	public static final String PREFIX = "edu.harvard.i2b2.eclipse.plugins.explorer";
+	private ExplorerComposite explorer = null;
+	public ExplorerComposite explorer() {return explorer;}
+	
+	public static final String PREFIX = "edu.harvard.i2b2.eclipse.plugins.explorer"; 
 	public static final String TIMELINE_VIEW_CONTEXT_ID = PREFIX + ".timeline_view_help_context";
 	private Composite timelineComposite;
-	
-	private ExplorerC explorer = null;
-	public ExplorerC explorer() {return explorer;}
 	
 	/**
 	 * The constructor.
@@ -58,7 +58,7 @@ public class ExplorerView extends ViewPart implements ICommonMethod {
 		
 	}
 
-	public record getRecord() {
+	public Record getRecord() {
 		return explorer.getRecord();
 	}
 	
@@ -68,13 +68,20 @@ public class ExplorerView extends ViewPart implements ICommonMethod {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		explorer = new ExplorerC(parent, false);
+		log.info("Explorer plugin version 1.4.0");
 		timelineComposite = parent;
 		
-		//setup context help
+		if (!(UserInfoBean.getInstance().isRoleInProject("DATA_LDS")))
+		{		
+			new NoAccessComposite(parent, SWT.NONE);
+			return;
+		}
+		
+		explorer = new ExplorerComposite(parent, false);
+		
+		// Setup help context
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, TIMELINE_VIEW_CONTEXT_ID);
 		addHelpButtonToToolBar();
-
 	}
 	
 	/**
@@ -93,20 +100,31 @@ public class ExplorerView extends ViewPart implements ICommonMethod {
 		else {
 			ArrayList<String> msgs = (ArrayList<String>) data;
 			log.debug("Explorer View: "+ msgs.get(0));
-			explorer.populateTable(msgs);
+			explorer.populateTableString(msgs);
 			explorer.generateTimeLine();
 		}
 	}
+	
+	public void processQuery(String id) {
+		
+			QueryMasterData data = new QueryMasterData();
+			
+			data.userId(UserInfoBean.getInstance().getUserName());
+			data.id(id);
+			explorer.processQueryData((QueryMasterData)data);
+			explorer.generateTimeLine();
 
-	//add help button
+	}
+
 	private void addHelpButtonToToolBar() {
 		final IWorkbenchHelpSystem helpSystem = PlatformUI.getWorkbench().getHelpSystem();
-		Action helpAction = new Action(){
-			public void run() {
+		Action helpAction = new Action() {
+			public void run(){
 				helpSystem.displayHelpResource("/edu.harvard.i2b2.eclipse.plugins.explorer/html/i2b2_timeline_index.htm");
-		}
-		};
+			}
+		};	
 		helpAction.setImageDescriptor(ImageDescriptor.createFromFile(ExplorerView.class, "/icons/help.png"));
+		
 		getViewSite().getActionBars().getToolBarManager().add(helpAction);
 	}
 	

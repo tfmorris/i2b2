@@ -27,7 +27,7 @@ and the filters are made from each attribute and each attribute
 value.
 */
 
-public class loadRecord{
+public class LoadRecord{
 
     //public Date today;
     private Hashtable recordTable;
@@ -44,7 +44,7 @@ public class loadRecord{
     private int age;
     private String moreinfo;   
     private String pictureFile;
-    private facet currentFacet;
+    private Facet currentFacet;
     private boolean useCommas = true;
     private BufferedReader d;   
     private StringTokenizer line_tokens;
@@ -55,7 +55,7 @@ public class loadRecord{
     // the simple contructor, called from the applet
     // init(), simply passes the complete URL of the
     // source text data file
-    public loadRecord(String theURLString,String dataString) 
+    public LoadRecord(String theURLString,String dataString) 
     {
         URLString = theURLString;
         Reader file= null;
@@ -94,12 +94,12 @@ public class loadRecord{
 		}
 
     }
-    public loadRecord(BufferedReader d, String dataString){
+    public LoadRecord(BufferedReader d, String dataString){
     	initLoadRecord(d, dataString);
     }
 	private void initLoadRecord(BufferedReader inputReader, String dataString){
 
-        record.yearFirst = true; // default, need to be reset each time load
+        Record.yearFirst = true; // default, need to be reset each time load
         // see below for older files
 
         d = inputReader;
@@ -175,7 +175,7 @@ public class loadRecord{
 				        token = line_tokens.nextToken(); // adding extra for comma
 
 			        token = line_tokens.nextToken(); // reading facet color. Not presently used.
-                                myColor backgroundColor = new myColor(token);
+                                MyColor backgroundColor = new MyColor(token);
 
                     if(useCommas)
                         token = line_tokens.nextToken();
@@ -193,7 +193,7 @@ public class loadRecord{
 
 			        facetList = new Hashtable();
 			        storyList = new Hashtable();
-                    currentFacet = new facet(name,facetList,backgroundColor.getColor(),open);
+                    currentFacet = new Facet(name,facetList,backgroundColor.getColor(),open);
 
 			        recordTable.put(new Integer(recID++),currentFacet);
 		            tupleID = 0;
@@ -248,7 +248,7 @@ public class loadRecord{
                      break;
                 }
                 else if (token.equals("%beforeSeptember1997"))
-                    record.yearFirst = false; // for different date form in input file
+                    Record.yearFirst = false; // for different date form in input file
 			}
 
 			} // end "if" for blank lines
@@ -458,11 +458,11 @@ public class loadRecord{
 		}
     }*/
 
-    public aggregate load_aggregate(boolean toplevel)    {  // toplevel distinguishes the aggregate from sub-aggregates
+    public Aggregate load_aggregate(boolean toplevel)    {  // toplevel distinguishes the aggregate from sub-aggregates
         String token;
         String line;
         
-	    aggregate agg = new aggregate("aggregate"); // parameter is genrecord type
+	    Aggregate agg = new Aggregate("aggregate"); // parameter is genrecord type
 		boolean summary = false;   
 
         try {
@@ -518,7 +518,7 @@ public class loadRecord{
 			        if(useCommas)
 				        token = line_tokens.nextToken(); // adding extra for comma
 
-			        myColor tempColor = new myColor(readBlanks(line_tokens));
+			        MyColor tempColor = new MyColor(readBlanks(line_tokens));
 			        Color temp = tempColor.getColor();
 
 			        if(useCommas)
@@ -573,7 +573,7 @@ public class loadRecord{
 				        }
 	                }
 
-    			    storyRecord aRecord = new storyRecord("story", cause, start_date, end_date,temp,penWidth,theUrl,attrList,line);
+    			    StoryRecord aRecord = new StoryRecord("story", cause, start_date, end_date,temp,penWidth,theUrl,attrList,line);
 
 	    			if (summary && k==0)    {  // summary record
 		    		    agg.addSummary(aRecord);
@@ -588,7 +588,7 @@ public class loadRecord{
 			        if(max_date.before(end_date)) max_date = end_date;
 			   }  // end if %-
 			   else if (token.equals("%agg"))   {
-			        aggregate recursive_agg = load_aggregate(false);
+			        Aggregate recursive_agg = load_aggregate(false);
 			        agg.addGen(recursive_agg);
 			   }   // end if %agg
             }   // for loop

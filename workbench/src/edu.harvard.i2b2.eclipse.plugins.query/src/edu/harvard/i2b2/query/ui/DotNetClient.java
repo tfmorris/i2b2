@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
- * which accompanies this distribution. 
+ * are made available under the terms of the i2b2 Software License v2.1 
+ * which accompanies this distribution.
  * 
  * Contributors: 
  *     Wensong Pan
@@ -122,8 +122,8 @@ public class DotNetClient {
 			String request = getQueryString();
 			System.out.println("Request string: " + request);
 			OMElement payload = getSoapPayLoad(// "<HelloWorld
-												// xmlns=\"http://rpdr.partners.org/\"
-												// />");
+			// xmlns=\"http://rpdr.partners.org/\"
+			// />");
 			request);
 			// System.out.println("Payload string: " + payload.toString());
 			// "<HelloWorld xmlns=\"http://tempuri.org/\" />");
@@ -134,7 +134,8 @@ public class DotNetClient {
 			options.setAction(// "http://rpdr.partners.org/HelloWorld");
 					"http://rpdr.partners.org/GetSinglePatientData");
 			// "http://tempuri.org/HelloWorld");
-			// options.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE,
+			// options.setProperty(org.apache.axis2.transport.http.HTTPConstants.
+			// AUTHENTICATE,
 			// basicAuthentication);
 
 			options.setTransportInProtocol(Constants.TRANSPORT_HTTP);

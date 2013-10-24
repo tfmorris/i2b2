@@ -17,18 +17,18 @@ import java.util.*;
 /**
  * genRecord defines a generic class for aggregate and event to inherite from
  */
-public class genRecord {
+public class GenRecord {
 
     protected MyDate start_date;
     protected MyDate end_date;
     private String type;
-    public static conflictResolver xOverlap1 = null, xOverlap2 = null;
+    public static ConflictResolver xOverlap1 = null, xOverlap2 = null;
     public boolean fit = false, beforefit = false, selected = true;
     public int labelX, labelY;
     public int saveLabelX, saveLabelY;
     public boolean label = true, timeline = true;
 
-    public genRecord() {
+    public GenRecord() {
     }
 
     public int getRectWidth() {
@@ -54,7 +54,7 @@ public class genRecord {
 	return false;
     }
 
-    public genRecord getSelected(int x, int y) {
+    public GenRecord getSelected(int x, int y) {
 	System.out.println("Should not be in genRecord: getSelected");
 	return null;
     }
@@ -68,14 +68,14 @@ public class genRecord {
 	System.out.println("Should not be in genRecord: unSelect");
     }
 
-    public conflictResolver getXOverlap2() {
+    public ConflictResolver getXOverlap2() {
 	return xOverlap2;
     }
 
-    public void setXOverlap(conflictResolver xOverlap1,
-	    conflictResolver xOverlap2) {
-	genRecord.xOverlap1 = xOverlap1;
-	genRecord.xOverlap2 = xOverlap2;
+    public void setXOverlap(ConflictResolver xOverlap1,
+	    ConflictResolver xOverlap2) {
+	GenRecord.xOverlap1 = xOverlap1;
+	GenRecord.xOverlap2 = xOverlap2;
     }
 
     public void setVar(boolean fit, boolean beforefit, boolean selected) {
@@ -110,7 +110,7 @@ public class genRecord {
 	return null;
     }
 
-    public genRecord intersects(int rubber_startX, int rubber_startY,
+    public GenRecord intersects(int rubber_startX, int rubber_startY,
 	    int rubber_endX, int rubber_endY) {
 	System.out.println("Shouln't be in genRecord: intersects()");
 	return null;
@@ -131,7 +131,7 @@ public class genRecord {
 		.getYear(), end_date.getHour(), end_date.getMin());
     }
 
-    public genRecord(String type) {
+    public GenRecord(String type) {
 	this.type = type;
     }
 
@@ -170,24 +170,24 @@ public class genRecord {
 	return -1;
     }
 
-    public void draw(int currentY, timeLinePanel displayArea,
+    public void draw(int currentY, TimeLinePanel displayArea,
 	    boolean silhouette, boolean label, boolean timeline,
 	    boolean summaryrecord, boolean stream) {
 
 	System.out.println("Should not be in genRecord:draw");
     }
 
-    public void drawData(int currentY, timeLinePanel displayArea,
+    public void drawData(int currentY, TimeLinePanel displayArea,
 	    boolean silhouette, boolean timeline, boolean summaryrecord) {
 	System.out.println("Should not be in genRecord:drawData");
     }
 
-    public void drawLabel(int currentY, timeLinePanel displayArea,
+    public void drawLabel(int currentY, TimeLinePanel displayArea,
 	    boolean label, boolean summaryrecord, boolean stream) {
 	System.out.println("Should not be in genRecord:drawLabel");
     }
 
-    public boolean fitlabel(int currentY, timeLinePanel displayArea,
+    public boolean fitlabel(int currentY, TimeLinePanel displayArea,
 	    boolean backtrack, int height) {
 	System.out.println("Should not be in genRecord:fitlabel");
 	return false;

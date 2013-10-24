@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -61,7 +61,7 @@ public class FindView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		log.info("Find Terms plugin version 1.2.0");
+		log.info("Find Terms plugin version 1.4.0");
 		GridLayout layout = new GridLayout(1, false);
 		layout.numColumns = 1;
 		layout.verticalSpacing = 2;

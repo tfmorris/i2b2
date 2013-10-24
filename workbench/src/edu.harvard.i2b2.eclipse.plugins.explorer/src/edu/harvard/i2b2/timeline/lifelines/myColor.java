@@ -13,11 +13,11 @@ package edu.harvard.i2b2.timeline.lifelines;
 import java.awt.*;
 import java.util.*;
 
-public class myColor {
+public class MyColor {
 
     private String colorString;
 
-    public myColor(String colorString) {
+    public MyColor(String colorString) {
         this.colorString = colorString.toLowerCase();
     }
 

@@ -13,35 +13,35 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 
-public class mainPanel extends Panel {
+public class MainPanel extends Panel {
 
-	public static upperBar upBar;
-	public static lowerBar lowBar;
-	public static timeLinePanel theTimeLinePanel;
-	public static yearSlider theYearSlider;
-	public static monthSlider theMonthSlider;
-	public static weekSlider theWeekSlider;
+	public static UpperBar upBar;
+	public static LowerBar lowBar;
+	public static TimeLinePanel theTimeLinePanel;
+	public static YearSlider theYearSlider;
+	public static MonthSlider theMonthSlider;
+	public static WeekSlider theWeekSlider;
 	private int width, height, sliderWidth, sliderOffset;
 	private Button preferButton;
 	private MyDate dateMin, dateMax;
 	private MyDate today;
-	private picPanel logoPicPanel;/*
+	private PicPanel logoPicPanel;/*
 									 * Added by Partha - 10/15 this is the
 									 * lifelines logo
 									 */
-	private picPanel clogPicPanel;/*
+	private PicPanel clogPicPanel;/*
 									 * Added by Partha - 11/12 this is the
 									 * copyright label
 									 */
-	private picPanel hlogPicPanel;/*
+	private PicPanel hlogPicPanel;/*
 									 * Added by Partha - 11/12 this is the hcil
 									 * logo
 									 */
 
-	private record theApplet;
+	private Record theApplet;
 	public Scrollbar tlpScroll; // dan 3/26/98 timeLinePanel scrollBar
 
-	public static timeLinePanel anotherTimeLinePanel;
+	public static TimeLinePanel anotherTimeLinePanel;
 
 	public void init() {
 		theTimeLinePanel.init();
@@ -58,23 +58,23 @@ public class mainPanel extends Panel {
 		// add(tlpScroll);
 	}
 
-	public mainPanel(int width, int height, record theApplet, MyDate today) {
+	public MainPanel(int width, int height, Record theApplet, MyDate today) {
 		this.width = width;
 		this.height = height;
 
 		this.today = today;
 		this.theApplet = theApplet;
 
-		logoPicPanel = new picPanel(90, 19, theApplet, "images/lifelogo1.JPG");
+		logoPicPanel = new PicPanel(90, 19, theApplet, "images/lifelogo1.JPG");
 		// *add(logoPicPanel);
 		logoPicPanel.setBounds(3, 0, 90, 19);
-		hlogPicPanel = new picPanel(26, 19, theApplet, "images/hclogo11a.GIF");
+		hlogPicPanel = new PicPanel(26, 19, theApplet, "images/hclogo11a.GIF");
 		// *add(hlogPicPanel);
 		hlogPicPanel.setBounds(width - 290, 0, 26, 19);
 		SymMouse aSymMouse = new SymMouse();
 		logoPicPanel.addMouseListener(aSymMouse);
 		hlogPicPanel.addMouseListener(aSymMouse);
-		clogPicPanel = new picPanel(256, 19, theApplet, "images/copylogo1.JPG");
+		clogPicPanel = new PicPanel(256, 19, theApplet, "images/copylogo1.JPG");
 		// *add(clogPicPanel);
 		clogPicPanel.setBounds(width - 260, 0, 256, 19);/*
 														 * changed 7 to 0 to
@@ -82,14 +82,14 @@ public class mainPanel extends Panel {
 														 */
 		clogPicPanel.addMouseListener(aSymMouse);
 
-		dateMin = loadRecord.getMinDate();
-		dateMax = loadRecord.getMaxDate();
+		dateMin = LoadRecord.getMinDate();
+		dateMax = LoadRecord.getMaxDate();
 
 		int thumbWidth = 20;
 		boolean doublePanels = false;
 
 		if (!doublePanels) {
-			theTimeLinePanel = new timeLinePanel(width - 22 - thumbWidth,
+			theTimeLinePanel = new TimeLinePanel(width - 22 - thumbWidth,
 					height - 62, theApplet, today);
 			// theTimeLinePanel = new timeLinePanel(width-22 - thumbWidth+200,
 			// height - 62,theApplet,today);
@@ -119,13 +119,13 @@ public class mainPanel extends Panel {
 		tlpScroll.setVisible(false);
 
 		if (doublePanels) {
-			theTimeLinePanel = new timeLinePanel(width / 2 - 22 - thumbWidth,
+			theTimeLinePanel = new TimeLinePanel(width / 2 - 22 - thumbWidth,
 					height - 103, theApplet, today);
 			add(theTimeLinePanel);
 			theTimeLinePanel.setBounds(10, 43, width / 2 - 22 - thumbWidth,
 					height - 103);
 
-			anotherTimeLinePanel = new timeLinePanel(width / 2 - 22
+			anotherTimeLinePanel = new TimeLinePanel(width / 2 - 22
 					- thumbWidth, height - 103, theApplet, today);
 			add(anotherTimeLinePanel);
 			anotherTimeLinePanel.setBounds(width / 2 - 22 - thumbWidth + 10
@@ -135,30 +135,30 @@ public class mainPanel extends Panel {
 		sliderWidth = theTimeLinePanel.getWidth() + 2 * thumbWidth;
 		sliderOffset = theTimeLinePanel.getOffset();
 
-		upBar = new upperBar(theTimeLinePanel.getWidth(), 22, today);
+		upBar = new UpperBar(theTimeLinePanel.getWidth(), 22, today);
 		add(upBar);
 		upBar.setBounds(sliderOffset + 10, 19, theTimeLinePanel.getWidth(), 20);
 
-		theWeekSlider = new weekSlider(sliderWidth, 18, today);
+		theWeekSlider = new WeekSlider(sliderWidth, 18, today);
 		theWeekSlider.setBounds(sliderOffset + 10 - thumbWidth, height - 59,
 				sliderWidth, 18);
 
-		theMonthSlider = new monthSlider(sliderWidth, 18, today);
+		theMonthSlider = new MonthSlider(sliderWidth, 18, today);
 		theMonthSlider.setBounds(sliderOffset + 10 - thumbWidth, height - 41,
 				sliderWidth, 18);
 
-		theYearSlider = new yearSlider(sliderWidth, 18, today);
+		theYearSlider = new YearSlider(sliderWidth, 18, today);
 		add(theYearSlider);
 		theYearSlider.setBounds(sliderOffset + 10 - thumbWidth, height - 23,
 				sliderWidth, 18);
 		preferButton = new Button("Zoom"); // for zoom button
 	}
 
-	public static void setApplet(newApplet inApplet) {
-		timeLinePanel.setApplet(inApplet);
-		slider.setApplet(inApplet);
-		slider.setApplet(inApplet);
-		slider.setApplet(inApplet);
+	public static void setApplet(NewApplet inApplet) {
+		TimeLinePanel.setApplet(inApplet);
+		Slider.setApplet(inApplet);
+		Slider.setApplet(inApplet);
+		Slider.setApplet(inApplet);
 	}
 
 	@Override
@@ -225,7 +225,7 @@ public class mainPanel extends Panel {
 		int thumbWidth = 20;
 
 		remove(theYearSlider);
-		theYearSlider = new yearSlider(sliderWidth, 18, today);
+		theYearSlider = new YearSlider(sliderWidth, 18, today);
 		add(theYearSlider);
 		theYearSlider.setBounds(sliderOffset + 10 - thumbWidth, height - 23,
 				sliderWidth, 18);

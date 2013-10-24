@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -59,7 +59,7 @@ public class WorkplaceView extends ViewPart {
 	 */
 
 	public void createPartControl(Composite parent) {
-		log.info("Workplace plugin version 1.0.0");
+		log.info("Workplace plugin version 1.4.0");
 		// Drag "from" tree
 		compositeQueryTree = new Composite(parent, SWT.NULL);
 		GridLayout gridLayout = new GridLayout();

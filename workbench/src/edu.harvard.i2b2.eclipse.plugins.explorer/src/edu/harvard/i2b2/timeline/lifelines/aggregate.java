@@ -17,7 +17,7 @@ import edu.harvard.i2b2.timeline.external.*;
 /**
  * aggregate class defines a group of events that are closely related
  */
-public class aggregate extends genRecord {
+public class Aggregate extends GenRecord {
 
     private int mark;
     private boolean[] lbloption = new boolean[3];
@@ -31,7 +31,7 @@ public class aggregate extends genRecord {
     // could contain aggregates as well
     private int height;
     private int counter; // since numberOfEvents is read in from the file...
-    private storyRecord summary; // 3/10/98 and then 7/25/98 change to
+    private StoryRecord summary; // 3/10/98 and then 7/25/98 change to
     // storyRecord
     private Hashtable rectIndexList; // needed for now because storyRecord keeps
     // a current index called rectp
@@ -42,7 +42,7 @@ public class aggregate extends genRecord {
     private String labelString;
     int cum = 0;
 
-    public aggregate(String type) {
+    public Aggregate(String type) {
 
 	super(type);
 
@@ -73,7 +73,7 @@ public class aggregate extends genRecord {
 		getStartdate().getMin());
 
 	for (int i = 0; i < genList.size(); i++) {
-	    genRecord aGenRecord = (genRecord) genList.get(new Integer(i));
+	    GenRecord aGenRecord = (GenRecord) genList.get(new Integer(i));
 
 	    if (aGenRecord.getEnddate().after(dateMax)) {
 		dateMax.setMonth(aGenRecord.getEnddate().getMonth());
@@ -96,9 +96,9 @@ public class aggregate extends genRecord {
 	int rectWidth = 0;
 
 	for (int i = 0; i < genList.size(); i++) {
-	    if (rectWidth < ((genRecord) (genList.get(new Integer(i))))
+	    if (rectWidth < ((GenRecord) (genList.get(new Integer(i))))
 		    .getRectWidth())
-		rectWidth = ((genRecord) (genList.get(new Integer(i))))
+		rectWidth = ((GenRecord) (genList.get(new Integer(i))))
 			.getRectWidth();
 	}
 	return rectWidth;
@@ -121,10 +121,10 @@ public class aggregate extends genRecord {
     @Override
     public void redraw() {
 	// storyRecord aGenRecord = null;
-	genRecord aGenRecord = null;
+	GenRecord aGenRecord = null;
 
 	for (int k = 0; k < genList.size(); k++) {
-	    aGenRecord = (storyRecord) (genList.get(new Integer(k)));
+	    aGenRecord = (StoryRecord) (genList.get(new Integer(k)));
 	    aGenRecord.redraw();
 	    /*
 	     * Rectangle r = aGenRecord.getBarArea();
@@ -139,7 +139,7 @@ public class aggregate extends genRecord {
     /**
      * Add the event to the aggregate
      */
-    public void addGen(genRecord gen) {
+    public void addGen(GenRecord gen) {
 	if (cum == 0)
 	    cum = gen.getRectWidth();
 
@@ -148,9 +148,9 @@ public class aggregate extends genRecord {
 
 	if (genList.size() > 1
 		&& gen.getStartdate().equals(
-			((genRecord) genList.get(new Integer(counter - 2)))
+			((GenRecord) genList.get(new Integer(counter - 2)))
 				.getStartdate()))
-	    cum += ((genRecord) genList.get(new Integer(counter - 2)))
+	    cum += ((GenRecord) genList.get(new Integer(counter - 2)))
 		    .getRectWidth() + 1;
 	else {
 	    if (height < cum)
@@ -181,9 +181,9 @@ public class aggregate extends genRecord {
      * Draw the labels on the display
      */
     @Override
-    public void drawLabel(int currentY, timeLinePanel displayArea,
+    public void drawLabel(int currentY, TimeLinePanel displayArea,
 	    boolean label, boolean summaryrecord, boolean stream) {
-	genRecord aGenRecord;
+	GenRecord aGenRecord;
 
 	if (!all_labelled && (summary != null)
 		&& (summary.getLabelX() >= 0 || summary.getSaveLabelX() >= 0))
@@ -191,7 +191,7 @@ public class aggregate extends genRecord {
 		    stream);
 
 	for (int k = 0; k < genList.size(); k++) {
-	    aGenRecord = (genRecord) (genList.get(new Integer(k)));
+	    aGenRecord = (GenRecord) (genList.get(new Integer(k)));
 
 	    if (!all_labelled
 		    && (summary != null)
@@ -208,9 +208,9 @@ public class aggregate extends genRecord {
      * Draw the aggregate on the display
      */
     @Override
-    public void drawData(int currentY, timeLinePanel displayArea,
+    public void drawData(int currentY, TimeLinePanel displayArea,
     		boolean silhouette, boolean timeline, boolean summaryrecord) {
-    	genRecord aGenRecord = null;
+    	GenRecord aGenRecord = null;
 
     	if (!all_labelled && (summary != null))
     		summary.drawData(currentY, displayArea, silhouette,
@@ -218,7 +218,7 @@ public class aggregate extends genRecord {
 		int backupY=0;  // backupY is the Y position of the first tick that has dup entries on same date
     	for (int k = 0; k < genList.size(); k++) {
 
-    		aGenRecord = (genRecord) (genList.get(new Integer(k)));
+    		aGenRecord = (GenRecord) (genList.get(new Integer(k)));
 
     		if (!all_labelled && (summary != null))
     			aGenRecord.drawData(currentY, displayArea, silhouette,
@@ -228,11 +228,11 @@ public class aggregate extends genRecord {
     					false);
 
     			// 10/26/98 Julia, handle parallel aggregates
-    			genRecord nextGenRecord = aGenRecord; // just a dummy
+    			GenRecord nextGenRecord = aGenRecord; // just a dummy
     			// initialization
 
     			if (k < (genList.size() - 1))
-    				nextGenRecord = (genRecord) (genList
+    				nextGenRecord = (GenRecord) (genList
     						.get(new Integer(k + 1)));
 
     			if ((nextGenRecord.getStartdate()).equals(aGenRecord
@@ -268,7 +268,7 @@ public class aggregate extends genRecord {
     @Override
     public boolean contains(int x, int y) {
 	for (int i = 0; i < genList.size(); i++) {
-	    if (((genRecord) (genList.get(new Integer(i)))).contains(x, y))
+	    if (((GenRecord) (genList.get(new Integer(i)))).contains(x, y))
 		return true;
 	}
 
@@ -283,7 +283,7 @@ public class aggregate extends genRecord {
     public boolean contains(String searchString) {
 
 	for (int i = 0; i < genList.size(); i++) {
-	    if (((genRecord) (genList.get(new Integer(i)))).getCause().equals(
+	    if (((GenRecord) (genList.get(new Integer(i)))).getCause().equals(
 		    searchString))
 		return true;
 	}
@@ -297,10 +297,10 @@ public class aggregate extends genRecord {
     public Vector rubber_band(int rubber_startX, int rubber_startY,
 	    int rubber_endX, int rubber_endY) {
 	Vector rubberlist = new Vector(), subrubberlist;
-	genRecord temp, storytemp;
+	GenRecord temp, storytemp;
 
 	for (int i = 0; i < genList.size(); i++) {
-	    temp = (genRecord) (genList.get(new Integer(i)));
+	    temp = (GenRecord) (genList.get(new Integer(i)));
 	    if (temp.getType().equals("aggregate")) {
 		subrubberlist = temp.rubber_band(rubber_startX, rubber_startY,
 			rubber_endX, rubber_endY);
@@ -323,16 +323,16 @@ public class aggregate extends genRecord {
     @Override
     public Vector rubber_band(int centerX, int centerY, int radius) {
 	Vector rubberlist = new Vector(), subrubberlist;
-	genRecord temp, storytemp;
+	GenRecord temp, storytemp;
 
 	for (int i = 0; i < genList.size(); i++) {
-	    temp = (genRecord) (genList.get(new Integer(i)));
+	    temp = (GenRecord) (genList.get(new Integer(i)));
 	    if (temp.getType().equals("aggregate")) {
 		subrubberlist = temp.rubber_band(centerX, centerY, radius);
 		for (int j = 0; j < subrubberlist.size(); j++)
 		    rubberlist.addElement(subrubberlist.elementAt(j));
 	    } else {
-		storytemp = ((storyRecord) temp).intersects(centerX, centerY,
+		storytemp = ((StoryRecord) temp).intersects(centerX, centerY,
 			radius);
 		if (storytemp != null)
 		    rubberlist.addElement(storytemp);
@@ -371,10 +371,10 @@ public class aggregate extends genRecord {
      */
     @Override
     public void select(int x, int y) {
-	genRecord temp;
+	GenRecord temp;
 
 	for (int i = 0; i < genList.size(); i++) {
-	    temp = (genRecord) (genList.get(new Integer(i)));
+	    temp = (GenRecord) (genList.get(new Integer(i)));
 	    if (temp.contains(x, y))
 		temp.select();
 	}
@@ -384,14 +384,14 @@ public class aggregate extends genRecord {
      * Set the conflict resolvers
      */
     @Override
-    public void setXOverlap(conflictResolver xOverlap1_,
-	    conflictResolver xOverlap2_) {
+    public void setXOverlap(ConflictResolver xOverlap1_,
+	    ConflictResolver xOverlap2_) {
 	xOverlap1 = xOverlap1_;
 	xOverlap2 = xOverlap2_;
 
-	genRecord temp;
+	GenRecord temp;
 	for (int i = 0; i < genList.size(); i++) {
-	    temp = (genRecord) (genList.get(new Integer(i)));
+	    temp = (GenRecord) (genList.get(new Integer(i)));
 	    temp.setXOverlap(xOverlap1, xOverlap2);
 	}
     }
@@ -405,9 +405,9 @@ public class aggregate extends genRecord {
 	this.beforefit = beforefit;
 	this.selected = selected;
 
-	genRecord temp;
+	GenRecord temp;
 	for (int i = 0; i < genList.size(); i++) {
-	    temp = (genRecord) (genList.get(new Integer(i)));
+	    temp = (GenRecord) (genList.get(new Integer(i)));
 	    temp.setVar(fit, beforefit, selected);
 	}
     }
@@ -420,9 +420,9 @@ public class aggregate extends genRecord {
 	labelX = labelX_;
 	labelY = labelY_;
 
-	genRecord temp;
+	GenRecord temp;
 	for (int i = 0; i < genList.size(); i++) {
-	    temp = (genRecord) (genList.get(new Integer(i)));
+	    temp = (GenRecord) (genList.get(new Integer(i)));
 	    temp.setLabelXY(labelX, labelY);
 	}
     }
@@ -435,9 +435,9 @@ public class aggregate extends genRecord {
 	saveLabelX = labelX;
 	saveLabelY = labelY;
 
-	genRecord temp;
+	GenRecord temp;
 	for (int i = 0; i < genList.size(); i++) {
-	    temp = (genRecord) (genList.get(new Integer(i)));
+	    temp = (GenRecord) (genList.get(new Integer(i)));
 	    temp.saveLabelXY();
 	}
     }
@@ -450,9 +450,9 @@ public class aggregate extends genRecord {
 	labelX = this.saveLabelX;
 	labelY = this.saveLabelY;
 
-	genRecord temp;
+	GenRecord temp;
 	for (int i = 0; i < genList.size(); i++) {
-	    temp = (genRecord) (genList.get(new Integer(i)));
+	    temp = (GenRecord) (genList.get(new Integer(i)));
 	    temp.setSavedLabelXY();
 	}
     }
@@ -462,10 +462,10 @@ public class aggregate extends genRecord {
      */
     @Override
     public void setConflicts(int currentY) {
-	genRecord temp;
+	GenRecord temp;
 
 	for (int i = 0; i < genList.size(); i++) {
-	    temp = (genRecord) (genList.get(new Integer(i)));
+	    temp = (GenRecord) (genList.get(new Integer(i)));
 	    temp.setConflicts(currentY);
 	}
     }
@@ -475,7 +475,7 @@ public class aggregate extends genRecord {
      */
     @Override
     public void clearConflicts(int currentY) {
-	genRecord temp;
+	GenRecord temp;
 
 	if (!all_labelled && summary != null) {
 	    summary.clearConflicts(currentY);
@@ -483,7 +483,7 @@ public class aggregate extends genRecord {
 	    summary.setLabelXY(-1, -10000);
 	} else {
 	    for (int i = 0; i < genList.size(); i++) {
-		temp = (genRecord) (genList.get(new Integer(i)));
+		temp = (GenRecord) (genList.get(new Integer(i)));
 		temp.clearConflicts(currentY);
 	    }
 	}
@@ -519,11 +519,11 @@ public class aggregate extends genRecord {
     public Vector getAllRecords() {
 	Vector allRecord = new Vector(), temprecord = new Vector();
 	for (int i = 0; i < genList.size(); i++) {
-	    if (!((genRecord) genList.get(new Integer(i))).getType().equals(
+	    if (!((GenRecord) genList.get(new Integer(i))).getType().equals(
 		    "aggregate"))
 		allRecord.addElement(genList.get(new Integer(i)));
 	    else {
-		Vector tempRecord = ((aggregate) genList.get(new Integer(i)))
+		Vector tempRecord = ((Aggregate) genList.get(new Integer(i)))
 			.getAllRecords();
 		for (int j = 0; j < tempRecord.size(); j++)
 		    allRecord.addElement(tempRecord.elementAt(j));
@@ -552,9 +552,9 @@ public class aggregate extends genRecord {
      * Label all the events in the aggregate
      */
     @Override
-    public boolean fitlabel(int currentY, timeLinePanel displayArea,
+    public boolean fitlabel(int currentY, TimeLinePanel displayArea,
 	    boolean backtrack, int height) {
-	genRecord aGenRecord;
+	GenRecord aGenRecord;
 	boolean fitlabel = true;
 	labelonce = true;
 
@@ -565,10 +565,10 @@ public class aggregate extends genRecord {
 	all_labelled = true;
 
 	for (int i = 0; i < 3; i++)
-	    lbloption[i] = record.lbloption[i];
+	    lbloption[i] = Record.lbloption[i];
 
 	for (int i = 0; i < 2; i++)
-	    summaryoption[i] = record.summaryoption[i];
+	    summaryoption[i] = Record.summaryoption[i];
 
 	if (backtrack)
 	    mark--;
@@ -579,12 +579,12 @@ public class aggregate extends genRecord {
 
 	int num = 0;
 	while (mark < genList.size() && mark >= 0) {
-	    aGenRecord = (genRecord) (genList.get(new Integer(mark)));
+	    aGenRecord = (GenRecord) (genList.get(new Integer(mark)));
 	    // do a cast to a labelless class of genRecord to get paralell
 	    // aggregates
 	    // 3/28/98 Don't label the ones that are not selected for search
-	    if ((aGenRecord.getSelected() && record.searchoption_label[1])
-		    || record.searchoption_label[0]) {
+	    if ((aGenRecord.getSelected() && Record.searchoption_label[1])
+		    || Record.searchoption_label[0]) {
 		fitlabel = aGenRecord.fitlabel(currentY, displayArea,
 			backtrack, height);
 
@@ -599,7 +599,7 @@ public class aggregate extends genRecord {
 		    else {
 			backtrack = true;
 			for (int i = mark + 1; i < genList.size(); i++)
-			    ((genRecord) (genList.get(new Integer(i))))
+			    ((GenRecord) (genList.get(new Integer(i))))
 				    .resetlabel();
 		    }
 		} else {
@@ -616,12 +616,12 @@ public class aggregate extends genRecord {
 	    if (num > numLabel) {
 		numLabel = num;
 		for (int i = 0; i < mark; i++) {
-		    aGenRecord = (genRecord) (genList.get(new Integer(i)));
+		    aGenRecord = (GenRecord) (genList.get(new Integer(i)));
 		    aGenRecord.saveLabelXY();
 		}
 	    }
 	}
-	genRecord lastRecord = (genRecord) genList.get(new Integer(genList
+	GenRecord lastRecord = (GenRecord) genList.get(new Integer(genList
 		.size() - 1));
 	if (lbloption[2] && lastRecord.getXOverlap2() != null) // if lastRecord
 	    // is an
@@ -647,7 +647,7 @@ public class aggregate extends genRecord {
 	    // record
 	    // clear all the conflict value set by labelled events
 	    for (int i = 0; i < genList.size(); i++) {
-		genRecord tempRecord = (genRecord) (genList.get(new Integer(i)));
+		GenRecord tempRecord = (GenRecord) (genList.get(new Integer(i)));
 		tempRecord.clearConflicts(currentY);
 	    }
 	    fitlabel = summary.fitlabel(currentY, displayArea, backtrack,
@@ -656,7 +656,7 @@ public class aggregate extends genRecord {
 	    if (!fitlabel) {
 		summary.clearConflicts(currentY);
 		for (int i = 0; i < genList.size(); i++) {
-		    genRecord tempRecord = (genRecord) (genList
+		    GenRecord tempRecord = (GenRecord) (genList
 			    .get(new Integer(i)));
 		    tempRecord.setSavedLabelXY();
 		    tempRecord.setConflicts(currentY);
@@ -673,7 +673,7 @@ public class aggregate extends genRecord {
 	if (summary != null)
 	    summary.resetlabel();
 	for (int i = 0; i < genList.size(); i++)
-	    ((genRecord) (genList.get(new Integer(i)))).resetlabel();
+	    ((GenRecord) (genList.get(new Integer(i)))).resetlabel();
     }
 
     /**
@@ -681,24 +681,24 @@ public class aggregate extends genRecord {
      */
     @Override
     public void setSummaryFlag(boolean label, boolean timeline) {
-	genRecord aGenRecord;
+	GenRecord aGenRecord;
 
 	if (summary != null)
 	    summary.setSummaryFlag(!label, !timeline);
 	for (int k = 0; k < genList.size(); k++) {
-	    aGenRecord = (genRecord) (genList.get(new Integer(k)));
+	    aGenRecord = (GenRecord) (genList.get(new Integer(k)));
 	    aGenRecord.setSummaryFlag(label, timeline);
 	}
     }
 
     @Override
-    public genRecord getSelected(int x, int y) {
-	genRecord tempGen;
+    public GenRecord getSelected(int x, int y) {
+	GenRecord tempGen;
 	if (summary != null && summary.contains(x, y, true))
 	    return summary.getSelected(x, y);
 	else {
 	    for (int i = 0; i < genList.size(); i++) {
-		tempGen = (genRecord) (genList.get(new Integer(i)));
+		tempGen = (GenRecord) (genList.get(new Integer(i)));
 		if (tempGen.contains(x, y))
 		    return tempGen.getSelected(x, y);
 	    }
@@ -718,8 +718,8 @@ public class aggregate extends genRecord {
      * Return the variable xOverlap2
      */
     @Override
-    public conflictResolver getXOverlap2() {
-	genRecord lastRecord = (genRecord) genList.get(new Integer(genList
+    public ConflictResolver getXOverlap2() {
+	GenRecord lastRecord = (GenRecord) genList.get(new Integer(genList
 		.size() - 1));
 	return lastRecord.getXOverlap2();
     }
@@ -729,7 +729,7 @@ public class aggregate extends genRecord {
      */
     @Override
     public void select(String searchString) {
-	genRecord temp;
+	GenRecord temp;
 
 	selected = false;
 	if (summary != null)
@@ -742,7 +742,7 @@ public class aggregate extends genRecord {
 		// (presently
 		// in same directory as here
 
-		temp = (genRecord) (genList.get(new Integer(i)));
+		temp = (GenRecord) (genList.get(new Integer(i)));
 		if (reg.match(temp.getInputLine()) != null) {
 		    temp.select();
 		    selected = true;
@@ -759,14 +759,14 @@ public class aggregate extends genRecord {
     /**
      * Set the summary record
      */
-    public void addSummary(storyRecord summary) {
+    public void addSummary(StoryRecord summary) {
 	this.summary = summary;
     }
 
     /**
      * Return the variable summary
      */
-    public storyRecord getSummary() {
+    public StoryRecord getSummary() {
 	return summary;
     }
 }

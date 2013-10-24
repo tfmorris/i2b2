@@ -16,10 +16,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.StringReader;
 
+import javax.swing.JPanel;
+
 import edu.harvard.i2b2.explorer.ui.TimelineSearchFrame;
 
-// this is the op level class
-public class record extends Panel implements newApplet, Runnable{ 
+// this is the top level class
+@SuppressWarnings("serial")
+public class Record extends JPanel implements NewApplet {//, Runnable{ 
 // public class record extends Applet implements newApplet,Runnable{ 
     public static final int SILPIXEL=2;
     static public boolean noRects = false;
@@ -57,41 +60,38 @@ public class record extends Panel implements newApplet, Runnable{
     public static String oldLabel = new String(" ");
         // newapplet allows status bar changes and opens new browser windows
         // needed so that non Applet classes can call Applet methods?
-    public static loadRecord theData;
-    public static mainPanel theTabPanel;
+    public static LoadRecord theData;
+    public static MainPanel theTabPanel;
         // tabpanel at present only holds a timelinepanel, eventually can hold several tabbed sheets
 
     protected static Font font = new Font("TimesRoman", Font.BOLD, 12);
     protected FontMetrics fontMetrics = getFontMetrics(font);
     private Color bgColor, fgColor, hlColor, textColor;
     Panel topPanel;           // the container panel
-    infoPanel theInfoPanel;   // name etc, middle panel of top of toppanel
-    alertPanel theAlertPanel; // top right panel
-    picPanel thePicPanel;     // top right left of toppanel, spot to put a picture
-    currPanel theCurrPanel;   // bottom left panel
-    labelPanel theLabelPanel; 
+    InfoPanel theInfoPanel;   // name etc, middle panel of top of toppanel
+    AlertPanel theAlertPanel; // top right panel
+    PicPanel thePicPanel;     // top right left of toppanel, spot to put a picture
+    CurrPanel theCurrPanel;   // bottom left panel
+    LabelPanel theLabelPanel; 
     ScrollPane pane;/*Added 09-13-98 by Partha */
 
     //int resizeWidth; // width to be used when a resize is done... read from a parameter 
     //int resizeHeight; // same for height...
     
-    public void showSearchFrame() {
-    	final record r = this;
-    	java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new TimelineSearchFrame(r).setVisible(true);
-            }
-        });
+    public Record() {
+    	
     }
+    
+    
 
-    public void start() {
-        if(theThread == null)
-            theThread = new Thread(this);
-        theThread.start();
-        System.out.println("got to start");
-    }
+    //public void start() {
+        //if(theThread == null)
+         //   theThread = new Thread(this);
+        //theThread.start();
+        //System.out.println("got to start");
+    //}
         
-    public void run() {
+    /*public void run() {
     	System.out.println("got to run");
        Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
@@ -113,7 +113,7 @@ public class record extends Panel implements newApplet, Runnable{
         theThread = null;
         if (theCurrPanel.ctrlpanel != null)
             theCurrPanel.ctrlpanel.setVisible(false);
-    }
+    }*/
 
     public void update(Graphics g) {
         paint(g);
@@ -223,14 +223,14 @@ public class record extends Panel implements newApplet, Runnable{
 	        	}
 	           //datafile = getCodeBase() + datafile; // why did this stop working for a url? or did it?
 	
-	        theData = new loadRecord(datafile,dataString);
+	        theData = new LoadRecord(datafile,dataString);
         }
         else
         {
         	try
         	{
 	        	BufferedReader br = new BufferedReader(new StringReader(recordData));
-	        	theData = new loadRecord(br, dataString);
+	        	theData = new LoadRecord(br, dataString);
 	        	br.close();
 	        	br = null;
         	}
@@ -252,18 +252,18 @@ public class record extends Panel implements newApplet, Runnable{
         // presently there is no layout set (two lines above)
 
         // panel for picture (upper left)
-        thePicPanel=new picPanel((int)(getSize().width* 0.075),(int)(getSize().height* 0.1),this,theData.getPictureFile());
+        thePicPanel=new PicPanel((int)(getSize().width* 0.075),(int)(getSize().height* 0.1),this,theData.getPictureFile());
         //add(thePicPanel);
         thePicPanel.setBounds(0,0,(int)(getSize().width* 0.075),(int)(getSize().height* 0.1));
 
         // panel with personal info on patient middle top of applet
-        theInfoPanel = new infoPanel((int)(getSize().width* 0.30),(int)(getSize().height* 0.1),theData.getName(),theData.getGender(),theData.getAge(),theData.getMoreInfo());   // 3/28/98
+        theInfoPanel = new InfoPanel((int)(getSize().width* 0.30),(int)(getSize().height* 0.1),theData.getName(),theData.getGender(),theData.getAge(),theData.getMoreInfo());   // 3/28/98
         theInfoPanel.setLayout(null);
         //add(theInfoPanel);
         theInfoPanel.setBounds((int)(getSize().width * 0.075),0,(int)(getSize().width* 0.30),(int)(getSize().height* 0.1));
 
         // just below infopanel... presently empty
-        theAlertPanel = new alertPanel((int)(getSize().width* 0.30), (int)(getSize().height* 0.05));
+        theAlertPanel = new AlertPanel((int)(getSize().width* 0.30), (int)(getSize().height* 0.05));
         theAlertPanel.setLayout(null);
         //add(theAlertPanel);
         theAlertPanel.setBounds((int)(getSize().width* 0.075),(int)(getSize().height* .05),(int)(getSize().width* 0.30),(int)(getSize().height* 0.05));
@@ -271,8 +271,8 @@ public class record extends Panel implements newApplet, Runnable{
         // top right
         pane = new ScrollPane();
         pane.setSize((int)(getSize().width*0.6), (int)(getSize().height* 0.1));
-        theLabelPanel = new labelPanel((int)(getSize().width*0.6), (int)(getSize().height* 0.1));
-        theLabelPanel = new labelPanel(800, 400);
+        theLabelPanel = new LabelPanel((int)(getSize().width*0.6), (int)(getSize().height* 0.1));
+        theLabelPanel = new LabelPanel(800, 400);
         theLabelPanel.setLayout(null);
         //add(theLabelPanel); // snm
         theLabelPanel.setBounds((int)(getSize().width*0.375),0,(int)(getSize().width*  0.6),(int)(getSize().height* 0.1));
@@ -282,14 +282,14 @@ public class record extends Panel implements newApplet, Runnable{
         pane.setBounds((int)(getSize().width*0.375),0,(int)(getSize().width*  0.6),(int)(getSize().height* 0.1));
         
         // left bottom of toppanel
-        theCurrPanel=new currPanel((int)(getSize().width),40,this);
+        theCurrPanel=new CurrPanel((int)(getSize().width),40,this);
         theCurrPanel.setLayout(null);
         //add(theCurrPanel); // snm comment out
         theCurrPanel.setBounds(0, 0,(int)getSize().width,40);
         
         // eventually will have multiple tabs (now just lifeline) use card layout perhaps? (and
         // a little bit of "tab" graphics)
-        theTabPanel=new mainPanel((int)getSize().width,(int)(getSize().height ),this,loadRecord.getToday());
+        theTabPanel=new MainPanel((int)getSize().width,(int)(getSize().height ),this,LoadRecord.getToday());
         theTabPanel.setLayout(null);
         add(theTabPanel); // snm comment out
         theTabPanel.setBounds(0, 0, (int)getSize().width,(int)(getSize().height));/*modified 12/02 - Partha*/
@@ -320,7 +320,7 @@ public class record extends Panel implements newApplet, Runnable{
 
     public void resetTabPanel() {
         remove(theTabPanel);
-        theTabPanel=new mainPanel((int)(getSize().width* 0.98),(int)(getSize().height* 0.84 ),this,loadRecord.getToday());
+        theTabPanel=new MainPanel((int)(getSize().width* 0.98),(int)(getSize().height* 0.84 ),this,LoadRecord.getToday());
         theTabPanel.setLayout(null);
         add(theTabPanel);
         theTabPanel.setBounds(0,(int)(getSize().height*0.1),(int)(getSize().width*0.98),(int)(getSize().height* 0.84));
@@ -334,7 +334,7 @@ public class record extends Panel implements newApplet, Runnable{
 
     public void resetPicPanel() {
         remove(thePicPanel);
-        thePicPanel=new picPanel((int)(getSize().width* 0.075),(int)(getSize().height* 0.1),this,theData.getPictureFile());
+        thePicPanel=new PicPanel((int)(getSize().width* 0.075),(int)(getSize().height* 0.1),this,theData.getPictureFile());
         // panel that will hold a picture of the patient, resides in upper left corner of applet
         add(thePicPanel);
         thePicPanel.setBounds(0,0,(int)(getSize().width* 0.075),(int)(getSize().height* 0.1));
@@ -346,7 +346,7 @@ public class record extends Panel implements newApplet, Runnable{
     public void resetInfoPanel() {
         remove(theInfoPanel);
 
-        theInfoPanel = new infoPanel((int)(getSize().width* 0.30),(int)(getSize().height* 0.1),theData.getName(),theData.getGender(),theData.getAge(),theData.getMoreInfo());   // 3/28/98
+        theInfoPanel = new InfoPanel((int)(getSize().width* 0.30),(int)(getSize().height* 0.1),theData.getName(),theData.getGender(),theData.getAge(),theData.getMoreInfo());   // 3/28/98
         theInfoPanel.setLayout(null);
         add(theInfoPanel);
         theInfoPanel.setBounds((int)(getSize().width *.075),0,(int)(getSize().width* 0.30),(int)(getSize().height* 0.1));
@@ -362,6 +362,15 @@ public class record extends Panel implements newApplet, Runnable{
 
     public void setWidthHeight(int width,int height) {
       setWH(width,height);
+    }
+    
+    public void showSearchFrame() {
+    	final Record r = this;
+    	java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new TimelineSearchFrame(r).setVisible(true);
+            }
+        });
     }
 
     public void setWH(int width,int height) {

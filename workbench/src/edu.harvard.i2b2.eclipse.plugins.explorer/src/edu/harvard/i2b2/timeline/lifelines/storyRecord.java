@@ -17,7 +17,7 @@ import java.util.*;
 /**
  * storyRecord class defines event
  */ 
-public class storyRecord extends genRecord {
+public class StoryRecord extends GenRecord {
     private String cause = "";
     private Color rectColor;
     private int rectWidth;
@@ -38,7 +38,7 @@ public class storyRecord extends genRecord {
     public int streamX, streamY, startX, startY;
     private int[][] options = new int[4][2];
     private boolean[] lbloption = new boolean[3];
-    public storyRecord(String type, String cause, MyDate start_date, MyDate end_date,Color rectColor,
+    public StoryRecord(String type, String cause, MyDate start_date, MyDate end_date,Color rectColor,
                         int rectWidth,String theUrl,Hashtable attrList, String inputLine) {
         super(type);
         this.cause = cause;
@@ -87,7 +87,7 @@ public class storyRecord extends genRecord {
     }
     
     @Override
-	public genRecord getSelected(int x,int y) {      
+	public GenRecord getSelected(int x,int y) {      
         return this;  
     }
 
@@ -124,19 +124,19 @@ public class storyRecord extends genRecord {
     public int getLabelWidth() {
         int labelWidth=0;
         
-        if (record.lengthoption[1])  {
-            if (record.lbllength == 0)
+        if (Record.lengthoption[1])  {
+            if (Record.lbllength == 0)
                 labelWidth=0;
-            else if (cause.length() > record.lbllength)
-                labelWidth = mainPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause.substring(0, record.lbllength));
+            else if (cause.length() > Record.lbllength)
+                labelWidth = MainPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause.substring(0, Record.lbllength));
             else
-                labelWidth = mainPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause);
+                labelWidth = MainPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause);
         }
         else {
             if (cause.equals(" "))
                 labelWidth=0;
             else
-                labelWidth = mainPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause);
+                labelWidth = MainPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause);
         }        
             
         return labelWidth;
@@ -163,7 +163,7 @@ public class storyRecord extends genRecord {
  
     public boolean contains(int x, int y, boolean summary) {        
         if (summary) {            
-            if ((record.summaryoption[0] && currentLabelArea.inside(x,y)) || (record.summaryoption[1] && currentBarArea.inside(x,y)))                
+            if ((Record.summaryoption[0] && currentLabelArea.inside(x,y)) || (Record.summaryoption[1] && currentBarArea.inside(x,y)))                
                 return true;        
         }
         return false;
@@ -173,7 +173,7 @@ public class storyRecord extends genRecord {
      * Check whether the event intersects with a rectangle
      */
     @Override
-	public genRecord intersects(int rubber_startX, int rubber_startY, int rubber_endX, int rubber_endY) {
+	public GenRecord intersects(int rubber_startX, int rubber_startY, int rubber_endX, int rubber_endY) {
         Rectangle rubberRect = new Rectangle(rubber_startX, rubber_startY, rubber_endX-rubber_startX, rubber_endY-rubber_startY);
         if (currentBarArea.intersects(rubberRect))  {
             stream_selected = true;
@@ -185,7 +185,7 @@ public class storyRecord extends genRecord {
     /**
      * Check whether the event intersects with a circle
      */
-    public genRecord intersects(int centerX, int centerY, int radius) {
+    public GenRecord intersects(int centerX, int centerY, int radius) {
         if (shorter(centerX, centerY, currentBarArea.x, currentBarArea.y, radius) ||
             shorter(centerX, centerY, currentBarArea.x+currentBarArea.width, currentBarArea.y, radius) ||
             shorter(centerX, centerY, currentBarArea.x+currentBarArea.width, currentBarArea.y+currentBarArea.height, radius) ||
@@ -207,15 +207,15 @@ public class storyRecord extends genRecord {
      * Label the event
      */
     @Override
-	public boolean fitlabel(int currentY, timeLinePanel displayArea, boolean backtrack, int height) {
-        scale aScale = displayArea.getScale();
+	public boolean fitlabel(int currentY, TimeLinePanel displayArea, boolean backtrack, int height) {
+        Scale aScale = displayArea.getScale();
         int rwinWidth = displayArea.getRwinWidth();
         int rwinOffset = displayArea.getRwinOffset();
         int fontTextHeight = displayArea.getFontTextHeight();
                        
         //Graphics g = displayArea.getGraphics(); // double buffer?
         for (int i=0; i<3; i++)
-            lbloption[i] = record.lbloption[i];
+            lbloption[i] = Record.lbloption[i];
            
         if (lbloption[1]) {
             optionnum=2;
@@ -239,16 +239,16 @@ public class storyRecord extends genRecord {
             streamY = y1;
             startX = rwinOffset + diff1 + 1;          
             
-            if (genRecord.xOverlap1 == null || !(genRecord.xOverlap1.identifierIsEqualTo(currentY+y1)) ) {
+            if (GenRecord.xOverlap1 == null || !(GenRecord.xOverlap1.identifierIsEqualTo(currentY+y1)) ) {
 	            // !inAggregate was there to try to resolve paralell aggregate labelling problem...
-	            genRecord.xOverlap1 = new conflictResolver();
-                genRecord.xOverlap1.setIdentifier(currentY+y1);
+	            GenRecord.xOverlap1 = new ConflictResolver();
+                GenRecord.xOverlap1.setIdentifier(currentY+y1);
             }
             // 3/28/98 only need for 4 corners
             if (lbloption[2] && (xOverlap2 == null || !(xOverlap2.identifierIsEqualTo(currentY+y2))) ) {
 	            // !inAggregate was there to try to resolve paralell aggregate labelling problem...
-	            genRecord.xOverlap2 = new conflictResolver();
-                genRecord.xOverlap2.setIdentifier(currentY+y2);
+	            GenRecord.xOverlap2 = new ConflictResolver();
+                GenRecord.xOverlap2.setIdentifier(currentY+y2);
             }
             
             options[0][0] = x1; options[0][1] = y1;
@@ -271,15 +271,15 @@ public class storyRecord extends genRecord {
 		            if (backtrack && mark>0) {
  			            int startBeforeX = options[mark-1][0];
  			            int startBeforeY = options[mark-1][1];
-			            if (genRecord.xOverlap1.identifierIsEqualTo(currentY + startBeforeY) && beforefit)
-			                genRecord.xOverlap1.deleteConflicts(startBeforeX, startBeforeX + getLabelWidth());
-                        else if (lbloption[2] && genRecord.xOverlap2.identifierIsEqualTo(currentY + startBeforeY) && beforefit)
-                            genRecord.xOverlap2.deleteConflicts(startBeforeX, startBeforeX + getLabelWidth());
+			            if (GenRecord.xOverlap1.identifierIsEqualTo(currentY + startBeforeY) && beforefit)
+			                GenRecord.xOverlap1.deleteConflicts(startBeforeX, startBeforeX + getLabelWidth());
+                        else if (lbloption[2] && GenRecord.xOverlap2.identifierIsEqualTo(currentY + startBeforeY) && beforefit)
+                            GenRecord.xOverlap2.deleteConflicts(startBeforeX, startBeforeX + getLabelWidth());
                     }     
                     labelX = options[mark][0];
                     labelY = options[mark][1];
-                    if ((genRecord.xOverlap1.identifierIsEqualTo(currentY+labelY) && genRecord.xOverlap1.resolveConflicts(labelX, labelX + getLabelWidth())) 
-                         || ((lbloption[2] && genRecord.xOverlap2.identifierIsEqualTo(currentY+labelY) && genRecord.xOverlap2.resolveConflicts(labelX, labelX + getLabelWidth()))))
+                    if ((GenRecord.xOverlap1.identifierIsEqualTo(currentY+labelY) && GenRecord.xOverlap1.resolveConflicts(labelX, labelX + getLabelWidth())) 
+                         || ((lbloption[2] && GenRecord.xOverlap2.identifierIsEqualTo(currentY+labelY) && GenRecord.xOverlap2.resolveConflicts(labelX, labelX + getLabelWidth()))))
 		                fit = true;
                     else   {    // cannot fit
                         labelX = -1;
@@ -292,7 +292,7 @@ public class storyRecord extends genRecord {
              else if (lbloption[0])   {   // default one, don't label if no space
                 labelX = options[0][0];
                 labelY = options[0][1];
-                if (genRecord.xOverlap1.identifierIsEqualTo(currentY+labelY) && genRecord.xOverlap1.resolveConflicts(labelX, labelX + getLabelWidth()))
+                if (GenRecord.xOverlap1.identifierIsEqualTo(currentY+labelY) && GenRecord.xOverlap1.resolveConflicts(labelX, labelX + getLabelWidth()))
                     fit = true;
                 else    {   
                     labelX = -1;
@@ -319,8 +319,8 @@ public void resetlabel() {
   /**
    * Determine the starting position of the event
    */
-  public void position (int currentY, timeLinePanel displayArea, boolean silhouette) {
-        scale aScale = displayArea.getScale();
+  public void position (int currentY, TimeLinePanel displayArea, boolean silhouette) {
+        Scale aScale = displayArea.getScale();
         int rwinOffset = displayArea.getRwinOffset();
         int fontTextHeight = displayArea.getFontTextHeight();
         Graphics g = displayArea.getOfg();
@@ -328,14 +328,14 @@ public void resetlabel() {
         rwinWidth = displayArea.getRwinWidth();
         this.currentY = currentY;
         g.setColor(Color.black);
-		g.setFont(mainPanel.theTimeLinePanel.fontMetrics1.getFont());
+		g.setFont(MainPanel.theTimeLinePanel.fontMetrics1.getFont());
         
         double scaleFactor = ((double)rwinWidth/ (double) (aScale.getDateMin()).MinDiff( aScale.getDateMax() ));                
         diff1 = (int)Math.round(((aScale.getDateMin()).MinDiff(start_date) * scaleFactor));         
         diff2 = (int)Math.round(((aScale.getDateMin()).MinDiff(end_date) * scaleFactor));
             
         if( !(aScale.offScale(start_date,end_date)) )    {
-            startY = currentY + ((silhouette)? record.SILPIXEL:fontTextHeight);
+            startY = currentY + ((silhouette)? Record.SILPIXEL:fontTextHeight);
             startX = rwinOffset + diff1 + 1;
         }
         else {
@@ -348,12 +348,12 @@ public void resetlabel() {
    * Draw the event on the display
    */
   @Override
-public void drawData(int currentY, timeLinePanel displayArea, boolean silhouette, boolean timeline, boolean summaryrecord) {
+public void drawData(int currentY, TimeLinePanel displayArea, boolean silhouette, boolean timeline, boolean summaryrecord) {
         int fontTextHeight = displayArea.getFontTextHeight();
         Graphics g = displayArea.getOfg();
          
         position(currentY, displayArea, silhouette);
-        if (timeline && ((record.searchoption_timeline[1])? selected:true))  {  // 3/10/98 if told to draw the lines         
+        if (timeline && ((Record.searchoption_timeline[1])? selected:true))  {  // 3/10/98 if told to draw the lines         
             
            //g.setColor(currentColor);
            if(diff1<=0) 
@@ -385,8 +385,8 @@ public void drawData(int currentY, timeLinePanel displayArea, boolean silhouette
 		    	   }
 		       }
 		       else {
-		           g.fillRect(startX, startY, (diff2 - diff1) < 3?(diff2-diff1+3):(diff2-diff1), record.SILPIXEL);
-		           currentBarArea.setBounds(startX, startY, (diff2 - diff1) < 3?(diff2-diff1+3):(diff2-diff1), record.SILPIXEL);
+		           g.fillRect(startX, startY, (diff2 - diff1) < 3?(diff2-diff1+3):(diff2-diff1), Record.SILPIXEL);
+		           currentBarArea.setBounds(startX, startY, (diff2 - diff1) < 3?(diff2-diff1+3):(diff2-diff1), Record.SILPIXEL);
 		       }
            }
            else 
@@ -398,7 +398,7 @@ public void drawData(int currentY, timeLinePanel displayArea, boolean silhouette
    * Draw the label on the display
    */
   @Override
-public void drawLabel(int currentY, timeLinePanel displayArea, boolean label, boolean summaryrecord, boolean stream) {
+public void drawLabel(int currentY, TimeLinePanel displayArea, boolean label, boolean summaryrecord, boolean stream) {
         int fontTextHeight = displayArea.getFontTextHeight();
         Graphics g = displayArea.getOfg();
         int rwinWidth = displayArea.getRwinWidth();
@@ -406,30 +406,30 @@ public void drawLabel(int currentY, timeLinePanel displayArea, boolean label, bo
 		//int descent = record.theTabPanel.theTimeLinePanel.fontMetrics1.getMaxDescent();
         int descent = 2;
         
-        if (label && ((record.searchoption_label[1])? selected:true))    {  // if told to draw the labels and if the records are selected for label_only_result option 
+        if (label && ((Record.searchoption_label[1])? selected:true))    {  // if told to draw the labels and if the records are selected for label_only_result option 
             tempCause = new String(cause);
             //System.out.println("Label: " + tempCause);
 		    //System.out.println(tempCause + " : " + selected);
 	        if (selected && summaryrecord)   {
 		        //g.setColor(Color.blue);
 		        g.setColor(textColor);
-		        Font thisFont = mainPanel.theTimeLinePanel.fontMetrics1.getFont();
+		        Font thisFont = MainPanel.theTimeLinePanel.fontMetrics1.getFont();
 		        //descent = Toolkit.getDefaultToolkit().getFontMetrics(thisFont).getMaxDescent();
 		        g.setFont(new Font(thisFont.getName(), Font.BOLD, thisFont.getSize()));
 		    }
 		    else   {
 		        //g.setColor(selectedColor);   // gray
-		        g.setFont(mainPanel.theTimeLinePanel.fontMetrics1.getFont());
+		        g.setFont(MainPanel.theTimeLinePanel.fontMetrics1.getFont());
 		        g.setColor(textColor);
 		    }
 		        
 		    if (!stream || (stream && !stream_selected))        { 
-		        if (record.lengthoption[0])   {
+		        if (Record.lengthoption[0])   {
 		            if (labelX >= 0)    {
     		            g.drawString(tempCause, labelX, ((labelY+currentY)==startY) ? (currentY+labelY-descent):(currentY+labelY));
    	    	            currentLabelArea.reshape(labelX, ((currentY+labelY)==startY) ? (currentY+labelY-descent-fontTextHeight):(currentY+labelY-fontTextHeight), getLabelWidth(), fontTextHeight); // may not be exactly accurate height wise yet...
 	                }
-                    else if (record.symbol) {
+                    else if (Record.symbol) {
 	                    // add *
         			    char syb[] = {'*'};
 		        	    String symbol = new String(syb);
@@ -437,17 +437,17 @@ public void drawLabel(int currentY, timeLinePanel displayArea, boolean label, bo
 			            g.drawString(symbol, startX, startY+rectWidth+10);   // pending, 10 is hardcoded
 	                }
 	            }
-		        else if (record.lengthoption[1]) {  // truncating
-		            if (tempCause.length() > record.lbllength) {
-		                g.drawString(tempCause.substring(0,record.lbllength),labelX, ((currentY+labelY)==startY) ? (currentY+labelY-descent):(currentY+labelY));
-		                currentLabelArea.reshape(labelX, ((currentY+labelY)==startY) ? (currentY+labelY-fontTextHeight):(currentY+labelY-descent-fontTextHeight), record.lbllength, fontTextHeight);
+		        else if (Record.lengthoption[1]) {  // truncating
+		            if (tempCause.length() > Record.lbllength) {
+		                g.drawString(tempCause.substring(0,Record.lbllength),labelX, ((currentY+labelY)==startY) ? (currentY+labelY-descent):(currentY+labelY));
+		                currentLabelArea.reshape(labelX, ((currentY+labelY)==startY) ? (currentY+labelY-fontTextHeight):(currentY+labelY-descent-fontTextHeight), Record.lbllength, fontTextHeight);
 	                }
 	                else {
 	                    if (labelX >= 0)   {
 	                        g.drawString(tempCause, labelX, ((currentY+labelY)==startY) ? (currentY+labelY-descent):(currentY+labelY));
 	                        currentLabelArea.reshape(labelX, ((currentY+labelY)==startY) ? (currentY+labelY-descent-fontTextHeight):(currentY+labelY-fontTextHeight), getLabelWidth(), fontTextHeight); // may not be exactly accurate height wise yet...
 	                    }
-	                    else if (record.symbol)    {
+	                    else if (Record.symbol)    {
 			               // add *
         			       char syb[] = {'*'};
 		        	       String symbol = new String(syb);
@@ -459,7 +459,7 @@ public void drawLabel(int currentY, timeLinePanel displayArea, boolean label, bo
 	            stream_selected = false;
 	         }
 	        
-		     if (record.arrowoption[1] && (! cause.equals(" ")) && labelX>0 && (currentY+labelY)>0) 
+		     if (Record.arrowoption[1] && (! cause.equals(" ")) && labelX>0 && (currentY+labelY)>0) 
 		        g.drawLine(startX, ((currentY+labelY)==startY) ? startY:(startY+getRectWidth()), labelX==startX ? (startX+(getLabelWidth()/3)):(startX-(getLabelWidth()/3)), ((currentY+labelY)==startY) ? (currentY+labelY-2):(currentY+labelY-fontTextHeight+6));
         }
    }
@@ -483,18 +483,18 @@ public void redraw() {
   
   @Override
 public void clearConflicts(int currentY) {
-      if (genRecord.xOverlap1 != null && genRecord.xOverlap1.identifierIsEqualTo(currentY+labelY))
-	    genRecord.xOverlap1.deleteConflicts(labelX, labelX + getLabelWidth());
-      else if (lbloption[2] && genRecord.xOverlap2 != null && genRecord.xOverlap2.identifierIsEqualTo(currentY+labelY))
-        genRecord.xOverlap2.deleteConflicts(labelX, labelX + getLabelWidth());
+      if (GenRecord.xOverlap1 != null && GenRecord.xOverlap1.identifierIsEqualTo(currentY+labelY))
+	    GenRecord.xOverlap1.deleteConflicts(labelX, labelX + getLabelWidth());
+      else if (lbloption[2] && GenRecord.xOverlap2 != null && GenRecord.xOverlap2.identifierIsEqualTo(currentY+labelY))
+        GenRecord.xOverlap2.deleteConflicts(labelX, labelX + getLabelWidth());
   }
 
   @Override
 public void setConflicts(int currentY) {
-      if (genRecord.xOverlap1.identifierIsEqualTo(currentY+labelY))
-	    genRecord.xOverlap1.resolveConflicts(labelX, labelX + getLabelWidth());
-      else if (lbloption[2] && genRecord.xOverlap2.identifierIsEqualTo(currentY+labelY))
-	    genRecord.xOverlap2.resolveConflicts(labelX, labelX + getLabelWidth());
+      if (GenRecord.xOverlap1.identifierIsEqualTo(currentY+labelY))
+	    GenRecord.xOverlap1.resolveConflicts(labelX, labelX + getLabelWidth());
+      else if (lbloption[2] && GenRecord.xOverlap2.identifierIsEqualTo(currentY+labelY))
+	    GenRecord.xOverlap2.resolveConflicts(labelX, labelX + getLabelWidth());
   }
  
   /**

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
-
-   <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="Ontology Category"
-            id="edu.harvard.i2b2.eclipse.plugins.ontology">
+	<extension
+		point="org.eclipse.ui.views">
+		<category
+			name="Ontology Category"
+			id="edu.harvard.i2b2.eclipse.plugins.ontology">
       </category>
       <view
             name="Navigate Terms"
@@ -88,7 +87,7 @@
                tooltip="Display the options dialog"/>
       </viewContribution>
       </extension>
-            <extension point="org.eclipse.ui.contexts">
+                  <extension point="org.eclipse.ui.contexts">
       	<context
       		id="navigate_terms_view_help_context"
       		name="Navigate Terms View"
@@ -126,5 +125,4 @@
          primary="false">
    </toc>
       </extension>
-      
-</plugin>
+ </plugin>

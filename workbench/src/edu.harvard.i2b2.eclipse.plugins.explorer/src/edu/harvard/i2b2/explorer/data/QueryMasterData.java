@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
  *   
  *     Wensong Pan
- *     Rajesh Kuttan
  *     
  */
 
@@ -34,97 +33,96 @@ import edu.harvard.i2b2.explorer.datavo.ExplorerJAXBUtil;
  *   A data holder for a querytool logic query.
  */
 
-/**
- * @author wp066
- *
- */
+
 
 public class QueryMasterData extends QueryData {
-	
-	//public ArrayList<QueryInstanceData> runs = null;
-		
-	//public QueryMasterData() {
-	//	runs = new ArrayList<QueryInstanceData>();
-	//}
+
+    // public ArrayList<QueryInstanceData> runs = null;
+
+    // public QueryMasterData() {
+    // runs = new ArrayList<QueryInstanceData>();
+    // }
     private static final Log log = LogFactory.getLog(QueryMasterData.class);
 
-	@Override
-	public String writeContentQueryXML() {
-		MasterRequestType masterQueryType = new MasterRequestType();
+    @Override
+    public String writeContentQueryXML() {
+	MasterRequestType masterQueryType = new MasterRequestType();
 
-		// create header
-		PsmQryHeaderType headerType = new PsmQryHeaderType();
-		UserType userType = new UserType();
-		userType.setLogin(userId());
-		userType.setValue(userId());
-		headerType.setUser(userType);
-		headerType.setRequestType(PsmRequestTypeType.CRC_QRY_GET_QUERY_INSTANCE_LIST_FROM_QUERY_MASTER_ID);
-		
-		masterQueryType.setQueryMasterId(id());
-		
-		RequestHeaderType requestHeader = new RequestHeaderType();
-		requestHeader.setResultWaittimeMs(180000);
-		BodyType bodyType = new BodyType();
-		edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory psmOf = new edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory();
-		bodyType.getAny().add(psmOf.createPsmheader(headerType));
-		bodyType.getAny().add(psmOf.createRequest(masterQueryType));
+	// create header
+	PsmQryHeaderType headerType = new PsmQryHeaderType();
+	UserType userType = new UserType();
+	userType.setLogin(userId());
+	userType.setValue(userId());
+	headerType.setUser(userType);
+	headerType
+		.setRequestType(PsmRequestTypeType.CRC_QRY_GET_QUERY_INSTANCE_LIST_FROM_QUERY_MASTER_ID);
 
-		MessageHeaderType messageHeader = getMessageHeader();
-		RequestMessageType requestMessageType = new RequestMessageType();
-		requestMessageType.setMessageBody(bodyType);
-		requestMessageType.setMessageHeader(messageHeader);
-		requestMessageType.setRequestHeader(requestHeader);
-		
-		JAXBUtil jaxbUtil = ExplorerJAXBUtil.getJAXBUtil();
-		StringWriter strWriter = new StringWriter();
-		try {
-			edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory();
-			jaxbUtil.marshaller(of.createRequest(requestMessageType), strWriter);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return strWriter.toString();
+	masterQueryType.setQueryMasterId(id());
+
+	RequestHeaderType requestHeader = new RequestHeaderType();
+	requestHeader.setResultWaittimeMs(180000);
+	BodyType bodyType = new BodyType();
+	edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory psmOf = new edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory();
+	bodyType.getAny().add(psmOf.createPsmheader(headerType));
+	bodyType.getAny().add(psmOf.createRequest(masterQueryType));
+
+	MessageHeaderType messageHeader = getMessageHeader();
+	RequestMessageType requestMessageType = new RequestMessageType();
+	requestMessageType.setMessageBody(bodyType);
+	requestMessageType.setMessageHeader(messageHeader);
+	requestMessageType.setRequestHeader(requestHeader);
+
+	JAXBUtil jaxbUtil = ExplorerJAXBUtil.getJAXBUtil();
+	StringWriter strWriter = new StringWriter();
+	try {
+	    edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory();
+	    jaxbUtil
+		    .marshaller(of.createRequest(requestMessageType), strWriter);
+	} catch (Exception e) {
+	    e.printStackTrace();
 	}
-	
-	public String writeDefinitionQueryXML() {
-		MasterRequestType masterQueryType = new MasterRequestType();
 
-		// create header
-		PsmQryHeaderType headerType = new PsmQryHeaderType();
-		UserType userType = new UserType();
-		userType.setLogin(userId());
-		userType.setValue(userId());
-		headerType.setUser(userType);
-		headerType.setRequestType(PsmRequestTypeType.CRC_QRY_GET_REQUEST_XML_FROM_QUERY_MASTER_ID);
-		
-		masterQueryType.setQueryMasterId(id());
-		
-		RequestHeaderType requestHeader = new RequestHeaderType();
-		requestHeader.setResultWaittimeMs(180000);
-		BodyType bodyType = new BodyType();
-		edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory psmOf = new edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory();
-		bodyType.getAny().add(psmOf.createPsmheader(headerType));
-		bodyType.getAny().add(psmOf.createRequest(masterQueryType));
-		
-		MessageHeaderType messageHeader = getMessageHeader();
-		RequestMessageType requestMessageType = new RequestMessageType();
-		requestMessageType.setMessageBody(bodyType);
-		requestMessageType.setMessageHeader(messageHeader);
-		requestMessageType.setRequestHeader(requestHeader);
-		JAXBUtil jaxbUtil = ExplorerJAXBUtil.getJAXBUtil();
-		StringWriter strWriter = new StringWriter();
-		try {
-			edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory();
-			jaxbUtil.marshaller(of.createRequest(requestMessageType), strWriter);
-		}
-		catch(Exception e) {
-			log.error(e.getMessage());
-			e.printStackTrace();
-		}
-		
-		log.debug("Generated content XML request: " + strWriter.toString());
-		return strWriter.toString();
+	return strWriter.toString();
+    }
+
+    public String writeDefinitionQueryXML() {
+	MasterRequestType masterQueryType = new MasterRequestType();
+
+	// create header
+	PsmQryHeaderType headerType = new PsmQryHeaderType();
+	UserType userType = new UserType();
+	userType.setLogin(userId());
+	userType.setValue(userId());
+	headerType.setUser(userType);
+	headerType
+		.setRequestType(PsmRequestTypeType.CRC_QRY_GET_REQUEST_XML_FROM_QUERY_MASTER_ID);
+
+	masterQueryType.setQueryMasterId(id());
+
+	RequestHeaderType requestHeader = new RequestHeaderType();
+	requestHeader.setResultWaittimeMs(180000);
+	BodyType bodyType = new BodyType();
+	edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory psmOf = new edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory();
+	bodyType.getAny().add(psmOf.createPsmheader(headerType));
+	bodyType.getAny().add(psmOf.createRequest(masterQueryType));
+
+	MessageHeaderType messageHeader = getMessageHeader();
+	RequestMessageType requestMessageType = new RequestMessageType();
+	requestMessageType.setMessageBody(bodyType);
+	requestMessageType.setMessageHeader(messageHeader);
+	requestMessageType.setRequestHeader(requestHeader);
+	JAXBUtil jaxbUtil = ExplorerJAXBUtil.getJAXBUtil();
+	StringWriter strWriter = new StringWriter();
+	try {
+	    edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory();
+	    jaxbUtil
+		    .marshaller(of.createRequest(requestMessageType), strWriter);
+	} catch (Exception e) {
+	    log.error(e.getMessage());
+	    e.printStackTrace();
 	}
+
+	log.debug("Generated content XML request: " + strWriter.toString());
+	return strWriter.toString();
+    }
 }

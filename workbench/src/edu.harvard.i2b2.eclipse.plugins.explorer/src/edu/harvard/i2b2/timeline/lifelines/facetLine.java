@@ -18,7 +18,7 @@ import edu.harvard.i2b2.timeline.labeling.*;
 /**
  * facetLine class defines a group of events that are aligned horizontally
  */
-public class facetLine {
+public class FacetLine {
     private Vector aggregates;
     // private MyDate minDate;
     private MyDate maxDate;
@@ -39,7 +39,7 @@ public class facetLine {
 	return title;
     }
 
-    public facetLine(String title, Color backgroundColor) {
+    public FacetLine(String title, Color backgroundColor) {
 	this.backgroundColor = backgroundColor;
 	aggregates = new Vector();
 	// minDate = null;
@@ -51,14 +51,14 @@ public class facetLine {
     /**
      * Store all the events to a vector
      */
-    public void addEventObject(genRecord addThis) {
+    public void addEventObject(GenRecord addThis) {
 	aggregates.addElement(addThis);
 	if (maxDate == null || addThis.getEnddate().after(maxDate)) {
 	    maxDate = (addThis.getEnddate()).copy();
 	}
 
 	int tmp = addThis.getHeight();
-	if (((genRecord) (addThis.getGenList().get(new Integer(0))))
+	if (((GenRecord) (addThis.getGenList().get(new Integer(0))))
 		.getInputLine().indexOf("Value") >= 0) {
 	    tmp = 22;
 	}
@@ -71,7 +71,7 @@ public class facetLine {
     /**
      * Check whether the event can be fitted horizontally
      */
-    public boolean fits(genRecord thisEvent) {
+    public boolean fits(GenRecord thisEvent) {
 	if (maxDate == null)
 	    return true;
 	else {
@@ -87,18 +87,18 @@ public class facetLine {
      */
     public boolean contains(int x, int y) {
 	for (int i = 0; i < (aggregates.size()); i++) {
-	    if (((genRecord) (aggregates.elementAt(i))).contains(x, y))
+	    if (((GenRecord) (aggregates.elementAt(i))).contains(x, y))
 		return true;
 	}
 	return false;
     }
 
-    public genRecord getSelected(int x, int y) {
+    public GenRecord getSelected(int x, int y) {
 
-	genRecord temp;
+	GenRecord temp;
 
 	for (int i = 0; i < (aggregates.size()); i++) {
-	    temp = (genRecord) (aggregates.elementAt(i));
+	    temp = (GenRecord) (aggregates.elementAt(i));
 	    if (temp.contains(x, y))
 		return temp.getSelected(x, y);
 	}
@@ -109,10 +109,10 @@ public class facetLine {
      * Mark the event that contains the point (x,y)
      */
     public void select(int x, int y) {
-	genRecord temp;
+	GenRecord temp;
 
 	for (int i = 0; i < (aggregates.size()); i++) {
-	    temp = (genRecord) (aggregates.elementAt(i));
+	    temp = (GenRecord) (aggregates.elementAt(i));
 	    if (temp.contains(x, y))
 		temp.select(x, y);
 	}
@@ -129,24 +129,24 @@ public class facetLine {
     /**
      * Label all the events in the facetLine
      */
-    public boolean fitlabel(int currentY, timeLinePanel displayArea,
+    public boolean fitlabel(int currentY, TimeLinePanel displayArea,
 	    boolean backtrack) {
 
-	aggregate temp;
+	Aggregate temp;
 	boolean fit = false;
-	genRecord aGenRecord, aRecord;
+	GenRecord aGenRecord, aRecord;
 
 	for (int i = 0; i < 3; i++)
-	    lbloption[i] = record.lbloption[i];
+	    lbloption[i] = Record.lbloption[i];
 
 	if (backtrack)
 	    mark--;
 	int num = 0;
 	while (mark < aggregates.size() && mark >= 0) {
-	    temp = (aggregate) (aggregates.elementAt(mark));
+	    temp = (Aggregate) (aggregates.elementAt(mark));
 	    // 3/28/98 Don't label the ones that are not selected for search
-	    if ((temp.selected && record.searchoption_label[1])
-		    || record.searchoption_label[0]) {
+	    if ((temp.selected && Record.searchoption_label[1])
+		    || Record.searchoption_label[0]) {
 		fit = temp.fitlabel(currentY, displayArea, backtrack,
 			getHeight());
 
@@ -164,7 +164,7 @@ public class facetLine {
 		    else {
 			backtrack = true;
 			for (int i = mark + 1; i < aggregates.size(); i++)
-			    ((genRecord) (aggregates.elementAt(i)))
+			    ((GenRecord) (aggregates.elementAt(i)))
 				    .resetlabel();
 		    }
 		} else {
@@ -179,9 +179,9 @@ public class facetLine {
 	    if (num > numLabel) {
 		numLabel = num;
 		for (int i = 0; i < mark; i++) {
-		    aGenRecord = (genRecord) (aggregates.elementAt(i));
+		    aGenRecord = (GenRecord) (aggregates.elementAt(i));
 		    for (int j = 0; j < aGenRecord.getGenList().size(); j++) {
-			aRecord = (genRecord) (aGenRecord.getGenList()
+			aRecord = (GenRecord) (aGenRecord.getGenList()
 				.get(new Integer(j)));
 			aRecord.saveLabelXY();
 		    }
@@ -191,11 +191,11 @@ public class facetLine {
 	// 3/28/98 label the aggregates that have never been labeled because the
 	// previous ones cannot fit
 	for (int k = 0; k < aggregates.size(); k++) {
-	    temp = (aggregate) (aggregates.elementAt(k));
+	    temp = (Aggregate) (aggregates.elementAt(k));
 	    if (!temp.labelonce)
 		temp.fitlabel(currentY, displayArea, false, getHeight());
 	}
-	genRecord lastAgg = (genRecord) aggregates.lastElement();
+	GenRecord lastAgg = (GenRecord) aggregates.lastElement();
 	below = lastAgg.getBelow();
 	return fit;
     }
@@ -207,8 +207,8 @@ public class facetLine {
 	mark = 0;
 	numLabel = 0;
 	for (int i = 0; i < aggregates.size(); i++) {
-	    aggregate temp;
-	    temp = ((aggregate) (aggregates.elementAt(i)));
+	    Aggregate temp;
+	    temp = ((Aggregate) (aggregates.elementAt(i)));
 	    temp.numLabel = 0;
 	    temp.below = false;
 	    temp.all_labelled = true;
@@ -216,8 +216,8 @@ public class facetLine {
 	    temp.labelonce = false;
 	    temp.resetlabel();
 	    for (int j = 0; j < temp.getGenList().size(); j++) {
-		genRecord gen;
-		gen = ((genRecord) (temp.getGenList().get(new Integer(j))));
+		GenRecord gen;
+		gen = ((GenRecord) (temp.getGenList().get(new Integer(j))));
 		gen.setXOverlap(null, null);
 		gen.setVar(false, false, true);
 		gen.setLabelXY(-1, -10000);
@@ -227,9 +227,9 @@ public class facetLine {
     }
 
     public void redraw() {
-	aggregate temp;
+	Aggregate temp;
 	for (int i = 0; i < (aggregates.size()); i++) {
-	    temp = (aggregate) (aggregates.elementAt(i));
+	    temp = (Aggregate) (aggregates.elementAt(i));
 	    temp.redraw();
 	}
     }
@@ -239,8 +239,8 @@ public class facetLine {
      */
     public void setSavedLabelXY() {
 	for (int i = 0; i < aggregates.size(); i++) {
-	    genRecord temp;
-	    temp = ((genRecord) (aggregates.elementAt(i)));
+	    GenRecord temp;
+	    temp = ((GenRecord) (aggregates.elementAt(i)));
 	    temp.setSavedLabelXY();
 	}
     }
@@ -248,14 +248,14 @@ public class facetLine {
     /**
      * Draw all labels on the display
      */
-    public void drawLabel(int currentY, timeLinePanel displayArea,
+    public void drawLabel(int currentY, TimeLinePanel displayArea,
 	    boolean stream) {
-	FontMetrics fm = mainPanel.theTimeLinePanel.fontMetrics1;
-	aggregate temp;
+	FontMetrics fm = MainPanel.theTimeLinePanel.fontMetrics1;
+	Aggregate temp;
 	Graphics offScreenGraphics = displayArea.getOfg();
 	int fh = fm.getHeight() + fm.getMaxAscent() + fm.getMaxDescent();
 
-	if (record.angle_label) {
+	if (Record.angle_label) {
 	    show_labels();
 	    if (labels.isEmpty())
 		return;
@@ -264,7 +264,7 @@ public class facetLine {
 	    labels.paint(offScreenGraphics);
 	} else { // normal
 	    for (int i = 0; i < (aggregates.size()); i++) {
-		temp = (aggregate) (aggregates.elementAt(i));
+		temp = (Aggregate) (aggregates.elementAt(i));
 		temp.drawLabel(currentY, displayArea, true, true, stream);
 	    }
 	}
@@ -280,12 +280,12 @@ public class facetLine {
     /**
      * Draw all the events of the facetLine on the display
      */
-    public void drawData(int currentY, timeLinePanel displayArea,
+    public void drawData(int currentY, TimeLinePanel displayArea,
 	    boolean silhouette) {
-	aggregate temp;
+	Aggregate temp;
 
 	for (int i = 0; i < (aggregates.size()); i++) {
-	    temp = (aggregate) (aggregates.elementAt(i));
+	    temp = (Aggregate) (aggregates.elementAt(i));
 	    temp.drawData(currentY, displayArea, silhouette, true, true);
 	}
     }
@@ -295,11 +295,11 @@ public class facetLine {
      */
     public Vector rubber_band(int rubber_startX, int rubber_startY,
 	    int rubber_endX, int rubber_endY) {
-	genRecord temp;
+	GenRecord temp;
 	Vector streamlist = new Vector(), substreamlist;
 
 	for (int i = 0; i < aggregates.size(); i++) {
-	    temp = (genRecord) (aggregates.elementAt(i));
+	    temp = (GenRecord) (aggregates.elementAt(i));
 	    substreamlist = temp.rubber_band(rubber_startX, rubber_startY,
 		    rubber_endX, rubber_endY);
 	    if (!substreamlist.isEmpty()) {
@@ -314,11 +314,11 @@ public class facetLine {
      * Return the events that are inside the rubberband circle
      */
     public Vector rubber_band(int centerX, int centerY, int radius) {
-	genRecord temp;
+	GenRecord temp;
 	Vector streamlist = new Vector(), substreamlist;
 
 	for (int i = 0; i < aggregates.size(); i++) {
-	    temp = (genRecord) (aggregates.elementAt(i));
+	    temp = (GenRecord) (aggregates.elementAt(i));
 	    substreamlist = temp.rubber_band(centerX, centerY, radius);
 	    if (!substreamlist.isEmpty()) {
 		for (int j = 0; j < substreamlist.size(); j++)
@@ -349,7 +349,7 @@ public class facetLine {
     public void select(String searchString) {
 
 	for (int i = 0; i < (aggregates.size()); i++) {
-	    ((genRecord) (aggregates.elementAt(i))).select(searchString);
+	    ((GenRecord) (aggregates.elementAt(i))).select(searchString);
 	}
     }
 
@@ -359,7 +359,7 @@ public class facetLine {
     public boolean contains(String searchString) {
 
 	for (int i = 0; i < (aggregates.size()); i++) {
-	    if (((genRecord) (aggregates.elementAt(i))).contains(searchString))
+	    if (((GenRecord) (aggregates.elementAt(i))).contains(searchString))
 		return true;
 	}
 	return false;
@@ -369,18 +369,18 @@ public class facetLine {
      * Get all the labels in this facetline.
      */
     public void show_labels() {
-	aggregate aAgg;
-	storyRecord aStory;
+	Aggregate aAgg;
+	StoryRecord aStory;
 	for (int i = 0; i < aggregates.size(); i++) {
-	    aAgg = ((aggregate) (aggregates.elementAt(i)));
+	    aAgg = ((Aggregate) (aggregates.elementAt(i)));
 	    for (int j = 0; j < aAgg.getGenList().size(); j++) {
-		aStory = ((storyRecord) (aAgg.getGenList().get(new Integer(j))));
+		aStory = ((StoryRecord) (aAgg.getGenList().get(new Integer(j))));
 		if (!aStory.getCause().equals(" "))
 		    labels.addElement(new LiteLabel(aStory.getCause(),
 			    new Point(aStory.startX, aStory.startY), 0,
-			    mainPanel.theTimeLinePanel.font1, Color.black,
+			    MainPanel.theTimeLinePanel.font1, Color.black,
 			    backgroundColor, degree,
-			    mainPanel.theTimeLinePanel.thisApplet));
+			    MainPanel.theTimeLinePanel.thisApplet));
 	    }
 	}
     }

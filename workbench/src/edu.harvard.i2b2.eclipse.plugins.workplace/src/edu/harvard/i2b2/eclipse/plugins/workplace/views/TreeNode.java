@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -26,7 +26,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.eclipse.plugins.workplace.util.MessageUtil;
 import edu.harvard.i2b2.eclipse.plugins.workplace.util.StringUtil;
+import edu.harvard.i2b2.eclipse.plugins.workplace.ws.AddChildRequestMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.AnnotateChildResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.DeleteChildResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.GetChildrenResponseMessage;
@@ -36,6 +38,7 @@ import edu.harvard.i2b2.eclipse.plugins.workplace.ws.WorkplaceResponseData;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.WorkplaceResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.WorkplaceServiceDriver;
 import edu.harvard.i2b2.wkplclient.datavo.i2b2message.StatusType;
+import edu.harvard.i2b2.wkplclient.datavo.wdo.XmlValueType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.AnnotateChildType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.ChildType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.DeleteChildType;
@@ -521,9 +524,10 @@ public class TreeNode
 		
 		String newName = null;
 		InputDialog inputDialog = null;
-		if(theNode.getData().getName().equals("New Folder")){
+		if(theNode.getData().getVisualAttributes().startsWith("F")){
+//		if(theNode.getData().getName().equals("New Folder")){
 			inputDialog = new InputDialog(theDisplay.getActiveShell(), 
-					"New Folder Dialog", "Name this folder: ",
+					"Rename Folder Dialog", "Rename this folder to: ",
 					theNode.getData().getName(), null);
 		}
 		else {
@@ -557,6 +561,7 @@ public class TreeNode
 	
 	public void rename(final Display theDisplay, final TreeViewer theViewer, final String theNewName)
 	{
+		XmlValueType newWorkXml = null;
 		try {
 			RenameChildResponseMessage msg = new RenameChildResponseMessage();
 			StatusType procStatus = null;	
@@ -565,6 +570,8 @@ public class TreeNode
 				RenameChildType childType = new RenameChildType();
 				childType.setNode("\\\\" + this.getData().getTableCd() +  "\\" + this.getData().getIndex());
 				childType.setName(theNewName);
+				newWorkXml = updateWorkXml(theNewName);
+				childType.setWorkXml(newWorkXml);
 				String response = WorkplaceServiceDriver.renameChild(childType);
 				
 				procStatus = msg.processResult(response);
@@ -585,7 +592,10 @@ public class TreeNode
 				}			
 			}
 			this.getData().setName(theNewName);
-			if((this.getData().getWorkXmlI2B2Type().equals("CONCEPT"))) {
+			if (newWorkXml != null)
+				this.getData().setWorkXml(newWorkXml);
+			/*  old code before rename fix
+			 * if((this.getData().getWorkXmlI2B2Type().equals("CONCEPT"))) {
 				Element rootElement = this.getData().getWorkXml().getAny().get(0);
 				NodeList nameElements = rootElement.getElementsByTagName("name");
 				nameElements.item(0).setTextContent(theNewName);	   
@@ -594,6 +604,7 @@ public class TreeNode
 				if(synonymElements.item(0) != null)
 					synonymElements.item(0).setTextContent("Y");
 			}
+			*/
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
 			theDisplay.syncExec(new Runnable() {
@@ -620,6 +631,55 @@ public class TreeNode
 				}
 			});			
 		}
+	}
+	
+	private XmlValueType updateWorkXml(String newName)
+	{
+		if(this.getData().getWorkXml() == null)
+			return null;
+		if((this.getData().getWorkXmlI2B2Type().equals("CONCEPT"))) {
+			Element rootElement = this.getData().getWorkXml().getAny().get(0);
+			NodeList nameElements = rootElement.getElementsByTagName("name");
+			nameElements.item(0).setTextContent(newName);	   
+
+			NodeList synonymElements = rootElement.getElementsByTagName("synonym_cd");
+			if(synonymElements.item(0) != null)
+				synonymElements.item(0).setTextContent("Y");
+		}
+		else if((this.getData().getWorkXmlI2B2Type().equals("PATIENT_COLL"))) {
+			Element rootElement = this.getData().getWorkXml().getAny().get(0);
+			NodeList descriptionElements = rootElement.getElementsByTagName("description");
+			descriptionElements.item(0).setTextContent(newName);	
+		}
+		else {
+	    	Element rootElement = this.getData().getWorkXml().getAny().get(0);
+	    	NodeList nameElements = rootElement.getElementsByTagName("name");
+	    	// Group templates dont have tag 'name'
+	    	if (nameElements.getLength() == 0){
+	    		nameElements = rootElement.getElementsByTagNameNS("*", "panel");
+	    		if (nameElements.getLength() == 0){
+	    			nameElements = rootElement.getElementsByTagName("query_name");
+	    			if (nameElements.getLength() == 0){
+	    	    		// if we get to here and no name has been found then its a PDO.
+	    				// return generically -- change to obs or event etc one level up.
+	    				return this.getData().getWorkXml();
+	    			} 
+	    			// query_name
+	    			else {
+	    				 nameElements.item(0).setTextContent(newName);
+	    			}
+	    		}
+	    		//panel / template name
+	    		else {
+	    			nameElements.item(0).getAttributes().getNamedItem("name").setNodeValue(newName);
+	    		}
+	    	}
+	    	// prev query name
+	    	else
+	    		nameElements.item(0).setTextContent(newName);	
+	    }
+	
+		return this.getData().getWorkXml();
 	}
 	
 	public Thread annotateNode(TreeViewer viewer) {
@@ -722,6 +782,21 @@ public class TreeNode
 		final Display theDisplay = Display.getCurrent();
 			
 	//	log.info(newName);
+		
+		if((theNode.getData().getName().equals("New Folder")) &&
+				(theNode.getData().getVisualAttributes().equals("FA"))){
+			InputDialog inputDialog = new InputDialog(theDisplay.getActiveShell(), 
+					"New Folder Dialog", "Name this folder: ",
+					theNode.getData().getName(), null);
+
+
+			if(inputDialog.open() == Window.OK){
+				String newName = inputDialog.getValue();
+				this.getData().setName(newName);
+				this.getData().setTooltip("FOLDER: " + newName);
+
+			}
+		}
 
 		return new Thread() {
 			public void run(){
@@ -810,6 +885,90 @@ public class TreeNode
 			});			
 		}
 	}
+	public void copyChildren(String indexShare) {
+		// indexShare contains "index,shareId" of folder we are copying to
+		String[] nodeInfo = indexShare.split(",");
 
+		// Get the children of the node we are copying from 	
+		List<TreeNode> children = getChildren();
+		Iterator i = children.iterator();
+		while(i.hasNext()){
+			TreeNode childNode = (TreeNode)(i.next());
+			childNode.getData().setIndex(new AddChildRequestMessage().generateMessageId());
+			childNode.getData().setParentIndex(nodeInfo[0]);
+			childNode.getData().setShareId(nodeInfo[1]);
+			childNode.addChild().start();
+			if(childNode.getData().getVisualAttributes().startsWith("F"))
+				// set up folder with placeholder child so display is correct
+				if((childNode.getData().getVisualAttributes().equals("FA")) )  
+    			{
+    				TreeNode placeholder = new TreeNode("working...", "working...", "LAO");
+    				childNode.addChild(placeholder);
+    			
+    			}
+    			else if	((childNode.getData().getVisualAttributes().equals("FH")) )
+    			{
+    				TreeNode placeholder = new TreeNode("working...", "working...", "LHO");
+    				childNode.addChild(placeholder);
+    			
+    			}
+				childNode.copyChildren(childNode.getData().getIndex());
+		}
+		
+	}
+	
+	public Thread addChild(){
+		final TreeNode theNode = this;
+		return new Thread() {
+			public void run(){
+				try {
+					theNode.add();
+				} catch (Exception e) {
+					log.error("Copy children error");					
+				}
+			}
+		};
+	}
+	public void add()
+	{
+		try {
+			WorkplaceResponseMessage msg = new WorkplaceResponseMessage();
+			StatusType procStatus = null;	
+			while(procStatus == null || !procStatus.getType().equals("DONE")){
+				FolderType childType = new FolderType();
+				childType.setName(this.getData().getName());
+				childType.setGroupId(this.getData().getGroupId());
+				childType.setIndex(this.getData().getIndex());
+				childType.setParentIndex("\\\\" + this.getData().getTableCd() + "\\" + this.getData().getParentIndex());
+				childType.setTooltip(this.getData().getTooltip());
+				childType.setUserId(this.getData().getUserId());
+				childType.setVisualAttributes(this.getData().getVisualAttributes());
+				childType.setWorkXml(this.getData().getWorkXml());
+				childType.setWorkXmlI2B2Type(this.getData().getWorkXmlI2B2Type());
+				childType.setShareId(this.getData().getShareId());
+				childType.setWorkXmlSchema(this.getData().getWorkXmlSchema());
+				childType.setEntryDate(null);
+				childType.setChangeDate(null);
+				childType.setStatusCd(null);
+				
+				String response = WorkplaceServiceDriver.addChild(childType);
+				
+				procStatus = msg.processResult(response);
+//				else if  other error codes
+//				TABLE_ACCESS_DENIED and USER_INVALID and DATABASE ERRORS
+				if (procStatus.getType().equals("ERROR")){		
+					log.error(procStatus.getValue());				
+					return;
+				}			
+			}
+		} catch (AxisFault e) {
+			log.error("Unable to make a connection to the remote server\n" +  
+			"This is often a network error, please try again");
+			
+		} catch (Exception e) {
+			log.error("Error message delivered from the remote server\n" +  
+					"You may wish to retry your last action");		
+		}
+	}
 
 }

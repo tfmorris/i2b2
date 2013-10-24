@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+* Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+* are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
@@ -20,10 +20,10 @@ import edu.harvard.i2b2.common.exception.I2B2Exception;
 //import edu.harvard.i2b2.navigator.LoginDHelper;
 import edu.harvard.i2b2.explorer.security.HighEncryption;
 
-public class noteCryptUtil {
+public class NoteCryptUtil {
 
 	private HighEncryption notesHighEnc = null;
-	private static final Log log = LogFactory.getLog(noteCryptUtil.class);
+	private static final Log log = LogFactory.getLog(NoteCryptUtil.class);
 	
 	/**
 	 * Default note key.
@@ -36,7 +36,7 @@ public class noteCryptUtil {
 	 * Default key is used for empi and encounter encryption. 
 	 * @param notesKey
 	 */
-	public noteCryptUtil(String notesKey)  {
+	public NoteCryptUtil(String notesKey)  {
 		this.notesKey = notesKey;
 		initHighEncrypt();
 	}

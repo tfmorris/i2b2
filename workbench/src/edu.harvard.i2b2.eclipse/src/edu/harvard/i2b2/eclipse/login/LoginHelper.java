@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+* Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+* are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -20,6 +20,8 @@ package edu.harvard.i2b2.eclipse.login;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.StringReader;
+import java.util.Calendar;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
@@ -49,6 +51,7 @@ import edu.harvard.i2b2.eclipse.login.ws.GetUserConfigurationRequestMessage;
 import edu.harvard.i2b2.eclipse.login.ws.PmServiceClient;
 import edu.harvard.i2b2.eclipse.util.Messages;
 import edu.harvard.i2b2.pm.datavo.i2b2message.BodyType;
+import edu.harvard.i2b2.pm.datavo.pm.PasswordType;
 import edu.harvard.i2b2.pm.datavo.pm.ConfigureType;
 import edu.harvard.i2b2.pm.datavo.pm.ParamType;
 //import edu.harvard.i2b2.pm.datavo.pm.ResponseType;
@@ -131,7 +134,7 @@ public class LoginHelper {
 	 * @return A String containing the PM web service response 
 	 */
 
-	public  UserInfoBean getUserInfo(String userid, String password, String projectID, String project, boolean demo) throws Exception{
+	public  UserInfoBean getUserInfo(String userid, PasswordType password, String projectID, String project, boolean demo) throws Exception{
 		String response = null;
 		try {
 			GetUserConfigurationRequestMessage reqMsg = new GetUserConfigurationRequestMessage(userid, password, project);
@@ -157,11 +160,19 @@ public class LoginHelper {
 				}
 				if(response == null)
 					log.info("no pm response received"); //$NON-NLS-1$
-				if (response != null) {					
+				if (response != null) {				
+					if (userInfoBean != null)
+						userInfoBean.setUserName(null);
 					setUserInfo(response);
-					userInfoBean.setUserPassword(password);
-					System.setProperty("user", userid); //$NON-NLS-1$
-					System.setProperty("pass", password); //$NON-NLS-1$
+					//userInfoBean.setOrigPassword(password.getValue());
+					UserInfoBean.setSelectedProjectUrl(projectID);
+					UserInfoBean.setLastActivityTime(Calendar.getInstance().getTime());
+					if (UserInfoBean.getScreenSaverTimer() == null)
+						UserInfoBean.setScreenSaverTimer(Calendar.getInstance().getTime());
+
+					//userInfoBean.setUserPassword(password);
+					//System.setProperty("user", userid); //$NON-NLS-1$
+					//System.setProperty("pass", password); //$NON-NLS-1$
 				}
 			}
 		} catch (AxisFault e) {
@@ -283,6 +294,7 @@ public class LoginHelper {
 			userInfoBean.setUserName(response.getUser().getUserName());
 			userInfoBean.setUserFullName(response.getUser().getFullName());
 			userInfoBean.setUserPassword(response.getUser().getPassword());
+			userInfoBean.setUserKey(response.getUser().getKey());
 			userInfoBean.setUserDomain(response.getUser().getDomain());
 			userInfoBean.setHelpURL(response.getHelpURL());
 

@@ -14,7 +14,7 @@ package edu.harvard.i2b2.timeline.lifelines;
 import java.awt.*;
 import java.net.*;
 
-public class currPanel extends Panel {
+public class CurrPanel extends Panel {
 
     private int width, height;
     public URLConnection hcilCon;
@@ -23,14 +23,14 @@ public class currPanel extends Panel {
     protected FontMetrics fontMetrics = getFontMetrics(font);
 
     private Button load;
-    private record theApplet;
-    private enterField fileEntry;
+    private Record theApplet;
+    private EnterField fileEntry;
     private Button control;
     public ControlPanel ctrlpanel;
     private Button grep;
     private TextField grepEntry;
 
-    public currPanel(int width, int height, record theApplet) {
+    public CurrPanel(int width, int height, Record theApplet) {
 	this.width = width;
 	this.height = height;
 
@@ -53,7 +53,7 @@ public class currPanel extends Panel {
 	// ,(int)(3.0*height/5.0));
 	// add(control);
 
-	fileEntry = new enterField();
+	fileEntry = new EnterField();
 	fileEntry.setApplet(theApplet);
 	// add(fileEntry);
 	//fileEntry.setBounds((int)(width*0.1),(int)(height/5.0),(int)(width*0.1
@@ -81,13 +81,13 @@ public class currPanel extends Panel {
 	// to fix extra loading problem
 
 	if (e.target == grep) {
-	    mainPanel.theTimeLinePanel.search = true;
-	    mainPanel.theTimeLinePanel.grep(grepEntry.getText());
+	    MainPanel.theTimeLinePanel.search = true;
+	    MainPanel.theTimeLinePanel.grep(grepEntry.getText());
 	}
 
 	if (e.target == load) {
 	    System.out.println("before loadrecord");
-	    record.theData = new loadRecord(theApplet.getCodeBase()
+	    Record.theData = new LoadRecord(theApplet.getCodeBase()
 		    + fileEntry.getText(), "none");
 	    System.out.println("after loadrecord");
 	    theApplet.resetTabPanel();

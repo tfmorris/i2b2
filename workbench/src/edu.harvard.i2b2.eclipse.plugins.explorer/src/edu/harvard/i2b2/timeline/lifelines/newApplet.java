@@ -9,7 +9,7 @@
  */
 package edu.harvard.i2b2.timeline.lifelines;
 
-public interface newApplet {
+public interface NewApplet {
 
     // show a string on the status line
     public void showStatus(String aStatus);

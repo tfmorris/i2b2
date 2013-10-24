@@ -19,7 +19,7 @@ import java.awt.*;
  * and medical for personal data, or into further specifics such as physician
  * visits, hospitalizations, medications, and lab tests.
  */
-public class facet extends Panel {
+public class Facet extends Panel {
     // private String token;
     private Hashtable facetList;
     private Vector facetLines;
@@ -44,7 +44,7 @@ public class facet extends Panel {
 	return currentRect;
     }
 
-    public facet(String token, Hashtable facetList, Color backgroundColor,
+    public Facet(String token, Hashtable facetList, Color backgroundColor,
 	    boolean openFacet) { // last part
 	// of argumemt list added 1/12/98 by dan, note Color is used not MyColor
 	// (as in loadRecord)
@@ -80,7 +80,7 @@ public class facet extends Panel {
      * Store all the events to a vector so that events can be later laid out in
      * different ways
      */
-    public void addEventObject(genRecord addThis) {
+    public void addEventObject(GenRecord addThis) {
 	if (orig_aggregates == null)
 	    orig_aggregates = new Vector();
 	orig_aggregates.addElement(addThis);
@@ -91,18 +91,18 @@ public class facet extends Panel {
      */
     @Override
     public void layout() {
-	aggregate addThis = null;
+	Aggregate addThis = null;
 	facetLines = null;
 
-	if (record.timeoption[1]) {
+	if (Record.timeoption[1]) {
 	    if (rt_aggregates == null)
 		rt_aggregates = orig_aggregates;
-	    if (record.option[3] || record.option[2])
+	    if (Record.option[3] || Record.option[2])
 		aggregates = timeOrder(rt_aggregates);
 	    else
 		aggregates = rt_aggregates;
 	} else {
-	    if (record.option[3] || record.option[2])
+	    if (Record.option[3] || Record.option[2])
 		aggregates = timeOrder(orig_aggregates);
 	    else
 		aggregates = orig_aggregates;
@@ -110,22 +110,22 @@ public class facet extends Panel {
 
 	if (aggregates != null) {
 	    for (int v = 0; v < aggregates.size(); v++) {
-		addThis = (aggregate) aggregates.elementAt(v);
-		facetLine temp = null;
+		addThis = (Aggregate) aggregates.elementAt(v);
+		FacetLine temp = null;
 
-		if ((record.searchoption_timeline[1]) ? addThis.selected : true) {
+		if ((Record.searchoption_timeline[1]) ? addThis.selected : true) {
 		    if (facetLines == null) {
-			if (record.comments) { // if statement: 1/6/98
+			if (Record.comments) { // if statement: 1/6/98
 			    addThis.getStartdate().print();
 			    System.out.println("new timeline");
 			}
 			facetLines = new Vector();
-			temp = new facetLine(title, backgroundColor);
+			temp = new FacetLine(title, backgroundColor);
 			facetLines.addElement(temp);
-			if (record.option[4])
+			if (Record.option[4])
 			    temp.setLabelString(addThis.getLabelString());
 		    } else {
-			if (record.option[1] || record.option[2]) { // compact
+			if (Record.option[1] || Record.option[2]) { // compact
 								    // the
 								    // timelines
 								    // to the
@@ -138,11 +138,11 @@ public class facet extends Panel {
 							  // the for loop
 			    int i = 0;
 			    forloop: for (i = 0; i < size; i++) {
-				temp = (facetLine) (facetLines.elementAt(i));
+				temp = (FacetLine) (facetLines.elementAt(i));
 				if (temp.fits(addThis)) { // if current event
 							  // fits the row, it
 							  // will be added
-				    if (record.comments) { // if statement:
+				    if (Record.comments) { // if statement:
 							   // 1/6/98
 					addThis.getStartdate().print();
 					System.out.println("fit timeline " + i);
@@ -151,16 +151,16 @@ public class facet extends Panel {
 				}
 			    }
 			    if (i == size) { // start a new row
-				temp = new facetLine(title, backgroundColor);
-				if (record.comments) { // if statement added
+				temp = new FacetLine(title, backgroundColor);
+				if (Record.comments) { // if statement added
 						       // 1/6/98
 				    addThis.getStartdate().print();
 				    System.out.println("new timeline");
 				}
 				facetLines.addElement(temp);
 			    }
-			} else if (record.option[3]) { // time_ordered
-			    temp = new facetLine(title, backgroundColor);
+			} else if (Record.option[3]) { // time_ordered
+			    temp = new FacetLine(title, backgroundColor);
 			    // if(record.comments) { // if statement added
 			    // 1/6/98
 			    if (title.equals("Tests")) {
@@ -168,25 +168,25 @@ public class facet extends Panel {
 				// System.out.println("new timeline");
 			    }
 			    facetLines.addElement(temp);
-			} else if (record.option[4]) { // agg_ordered
+			} else if (Record.option[4]) { // agg_ordered
 			    // System.out.println(addThis.getLabelString());
 			    int size = facetLines.size();
 			    int i = 0;
 			    forloop: for (i = 0; i < size; i++) {
-				temp = (facetLine) (facetLines.elementAt(i));
+				temp = (FacetLine) (facetLines.elementAt(i));
 				if (!temp.getLabelString().equals("")
 					&& temp.getLabelString().equals(
 						addThis.getLabelString())) {
 				    if (temp.fits(addThis)) {
-					if (record.comments) {
+					if (Record.comments) {
 					    addThis.getStartdate().print();
 					    System.out.println("fit timeline "
 						    + i);
 					}
 				    } else {
-					temp = new facetLine(title,
+					temp = new FacetLine(title,
 						backgroundColor);
-					if (record.comments) {
+					if (Record.comments) {
 					    addThis.getStartdate().print();
 					    System.out.println("new timeline");
 					}
@@ -201,21 +201,21 @@ public class facet extends Panel {
 				}
 			    }
 			    if (i == size) { // start a new row
-				temp = new facetLine(title, backgroundColor);
-				if (record.comments) {
+				temp = new FacetLine(title, backgroundColor);
+				if (Record.comments) {
 				    addThis.getStartdate().print();
 				    System.out.println("new timeline");
 				}
 				facetLines.addElement(temp);
 			    }
-			} else if (record.option[0]) { // only see whether the
+			} else if (Record.option[0]) { // only see whether the
 						       // event fits the current
 						       // row or not
-			    if (record.comments)
+			    if (Record.comments)
 				System.out.println("normal");
-			    temp = (facetLine) (facetLines.lastElement());
+			    temp = (FacetLine) (facetLines.lastElement());
 			    if (!temp.fits(addThis)) {
-				temp = new facetLine(title, backgroundColor); // added
+				temp = new FacetLine(title, backgroundColor); // added
 									      // back
 									      // in
 									      // 12
@@ -232,7 +232,7 @@ public class facet extends Panel {
 		    }
 		    temp.addEventObject(addThis); // add the event to the
 						  // current row
-		    if (record.option[4] && addThis.getLabelString() != null)
+		    if (Record.option[4] && addThis.getLabelString() != null)
 			temp.setLabelString(addThis.getLabelString());
 		}
 	    } // for loop
@@ -244,16 +244,16 @@ public class facet extends Panel {
      */
     public Vector timeOrder(Vector aggregates) {
 	Vector newagg = new Vector();
-	genRecord aggOrdered;
+	GenRecord aggOrdered;
 	for (int i = 0; i < aggregates.size(); i++) {
-	    genRecord aggThis = (genRecord) aggregates.elementAt(i);
+	    GenRecord aggThis = (GenRecord) aggregates.elementAt(i);
 	    boolean insert = false;
 	    int j = 0;
 	    while (j < i && !insert) {
 		if (j == 0)
-		    aggOrdered = (genRecord) aggregates.elementAt(j);
+		    aggOrdered = (GenRecord) aggregates.elementAt(j);
 		else
-		    aggOrdered = (genRecord) newagg.elementAt(j);
+		    aggOrdered = (GenRecord) newagg.elementAt(j);
 		if (aggThis.getStartdate().before(aggOrdered.getStartdate())) {
 		    newagg.insertElementAt(aggThis, j);
 		    insert = true;
@@ -269,16 +269,16 @@ public class facet extends Panel {
     /**
      * Draw the facet on the display
      */
-    public void draw(int currentY, timeLinePanel displayPanel,
+    public void draw(int currentY, TimeLinePanel displayPanel,
 	    boolean relabeling, boolean slide, boolean stream, boolean data,
 	    boolean label) {
 
 	if (enabled) {
-	    if (record.timeoption[1] && slide) {
+	    if (Record.timeoption[1] && slide) {
 		rt_aggregates = new Vector();
-		aggregate thisagg;
+		Aggregate thisagg;
 		for (int i = 0; i < orig_aggregates.size(); i++) {
-		    thisagg = (aggregate) orig_aggregates.elementAt(i);
+		    thisagg = (Aggregate) orig_aggregates.elementAt(i);
 		    if (!displayPanel.offScale(thisagg)) { // Otherwise, don't
 							   // consider
 			//thisagg.setStartdate(displayPanel.scaleMin((genRecord)
@@ -293,13 +293,13 @@ public class facet extends Panel {
 		// System.out.println("re layout");
 	    }
 
-	    if (record.searchoption_timeline[1]
-		    && mainPanel.theTimeLinePanel.search) {
+	    if (Record.searchoption_timeline[1]
+		    && MainPanel.theTimeLinePanel.search) {
 		this.layout();
 		// System.out.println("re layout");
 	    }
 
-	    facetLine temp;
+	    FacetLine temp;
 	    Graphics g = displayPanel.getOfg();
 	    int[] xCoordinates = { 1, 5, 10 };
 	    int[] yCoordinates = { currentY + 2, currentY + 12, currentY + 2 };
@@ -325,7 +325,7 @@ public class facet extends Panel {
 							// .theTimeLinePanel
 							// .search)) // 3/28/98
 		    for (int i = 0; i < facetLines.size(); i++) {
-			temp = (facetLine) (facetLines.elementAt(i));
+			temp = (FacetLine) (facetLines.elementAt(i));
 			// don't consider cross facetlines
 			temp.resetlabel();
 
@@ -355,9 +355,9 @@ public class facet extends Panel {
 
 		for (int i = 0; i < facetLines.size(); i++) {
 
-		    temp = (facetLine) (facetLines.elementAt(i));
+		    temp = (FacetLine) (facetLines.elementAt(i));
 
-		    if ((record.lbloption[1] || record.lbloption[2])
+		    if ((Record.lbloption[1] || Record.lbloption[2])
 			    && !temp.fitlbl) {
 			// later, adjust timeline
 			temp.setSavedLabelXY();
@@ -384,13 +384,13 @@ public class facet extends Panel {
 		    .getFullWidth(), getHeight() + 5);
 	    g.drawString(title, 15, currentY + 12);
 
-	    facetLine temp;
+	    FacetLine temp;
 	    if (facetLines != null) { // might be because of sliding
 		for (int i = 0; i < facetLines.size(); i++) {
-		    temp = (facetLine) (facetLines.elementAt(i));
+		    temp = (FacetLine) (facetLines.elementAt(i));
 		    if (data)
 			temp.drawData(currentY, displayPanel, true);
-		    currentY += record.SILPIXEL;
+		    currentY += Record.SILPIXEL;
 		}
 	    }
 	    g.setColor(Color.black);
@@ -406,7 +406,7 @@ public class facet extends Panel {
 	    return false;
 
 	for (int i = 0; i < facetLines.size(); i++) {
-	    if (((facetLine) (facetLines.elementAt(i))).contains(x, y))
+	    if (((FacetLine) (facetLines.elementAt(i))).contains(x, y))
 		return true;
 	}
 	return false;
@@ -416,10 +416,10 @@ public class facet extends Panel {
      * Check whether any event contains the search string
      */
     public boolean contains(String searchString) {
-	facetLine temp;
+	FacetLine temp;
 
 	for (int i = 0; i < facetLines.size(); i++) {
-	    temp = (facetLine) (facetLines.elementAt(i));
+	    temp = (FacetLine) (facetLines.elementAt(i));
 
 	    if (temp.contains(searchString))
 		return true;
@@ -431,22 +431,22 @@ public class facet extends Panel {
      * Returns the event if the point (x,y) falls inside the region of the event
      * or its corrsponding label Otherwise, return null.
      */
-    public genRecord inRegion(int x, int y, boolean data, boolean label,
+    public GenRecord inRegion(int x, int y, boolean data, boolean label,
 	    int distance) {
 	double minDis = Integer.MAX_VALUE;
-	storyRecord selectedRecord = null;
+	StoryRecord selectedRecord = null;
 	if (facetLines == null) {
 	    return null;
 	}
 
 	for (int i = 0; i < facetLines.size(); i++) {
-	    facetLine tempFacetLine = (facetLine) (facetLines.elementAt(i));
+	    FacetLine tempFacetLine = (FacetLine) (facetLines.elementAt(i));
 	    String title = tempFacetLine.getTitle();
 	    for (int j = 0; j < tempFacetLine.getAggregates().size(); j++) {
-		aggregate tempAgg = (aggregate) (tempFacetLine.getAggregates()
+		Aggregate tempAgg = (Aggregate) (tempFacetLine.getAggregates()
 			.elementAt(j));
 		for (int k = 0; k < tempAgg.getAllRecords().size(); k++) {
-		    storyRecord tempStory = (storyRecord) (tempAgg
+		    StoryRecord tempStory = (StoryRecord) (tempAgg
 			    .getAllRecords().elementAt(k));
 		    Rectangle dataRect = tempStory.getBarArea();
 		    Rectangle labelRect = tempStory.getLabelArea();
@@ -482,12 +482,12 @@ public class facet extends Panel {
 	    return null;
     }
 
-    public genRecord getSelected(int x, int y) {
+    public GenRecord getSelected(int x, int y) {
 
-	facetLine temp;
+	FacetLine temp;
 
 	for (int i = 0; i < facetLines.size(); i++) {
-	    temp = (facetLine) (facetLines.elementAt(i));
+	    temp = (FacetLine) (facetLines.elementAt(i));
 	    if (temp.contains(x, y))
 		return temp.getSelected(x, y);
 	}
@@ -498,10 +498,10 @@ public class facet extends Panel {
      * Mark the event that contains the point (x,y)
      */
     public void select(int x, int y) {
-	facetLine temp;
+	FacetLine temp;
 
 	for (int i = 0; i < facetLines.size(); i++) {
-	    temp = (facetLine) (facetLines.elementAt(i));
+	    temp = (FacetLine) (facetLines.elementAt(i));
 	    if (temp.contains(x, y))
 		temp.select(x, y);
 	}
@@ -511,13 +511,13 @@ public class facet extends Panel {
 
 	currentRect = new Rectangle(-1, -1, -1, -1);
 
-	facetLine temp;
+	FacetLine temp;
 	if (facetLines == null) {
 	    return;
 	}
 
 	for (int i = 0; i < facetLines.size(); i++) {
-	    temp = (facetLine) (facetLines.elementAt(i));
+	    temp = (FacetLine) (facetLines.elementAt(i));
 	    temp.redraw();
 	}
     }
@@ -527,11 +527,11 @@ public class facet extends Panel {
      */
     public Vector rubber_band(int rubber_startX, int rubber_startY,
 	    int rubber_endX, int rubber_endY) {
-	facetLine temp;
+	FacetLine temp;
 	Vector streamlist = new Vector(), substreamlist;
 
 	for (int i = 0; i < facetLines.size(); i++) {
-	    temp = (facetLine) (facetLines.elementAt(i));
+	    temp = (FacetLine) (facetLines.elementAt(i));
 	    substreamlist = temp.rubber_band(rubber_startX, rubber_startY,
 		    rubber_endX, rubber_endY);
 	    if (!substreamlist.isEmpty()) {
@@ -546,11 +546,11 @@ public class facet extends Panel {
      * Return the events that are inside the rubberband circle
      */
     public Vector rubber_band(int centerX, int centerY, int radius) {
-	facetLine temp;
+	FacetLine temp;
 	Vector streamlist = new Vector(), substreamlist;
 
 	for (int i = 0; i < facetLines.size(); i++) {
-	    temp = (facetLine) (facetLines.elementAt(i));
+	    temp = (FacetLine) (facetLines.elementAt(i));
 	    substreamlist = temp.rubber_band(centerX, centerY, radius);
 	    if (!substreamlist.isEmpty()) {
 		for (int j = 0; j < substreamlist.size(); j++)
@@ -567,15 +567,15 @@ public class facet extends Panel {
     public int getHeight() {
 
 	int height = 0;
-	facetLine temp;
+	FacetLine temp;
 
 	if (facetLines != null) {
 	    for (int i = 0; i < facetLines.size(); i++) {
-		temp = (facetLine) (facetLines.elementAt(i));
+		temp = (FacetLine) (facetLines.elementAt(i));
 		if (enabled)
 		    height += temp.getHeight() + ((temp.below) ? 15 : 7);
 		else
-		    height += record.SILPIXEL;
+		    height += Record.SILPIXEL;
 	    }
 	} else
 	    height += 12;
@@ -636,10 +636,10 @@ public class facet extends Panel {
      */
     public void select(String searchString) {
 	// 3/28/98 Need to re_layout because facetLines only contain result set
-	if (record.searchoption_timeline[1]) {
+	if (Record.searchoption_timeline[1]) {
 	    if (remove_count > 0) {
 		for (int v = 0; v < aggregates.size(); v++) {
-		    aggregate addThis = (aggregate) aggregates.elementAt(v);
+		    Aggregate addThis = (Aggregate) aggregates.elementAt(v);
 		    addThis.selected = true;
 		}
 		this.layout();
@@ -647,9 +647,9 @@ public class facet extends Panel {
 	    remove_count++;
 	}
 
-	facetLine temp;
+	FacetLine temp;
 	for (int i = 0; i < facetLines.size(); i++) {
-	    temp = (facetLine) (facetLines.elementAt(i));
+	    temp = (FacetLine) (facetLines.elementAt(i));
 	    temp.select(searchString);
 	}
     }

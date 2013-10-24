@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
+ * 
+ * 
  * 
  * Contributors:
  * 		Raj Kuttan
@@ -26,6 +28,7 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.query.data.Messages;
 import edu.harvard.i2b2.query.datavo.QueryJAXBUtil;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.PasswordType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ApplicationType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.FacilityType;
@@ -89,7 +92,12 @@ abstract public class OntologyRequestData {
 		SecurityType secType = new SecurityType();
 		secType.setDomain(UserInfoBean.getInstance().getUserDomain());
 		secType.setUsername(UserInfoBean.getInstance().getUserName());
-		secType.setPassword(UserInfoBean.getInstance().getUserPassword());
+		PasswordType ptype = new PasswordType();
+		ptype.setIsToken(UserInfoBean.getInstance().getUserPasswordIsToken());
+		ptype.setTokenMsTimeout(UserInfoBean.getInstance().getUserPasswordTimeout());
+		ptype.setValue(UserInfoBean.getInstance().getUserPassword());
+
+		secType.setPassword(ptype);
 		messageHeader.setSecurity(secType);
 		
 		MessageControlIdType mcIdType = new MessageControlIdType();

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+* Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+* are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -18,6 +18,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.Timer;
 
 import javax.xml.bind.JAXBElement;
 
@@ -25,7 +26,6 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.commons.logging.*;
 import org.eclipse.swt.*;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
@@ -37,6 +37,7 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.eclipse.util.Messages;
 import edu.harvard.i2b2.eclipse.util.ProjectManagementJAXBUtil;
+import edu.harvard.i2b2.pm.datavo.pm.PasswordType;
 
 //import edu.harvard.i2b2.common.pm.UserInfoBean;
 
@@ -197,6 +198,12 @@ public class LoginDialog extends Dialog {
 	private void createContents(final Shell shell) {
 		shell.setLayout(null);
 
+		///Cancel the reaunthentication timer while dialog is showing
+		    //           Timer t=UserInfoBean.getReauthenticationTimer();
+		      //         if(t!=null)
+		        //               t.cancel(); 
+
+		
 		// row for login message
 		final Label labelMsg = new Label(shell, SWT.CENTER | SWT.SHADOW_NONE | SWT.WRAP);
 		labelMsg.setText(Messages.getString("HiveLoginDialog.EnterCredential")); //$NON-NLS-1$
@@ -254,9 +261,9 @@ public class LoginDialog extends Dialog {
 						if (propertyValue.length > 2){
 							Project prj = new Project();
 							prj.setId(propertyName);
-							prj.setName(propertyValue[0]);
-							prj.setMethod(propertyValue[1]);
-							prj.setUrl(propertyValue[2]);
+							prj.setName(propertyValue[0].trim());
+							prj.setMethod(propertyValue[1].trim());
+							prj.setUrl(propertyValue[2].trim());
 							projects.add(prj);
 							if (currentPrj == null)
 								currentPrj = projects.get(0);
@@ -449,8 +456,12 @@ public class LoginDialog extends Dialog {
 				if(demoOnly.getSelection() == true) {
 
 					//labelMsg.setText("Logging in ...");
+					PasswordType ptype = new PasswordType();
+					ptype.setValue(textPassword.getText());
+					ptype.setIsToken(false);
+					
 					LoginThread loginThread = new LoginThread(textUser.getText()
-							.trim(), textPassword.getText(),
+							.trim(), ptype,
 							currentPrj.getUrl(),
 							// (String) pmAddresses.get(projectCombo.getText()),
 							projectCombo.getText(), true);
@@ -532,8 +543,12 @@ public class LoginDialog extends Dialog {
 
 					//create thread for web call - populates UserInfo object
 					//labelMsg.setText("Logging in ...");
+					PasswordType ptype = new PasswordType();
+					ptype.setValue(textPassword.getText());
+					ptype.setIsToken(false);
+					
 					LoginThread loginThread = new LoginThread(textUser.getText()
-							.trim(), textPassword.getText(),
+							.trim(), ptype,
 							currentPrj.getUrl(),
 							//(String) pmAddresses.get(projectCombo.getText()), 
 							projectCombo.getText(), false);
@@ -561,6 +576,23 @@ public class LoginDialog extends Dialog {
 						textUser.setText(textUser.getText().trim());
 						//return UserInfo object
 						userInfo=loginThread.getUserBean();
+						
+						
+
+						/*************Set the reauthentication timer running******************
+
+						final long INTERVAL=1000*60*2; //20 minutes
+						//Create a new one
+						Timer t=new Timer();
+						//Create a task to schedule
+						ReauthenticateTask rt=new ReauthenticateTask();
+						//Schedule the task
+						t.scheduleAtFixedRate(rt, INTERVAL, INTERVAL);
+						UserInfoBean.setReauthenticationTimer(t);
+*/
+						/**********************************************************************/
+
+												
 						shell.close();					
 					}
 				}
@@ -581,6 +613,7 @@ public class LoginDialog extends Dialog {
 				// do something here- return null
 				userInfo = null;
 				shell.close();
+				System.exit(0);
 			}
 		});
 
@@ -594,6 +627,10 @@ public class LoginDialog extends Dialog {
 
 		// Set the OK button as the default
 		shell.setDefaultButton(ok);	
+	}
+
+	public Project getCurrentPrj() {
+		return currentPrj;
 	}
 
 	/**
@@ -684,7 +721,7 @@ public class LoginDialog extends Dialog {
 			return null;
 		} 
 		catch (AxisFault e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			return null;
 		} 
 		catch (Exception e) {

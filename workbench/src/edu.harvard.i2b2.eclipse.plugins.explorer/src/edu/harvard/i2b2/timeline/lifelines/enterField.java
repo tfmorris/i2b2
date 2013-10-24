@@ -13,11 +13,11 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 
-public class enterField extends TextField {
+public class EnterField extends TextField {
 
-    private record theApplet;
+    private Record theApplet;
 
-    public void setApplet(record theApplet) {
+    public void setApplet(Record theApplet) {
 
 	this.theApplet = theApplet;
 
@@ -35,7 +35,7 @@ public class enterField extends TextField {
 
 	if (key == 10) {
 
-	    record.theData = new loadRecord(
+	    Record.theData = new LoadRecord(
 		    theApplet.getCodeBase() + getText(), "none");
 
 	    theApplet.resetTabPanel();

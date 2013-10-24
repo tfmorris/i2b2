@@ -24,6 +24,8 @@
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
       		targetID="edu.harvard.i2b2.eclipse.perspective">
+      		<viewShortcut
+               id="edu.harvard.i2b2.eclipse.plugins.analysis.views.AnalysisView"/>
 	        <viewShortcut
 	            id="edu.harvard.i2b2.eclipse.plugins.workplace.views.workplaceView"/>
 	        <viewShortcut
@@ -68,7 +70,7 @@
                value="icons/i2b2_hive_16.gif,icons/i2b2_hive_32.gif,icons/i2b2_hive_48.gif,icons/i2b2_hive_64.gif,icons/i2b2_hive_128.gif"/>
          <property
                name="aboutText"
-               value="i2b2 Workbench&#x0A;Version: 1.3.0014b&#x0A;Build id: 20080916&#x0A;&#x0A;(c) Copyright i2b2 contributors and others 2005-2008.  All rights reserved.&#x0A;Visit http://www.i2b2.org/&#x0A;&#x0A;This product includes software developed by the&#x0A;Apache Software Foundation http://www.apache.org/&#x0A;Eclipse Foundation  http://www.eclipse.org/&#x0A;Sun Microsystems http://java.sun.com/&#x0A;JDOM Project  http://www.jdom.org/"/>
+               value="i2b2 Workbench&#x0A;Version: 1.4.0020&#x0A;Build id: 20100126&#x0A;(c) Copyright i2b2 contributors and others 2005-2010.  All rights reserved.&#x0A;Visit http://www.i2b2.org/&#x0A;&#x0A;This product includes software developed by the following:&#x0A;Apache Software Foundation http://www.apache.org/&#x0A;Eclipse Foundation  http://www.eclipse.org/&#x0A;JDOM Project  http://www.jdom.org/&#x0A;Sun Microsystems http://java.sun.com/&#x0A;University of Maryland (HCIL) http://www.cs.umd.edu/hcil/"/>
          <property
                name="aboutImage"
                value="icons/i2b2_hive_64.gif"/>

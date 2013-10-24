@@ -14,7 +14,7 @@ package edu.harvard.i2b2.timeline.lifelines;
 import java.awt.*;
 
 // snm - this is the lower slider
-public class slider extends Panel{ // implements newApplet?
+public class Slider extends Panel{ // implements newApplet?
 
     protected int sliderWidth, sliderHeight, barWidth; // barWidth always remains the original width of the slider (+thumbs?)
     public int thumbWidth, minThumbPos, maxThumbPos, rangeWidth, rangePos, thickness; // rangeWidth is present width of
@@ -32,7 +32,7 @@ public class slider extends Panel{ // implements newApplet?
     protected Color llgray = new Color(220,255,220); // was (220,220,220) then (220,220,0) color under the slider
 
     protected MyDate dateMax, dateMin, validDateMin, validDateMax;
-    public scale aScale;
+    public Scale aScale;
 
     protected int validMin, validMax;
     protected long diff;
@@ -59,15 +59,15 @@ public class slider extends Panel{ // implements newApplet?
     protected MyDate today;
 
     //for example purposes:
-    static newApplet theApplet;
-    public static void setApplet(newApplet inApplet) {
+    static NewApplet theApplet;
+    public static void setApplet(NewApplet inApplet) {
         theApplet = inApplet;
 
     }
     protected int trackerVariable = 0;
     //
 
-    public slider(int width, int height,MyDate today) {
+    public Slider(int width, int height,MyDate today) {
 
         sliderWidth = width;
         sliderHeight = height;
@@ -98,7 +98,7 @@ public class slider extends Panel{ // implements newApplet?
         oldMinValue = 0;
         oldMaxValue = sliderWidth;
 
-        aScale = new scale(280,dateMin,dateMax,today);
+        aScale = new Scale(280,dateMin,dateMax,today);
 
         /*if(status.equals("enabled"))
             System.out.println("enabled");*/
@@ -538,10 +538,10 @@ public class slider extends Panel{ // implements newApplet?
             //validDateMax = CoordToDate(validMax);
         }
 
-        mainPanel.upBar.listen(validDateMin, validDateMax);
-        mainPanel.theTimeLinePanel.listen(validDateMin, validDateMax);
+        MainPanel.upBar.listen(validDateMin, validDateMax);
+        MainPanel.theTimeLinePanel.listen(validDateMin, validDateMax);
         if (type == INIT)
-            mainPanel.theTimeLinePanel.slide= false;
+            MainPanel.theTimeLinePanel.slide= false;
     }
 
     public MyDate CoordToDate(int start){

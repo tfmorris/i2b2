@@ -78,6 +78,7 @@
         <xs:sequence>
             <xs:element name="node" type="xs:string"/>
             <xs:element name="name" type="xs:string"/>
+            <xs:element name="work_xml" type="work:xml_valueType" /> 
         </xs:sequence>
     </xs:complexType>
 
@@ -85,6 +86,12 @@
         <xs:sequence>
             <xs:element name="node" type="xs:string"/>
             <xs:element name="tooltip" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+        <xs:complexType name="xml_valueType" mixed="false">
+        <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##any" processContents="skip"/>
         </xs:sequence>
     </xs:complexType>
     

@@ -59,9 +59,8 @@
       <toc
             file="toc.xml"
             primary="true"/>
-      <toc
-            file="tocconcepts.xml"
-            primary="false">
-      </toc>
+      <toc file="tocintroduction.xml"/>
+      <toc file="tocgettingstarted.xml"/>
+      <toc file="toctasks.xml"/>
    </extension>
 </plugin>

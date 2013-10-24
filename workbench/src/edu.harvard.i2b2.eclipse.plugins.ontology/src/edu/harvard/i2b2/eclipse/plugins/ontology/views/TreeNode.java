@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -9,20 +9,43 @@
  */
 package edu.harvard.i2b2.eclipse.plugins.ontology.views;
 
+import java.awt.Point;
 import java.util.*;
 
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.views.IViewDescriptor;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.eclipse.plugins.ontology.ws.CRCServiceDriver;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.GetChildrenResponseMessage;
+import edu.harvard.i2b2.eclipse.plugins.ontology.ws.GetPsmResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.OntServiceDriver;
 import edu.harvard.i2b2.ontclient.datavo.i2b2message.StatusType;
+import edu.harvard.i2b2.ontclient.datavo.i2b2result.DataType;
+import edu.harvard.i2b2.ontclient.datavo.psm.query.QueryMasterType;
+import edu.harvard.i2b2.ontclient.datavo.psm.query.QueryResultInstanceType;
+import edu.harvard.i2b2.ontclient.datavo.psm.query.XmlValueType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptsType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetChildrenType;
@@ -72,7 +95,11 @@ public class TreeNode
     @Override
 	public String toString()
     {
-      return this.data.getName();
+    	if(this.data.getNumPatients() == null)
+    		return this.data.getName();
+    	
+    	else
+    		return this.data.getName() + " - " + this.data.getNumPatients();
     }
 
     public String getIconKey()
@@ -128,7 +155,7 @@ public class TreeNode
 					theNode.updateChildren(theDisplay, theViewer);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
-					System.setProperty("statusMessage", e.getMessage());					
+	//				System.setProperty("statusMessage", e.getMessage());					
 				}
 				theDisplay.syncExec(new Runnable() {
 					public void run() {
@@ -199,14 +226,21 @@ public class TreeNode
 							int result = mBox.open();
 						}
 					});
+					getChildren().clear();
 					return;
 				}			
 			}
 			ConceptsType allConcepts = msg.doReadConcepts();   	  
 			if (allConcepts != null){
 				List concepts = allConcepts.getConcept();
+				List<DataType> counts = null;
+				if(System.getProperty("getPatientCount").equals("true")){
+					counts = getCounts(parentType);
+//				if(counts == null)
+					//	disableCountButton();
+				}
 				getChildren().clear();
-				getNodesFromXMLString(concepts);
+				getNodesFromXMLString(concepts, counts);
 			}	
 				
 		} catch (AxisFault e) {
@@ -221,8 +255,22 @@ public class TreeNode
 					int result = mBox.open();
 				}
 			});
+			getChildren().clear();
+		} catch (I2B2Exception e) {
+			log.error(e.getMessage());
+			theDisplay.syncExec(new Runnable() {
+				public void run() {
+					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+					MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					mBox.setText("Please Note ...");
+					mBox.setMessage("Your system does not have enough memory \n  to display the contents of this folder.");
+					int result = mBox.open();
+				}
+			});		
+			getChildren().clear();
 		} catch (Exception e) {
 			log.error(e.getMessage());
+//			disableCountButton();
 			theDisplay.syncExec(new Runnable() {
 				public void run() {
 					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
@@ -232,17 +280,21 @@ public class TreeNode
 					"You may wish to retry your last action");
 					int result = mBox.open();
 				}
-			});			
+			});		
+			getChildren().clear();
 		}
 
 	}
-    private void getNodesFromXMLString(List concepts){   	
+    private void getNodesFromXMLString(List concepts, List<DataType> counts){   	
 
     	if(concepts != null) {
     		Iterator it = concepts.iterator();
 
     		while(it.hasNext()){
-    			TreeData child = new TreeData((ConceptType) it.next()); 	
+    			TreeData child = new TreeData((ConceptType) it.next()); 
+    			// TODO check button to display counts.
+    			child.setNumPatients(counts);
+    			
     			TreeNode childNode = new TreeNode(child);
     			// if the child is a folder/directory set it up with a leaf placeholder
     			if((child.getVisualattributes().equals("FA")) || (child.getVisualattributes().equals("CA")))  
@@ -307,7 +359,7 @@ public class TreeNode
 			}
 			ConceptsType allConcepts = msg.doReadConcepts();   	    
 			List concepts = allConcepts.getConcept();
-			getNodesFromXMLString(concepts);	
+			getNodesFromXMLString(concepts, null);	
     	} catch (AxisFault e) {
     		log.error(e.getMessage());
     		System.setProperty("errorMessage",  "Ontology cell is unavailable");
@@ -320,8 +372,54 @@ public class TreeNode
 		}
     }
 
-//// Below are all the old Select service based ontology functions......    
-    
+    private List<DataType> getCounts(GetChildrenType parentType){
+    	QueryMasterType queryMaster = null;
+    	try {    		
+    		String response = null;
+    		GetPsmResponseMessage r_msg = new GetPsmResponseMessage();
+    		StatusType procStatus = null;	
+
+    		// send request to start the count process
+    		response = CRCServiceDriver.getChildrenCount(parentType.getParent());
+    		procStatus = r_msg.processResult(response);		
+
+    		if (procStatus.getType().equals("ERROR")){
+    			System.setProperty("errorMessage",  procStatus.getValue());				
+    			return null;
+    		}	
+
+			queryMaster = r_msg.extractQueryMaster(response);
+			if(queryMaster != null){
+
+				QueryResultInstanceType resultInstanceId = r_msg.extractResultInstance(response);
+				procStatus = null;
+
+				// sent request to get count results
+				response = CRCServiceDriver.getChildrenCount(resultInstanceId);
+				procStatus = r_msg.processResult(response);		
+
+				if (procStatus.getType().equals("ERROR")){
+					System.setProperty("errorMessage",  procStatus.getValue());			
+					String delResponse = CRCServiceDriver.deleteQueryMaster(queryMaster);
+					return null;
+				}	
+
+				String delResponse = CRCServiceDriver.deleteQueryMaster(queryMaster);
+
+				return r_msg.extractXMLResult(response);
+			}else
+				return null;
+			
+    	} catch (Exception e) {
+    		// TODO Auto-generated catch block
+//    		disableCountButton();
+    		log.info("Problem processing number of patients with concept");    		
+    		return null;
+    	}
+    }
+
+    //// Below are all the old Select service based ontology functions......    
+
     /*    public void updateChildrenOrig(final Display theDisplay, final TreeViewer theViewer) //throws Exception
     {
     	// method to send web services message to obtain children 
@@ -500,4 +598,6 @@ public class TreeNode
     	   // System.err.println(e.getMessage());
     	}
     }*/
+    
+
 } 

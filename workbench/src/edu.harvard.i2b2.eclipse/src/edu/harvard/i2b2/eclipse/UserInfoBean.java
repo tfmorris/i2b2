@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+* Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+* are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -11,9 +11,18 @@
 package edu.harvard.i2b2.eclipse;
 
 //import java.util.Hashtable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.harvard.i2b2.pm.datavo.pm.PasswordType;
 import edu.harvard.i2b2.pm.datavo.pm.CellDataType;
 import edu.harvard.i2b2.pm.datavo.pm.CellDatasType;
 import edu.harvard.i2b2.pm.datavo.pm.ParamType;
@@ -25,18 +34,36 @@ import edu.harvard.i2b2.pm.datavo.pm.ProjectType;
  *
  */
 public class UserInfoBean {
+	private static Log log = LogFactory.getLog(UserInfoBean.class.getName());
+
 
 	private static UserInfoBean instance = null;
 
 	private static String userName;
-	private static String userPassword;
+	private static PasswordType userPassword;
+
 	private static String userFullName;
 	private static String userDomain;
 
 	private static String environment;
 
 	private static String helpURL;
+	private static String key = null;
 
+	private static Date lastActivityTime;
+
+	private static String selectedProjectUrl;
+	private static String userKey;
+
+
+
+	//private static String origPassword;
+	private static Date screenSaverTimer;
+
+	private static Timer reauthenticationTimer;
+
+	private static TimerTask reauthenticateTask;
+	
 	private static String pmResponse;
 	public static void pmResponse(String str) {pmResponse = new String(str);}
 	public static String pmResponse() {return pmResponse;}
@@ -69,8 +96,31 @@ public class UserInfoBean {
 		return userName;
 	}
 
+	public String getUserKey() {
+		return userKey;
+	}
+
+	public void setUserKey(String userKey) {
+		UserInfoBean.userKey = userKey;
+	}
+
+	public static String getSelectedProjectUrl() {
+		return selectedProjectUrl;
+	}
+
+	public static void setSelectedProjectUrl(String selectedProjectUrl) {
+		UserInfoBean.selectedProjectUrl = selectedProjectUrl;
+	}
 	public void setUserName(String userName) {
 		UserInfoBean.userName = userName;
+	}
+	
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		UserInfoBean.key = key;
 	}
 
 	public CellDataType getCellData(String id) {
@@ -207,13 +257,52 @@ public class UserInfoBean {
 		return projectList;
 	}
 
-	public String getUserPassword() {
+
+	
+	public PasswordType getUserPasswordType() {
 		return userPassword;
 	}
 
+	public String getUserPassword() {
+		return userPassword.getValue();
+	}
+	
+	public int getUserPasswordTimeout() {
+		if (userPassword.getTokenMsTimeout() == null)
+			return -1;
+		else	
+		return userPassword.getTokenMsTimeout();
+	}
+	
+	public boolean getUserPasswordIsToken() {
+		return userPassword.isIsToken();
+	}
+
 	public void setUserPassword(String userPassword) {
+		if (UserInfoBean.userPassword == null)
+		{
+			PasswordType ptype = new PasswordType();
+			ptype.setIsToken(false);
+			ptype.setValue(userPassword);
+			UserInfoBean.userPassword = ptype;	
+		}
+		else {
+			UserInfoBean.userPassword.setValue(userPassword);
+		}
+	}
+	
+	public void setUserPassword(PasswordType userPassword) {
 		UserInfoBean.userPassword = userPassword;
 	}
+	
+	/*
+	public  String getOrigPassword() {
+		return origPassword;
+	}
+	public  void setOrigPassword(String origPassword) {
+		UserInfoBean.origPassword = origPassword;
+	}
+	*/
 
 	public String getHelpURL() {
 		return helpURL;
@@ -285,6 +374,83 @@ public class UserInfoBean {
 
 	public void setUserDomain(String userDomain) {
 		UserInfoBean.userDomain = userDomain;
+	}
+	public static Timer getReauthenticationTimer() {
+
+		return reauthenticationTimer;
+
+	}
+
+	public static void setReauthenticationTimer(Timer reauthenticationTimer) {
+
+		UserInfoBean.reauthenticationTimer = reauthenticationTimer;
+
+	}
+
+	public static Date getLastActivityTime() {
+
+		return lastActivityTime;
+
+	}
+
+	public static void setLastActivityTime(Date lastActivityTime) {
+
+		UserInfoBean.lastActivityTime = lastActivityTime;
+
+	}
+
+	public static Date getScreenSaverTimer() {
+
+		return screenSaverTimer;
+
+	}
+
+	public static void setScreenSaverTimer(Date screenSaverTimer) {
+
+		UserInfoBean.screenSaverTimer = screenSaverTimer;
+
+	}
+
+	public static TimerTask getReauthenticateTask() {
+
+		return reauthenticateTask;
+
+	}
+	
+	public static boolean validateKey(String key)
+	{
+		if(key.length() != 16){
+			log.error("Key should be 16 characters long");
+			return false;
+		}
+			try {
+				MessageDigest md5 = MessageDigest.getInstance("MD5");
+				md5.update(key.getBytes());
+				String a = selectedProject().getKey();
+				String b = toHex(md5.digest()).substring(0, 3);
+				if (a == null || a.length() == 0 || a.equals(b))
+					return true;
+				else
+					return false;
+					
+			} catch (NoSuchAlgorithmException e) {
+				log.error("NoSuchAlgorithm MD5!", e);    
+			}
+			return false;
+	}
+	
+	private static  String toHex(byte[] digest) {
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < digest.length; i++) {
+			buf.append(Integer.toHexString((int) digest[i] & 0x00FF));
+		}
+		return buf.toString();
+	}
+
+	public static void setReauthenticateTask(TimerTask reauthenticateTask) {
+
+		UserInfoBean.reauthenticateTask = reauthenticateTask;
+
 	}
 
 }

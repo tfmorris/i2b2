@@ -58,6 +58,16 @@
         </xs:sequence>
     </xs:complexType>
 
+	<xs:complexType name="passwordType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="is_token" type="xs:boolean"
+					default="false" />
+				<xs:attribute name="token_ms_timeout" type="xs:int" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
     <xs:complexType name="message_control_idType">
         <xs:sequence>
             <xs:element name="session_id" type="xs:string">
@@ -149,10 +159,12 @@
             <xs:sequence>
                 <xs:element name="domain" type="xs:string"/>
                 <xs:element name="username" type="xs:string"/>
-                <xs:element name="password" type="xs:string"/>
+                <xs:element name="password" type="i2b2:passwordType"/>
             </xs:sequence>
         </xs:choice>
     </xs:complexType>
+  
+  
   
     <xs:simpleType name="int">
         <xs:annotation>

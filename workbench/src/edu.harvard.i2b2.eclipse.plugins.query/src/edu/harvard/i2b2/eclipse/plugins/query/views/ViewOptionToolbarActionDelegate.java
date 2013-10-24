@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
@@ -14,12 +14,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
-import edu.harvard.i2b2.query.ui.QueryDisplayOptionsDialog;
+import edu.harvard.i2b2.query.ui.DisplayOptionsDialog;
 
-/**
- * @author wp066
- *
- */
 public class ViewOptionToolbarActionDelegate implements IViewActionDelegate {
 	
 	private QueryView queryview;
@@ -37,7 +33,7 @@ public class ViewOptionToolbarActionDelegate implements IViewActionDelegate {
 	 */
 	public void run(IAction action) {
 		//System.out.println("Option action from query view");
-		new QueryDisplayOptionsDialog(queryview).setVisible(true);
+		new DisplayOptionsDialog(queryview).setVisible(true);
 	}
 
 	/* (non-Javadoc)

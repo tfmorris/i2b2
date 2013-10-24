@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+* Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+* are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -11,6 +11,7 @@
 
 package edu.harvard.i2b2.eclipse;
 
+import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -42,6 +43,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     private IWorkbenchAction preferencesAction;    // from SQL Explorer
 	private IContributionItem views;
 	private IContributionItem perspectives;
+	private IWorkbenchAction updateAction;
 	
 	
 	public ApplicationActionBarAdvisor(IActionBarConfigurer configurer) {
@@ -71,6 +73,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		
 		aboutAction = ActionFactory.ABOUT.create(window);
 		register(aboutAction);
+		
+		//updateAction = ActionFactory..create(window);
+		//register(aboutAction);
 		
 		views = ContributionItemFactory.VIEWS_SHORTLIST.create(window);
 		
@@ -119,6 +124,10 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		helpMenu.add(helpAction);	
 		helpMenu.add(aboutAction);	
 		helpMenu.add(introAction);
+		helpMenu.add(new UpdateAction(this.getActionBarConfigurer().getWindowConfigurer().getWindow()));
+		helpMenu.add(new SearchAndUpdateAction(this.getActionBarConfigurer().getWindowConfigurer().getWindow()));
+		//helpMenu.add(new ProductConfigurationAction(this.getActionBarConfigurer().getWindowConfigurer().getWindow()));
+		//helpMenu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
 		menuBar.add(helpMenu);
 	}
 

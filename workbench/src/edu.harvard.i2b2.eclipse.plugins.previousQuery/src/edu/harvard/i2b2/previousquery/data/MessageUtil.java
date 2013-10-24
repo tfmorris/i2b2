@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the i2b2 Software License v2.1 
+ * which accompanies this distribution.
+ * 
+ * Contributors: 
+ *     
+ */
 package edu.harvard.i2b2.previousquery.data;
 
 import java.util.ArrayList;
@@ -81,7 +90,8 @@ public class MessageUtil {
 	private void checkXmlStackSize(){
 		if(xmlStack.size() == MAX_STACK_SIZE) {
 			xmlStack.remove(0);
-		    xmlStack = xmlStack.subList(1,MAX_STACK_SIZE-1);
+// following line not needed as remove() performs the left shift of the list			
+//			xmlStack = xmlStack.subList(1,MAX_STACK_SIZE-1);
 		}
 	}
 	

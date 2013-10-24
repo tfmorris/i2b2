@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -22,6 +22,10 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.resource.*;
 import org.eclipse.jface.window.*;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.StatusLineManager;
 
 import org.eclipse.swt.SWT;
@@ -32,6 +36,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Display;
@@ -50,6 +56,7 @@ public class NodeBrowser extends ApplicationWindow
 	                               // to get the rootNode of a tree.....
   private ImageRegistry imageRegistry;
   private StatusLineManager slm;
+  private Menu menu;
   
   public NodeBrowser(Composite parent, int inputFlag, StatusLineManager slm)
   {
@@ -94,22 +101,53 @@ public class NodeBrowser extends ApplicationWindow
     gridData.grabExcessHorizontalSpace = true;
     gridData.grabExcessVerticalSpace = true;
     tree.setLayoutData(gridData);
+  
+    MenuManager popupMenu = new MenuManager();
+
+    IAction countAction = new CountAction();
+    countAction.setChecked(false);
+    System.setProperty("getPatientCount", "false");
+    IAction shortTooltipAction = new ShortTooltipAction();
+    shortTooltipAction.setChecked(false);
+    System.setProperty("shortToolTip","false");
+    IAction conceptCodeAction = new ConceptCodeAction();
+    conceptCodeAction.setChecked(false);
+    System.setProperty("showConceptCodes", "false");
+    IAction refreshAction = new RefreshAction();
+    popupMenu.add(countAction);
+    popupMenu.add(shortTooltipAction);
+    popupMenu.add(conceptCodeAction);
+    popupMenu.add(new Separator());
+    popupMenu.add(refreshAction);   
     
+    menu = popupMenu.createContextMenu(tree);
+   
     this.viewer = new TreeViewer(tree);  
+    
+   
     this.viewer.setLabelProvider(new LabelProvider() {
         @Override
+     
 		public String getText(Object element) 
         {
         	// Set the tooltip data
         	//  (cant be done in the lookup thread)
         	//   maps TreeViewer node to Tree item and sets item.data
         	TreeItem item =  (TreeItem) (viewer.testFindItem(element));
+
         	String tooltip = ((TreeNode)element).getData().getTooltip();
+        	
+        	if(System.getProperty("shortToolTip").equals("true"))
+        		tooltip = ((TreeNode)element).getData().getName();
+        	
         	if ((tooltip == null) || (tooltip.equals("")))
         	{
         		tooltip = ((TreeNode)element).toString();		
         	}
         	tooltip = " " + tooltip + " ";
+        	if(System.getProperty("showConceptCodes").equals("true"))
+        		tooltip = tooltip + "(" + ((TreeNode)element).getData().getBasecode() + ")";
+        	
         	item.setData("TOOLTIP", tooltip);        
    
         	// if element is Inactive; print label in gray
@@ -400,6 +438,23 @@ public class NodeBrowser extends ApplicationWindow
 					label = null;
 					break;
 				}
+				case SWT.MouseDown:
+					if(event.button == 3) // right click
+					{
+						IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+						if (selection.size() != 1)
+							return;
+
+//						TreeNode node =  (TreeNode) selection.getFirstElement();
+//						if(node.getData().getVisualAttributes().equals("LA"))
+							menu.setVisible(true);
+//						else if(node.getData().getVisualAttributes().startsWith("ZA"))
+//							menu.setVisible(true);
+					//	else if(node.getData().getVisualAttributes().startsWith("F"))
+					//		folderMenu.setVisible(true);
+					//	else if(node.getData().getVisualAttributes().startsWith("C"))
+					//		caseMenu.setVisible(true);
+					}
 		        case SWT.MouseHover: {
 		        	TreeItem item = (viewer.getTree()).getItem(new Point(event.x, event.y));
 		        	if (item != null) {
@@ -427,6 +482,7 @@ public class NodeBrowser extends ApplicationWindow
 		        }
 		      }
 		    };
+		    viewer.getTree().addListener(SWT.MouseDown, viewerListener);
 		    viewer.getTree().addListener(SWT.Dispose, viewerListener);
 		    viewer.getTree().addListener(SWT.KeyDown, viewerListener);
 		    viewer.getTree().addListener(SWT.MouseMove, viewerListener);
@@ -483,7 +539,82 @@ public class NodeBrowser extends ApplicationWindow
 	  return root;
   
   }
+  
+//  IAction countAction = new CountAction();
+//  IAction shortTooltipAction = new ShortTooltipAction();
+ // IAction conceptCodeAction = new ConceptCodeAction();
+//  IAction refreshAction = new RefreshAction();
+  
+  private class CountAction extends Action 
+  {
+	  public CountAction()
+	  {
+		  super("Enable Patient Counts");
+	  }
+	  public void run()
+	  {
+		  System.setProperty("getPatientCount", Boolean.toString(this.isChecked()));
+		  IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+		  if (selection.size() != 1)
+			  return;
+	  }
+  }
+  
+  
+  private class ShortTooltipAction extends Action 
+  {
+	  public ShortTooltipAction()
+	  {
+		  super("Use Short Tooltips");
+	  }
+	  public void run()
+	  {
+		  System.setProperty("shortToolTip", Boolean.toString(this.isChecked()));
+		  IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+		  if (selection.size() != 1)
+			  return;
+	  }
+  }
 
+  private class ConceptCodeAction extends Action 
+  {
+	  public ConceptCodeAction()
+	  {
+		  super("Show Concept Codes in Tooltips");
+	  }
+	  public void run()
+	  {
+		  System.setProperty("showConceptCodes", Boolean.toString(this.isChecked()));
+		  IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+		  if (selection.size() != 1)
+			  return;
+
+
+	  }
+  }
+  
+  private class RefreshAction extends Action 
+  {
+	  public RefreshAction()
+	  {
+		  super("Refresh");
+		 
+	  }
+	  public void run()
+	  {
+		  IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+		    if (selection.size() != 1)
+		      return;
+		    
+		    TreeNode node = (TreeNode) selection.getFirstElement();
+	 	           setCurrentNode(node);
+		    
+		    
+		    node.getXMLData(viewer, browser).start();
+		    viewer.refresh();
+
+	  }
+  }
   
 // Old select service version
 //  private TreeNode getRootNode(int inputFlag)

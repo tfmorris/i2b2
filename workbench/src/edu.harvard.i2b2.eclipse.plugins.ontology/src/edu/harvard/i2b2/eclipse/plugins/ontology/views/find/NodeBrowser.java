@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -501,6 +501,8 @@ public class NodeBrowser extends ApplicationWindow
 	  {  
 		  this.stopRunning = false;
 		  this.flush();
+		  this.viewer.refresh(this.rootNode);
+		  
 	  }
   }
   
@@ -677,7 +679,9 @@ public class NodeBrowser extends ApplicationWindow
 			this.stopRunning = true;
 			return null;
     	}
-    	ConceptsType allConcepts = msg.doReadConcepts();   	    
+    	ConceptsType allConcepts = msg.doReadConcepts();   	 
+    	if(allConcepts == null)
+    		return null;
     	List concepts = allConcepts.getConcept();
     	return concepts;
     }
@@ -697,10 +701,11 @@ public class NodeBrowser extends ApplicationWindow
 				theBrowser.findSchemeNodes(lookupKey, lookupSchemes, lookupPhrase, lookupStrategy, theDisplay, theViewer);							
 				theDisplay.syncExec(new Runnable() {
 					public void run() {
-				 		if (theBrowser.rootNode.getChildren().size() == 0)
+
+						if (theBrowser.rootNode.getChildren().size() == 0)
 						{	
 				 			TreeNode placeholder = new TreeNode(1, "placeholder", "There were no matches", "C-UNDEF");
-							theBrowser.rootNode.addChild(placeholder);
+				 			theBrowser.rootNode.addChild(placeholder);							
 					  	 }	
 				 		theBrowser.refresh();
 					}

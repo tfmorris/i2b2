@@ -115,6 +115,8 @@
         <xs:sequence>
             <xs:element name="result_type_id" type="crc:result_type_idType"/>
             <xs:element name="name" type="crc:nameType" minOccurs="0"/>
+            <xs:element name="display_type" type="xs:string" minOccurs="0"/>
+            <xs:element name="visual_attribute_type" type="xs:string" minOccurs="0"/>
             <xs:element name="description" type="crc:descriptionType" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
@@ -141,6 +143,8 @@
             <xs:element name="batch_mode" type="crc:batch_modeType"/>
             <xs:element name="start_date" type="crc:start_dateType"/>
             <xs:element name="end_date" type="crc:end_dateType"/>
+            <xs:element name="name" type="crc:nameType"/>
+            <xs:element name="message" type="crc:xml_valueType"/>
             <!--
             <xs:choice>
                 <xs:element name="query_status_type" type="crc:query_status_typeType"/>
@@ -155,6 +159,7 @@
         <xs:sequence>
             <xs:element name="result_instance_id" type="crc:result_instance_idType"/>
             <xs:element name="query_instance_id" type="crc:query_instance_idType"/>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
             <!--
             <xs:choice>
                 <xs:element name="query_result_type" type="crc:query_result_typeType"/>
@@ -163,6 +168,7 @@
             -->
             <xs:element name="query_result_type" type="crc:query_result_typeType"/>
             <xs:element name="set_size" type="crc:set_sizeType"/>
+            <xs:element name="obfuscate_method" type="xs:string"/>
             <xs:element name="start_date" type="crc:start_dateType"/>
             <xs:element name="end_date" type="crc:end_dateType"/>
             <!--
@@ -171,6 +177,7 @@
                 <xs:element name="status_type_id" type="crc:status_type_idType"/>
             </xs:choice>
             -->
+            <xs:element name="message" type="crc:xml_valueType"/>
             <xs:element name="query_status_type" type="crc:query_status_typeType"/>
         </xs:sequence>
     </xs:complexType>

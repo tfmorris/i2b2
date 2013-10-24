@@ -13,7 +13,7 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 
-public class infoPanel extends Panel{
+public class InfoPanel extends Panel{
 
     private int width, height;
     private String name, sex;
@@ -24,7 +24,7 @@ public class infoPanel extends Panel{
     protected static Font font = new Font("TimesRoman", Font.BOLD, 12);
     protected FontMetrics fontMetrics = getFontMetrics(font);
 
-    public infoPanel(int width, int height,String name,String gender,int age,String moreinfo) {   // 3/28/98
+    public InfoPanel(int width, int height,String name,String gender,int age,String moreinfo) {   // 3/28/98
 
         this.width = width;
         this.height = height;

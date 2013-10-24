@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -28,7 +28,6 @@ import org.eclipse.ui.part.ViewPart;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 
 
-
 /**
  * The Ontology View class provides the Ontology UI View to the
  *  Eclipse framework  --- This has been ported from the CRC Navigator project.
@@ -39,7 +38,7 @@ public class OntologyView extends ViewPart {
 
 	public static final String ID = "edu.harvard.i2b2.eclipse.plugins.ontology.views.ontologyView";
 	public static final String THIS_CLASS_NAME = OntologyView.class.getName();
-
+	
 	//setup context help
 	public static final String PREFIX = "edu.harvard.i2b2.eclipse.plugins.ontology";
 	public static final String ONTOLOGY_VIEW_CONTEXT_ID = PREFIX + ".navigate_terms_view_help_context";
@@ -68,6 +67,7 @@ public class OntologyView extends ViewPart {
 			System.setProperty("OntSynonyms","false");
 		//System.setProperty("user", UserInfoBean.getInstance().getUserName());
 		//System.setProperty("pass", UserInfoBean.getInstance().getUserPassword());
+		System.setProperty("getPatientCount", "false");
 	}
 	
 	/**
@@ -77,7 +77,7 @@ public class OntologyView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		log.info("Ontology plugin version 1.3.0");
+		log.info("Ontology plugin version 1.4.0");
 		// Drag "from" tree
 		compositeQueryTree = new Composite(parent, SWT.NULL);
 		GridLayout gridLayout = new GridLayout();
@@ -115,6 +115,7 @@ public class OntologyView extends ViewPart {
 		helpAction.setImageDescriptor(ImageDescriptor.createFromFile(OntologyView.class, "/icons/help.png"));
 		getViewSite().getActionBars().getToolBarManager().add(helpAction);
 	}
+
 	
 	/**
 	 * Passing the focus request 

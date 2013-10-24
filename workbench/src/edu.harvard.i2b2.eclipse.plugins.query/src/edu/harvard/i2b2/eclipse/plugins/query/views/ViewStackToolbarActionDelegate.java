@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -20,13 +20,9 @@ import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
 import edu.harvard.i2b2.eclipse.plugins.query.utils.MessageUtil;
-import edu.harvard.i2b2.query.ui.QueryDisplayXmlMessageDialog;
-import edu.harvard.i2b2.query.ui.QueryDisplayXmlStackList;
+import edu.harvard.i2b2.query.ui.DisplayXmlMessageDialog;
+import edu.harvard.i2b2.query.ui.DisplayXmlStackList;
 
-/**
- * @author wp066
- *
- */
 public class ViewStackToolbarActionDelegate implements IViewActionDelegate {
 	
 	/* (non-Javadoc)
@@ -39,7 +35,7 @@ public class ViewStackToolbarActionDelegate implements IViewActionDelegate {
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
 	public void run(IAction action) {
-		QueryDisplayXmlStackList xmlList = new QueryDisplayXmlStackList(Display.getCurrent().getActiveShell(), MessageUtil.getInstance().getXmlStack());
+		DisplayXmlStackList xmlList = new DisplayXmlStackList(Display.getCurrent().getActiveShell(), MessageUtil.getInstance().getXmlStack());
 		xmlList.setBlockOnOpen(false);
 		xmlList.open();	
 	}

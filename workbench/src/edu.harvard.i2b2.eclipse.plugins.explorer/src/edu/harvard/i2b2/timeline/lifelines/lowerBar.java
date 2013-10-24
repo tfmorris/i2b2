@@ -12,7 +12,7 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 
-public class lowerBar extends Panel{
+public class LowerBar extends Panel{
 
     static final int INIT = 0;
     static final int MINTHUMB = 1;
@@ -20,7 +20,7 @@ public class lowerBar extends Panel{
 
     protected int width, height;
     protected MyDate dateMax, dateMin, validDateMin, validDateMax;
-    public scale aScale;
+    public Scale aScale;
 
     private int validMin, validMax;
     private long diff;
@@ -28,14 +28,14 @@ public class lowerBar extends Panel{
     Font font = new Font("Courier", Font.BOLD, 12);
     FontMetrics fontMetrics = getFontMetrics(font);
 
-    public lowerBar(int width, int height,MyDate today) {
+    public LowerBar(int width, int height,MyDate today) {
         this.width = width;
         this.height = height;
-        dateMin = loadRecord.getMinDate();
-        dateMax = loadRecord.getMaxDate();
-        validDateMin = loadRecord.getMinDate();
-        validDateMax = loadRecord.getMaxDate();
-        aScale = new scale(width, validDateMin, validDateMax,today);
+        dateMin = LoadRecord.getMinDate();
+        dateMax = LoadRecord.getMaxDate();
+        validDateMin = LoadRecord.getMinDate();
+        validDateMax = LoadRecord.getMaxDate();
+        aScale = new Scale(width, validDateMin, validDateMax,today);
 
         validMin = 0; validMax = width;
         diff = dateMin.MinDiff(dateMax);
@@ -58,8 +58,8 @@ public class lowerBar extends Panel{
         else if(type == MAXTHUMB || type == INIT){
             validDateMax = CoordToDate(validMax);
         }
-        mainPanel.upBar.listen(validDateMin, validDateMax);
-        mainPanel.theTimeLinePanel.listen(validDateMin, validDateMax);
+        MainPanel.upBar.listen(validDateMin, validDateMax);
+        MainPanel.theTimeLinePanel.listen(validDateMin, validDateMax);
     }
 
     public MyDate CoordToDate(int start){

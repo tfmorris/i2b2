@@ -11,7 +11,7 @@
 
 package edu.harvard.i2b2.timeline.lifelines;
 
-public class scale{
+public class Scale{
     private int width;
     private String mode;
     private MyDate dateMax, dateMin;
@@ -21,7 +21,7 @@ public class scale{
 
     private int todayPosition;
 
-    public scale(int width, MyDate dateMin, MyDate dateMax,MyDate today) {
+    public Scale(int width, MyDate dateMin, MyDate dateMax,MyDate today) {
         this.width = width;
         this.dateMin = dateMin;
         this.dateMax = dateMax;

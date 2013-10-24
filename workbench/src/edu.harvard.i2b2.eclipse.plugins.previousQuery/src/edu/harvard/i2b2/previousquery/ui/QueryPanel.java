@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
@@ -22,9 +22,9 @@ import javax.swing.*;
 
 public class QueryPanel extends javax.swing.JPanel {
 
-    private QueryTopPanelModel dataModel;
+    private TopPanelModel dataModel;
 
-    public QueryTopPanelModel dataModel() {
+    public TopPanelModel dataModel() {
 	return dataModel;
     }
 
@@ -36,7 +36,7 @@ public class QueryPanel extends javax.swing.JPanel {
 
     /** Creates new form QueryPanel */
     public QueryPanel(QueryC parentC) {
-	dataModel = new QueryTopPanelModel();
+	dataModel = new TopPanelModel();
 	parent = parentC;
 	initComponents();
 	dataModel.setTopPanel(topPanel);
@@ -55,7 +55,7 @@ public class QueryPanel extends javax.swing.JPanel {
 	return jRequestMessageTextArea;
     }
 
-    public QueryTopPanel getTopPanel() {
+    public TopPanel getTopPanel() {
 	return topPanel;
     }
 
@@ -112,7 +112,7 @@ public class QueryPanel extends javax.swing.JPanel {
 	jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 	// jTextArea1.setColumns(20);
 	// jTextArea1.setRows(5);
-	topPanel = new QueryTopPanel(this);
+	topPanel = new TopPanel(this);
 	// add(topPanel);
 	jScrollPane1.setViewportView(topPanel);
 	jSplitPane1.setLeftComponent(jScrollPane1);
@@ -211,7 +211,7 @@ public class QueryPanel extends javax.swing.JPanel {
     protected javax.swing.JPanel jRequestMessagePanel;
     protected javax.swing.JPanel jResponseMessagePanel;
     protected javax.swing.JPanel jPanel3;
-    protected QueryTopPanel topPanel;
+    protected TopPanel topPanel;
     // private QueryXMLMessagePanel messagePanel;
     protected javax.swing.JScrollPane jScrollPane1;
     protected javax.swing.JScrollPane jScrollPane2;

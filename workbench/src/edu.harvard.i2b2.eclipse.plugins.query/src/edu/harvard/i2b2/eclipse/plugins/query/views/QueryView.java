@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
- * which accompanies this distribution. 
+ * are made available under the terms of the i2b2 Software License v2.1 
+ * which accompanies this distribution.  
  * 
  * Contributors: 
  *     Wensong Pan
@@ -34,6 +34,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.SWT;
 
 import edu.harvard.i2b2.eclipse.ICommonMethod;
+import edu.harvard.i2b2.eclipse.plugins.query.views.QueryView;
 import edu.harvard.i2b2.query.ui.QueryPanel;
 import edu.harvard.i2b2.query.ui.QueryPanelInvestigator;
 
@@ -82,7 +83,7 @@ public class QueryView extends ViewPart implements ICommonMethod {
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, QUERY_VIEW_CONTEXT_ID);
 		addHelpButtonToToolBar();
 		
-		log.info("Query Tool plugin version 1.3.0");
+		log.info("Query Tool plugin version 1.4.0");
 		GridLayout topGridLayout = new GridLayout(1, false);
 		topGridLayout.numColumns = 1;
 		topGridLayout.marginWidth = 2;
@@ -168,4 +169,6 @@ public class QueryView extends ViewPart implements ICommonMethod {
 	public void setFocus() {
 		queryComposite.setFocus();
 	}
+	
+	public void processQuery(String id) {}
 }

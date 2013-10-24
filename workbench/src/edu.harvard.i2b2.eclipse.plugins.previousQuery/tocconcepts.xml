@@ -9,6 +9,8 @@
        </topic>
        <topic href="html/concepts/pq_navigation/pq_navigation_refresh.htm" label="Refresh the list">
        </topic>
+       <topic href="html/concepts/pq_navigation/pq_navigation_cancel.htm" label="Cancel a previous query">
+       </topic>
        <topic href="html/concepts/pq_navigation/pq_navigation_displayOptions.htm" label="Display options">
        </topic>
     </topic>
@@ -21,7 +23,7 @@
        </topic>
        <topic href="html/concepts/pq_usingPQ/pq_usingPQ_add_timelineView.htm" label="Add to timeline view">
        </topic>
-       <topic href="html/concepts/pq_usingPQ/pq_usingPQ_add_edView.htm" label="Add to export data view">
+       <topic href="html/concepts/pq_usingPQ/pq_usingPQ_add_analysisView.htm" label="Add to analysis view">
        </topic>
     </topic>>
 </toc>

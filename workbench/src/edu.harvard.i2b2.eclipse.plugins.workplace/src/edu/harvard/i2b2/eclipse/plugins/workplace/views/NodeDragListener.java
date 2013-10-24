@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -108,16 +108,19 @@ final class NodeDragListener implements DragSourceListener
 	public void dragFinished(DragSourceEvent event) {
 
 		if (event.display.getData() != null ){
+			Iterator iterator = selectionOnDrag.iterator();
+			TreeNode node = (TreeNode) iterator.next();		
 			if(event.display.getData().equals("M|O*V+E")){
-				//	if(event.detail == DND.DROP_MOVE) {
-				//		log.info("cleaning up on move");
-				Iterator iterator = selectionOnDrag.iterator();
-				TreeNode node = (TreeNode) iterator.next();			
-				// if we dragged from a non-shared folder
-				//    then clean up UI tree. (complete the move in the UI)
-				if(!(node.getData().getShareId().equals("Y"))) {
+				// clean up drag source on move
 					((TreeNode)(node.getParent())).getChildren().remove(node);
-				}
+	//			}
+			}
+			else {
+				// if we have copied a folder
+				//  set up with placeholder so display is correct
+				//   then copy children also
+				node.copyChildren((String)event.display.getData());
+
 			}
 		}
 		event.display.setData(null);

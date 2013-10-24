@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -16,7 +16,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -82,6 +84,22 @@ public class FindDisplayOptionsDialog extends Dialog {
     	}	
     	// OK
     	else if(buttonId == 0){
+    		String message = "";
+    		try{
+    			if(Integer.parseInt(maximum.getText())< 2)
+    				message = "Maximum children size should be greater than 1 \n";
+    		}catch(java.lang.NumberFormatException e){
+    			message = message + "Maximum children size is invalid \n";
+    		}
+    		
+    		if(!message.equals("")){
+    			MessageBox mBox = new MessageBox(Display.getCurrent().getActiveShell(), 
+						SWT.ICON_ERROR);
+				mBox.setText("Please Note ...");
+				mBox.setMessage(message);
+				mBox.open();
+    			return;
+    		}
     		System.setProperty("OntFindMax", maximum.getText());
     		System.setProperty("OntFindHiddens", String.valueOf(showHiddens.getSelection()));
     		System.setProperty("OntFindSynonyms", String.valueOf(showSynonyms.getSelection()));

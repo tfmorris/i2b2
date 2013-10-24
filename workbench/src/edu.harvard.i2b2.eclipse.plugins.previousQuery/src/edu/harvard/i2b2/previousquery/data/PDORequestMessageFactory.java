@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
- * which accompanies this distribution. 
- * 
+ * are made available under the terms of the i2b2 Software License v2.1 
+ * which accompanies this distribution.
  * Contributors: 
  *   
  *     Wensong Pan
@@ -25,6 +24,7 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.FacilityType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.MessageControlIdType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.MessageTypeType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.PasswordType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ProcessingIdType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.RequestHeaderType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.RequestMessageType;
@@ -87,7 +87,12 @@ public class PDORequestMessageFactory {
 		SecurityType secType = new SecurityType();
 		secType.setDomain(UserInfoBean.getInstance().getUserDomain());
 		secType.setUsername(UserInfoBean.getInstance().getUserName());
-		secType.setPassword(UserInfoBean.getInstance().getUserPassword());
+		PasswordType ptype = new PasswordType();
+		ptype.setIsToken(UserInfoBean.getInstance().getUserPasswordIsToken());
+		ptype.setTokenMsTimeout(UserInfoBean.getInstance().getUserPasswordTimeout());
+		ptype.setValue(UserInfoBean.getInstance().getUserPassword());
+
+		secType.setPassword(ptype);
 		messageHeader.setSecurity(secType);
 		
 		MessageControlIdType mcIdType = new MessageControlIdType();

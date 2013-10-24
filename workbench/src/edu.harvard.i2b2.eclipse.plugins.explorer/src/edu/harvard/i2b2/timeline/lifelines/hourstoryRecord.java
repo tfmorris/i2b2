@@ -11,14 +11,14 @@
 
 package edu.harvard.i2b2.timeline.lifelines;
 
-public class hourstoryRecord extends genRecord {
+public class HourstoryRecord extends GenRecord {
 
     // individual record stuff
     private String dose = "";
     private MyDate start_date;
     private MyDate end_date;
 
-    public hourstoryRecord(String type, MyDate start_date, MyDate end_date,
+    public HourstoryRecord(String type, MyDate start_date, MyDate end_date,
 	    String dose) {
 	super(type);
 	this.start_date = start_date;

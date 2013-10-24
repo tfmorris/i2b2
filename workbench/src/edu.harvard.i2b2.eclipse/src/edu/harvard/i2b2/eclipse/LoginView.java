@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+* Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+* are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import javax.swing.JFrame;
 
@@ -41,10 +42,8 @@ import org.eclipse.swt.widgets.*;
 
 import edu.harvard.i2b2.eclipse.login.*;
 import edu.harvard.i2b2.eclipse.util.Messages;
+import edu.harvard.i2b2.pm.datavo.pm.PasswordType;
 
-/**
- *
- */
 
 public class LoginView extends ViewPart  {
 	public static final String ID = "edu.harvard.i2b2.eclipse.loginView"; //$NON-NLS-1$
@@ -151,7 +150,7 @@ public class LoginView extends ViewPart  {
 	 * to create the viewer and initialize it.
 	 */
 	@Override
-	public void createPartControl(Composite parent) {
+	public void createPartControl(final Composite parent) {
 		log.info(Messages.getString("LoginView.PluginVersion")); //$NON-NLS-1$
 
 		parent.getShell();
@@ -161,8 +160,42 @@ public class LoginView extends ViewPart  {
 			return;
 		}
 
+		
 		// local variable to get system fonts and colors
-		Display display = parent.getDisplay();
+		final Display display = parent.getDisplay();
+		
+		
+		/* TODO disabled screensaver */
+
+		user = userInfoBean.getUserName();
+		//password = userInfoBean.getOrigPassword();
+		project= Application.project;
+		new Thread() {
+	        public void run() {
+	        	while (true) {
+	            try {
+	              Thread.sleep(1000);
+	            } catch (Throwable th) {
+	            }
+	            if (display.isDisposed())
+	              return;
+	            display.asyncExec(new Runnable() {
+	              public void run() {
+	  				checkSessionExpired();
+	  				try{
+	  					checkScreenSaver(parent.getShell(), Application.getLastUsed()); //display.getActiveShell());
+	  				}
+	  				catch(Exception e) {
+	  					return;
+	  				}	  				
+	              }
+	            });
+	          }
+	        }
+	      }.start();
+		 
+
+		
 		final Font headerFont = new Font(display, "Tahoma", 12, SWT.BOLD); //$NON-NLS-1$
 		final Font normalFont = new Font(display, "Tahoma", 12, SWT.NORMAL); //$NON-NLS-1$
 		final Font buttonFont = new Font(display, "Tahoma", 9, SWT.NORMAL); //$NON-NLS-1$
@@ -410,9 +443,132 @@ public class LoginView extends ViewPart  {
 			}
 		};
 
+
+		
 		getViewSite().getActionBars().setGlobalActionHandler("properties", propertyAction); //$NON-NLS-1$
 	}
 
+	private  boolean inScreenSaver=false;
+	private  boolean inSessionExpired=false;
+	private static Project project = null;
+	private static String user = null;
+	//private static String password = null;
+	
+	private void checkSessionExpired()
+	{
+
+		//		make a date to compare with
+
+		if(UserInfoBean.getLastActivityTime()==null || this.inSessionExpired) return;
+		this.inSessionExpired=true;
+		try {
+			Calendar c=Calendar.getInstance();
+			if (UserInfoBean.getInstance().getUserPasswordTimeout() == -1)
+			{
+				c.add(Calendar.MINUTE,-20); //TODO changed from -20 to -1
+			} else {
+			c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout());//-20); //subtract 20 minutes;
+			}
+
+			if(!UserInfoBean.getLastActivityTime().after(c.getTime()))
+			{
+				LoginHelper loginHelper = new LoginHelper();
+				
+				/*
+				PasswordType ptype = new PasswordType();
+				ptype.setValue(password);
+				ptype.setIsToken(false);
+				*/
+				
+				PasswordType ptype = UserInfoBean.getInstance().getUserPasswordType();
+
+				UserInfoBean ubean = loginHelper.getUserInfo(
+						user, ptype, project.getUrl(), project.getName(), false);
+
+				
+				UserInfoBean.getInstance().setUserPassword(ubean.getUserPassword());
+				UserInfoBean.setLastActivityTime(Calendar.getInstance().getTime());
+
+				System.out.println("New Seesion is: " + UserInfoBean.getInstance().getUserPassword());
+			}
+		} catch (Exception e)
+		{
+			log.error(e.getMessage());
+		} finally {
+			this.inSessionExpired=false;
+		}
+		return;
+	}
+	
+	
+	private void checkScreenSaver(Shell shell, Date lastUsed)
+	{
+
+		//		make a date to compare with
+
+		if (shell == null)
+		{
+			this.inScreenSaver=false;
+			return;
+			
+		}
+		if(UserInfoBean.getScreenSaverTimer()==null || this.inScreenSaver) return;
+		this.inScreenSaver=true;
+		try {
+			Calendar c=Calendar.getInstance();
+			UserInfoBean.setScreenSaverTimer(lastUsed);
+			
+			if (UserInfoBean.getInstance().getUserPasswordTimeout() == -1)
+			{
+				c.add(Calendar.MINUTE,-20); //TODO changed from -20 to -1
+			} else {
+				//c.add(Calendar.MINUTE,-1); 
+				c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout());//-20); //subtract 20 minutes;
+			}
+
+			if(!UserInfoBean.getScreenSaverTimer().after(c.getTime()))
+
+			{
+				
+				/* Just display prompt, dont delete anything
+
+				//make the client unusable until you re-login
+				PasswordType ptype = new PasswordType();
+				ptype.setValue(null);
+				ptype.setIsToken(false);
+				
+				//make the client unusable until you re-login
+				UserInfoBean.getInstance().setUserPassword(ptype);
+				UserInfoBean.getInstance().setUserName(null);
+
+				//UserInfoBean.getReauthenticateTask().cancel();
+				// if login action true open dialog and wait for return
+				*/
+
+				UserInfoBean userInfoBean = null;
+				do {
+					//Shell activeShell = new Shell(); //!!!!!!!!cant do this because its the wrong thread
+					ReLoginDialog loginDialog = new ReLoginDialog(shell);	
+					loginDialog.setUserid(user);
+					loginDialog.setCurrentPrj(project);
+
+					userInfoBean = loginDialog.open();		
+					
+					//activeShell.close();
+
+				}
+				while (userInfoBean == null);
+				UserInfoBean.setScreenSaverTimer(Calendar.getInstance().getTime());
+			}
+		} catch (Exception e)
+		{
+			log.error(e.getMessage());
+		} finally {
+			this.inScreenSaver=false;
+		}
+		return;
+	}
+	
 	private void getCellStatus(StatusLabelPaintListener statusLabelPaintListener2, Label statusLabel)
 	{
 		StringBuffer result = new StringBuffer();

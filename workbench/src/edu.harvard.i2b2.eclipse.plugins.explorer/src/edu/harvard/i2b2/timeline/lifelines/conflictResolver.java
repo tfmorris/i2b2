@@ -13,12 +13,12 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.util.*;
 
-public class conflictResolver {
+public class ConflictResolver {
 
     private Vector positions;
     private Integer identifier;
 
-    public conflictResolver() {
+    public ConflictResolver() {
 
 	positions = new Vector();
 	identifier = null; // so can tell not yet used

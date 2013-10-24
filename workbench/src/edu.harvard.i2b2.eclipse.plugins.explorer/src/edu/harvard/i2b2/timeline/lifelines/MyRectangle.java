@@ -16,7 +16,7 @@ public class MyRectangle extends Rectangle {
 
 
     private String Cause;
-    private genRecord theRecord;
+    private GenRecord theRecord;
     private Color rectColor;
     private boolean initFlag;
     private MyDate startDate;
@@ -110,7 +110,7 @@ public class MyRectangle extends Rectangle {
 
     }
 
-    public void setRecord(genRecord theRecord) {
+    public void setRecord(GenRecord theRecord) {
 
         this.theRecord = theRecord;
 
@@ -120,7 +120,7 @@ public class MyRectangle extends Rectangle {
         rectColor.brighter();
     }
 
-    public genRecord getRecord() {
+    public GenRecord getRecord() {
 
         return theRecord;
 

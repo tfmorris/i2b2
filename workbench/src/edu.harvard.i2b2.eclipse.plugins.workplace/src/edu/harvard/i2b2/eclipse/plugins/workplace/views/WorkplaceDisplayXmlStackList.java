@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -85,9 +85,9 @@ public class WorkplaceDisplayXmlStackList extends Dialog {
     		public void widgetSelected(SelectionEvent event) {
     			String outString = msgs.get(list.getSelectionIndex()).getMessage();
     			if(showPassword.getSelection() == false){
-    				Pattern p = Pattern.compile("<password>.+</password>");
+    				Pattern p = Pattern.compile(">.+</password>");
     				Matcher m = p.matcher(outString);
-    				outString = m.replaceAll("<password>*********</password>");
+    				outString = m.replaceAll(">*********</password>");
     			}
     			text.setText(outString);
     		}
@@ -95,9 +95,9 @@ public class WorkplaceDisplayXmlStackList extends Dialog {
     		public void widgetDefaultSelected(SelectionEvent event) {
     			String outString = msgs.get(list.getSelectionIndex()).getMessage();
     			if(showPassword.getSelection() == false){
-    				Pattern p = Pattern.compile("<password>.+</password>");
+    				Pattern p = Pattern.compile(">.+</password>");
     				Matcher m = p.matcher(outString);
-    				outString = m.replaceAll("<password>*********</password>");
+    				outString = m.replaceAll(">*********</password>");
     			}
     			text.setText(outString);
     		}

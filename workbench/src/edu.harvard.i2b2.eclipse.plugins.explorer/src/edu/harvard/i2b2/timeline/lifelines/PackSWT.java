@@ -86,8 +86,8 @@ public class PackSWT {
     table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
     table.createDefaultColumnsFromModel();
     JScrollPane scrollPane = new JScrollPane(table);*/
-    record record1 = new record();
-    record1.start();
+    Record record1 = new Record();
+    //record1.start();
     record1.init();
     //record1.resize(400,500);
     JScrollPane scrollPane = new JScrollPane(record1);

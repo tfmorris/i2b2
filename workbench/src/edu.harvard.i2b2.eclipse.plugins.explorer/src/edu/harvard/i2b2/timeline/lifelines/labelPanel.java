@@ -14,7 +14,7 @@ package edu.harvard.i2b2.timeline.lifelines;
 import java.awt.*;
 import java.util.*;
 
-public class labelPanel extends Panel {
+public class LabelPanel extends Panel {
 
     private TextArea labelText;
 
@@ -33,7 +33,7 @@ public class labelPanel extends Panel {
 	
 			
 
-    public labelPanel(int width, int height) {
+    public LabelPanel(int width, int height) {
         this.width = width;
         this.height = height;
                 
@@ -275,15 +275,15 @@ public class labelPanel extends Panel {
 	public boolean handleEvent (Event e) {
 
      if(e.shiftDown()  && e.id == Event.MOUSE_DOWN) 
-            mainPanel.theTimeLinePanel.repaint();
+            MainPanel.theTimeLinePanel.repaint();
 
-     if(e.controlDown() && e.id == Event.MOUSE_DOWN && record.noRects == true) {
-       record.noRects = false;
-       mainPanel.theTimeLinePanel.repaint();
+     if(e.controlDown() && e.id == Event.MOUSE_DOWN && Record.noRects == true) {
+       Record.noRects = false;
+       MainPanel.theTimeLinePanel.repaint();
      } else
-     if(e.controlDown() && e.id == Event.MOUSE_DOWN &&  record.noRects == false) {
-       record.noRects = true;
-       mainPanel.theTimeLinePanel.repaint();
+     if(e.controlDown() && e.id == Event.MOUSE_DOWN &&  Record.noRects == false) {
+       Record.noRects = true;
+       MainPanel.theTimeLinePanel.repaint();
      }
 
      return super.handleEvent(e);

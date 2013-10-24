@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Button;
 
 public class OptionShell {
 
-	private Shell sShell = null;  //  @jve:decl-index=0:visual-constraint="10,10"
+	private Shell sShell = null; // @jve:decl-index=0:visual-constraint="10,10"
 	private Text maxchildrentext = null;
 	private Text maxwaitingtext = null;
 	private Label label = null;
@@ -43,11 +43,12 @@ public class OptionShell {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		/* Before this is run, be sure to set up the launch configuration (Arguments->VM Arguments)
-		 * for the correct SWT library path in order to run with the SWT dlls. 
-		 * The dlls are located in the SWT plugin jar.  
+		/*
+		 * Before this is run, be sure to set up the launch configuration
+		 * (Arguments->VM Arguments) for the correct SWT library path in order
+		 * to run with the SWT dlls. The dlls are located in the SWT plugin jar.
 		 * For example, on Windows the Eclipse SWT 3.1 plugin jar is:
-		 *       installation_directory\plugins\org.eclipse.swt.win32_3.1.0.jar
+		 * installation_directory\plugins\org.eclipse.swt.win32_3.1.0.jar
 		 */
 		Display display = Display.getDefault();
 		OptionShell thisClass = new OptionShell();
@@ -67,7 +68,8 @@ public class OptionShell {
 	private void createSShell() {
 		sShell = new Shell();
 		sShell.setText("Query Tool Options Dialog");
-		sShell.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/edu/harvard/i2b2/query/core-cell.gif")));
+		sShell.setImage(new Image(Display.getCurrent(), getClass()
+				.getResourceAsStream("/edu/harvard/i2b2/query/core-cell.gif")));
 		sShell.setSize(new Point(371, 178));
 		sShell.setLayout(null);
 		maxchildrentext = new Text(sShell, SWT.BORDER);
@@ -85,23 +87,35 @@ public class OptionShell {
 		okbutton = new Button(sShell, SWT.NONE);
 		okbutton.setBounds(new Rectangle(75, 107, 48, 23));
 		okbutton.setText("OK");
-		okbutton.addSelectionListener(new org.eclipse.swt.events.SelectionAdapter() {
-			@Override
-			public void widgetSelected(org.eclipse.swt.events.SelectionEvent e) {
-				System.out.println("widgetSelected()"); // TODO Auto-generated Event stub widgetSelected()
-				sShell.close();
-			}
-		});
+		okbutton
+				.addSelectionListener(new org.eclipse.swt.events.SelectionAdapter() {
+					@Override
+					public void widgetSelected(
+							org.eclipse.swt.events.SelectionEvent e) {
+						System.out.println("widgetSelected()"); // TODO
+						// Auto-generated
+						// Event stub
+						// widgetSelected
+						// ()
+						sShell.close();
+					}
+				});
 		closebutton = new Button(sShell, SWT.NONE);
 		closebutton.setBounds(new Rectangle(198, 106, 63, 23));
 		closebutton.setText("Close");
-		closebutton.addSelectionListener(new org.eclipse.swt.events.SelectionAdapter() {
-			@Override
-			public void widgetSelected(org.eclipse.swt.events.SelectionEvent e) {
-				System.out.println("widgetSelected()"); // TODO Auto-generated Event stub widgetSelected()
-				sShell.close();
-			}
-		});
+		closebutton
+				.addSelectionListener(new org.eclipse.swt.events.SelectionAdapter() {
+					@Override
+					public void widgetSelected(
+							org.eclipse.swt.events.SelectionEvent e) {
+						System.out.println("widgetSelected()"); // TODO
+						// Auto-generated
+						// Event stub
+						// widgetSelected
+						// ()
+						sShell.close();
+					}
+				});
 	}
 
 }

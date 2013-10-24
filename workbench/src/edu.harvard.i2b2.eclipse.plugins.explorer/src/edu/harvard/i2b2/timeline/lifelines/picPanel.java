@@ -14,10 +14,10 @@ package edu.harvard.i2b2.timeline.lifelines;
 import java.awt.*;
 import java.net.*;
 
-public class picPanel extends Panel{
+public class PicPanel extends Panel{
     private int width, height;
     private Image image1;
-    public picPanel(int width, int height,record theApplet,String pictureFile) {
+    public PicPanel(int width, int height,Record theApplet,String pictureFile) {
         this.width = width;
         this.height = height;
         Toolkit toolkit = Toolkit.getDefaultToolkit();

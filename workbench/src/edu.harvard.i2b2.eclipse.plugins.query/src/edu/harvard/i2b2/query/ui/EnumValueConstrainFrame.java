@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
@@ -20,11 +20,12 @@ import edu.harvard.i2b2.query.data.QueryConceptTreeNodeData;
  * Created on December 7, 2007, 11:58 AM
  */
 
+@SuppressWarnings("serial")
 public class EnumValueConstrainFrame extends javax.swing.JFrame {
-	private QueryConceptTreePanel parent_;
+	private ConceptTreePanel parent_;
 
 	/** Creates new form EnumValueConstrainFrame */
-	public EnumValueConstrainFrame(QueryConceptTreePanel parent) {
+	public EnumValueConstrainFrame(ConceptTreePanel parent) {
 		parent_ = parent;
 
 		initComponents();
@@ -55,38 +56,34 @@ public class EnumValueConstrainFrame extends javax.swing.JFrame {
 
 	}
 
-
-	private void setPreviousValues()
-	{
-		if (parent_.currentData().valuePropertyData().hasEnumValue())
-		{
-			if (parent_.currentData().valuePropertyData().useValueFlag())
-			{
+	private void setPreviousValues() {
+		if (parent_.currentData().valuePropertyData().hasEnumValue()) {
+			if (parent_.currentData().valuePropertyData().useValueFlag()) {
 				jFlagRadioButton.setSelected(true);
-			} else if (parent_.currentData().valuePropertyData().useTextValue())
-			{
-				
+			} else if (parent_.currentData().valuePropertyData().useTextValue()) {
+
 				jTextValueRadioButton.setSelected(true);
 				jTextValueRadioButtonActionPerformed(null);
-				
-				
+
 				for (int i = 0; i < jEnumValueTable.getRowCount(); i++) {
-					for (String selectedValue : parent_.currentData().valuePropertyData().selectedValues)
-					{
-						if (selectedValue.equals((String) jEnumValueTable.getValueAt(i, 1)))
+					for (String selectedValue : parent_.currentData()
+							.valuePropertyData().selectedValues) {
+						if (selectedValue.equals((String) jEnumValueTable
+								.getValueAt(i, 1)))
 							jEnumValueTable.setValueAt(true, i, 0);
-								
-						
+
 					}
-					Boolean selected = (Boolean) jEnumValueTable.getValueAt(i, 0);
+					Boolean selected = (Boolean) jEnumValueTable.getValueAt(i,
+							0);
 					if (selected.equals(Boolean.TRUE)) {
-						String valStr = (String) jEnumValueTable.getValueAt(i, 1);
+						String valStr = (String) jEnumValueTable.getValueAt(i,
+								1);
 					}
 				}
 			}
-		} 		
+		}
 	}
-	
+
 	/**
 	 * This method is called from within the constructor to initialize the form.
 	 */
@@ -176,12 +173,12 @@ public class EnumValueConstrainFrame extends javax.swing.JFrame {
 		getContentPane().add(jCancelButton);
 		jCancelButton.setBounds(220, 260, 80, 23);
 
-		jEnumValueTable.setModel(new DefaultTableModel(new Object[][] {
-				{ null, "No Detection" }, { null, null }, { null, null },
-				{ null, null } }, new String[] { "", "" }) {
-			Class[] types = new Class[] { java.lang.Boolean.class,
-					java.lang.String.class };
-			boolean[] canEdit = new boolean[] { true, false };
+		jEnumValueTable.setModel(new DefaultTableModel(new Object[][]{
+				{null, "No Detection"}, {null, null}, {null, null},
+				{null, null}}, new String[]{"", ""}) {
+			Class[] types = new Class[]{java.lang.Boolean.class,
+					java.lang.String.class};
+			boolean[] canEdit = new boolean[]{true, false};
 
 			@Override
 			public Class getColumnClass(int columnIndex) {
@@ -260,9 +257,8 @@ public class EnumValueConstrainFrame extends javax.swing.JFrame {
 				}
 			}
 		}
-		data.name(parent_.currentData().titleName() );
+		data.name(parent_.currentData().titleName());
 		parent_.setValueDisplay();
-		//data.name(parent_.currentData().titleName() + data.valueName());
 
 		setVisible(false);
 	}

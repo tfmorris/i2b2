@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
- * which accompanies this distribution. 
+ * are made available under the terms of the i2b2 Software License v2.1 
+ * which accompanies this distribution.
  * 
  * Contributors: 
  *     Wensong Pan
@@ -12,12 +12,20 @@
  */
 package edu.harvard.i2b2.previousquery.data;
 
+import java.io.StringWriter;
 
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.BodyType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.MessageHeaderType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.RequestHeaderType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.RequestMessageType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.MasterRenameRequestType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.PsmQryHeaderType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.PsmRequestTypeType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ResultRequestType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.UserType;
+import edu.harvard.i2b2.previousquery.datavo.PreviousQueryJAXBUtil;
 
-/**
- * @author wp066
- *
- */
 public class QueryResultData extends QueryData {
 	
 	private String type;
@@ -61,5 +69,47 @@ public class QueryResultData extends QueryData {
 		return requestXml;
 	}
 	
-	
+	public String writeRenameQueryXML(String newName) {
+		
+		ResultRequestType masterRenameRequestType = new ResultRequestType();
+
+		// create header
+		PsmQryHeaderType headerType = new PsmQryHeaderType();
+		UserType userType = new UserType();
+		userType.setLogin(userId());
+		userType.setValue(userId());
+		headerType.setUser(userType);
+		headerType.setRequestType(PsmRequestTypeType.CRC_QRY_UPDATE_RESULT_INSTANCE_DESCRIPTION);
+		
+		masterRenameRequestType.setQueryResultInstanceId(patientRefId());
+		masterRenameRequestType.setDescription(newName);
+		//masterRenameRequestType.setUserId(userId());
+		
+		RequestHeaderType requestHeader = new RequestHeaderType();
+		requestHeader.setResultWaittimeMs(180000);
+		BodyType bodyType = new BodyType();
+		edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory psmOf = new edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory();
+		
+		bodyType.getAny().add(psmOf.createPsmheader(headerType));
+		bodyType.getAny().add(psmOf.createRequest(masterRenameRequestType));
+		MessageHeaderType messageHeader = getMessageHeader();
+		RequestMessageType requestMessageType = new RequestMessageType();
+		requestMessageType.setMessageBody(bodyType);
+		requestMessageType.setMessageHeader(messageHeader);
+		requestMessageType.setRequestHeader(requestHeader);
+			
+		
+		JAXBUtil jaxbUtil = PreviousQueryJAXBUtil.getJAXBUtil();
+		StringWriter strWriter = new StringWriter();
+		try {
+			edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory(); 
+			jaxbUtil.marshaller(of.createRequest(requestMessageType), strWriter);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		//System.out.println("Generated rename XML request: " + strWriter.toString());
+		return strWriter.toString();
+	}
 }

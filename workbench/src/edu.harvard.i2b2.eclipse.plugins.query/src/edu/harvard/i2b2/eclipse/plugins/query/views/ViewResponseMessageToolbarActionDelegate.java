@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
@@ -16,12 +16,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
-import edu.harvard.i2b2.query.ui.QueryDisplayXmlMessageDialog;
+import edu.harvard.i2b2.query.ui.DisplayXmlMessageDialog;
 
-/**
- * @author wp066
- *
- */
 public class ViewResponseMessageToolbarActionDelegate implements
 		IViewActionDelegate {
 	
@@ -38,7 +34,7 @@ public class ViewResponseMessageToolbarActionDelegate implements
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
 	public void run(IAction action) {
-		JFrame frame = new QueryDisplayXmlMessageDialog(queryView.queryPanel().lastResponseMessage());
+		JFrame frame = new DisplayXmlMessageDialog(queryView.queryPanel().lastResponseMessage());
         frame.setTitle("Query View Last XML Response Message");
         frame.setVisible(true);  
 	}

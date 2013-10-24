@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -10,13 +10,18 @@
 package edu.harvard.i2b2.eclipse.plugins.ontology.views; 
 
 
+import java.util.Iterator;
+import java.util.List;
+
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.StringUtil;
+import edu.harvard.i2b2.ontclient.datavo.i2b2result.DataType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
 
 public class TreeData extends ConceptType
 {
 	private String tableCd;
   	private String fullName;
+  	private String numPatients;
   	
   	public TreeData(int level, String fullName, String name, String visualAttributes)
   	{
@@ -75,5 +80,30 @@ public class TreeData extends ConceptType
 	public void setTableCd(String tableCd) {
 		this.tableCd = tableCd;
 	}	
+	public String getNumPatients() {
+  		return numPatients;
+  	}
 
+  	public void setNumPatients(String num) {
+  		this.numPatients = num;
+  	}
+  	
+  	public void setNumPatients(List<DataType> counts) {
+  		if(counts != null) {
+    		Iterator it = counts.iterator();
+
+    		while(it.hasNext()){
+    			DataType data = (DataType) it.next();
+    			String colName = data.getColumn().toLowerCase();
+    			if (colName.startsWith("zz"))
+    	 			colName = colName.substring(2).trim();
+    			
+    			if(colName.equals(this.getName().toLowerCase())){
+    				this.numPatients = data.getValue();
+    				return;
+    			}
+    		}
+  		}
+  	}
+  	
 }

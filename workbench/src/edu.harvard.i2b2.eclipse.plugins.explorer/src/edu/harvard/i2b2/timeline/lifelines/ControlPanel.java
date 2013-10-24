@@ -34,7 +34,7 @@ public class ControlPanel extends Frame {
     private HorizontalSlider fontSlider, lengthSlider;
     private int n_key;
     private Hashtable recordTable;
-    private facet afacetRecord;
+    private Facet afacetRecord;
     private boolean[] option = new boolean[5];
     private boolean[] lbloption = new boolean[3];
     private boolean[] timeoption = new boolean[2];
@@ -96,7 +96,7 @@ public class ControlPanel extends Frame {
 	tabPanel.addTabPanel("Zoom", true, zoomPanel);
 	zoomPanel_init(width - 10, height - 90);
 
-	recordTable = record.theData.getRecordTable();
+	recordTable = Record.theData.getRecordTable();
 	n_key = recordTable.size();
 
     }
@@ -113,7 +113,7 @@ public class ControlPanel extends Frame {
 	algorithmPanel.setFont(new Font("Dialog", Font.PLAIN, 12));
 	algorithmPanel.setLayout(null);
 	for (int i = 0; i < 5; i++)
-	    option[i] = record.option[i];
+	    option[i] = Record.option[i];
 	line = new CheckboxGroup();
 	check = new Checkbox[5];
 	check[0] = new Checkbox("Normal", line, option[0]);
@@ -136,7 +136,7 @@ public class ControlPanel extends Frame {
 	timingPanel.setFont(new Font("Dialog", Font.PLAIN, 12));
 	timingPanel.setLayout(null);
 	for (int i = 0; i < 2; i++)
-	    timeoption[i] = record.timeoption[i];
+	    timeoption[i] = Record.timeoption[i];
 	time = new CheckboxGroup();
 	timecheck = new Checkbox[2];
 	timecheck[0] = new Checkbox("No", time, timeoption[0]);
@@ -162,7 +162,7 @@ public class ControlPanel extends Frame {
 	candidatePanel.setLayout(null);
 
 	for (int i = 0; i < 3; i++)
-	    lbloption[i] = record.lbloption[i];
+	    lbloption[i] = Record.lbloption[i];
 
 	label = new CheckboxGroup();
 	labelcheck = new Checkbox[3];
@@ -184,7 +184,7 @@ public class ControlPanel extends Frame {
 	arrowPanel.setLayout(null);
 
 	for (int i = 0; i < 2; i++)
-	    arrowoption[i] = record.arrowoption[i];
+	    arrowoption[i] = Record.arrowoption[i];
 
 	arrow = new CheckboxGroup();
 	arrowcheck = new Checkbox[2];
@@ -231,7 +231,7 @@ public class ControlPanel extends Frame {
 	lengthPanel.setLayout(null);
 
 	for (int i = 0; i < 2; i++)
-	    lengthoption[i] = record.lengthoption[i];
+	    lengthoption[i] = Record.lengthoption[i];
 
 	length = new CheckboxGroup();
 	lengthcheck = new Checkbox[2];
@@ -275,12 +275,12 @@ public class ControlPanel extends Frame {
 	// excentric labeling
 	popup = new CheckboxGroup();
 	popcheck = new Checkbox[3];
-	boolean nopopup = (record.infotip || record.excentric) ? false : true;
+	boolean nopopup = (Record.infotip || Record.excentric) ? false : true;
 	popcheck[2] = new Checkbox("None", popup, nopopup);
 	popcheck[2].setBounds(20, 20, 140, 20);
-	popcheck[0] = new Checkbox("Infotip", popup, record.infotip);
+	popcheck[0] = new Checkbox("Infotip", popup, Record.infotip);
 	popcheck[0].setBounds(20, 40, 80, 20);
-	popcheck[1] = new Checkbox("Excentric", popup, record.excentric);
+	popcheck[1] = new Checkbox("Excentric", popup, Record.excentric);
 	popcheck[1].setBounds(20, 60, 80, 20);
 
 	for (int i = 0; i < 3; i++)
@@ -288,14 +288,14 @@ public class ControlPanel extends Frame {
 
 	col = new CheckboxGroup();
 	colcheck = new Checkbox[2];
-	colcheck[0] = new Checkbox("One column", col, record.column[0]);
+	colcheck[0] = new Checkbox("One column", col, Record.column[0]);
 	colcheck[0].setBounds(60, 80, 100, 20);
-	colcheck[1] = new Checkbox("Two columns", col, record.column[1]);
+	colcheck[1] = new Checkbox("Two columns", col, Record.column[1]);
 	colcheck[1].setBounds(160, 80, 100, 20);
 
 	for (int i = 0; i < 2; i++) {
 	    popPanel.add(colcheck[i]);
-	    if (!record.excentric)
+	    if (!Record.excentric)
 		colcheck[i].disable();
 	}
     }
@@ -311,7 +311,7 @@ public class ControlPanel extends Frame {
 	rulePanel.setFont(new Font("Dialog", Font.PLAIN, 12));
 	rulePanel.setLayout(null);
 	for (int i = 0; i < 2; i++)
-	    summaryoption[i] = record.summaryoption[i];
+	    summaryoption[i] = Record.summaryoption[i];
 	summarycheck = new Checkbox[2];
 	summarycheck[0] = new Checkbox(
 		"Label summary if cannot label all events");
@@ -356,8 +356,8 @@ public class ControlPanel extends Frame {
 	}
 
 	for (int i = 0; i < 2; i++) {
-	    searchoption_timeline[i] = record.searchoption_timeline[i];
-	    searchoption_label[i] = record.searchoption_label[i];
+	    searchoption_timeline[i] = Record.searchoption_timeline[i];
+	    searchoption_label[i] = Record.searchoption_label[i];
 	}
 	resultPanel.setFont(new Font("Dialog", Font.PLAIN, 12));
 	searchcheck_timeline[0] = new Checkbox("Gray out", search_timeline,
@@ -430,9 +430,9 @@ public class ControlPanel extends Frame {
      */
     public void re_layout() {
 	for (int i = 0; i < n_key; i++) {
-	    afacetRecord = (facet) (recordTable.get(new Integer(i)));
+	    afacetRecord = (Facet) (recordTable.get(new Integer(i)));
 	    for (int j = 0; j < 5; j++)
-		record.option[j] = option[j];
+		Record.option[j] = option[j];
 	    afacetRecord.layout();
 	}
     }
@@ -442,19 +442,19 @@ public class ControlPanel extends Frame {
      */
     public void re_label() {
 	for (int j = 0; j < 3; j++)
-	    record.lbloption[j] = lbloption[j];
+	    Record.lbloption[j] = lbloption[j];
 	for (int j = 0; j < 2; j++)
-	    record.summaryoption[j] = summaryoption[j];
-	mainPanel.theTimeLinePanel.relabeling = true;
+	    Record.summaryoption[j] = summaryoption[j];
+	MainPanel.theTimeLinePanel.relabeling = true;
 	for (int j = 0; j < 2; j++)
-	    record.searchoption_timeline[j] = searchoption_timeline[j];
+	    Record.searchoption_timeline[j] = searchoption_timeline[j];
 	for (int j = 0; j < 2; j++)
-	    record.searchoption_label[j] = searchoption_label[j];
+	    Record.searchoption_label[j] = searchoption_label[j];
 
 	for (int j = 0; j < 2; j++)
-	    record.arrowoption[j] = arrowoption[j];
+	    Record.arrowoption[j] = arrowoption[j];
 	for (int j = 0; j < 2; j++)
-	    record.lengthoption[j] = lengthoption[j];
+	    Record.lengthoption[j] = lengthoption[j];
     }
 
     /**
@@ -479,7 +479,7 @@ public class ControlPanel extends Frame {
 		    option[i] = check[i].getState();
 		re_layout();
 		re_label();
-		mainPanel.theTimeLinePanel.repaint();
+		MainPanel.theTimeLinePanel.repaint();
 		return true;
 	    }
 	    // label section
@@ -487,19 +487,19 @@ public class ControlPanel extends Frame {
 		for (int i = 0; i < 3; i++)
 		    lbloption[i] = labelcheck[i].getState();
 		re_label();
-		mainPanel.theTimeLinePanel.repaint();
+		MainPanel.theTimeLinePanel.repaint();
 		return true;
 	    } else if (arrowcheck != null && checkaction(event, arrowcheck)) {
 		for (int i = 0; i < 2; i++)
 		    arrowoption[i] = arrowcheck[i].getState();
 		re_label();
-		mainPanel.theTimeLinePanel.repaint();
+		MainPanel.theTimeLinePanel.repaint();
 		return true;
 	    } else if (event.target == fontSlider) {
 		int fontsize = fontSlider.getValue() + (8 - 1);
-		mainPanel.theTimeLinePanel.setLabelFont(fontsize);
+		MainPanel.theTimeLinePanel.setLabelFont(fontsize);
 		re_label();
-		mainPanel.theTimeLinePanel.repaint();
+		MainPanel.theTimeLinePanel.repaint();
 		return true;
 	    } else if (lengthcheck != null && checkaction(event, lengthcheck)) {
 		for (int i = 0; i < 2; i++)
@@ -510,39 +510,39 @@ public class ControlPanel extends Frame {
 		    lengthSlider.setEnabled(false);
 		return true;
 	    } else if (popcheck != null && checkaction(event, popcheck)) {
-		record.infotip = popcheck[0].getState();
-		record.excentric = popcheck[1].getState();
-		if (record.excentric) {
+		Record.infotip = popcheck[0].getState();
+		Record.excentric = popcheck[1].getState();
+		if (Record.excentric) {
 		    colcheck[0].setEnabled(true);
 		    colcheck[1].setEnabled(true);
-		    if (!(record.column[0] || record.column[1])) { // need a
+		    if (!(Record.column[0] || Record.column[1])) { // need a
 			// default
 			// option
-			record.column[0] = true;
+			Record.column[0] = true;
 			colcheck[0].setState(true);
 		    }
 		} else {
 		    colcheck[0].setEnabled(false);
 		    colcheck[1].setEnabled(false);
 		}
-		mainPanel.theTimeLinePanel.repaint();
+		MainPanel.theTimeLinePanel.repaint();
 		return true;
 	    } else if (colcheck != null && checkaction(event, colcheck)) {
-		record.column[0] = colcheck[0].getState();
-		record.column[1] = colcheck[1].getState();
-		mainPanel.theTimeLinePanel.repaint();
+		Record.column[0] = colcheck[0].getState();
+		Record.column[1] = colcheck[1].getState();
+		MainPanel.theTimeLinePanel.repaint();
 		return true;
 	    } else if (event.target == lengthSlider) {
-		record.lbllength = lengthSlider.getValue();
+		Record.lbllength = lengthSlider.getValue();
 		re_label();
-		mainPanel.theTimeLinePanel.repaint();
+		MainPanel.theTimeLinePanel.repaint();
 		return true;
 	    } else if (timecheck != null && checkaction(event, timecheck)) {
 		for (int i = 0; i < 2; i++)
 		    timeoption[i] = timecheck[i].getState();
 		for (int i = 0; i < 2; i++)
-		    record.timeoption[i] = timeoption[i];
-		mainPanel.theTimeLinePanel.repaint();
+		    Record.timeoption[i] = timeoption[i];
+		MainPanel.theTimeLinePanel.repaint();
 		return true;
 	    }
 	    // summary section
@@ -556,12 +556,12 @@ public class ControlPanel extends Frame {
 		for (int i = 0; i < 2; i++)
 		    summaryoption[i] = summarycheck[i].getState();
 		re_label();
-		mainPanel.theTimeLinePanel.repaint();
+		MainPanel.theTimeLinePanel.repaint();
 		return true;
 	    } else if (summarycheck != null && event.target == summarycheck[1]) {
 		summaryoption[1] = summarycheck[1].getState();
 		re_label();
-		mainPanel.theTimeLinePanel.repaint();
+		MainPanel.theTimeLinePanel.repaint();
 		return true;
 	    }
 	    // search section
@@ -570,13 +570,13 @@ public class ControlPanel extends Frame {
 		for (int i = 0; i < 2; i++) {
 		    searchoption_timeline[i] = searchcheck_timeline[i]
 			    .getState();
-		    record.searchoption_timeline[i] = searchoption_timeline[i];
+		    Record.searchoption_timeline[i] = searchoption_timeline[i];
 		}
 		searchcheck_label[1].setState(true);
 		searchcheck_label[0].setEnabled(false);
 		for (int i = 0; i < 2; i++) {
 		    searchoption_label[i] = searchcheck_label[i].getState();
-		    record.searchoption_label[i] = searchoption_label[i];
+		    Record.searchoption_label[i] = searchoption_label[i];
 		}
 		/*
 		 * re_layout(); re_label();
@@ -587,7 +587,7 @@ public class ControlPanel extends Frame {
 		for (int i = 0; i < 2; i++) {
 		    searchoption_timeline[i] = searchcheck_timeline[i]
 			    .getState();
-		    record.searchoption_timeline[i] = searchoption_timeline[i];
+		    Record.searchoption_timeline[i] = searchoption_timeline[i];
 		}
 		searchcheck_label[0].setEnabled(true);
 		re_layout();
@@ -596,7 +596,7 @@ public class ControlPanel extends Frame {
 		    && checkaction(event, searchcheck_label)) {
 		for (int i = 0; i < 2; i++) {
 		    searchoption_label[i] = searchcheck_label[i].getState();
-		    record.searchoption_label[i] = searchoption_label[i];
+		    Record.searchoption_label[i] = searchoption_label[i];
 		}
 		return true;
 	    } else if (zoomInCheck != null && event.target == zoomInCheck[0]) {

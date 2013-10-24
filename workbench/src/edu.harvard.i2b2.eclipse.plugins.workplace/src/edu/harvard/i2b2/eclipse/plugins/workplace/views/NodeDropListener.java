@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -133,8 +133,68 @@ final class NodeDropListener implements DropTargetListener
 			String visualAttribute = "";
 			String workXmlI2B2Type = "";
 			String name = XmlUtil.getName(xml);
-	
+			
 			if(XmlUtil.hasFolderTag(xml)) {
+
+				JAXBUtil jaxbUtil = WorkplaceJAXBUtil.getJAXBUtil();
+				FoldersType folders = null;
+				FolderType folder = null;
+				try {
+					JAXBElement jaxbElement  = jaxbUtil.unMashallFromString(text);
+					DndType dndType = (DndType)jaxbElement.getValue();     
+					folders = (FoldersType) new JAXBUnWrapHelper().getObjectByClass(dndType.getAny(),
+							FoldersType.class);
+					folder = folders.getFolder().get(0);
+				} catch (JAXBUtilException e) {
+					log.error("Unwrap error: " + e.getMessage(), e);
+					return;
+				}  
+				TreeData data = new TreeData(folder);
+				data.setParentIndex(currentTarget.getData().getIndex());
+				data.setTableCd(currentTarget.getData().getTableCd());
+				data.setVisualAttributes("FA");
+				data.setShareId(currentTarget.getData().getShareId());
+				TreeNode node = new TreeNode(data);
+				currentTarget.addChild(node);
+				
+				if(moveFlag == true)
+					node.moveNode(viewer).start();
+
+				else{ 
+					String copiedTo = new AddChildRequestMessage().generateMessageId();
+					
+					// we are copying (from a shared folder)
+					// Give the node its own index
+					node.getData().setIndex(copiedTo);
+					// This is a hack to pass the index and shareId back to dragListener
+					//   so children of copied Folder can also be copied.
+					event.display.setData(copiedTo+","+data.getShareId());
+					
+					// set up folder with placeholder child so display is correct
+					if((node.getData().getVisualAttributes().equals("FA")) )  
+	    			{
+	    				TreeNode placeholder = new TreeNode("working...", "working...", "LAO");
+	    				node.addChild(placeholder);
+	    			
+	    			}
+	    			else if	((node.getData().getVisualAttributes().equals("FH")) )
+	    			{
+	    				TreeNode placeholder = new TreeNode("working...", "working...", "LHO");
+	    				node.addChild(placeholder);
+	    			
+	    			}
+
+					node.addNode(viewer).start();
+
+				}
+				viewer.refresh();
+				return;
+			}
+		/*
+		 * This code used to single out folders for different processing (move only)
+		 * 
+		 * 
+		 * 	if(XmlUtil.hasFolderTag(xml)) {
 				// Folders are processed differently
 				// They are moved as opposed to added to the db
 				JAXBUtil jaxbUtil = WorkplaceJAXBUtil.getJAXBUtil();
@@ -172,7 +232,7 @@ final class NodeDropListener implements DropTargetListener
 
 				viewer.refresh();
 				return;
-			}
+			}*/
 			else if(XmlUtil.hasConceptTag(xml)) {
 
 				visualAttribute = "ZA";     
@@ -266,7 +326,7 @@ final class NodeDropListener implements DropTargetListener
 				MessageBox mBox = new MessageBox(Display.getCurrent().getActiveShell(),SWT.ICON_INFORMATION | SWT.OK);
 				mBox.setText("Unsupported Work Item Message");
 				mBox.setMessage("Work item being dropped is not supported.");
-				log.debug("Work item being dropped is not supported.");
+				log.info("Work item being dropped is not supported.");
 				int result = mBox.open();		
 				return;
 			}
@@ -343,7 +403,10 @@ final class NodeDropListener implements DropTargetListener
 		if(workItem != null){
 			tdata.setTooltip(workItem.getTooltip());
 			tdata.setName(workItem.getName());
-			tdata.setIndex(workItem.getIndex());
+			if(moveFlag == true)
+				tdata.setIndex(workItem.getIndex());
+			else
+				tdata.setIndex(new AddChildRequestMessage().generateMessageId());		
 		}
 		else{
 			tdata.setTooltip(workXmlI2B2Type + ":" + name);

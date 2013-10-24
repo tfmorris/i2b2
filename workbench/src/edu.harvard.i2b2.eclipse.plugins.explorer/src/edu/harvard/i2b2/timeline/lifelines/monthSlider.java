@@ -13,18 +13,18 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 
-public class monthSlider extends slider{
+public class MonthSlider extends Slider{
 
     private int monthRange;
 
-    public monthSlider(int width, int height,MyDate today){
+    public MonthSlider(int width, int height,MyDate today){
         super(width, height,today);
 
-        dateMin = loadRecord.getMinDate();
-        dateMax = loadRecord.getMinDate();
-        validDateMin = loadRecord.getMinDate();
-        validDateMax = loadRecord.getMinDate();
-        aScale = new scale(rangeWidth, validDateMin, validDateMax,today);
+        dateMin = LoadRecord.getMinDate();
+        dateMax = LoadRecord.getMinDate();
+        validDateMin = LoadRecord.getMinDate();
+        validDateMax = LoadRecord.getMinDate();
+        aScale = new Scale(rangeWidth, validDateMin, validDateMax,today);
 
         validMin = 0; validMax = rangeWidth;
         diff = 365 * 60 * 24;
@@ -59,8 +59,8 @@ public class monthSlider extends slider{
             maxClipRect.reshape(0,0,0,0);
             maxClipPos = sliderWidth;
             lowValue = 0; highValue = sliderWidth - 2*thumbWidth;
-            mainPanel.theMonthSlider.repaint();
-            mainPanel.theWeekSlider.wakeup("disabled",null);
+            MainPanel.theMonthSlider.repaint();
+            MainPanel.theWeekSlider.wakeup("disabled",null);
         }
     }
 
@@ -84,9 +84,9 @@ public class monthSlider extends slider{
                     lowValue = minThumbPos;
                     adjust(MINTHUMB, lowValue);
                     if(rangeWidth == monthRange)
-                       mainPanel.theWeekSlider.wakeup("enabled",validDateMin);
+                       MainPanel.theWeekSlider.wakeup("enabled",validDateMin);
                     else if(rangeWidth > monthRange)
-                       mainPanel.theWeekSlider.wakeup("disabled",null);
+                       MainPanel.theWeekSlider.wakeup("disabled",null);
                     repaint();
                  }
                  break;
@@ -107,9 +107,9 @@ public class monthSlider extends slider{
                     highValue = maxThumbPos - thumbWidth;
                     adjust(MAXTHUMB, highValue);
                     if(rangeWidth == monthRange)
-                       mainPanel.theWeekSlider.wakeup("enabled",validDateMin);
+                       MainPanel.theWeekSlider.wakeup("enabled",validDateMin);
                     else if(rangeWidth > monthRange)
-                       mainPanel.theWeekSlider.wakeup("disabled",null);
+                       MainPanel.theWeekSlider.wakeup("disabled",null);
                     repaint();
                  }
                  break;
@@ -141,7 +141,7 @@ public class monthSlider extends slider{
                     highValue = maxThumbPos - thumbWidth;
                     adjust(MAXTHUMB, highValue);
                     if(rangeWidth == monthRange)
-                       mainPanel.theWeekSlider.wakeup("enabled",validDateMin);
+                       MainPanel.theWeekSlider.wakeup("enabled",validDateMin);
                     repaint();
                  }
                  break;

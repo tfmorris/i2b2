@@ -13,14 +13,14 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 
-public class alertPanel extends Panel {
+public class AlertPanel extends Panel {
 
     private int width, height;
 
     protected static Font font = new Font("TimesRoman", Font.BOLD, 12);
     protected FontMetrics fontMetrics = getFontMetrics(font);
 
-    public alertPanel(int width, int height) {
+    public AlertPanel(int width, int height) {
 	this.width = width;
 	this.height = height;
 

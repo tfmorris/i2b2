@@ -7,6 +7,8 @@
       </topic>
       <topic href="html/concepts_navigateTerms/navigate_terms_navigation/navigate_terms_navigation_displayOptions.htm" label="Display options">
       </topic>
+      <topic href="html/concepts_navigateTerms/navigate_terms_navigation/navigate_terms_navigation_popupMenu.htm" label="Pop-up menu">
+      </topic>
    </topic>
    <topic href="html/concepts_navigateTerms/navigate_terms_usingTerms/navigate_terms_usingTerms_intro.htm" label="Using terms">
       <topic href="html/concepts_navigateTerms/navigate_terms_usingTerms/navigate_terms_usingTerms_dragItems.htm" label="Draggable items">
@@ -16,8 +18,6 @@
       <topic href="html/concepts_navigateTerms/navigate_terms_usingTerms/navigate_terms_usingTerms_add_wpView.htm" label="Add to workplace view">
       </topic>
       <topic href="html/concepts_navigateTerms/navigate_terms_usingTerms/navigate_terms_usingTerms_add_timelineView.htm" label="Add to timeline view">
-      </topic>
-      <topic href="html/concepts_navigateTerms/navigate_terms_usingTerms/navigate_terms_usingTerms_add_edView.htm" label="Add to export data view">
       </topic>
    </topic>
 </toc>

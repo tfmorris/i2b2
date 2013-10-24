@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -95,7 +95,7 @@ public class OntServiceDriver {
 				 GetChildrenRequestMessage reqMsg = new GetChildrenRequestMessage();
 
 				 String getChildrenRequestString = reqMsg.doBuildXML(parentNode);
-				 log.debug(getChildrenRequestString);
+	//			 log.debug(getChildrenRequestString);
 				 				 
 				 if(serviceMethod.equals("SOAP")) {
 					 response = sendSOAP(getChildrenRequestString, "http://rpdr.partners.org/GetChildren", "GetChildren", type );
@@ -106,6 +106,9 @@ public class OntServiceDriver {
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
 				throw new AxisFault(e);
+			} catch (I2B2Exception e) {
+				log.error(e.getMessage());
+				throw new I2B2Exception(e.getMessage());
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
@@ -125,14 +128,14 @@ public class OntServiceDriver {
 			 try {
 				 GetCategoriesRequestMessage reqMsg = new GetCategoriesRequestMessage();
 				 String getCategoriesRequestString = reqMsg.doBuildXML(returnData);
-				log.debug(getCategoriesRequestString); 
+	//			log.debug(getCategoriesRequestString); 
 				if(serviceMethod.equals("SOAP")) {
 					response = sendSOAP(getCategoriesRequestString,"http://rpdr.partners.org/GetCategories", "GetCategories", type );
 				}
 				else {
 					response = sendREST(categoriesEPR, getCategoriesRequestString, type);
 				}
-				log.debug("Ont response = " + response);
+	//			log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
 				throw new AxisFault(e);
@@ -159,7 +162,7 @@ public class OntServiceDriver {
 				 GetSchemesRequestMessage reqMsg = new GetSchemesRequestMessage();
 				 String getSchemesRequestString = reqMsg.doBuildXML(returnData);
 
-				log.debug(getSchemesRequestString);
+	//			log.debug(getSchemesRequestString);
 				
 				if(serviceMethod.equals("SOAP")) {
 					response = sendSOAP(getSchemesRequestString, "http://rpdr.partners.org/GetSchemes", "GetSchemes", type );
@@ -167,7 +170,7 @@ public class OntServiceDriver {
 				else {
 					response = sendREST(schemesEPR, getSchemesRequestString, type);
 				}
-				log.debug("Ont response = " + response);
+//				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
 				throw new AxisFault(e);
@@ -196,7 +199,7 @@ public class OntServiceDriver {
 
 				 String getTermInfoRequestString = reqMsg.doBuildXML(self);		
 
-				log.debug(getTermInfoRequestString);
+	//			log.debug(getTermInfoRequestString);
 				
 	//			 if(serviceMethod.equals("SOAP")) {
 	//				 response = sendSOAP(getTermInfoRequestString, "http://rpdr.partners.org/GetTermInfo", "GetTermInfo", type );
@@ -205,7 +208,7 @@ public class OntServiceDriver {
 					 response = sendREST(termInfoEPR, getTermInfoRequestString, type);
 		//		 }
 
-				log.debug("Ont response = " + response);
+//				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
 				throw new AxisFault(e);
@@ -231,7 +234,7 @@ public class OntServiceDriver {
 				 GetNameInfoRequestMessage reqMsg = new GetNameInfoRequestMessage();
 				 String getNameInfoRequestString = reqMsg.doBuildXML(vocabData);
 
-				 log.debug(getNameInfoRequestString);
+//				 log.debug(getNameInfoRequestString);
 				 
 					if(serviceMethod.equals("SOAP")) {
 						response = sendSOAP(getNameInfoRequestString,"http://rpdr.partners.org/GetNameInfo", "GetNameInfo", type );
@@ -240,7 +243,7 @@ public class OntServiceDriver {
 						response = sendREST(nameInfoEPR, getNameInfoRequestString, type);
 					}
 
-				log.debug("Ont response = " + response);
+//				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
 				throw new AxisFault(e);
@@ -285,7 +288,7 @@ public class OntServiceDriver {
 				 GetCodeInfoRequestMessage reqMsg = new GetCodeInfoRequestMessage();
 				 String getCodeInfoRequestString = reqMsg.doBuildXML(vocabType);
 
-				log.debug(getCodeInfoRequestString);
+//				log.debug(getCodeInfoRequestString);
 				
 				 if(serviceMethod.equals("SOAP")) {
 					 response = sendSOAP(getCodeInfoRequestString, "http://rpdr.partners.org/GetCodeInfo", "GetCodeInfo", type );
@@ -294,7 +297,7 @@ public class OntServiceDriver {
 					 response = sendREST(codeInfoEPR, getCodeInfoRequestString, type);
 				 }
 
-				log.debug("Ont response = " + response);
+	//			log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
 				throw new AxisFault(e);
@@ -331,7 +334,14 @@ public class OntServiceDriver {
 		ServiceClient sender = OntServiceClient.getServiceClient();
 		sender.setOptions(options);
 
-		OMElement result = sender.sendReceive(getOnt);
+		OMElement result;
+		try {
+			result = sender.sendReceive(getOnt);
+		} catch (java.lang.OutOfMemoryError e) {
+			System.gc();
+			throw new I2B2Exception("Out of memory");
+//			return null;
+		}
 		String response = result.toString();
 		
 		if(type != null){

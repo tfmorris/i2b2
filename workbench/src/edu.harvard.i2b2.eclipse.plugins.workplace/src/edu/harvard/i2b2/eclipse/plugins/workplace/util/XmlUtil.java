@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -96,10 +96,9 @@ public class XmlUtil {
     		else
     			return "ABC"+MessageUtil.getInstance().getTimestamp();
     	}
-    	// append result_instance_id to PATIENTSET <name> to create unique name
-    	//   same for PATIENT_COUNT_XML
-    	else if ((nameElements.item(0).getTextContent().equals("PATIENTSET")) ||
-    			(nameElements.item(0).getTextContent().equals("PATIENT_COUNT_XML")) ){
+    	// append result_instance_id to PATIENT_COUNT_XML <name> to create unique name
+
+    	else if ((nameElements.item(0).getTextContent().equals("PATIENT_COUNT_XML")) ){
     		NodeList resultElements = rootElement.getElementsByTagName("result_instance_id");
     		if(resultElements.getLength() > 0){
     			String resultInstanceId = resultElements.item(0).getTextContent();
@@ -107,6 +106,13 @@ public class XmlUtil {
     		}
     	}
 
+    	else if ((nameElements.item(0).getTextContent().equals("PATIENTSET"))  ){
+    		NodeList resultElements = rootElement.getElementsByTagName("description");
+    		if(resultElements.getLength() > 0){
+    			return resultElements.item(0).getTextContent();
+    		}
+    	}
+    	
     	return nameElements.item(0).getTextContent();
     }
     

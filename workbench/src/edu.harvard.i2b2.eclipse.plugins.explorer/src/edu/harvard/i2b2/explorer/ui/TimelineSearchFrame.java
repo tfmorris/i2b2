@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
+ *   
  *     Wensong Pan
+ *     
  */
 
 /*
@@ -16,111 +18,113 @@
 
 package edu.harvard.i2b2.explorer.ui;
 
-import edu.harvard.i2b2.timeline.lifelines.mainPanel;
-import edu.harvard.i2b2.timeline.lifelines.record;
+import edu.harvard.i2b2.timeline.lifelines.MainPanel;
+import edu.harvard.i2b2.timeline.lifelines.Record;
 
 /**
- *
- * @author  wp066
+ * 
+ * @author wp066
  */
 public class TimelineSearchFrame extends javax.swing.JFrame {
-    
+
 	/** Creates new form TimelineSearchFrame */
-    public TimelineSearchFrame(record r) {
-    	initComponents();
-        setSize(300, 120);
-        setLocation(500, 50);
-        ////jSearchTextField.requestFocus();
-        //jSearchButton.requestFocus();
-        //jSearchTextField.requestFocus();
-        r.requestFocus();
-    }
-    
-    /** This method is called from within the constructor to
-     * initialize the form.
-     */
-    private void initComponents() {
-        jLabel1 = new javax.swing.JLabel();
-        jSearchTextField = new javax.swing.JTextField();
-        jSearchButton = new javax.swing.JButton();
-        jCloseButton = new javax.swing.JButton();
+	public TimelineSearchFrame(Record r) {
+		initComponents();
+		setSize(300, 120);
+		setLocation(500, 50);
+		// //jSearchTextField.requestFocus();
+		// jSearchButton.requestFocus();
+		// jSearchTextField.requestFocus();
+		r.requestFocus();
+	}
 
-        getContentPane().setLayout(null);
+	/**
+	 * This method is called from within the constructor to initialize the form.
+	 */
+	private void initComponents() {
+		jLabel1 = new javax.swing.JLabel();
+		jSearchTextField = new javax.swing.JTextField();
+		jSearchButton = new javax.swing.JButton();
+		jCloseButton = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Search Timelines");
-        
-        java.awt.Image img = this.getToolkit().getImage(TimelineSearchFrame.class.getResource("core-cell.gif"));
-        this.setIconImage(img);
-        
-        jLabel1.setText("Search String: ");
-        getContentPane().add(jLabel1);
-        jLabel1.setBounds(20, 20, 200, 14);
+		getContentPane().setLayout(null);
 
-        //jSearchTextField.setFocusCycleRoot(true);
-        jSearchTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jSearchTextFieldActionPerformed(evt);
-            }
-        });
+		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+		setTitle("Search Timelines");
 
-        getContentPane().add(jSearchTextField);
-        jSearchTextField.setBounds(20, 50, 180, 23);
+		java.awt.Image img = this.getToolkit().getImage(
+				TimelineSearchFrame.class.getResource("core-cell.gif"));
+		this.setIconImage(img);
 
-        jSearchButton.setText("Search");
-        jSearchButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jSearchButtonActionPerformed(evt);
-            }
-        });
+		jLabel1.setText("Search String: ");
+		getContentPane().add(jLabel1);
+		jLabel1.setBounds(20, 20, 200, 14);
 
-        getContentPane().add(jSearchButton);
-        jSearchButton.setBounds(200, 50, 80, 23);
+		// jSearchTextField.setFocusCycleRoot(true);
+		jSearchTextField.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				jSearchTextFieldActionPerformed(evt);
+			}
+		});
 
-        jCloseButton.setText("Close");
-        jCloseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCloseButtonActionPerformed(evt);
-            }
-        });
+		getContentPane().add(jSearchTextField);
+		jSearchTextField.setBounds(20, 50, 180, 23);
 
-        getContentPane().add(jCloseButton);
-        jCloseButton.setBounds(200, 18, 80, 23);
+		jSearchButton.setText("Search");
+		jSearchButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				jSearchButtonActionPerformed(evt);
+			}
+		});
 
-        pack();
-    }
-    
-    private void jCloseButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    	setVisible(false);
-    	dispose();
-    }
+		getContentPane().add(jSearchButton);
+		jSearchButton.setBounds(200, 50, 80, 23);
 
-    private void jSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    	mainPanel.theTimeLinePanel.search = true;  
-        mainPanel.theTimeLinePanel.grep(jSearchTextField.getText());
-    }
+		jCloseButton.setText("Close");
+		jCloseButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				jCloseButtonActionPerformed(evt);
+			}
+		});
 
-    private void jSearchTextFieldActionPerformed(java.awt.event.ActionEvent evt) {
-    	mainPanel.theTimeLinePanel.search = true;  
-        mainPanel.theTimeLinePanel.grep(jSearchTextField.getText());
-    }
-    	        
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new TimelineSearchFrame(null).setVisible(true);
-            }
-        });
-    }
-    
-    // Variables declaration 
-    private javax.swing.JButton jCloseButton;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JButton jSearchButton;
-    private javax.swing.JTextField jSearchTextField;
-    // End of variables declaration
-    
+		getContentPane().add(jCloseButton);
+		jCloseButton.setBounds(200, 18, 80, 23);
+
+		pack();
+	}
+
+	private void jCloseButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		setVisible(false);
+		dispose();
+	}
+
+	private void jSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		MainPanel.theTimeLinePanel.search = true;
+		MainPanel.theTimeLinePanel.grep(jSearchTextField.getText());
+	}
+
+	private void jSearchTextFieldActionPerformed(java.awt.event.ActionEvent evt) {
+		MainPanel.theTimeLinePanel.search = true;
+		MainPanel.theTimeLinePanel.grep(jSearchTextField.getText());
+	}
+
+	/**
+	 * @param args
+	 *            the command line arguments
+	 */
+	public static void main(String args[]) {
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				new TimelineSearchFrame(null).setVisible(true);
+			}
+		});
+	}
+
+	// Variables declaration
+	private javax.swing.JButton jCloseButton;
+	private javax.swing.JLabel jLabel1;
+	private javax.swing.JButton jSearchButton;
+	private javax.swing.JTextField jSearchTextField;
+	// End of variables declaration
+
 }

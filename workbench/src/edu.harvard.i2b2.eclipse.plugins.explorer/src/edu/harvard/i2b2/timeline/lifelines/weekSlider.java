@@ -13,18 +13,18 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 
-public class weekSlider extends slider{
+public class WeekSlider extends Slider{
 
     private int weekRange;
 
-    public weekSlider(int width, int height, MyDate today){
+    public WeekSlider(int width, int height, MyDate today){
         super(width, height,today);
 
-        dateMin = loadRecord.getMinDate();
-        dateMax = loadRecord.getMinDate();
-        validDateMin = loadRecord.getMinDate();
-        validDateMax = loadRecord.getMinDate();
-        aScale = new scale(rangeWidth, validDateMin, validDateMax,today);
+        dateMin = LoadRecord.getMinDate();
+        dateMax = LoadRecord.getMinDate();
+        validDateMin = LoadRecord.getMinDate();
+        validDateMax = LoadRecord.getMinDate();
+        aScale = new Scale(rangeWidth, validDateMin, validDateMax,today);
 
         validMin = 0; validMax = rangeWidth;
         diff = 7 * 24 * 60;
@@ -99,7 +99,7 @@ public class weekSlider extends slider{
                     maxClipRect.reshape(maxClipPos, 0, maxClipWidth, thickness);
                     rangeRect.reshape(rangePos, 0, rangeWidth, thickness);
                     highValue = maxThumbPos - thumbWidth;
-                       mainPanel.theMonthSlider.wakeup("enabled",validDateMin);
+                       MainPanel.theMonthSlider.wakeup("enabled",validDateMin);
                     adjust(MAXTHUMB, highValue);
                     repaint();
                  }

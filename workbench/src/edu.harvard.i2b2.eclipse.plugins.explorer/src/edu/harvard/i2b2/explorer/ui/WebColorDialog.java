@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
- *     wwg
+ *   
+ *     
  */
 package edu.harvard.i2b2.explorer.ui;
 
 import java.util.HashMap;
-import java.util.Iterator;
-//import java.util.Map;
+import java.util.Iterator; //import java.util.Map;
 import java.util.ArrayList;
 
 import org.eclipse.swt.*;
@@ -20,10 +20,6 @@ import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
-/**
- * @author wwg0 custom color dialog with web safe colors
- * 
- */
 public class WebColorDialog extends Dialog {
 	// private String dialogText;
 
@@ -35,11 +31,11 @@ public class WebColorDialog extends Dialog {
 
 	private Text textRGB;
 
-	//private RGB startRGB;
+	// private RGB startRGB;
 
 	private Color startColor;
 
-	// hash map with rgb web color values from Chris
+	// hash map with rgb web color values
 	private HashMap colorMap = new HashMap();
 
 	// array list with rgb web colors in sorted order from hash map
@@ -109,7 +105,7 @@ public class WebColorDialog extends Dialog {
 		}
 		// Return the entered value, or null
 		return input;
-		//return selectedRGB;
+		// return selectedRGB;
 	}
 
 	/**
@@ -118,13 +114,12 @@ public class WebColorDialog extends Dialog {
 	 * @param shell
 	 *            the dialog window
 	 */
-private void createContents(final Shell shell) {
+	private void createContents(final Shell shell) {
 
 		shell.setLayout(new FillLayout());
 		Composite top = new Composite(shell, SWT.NONE);
 		// make a grid with 1 column 3 rows (message, grid, button row)
-		
-		
+
 		top.setLayout(new GridLayout(1, true));
 
 		// Show the message
@@ -173,7 +168,7 @@ private void createContents(final Shell shell) {
 			borderLabel.addListener(SWT.MouseDown, new Listener() {
 
 				public void handleEvent(Event event) {
-					
+
 					BorderLabel sbl = (BorderLabel) event.widget;
 					selectedRGB = sbl.getBackground().getRGB();
 					// iterate through borderLabelList and set all borders to 0
@@ -187,10 +182,11 @@ private void createContents(final Shell shell) {
 					// System.out.println("RGB=" + selectedRGB);
 					// set color in selected color text box
 					textColor.setBackground(curColor);
-					//tring rgbString=selectedRGB.red + ", "+ selectedRGB.green + ", " + selectedRGB.red;
- 					
+					// tring rgbString=selectedRGB.red + ", "+ selectedRGB.green
+					// + ", " + selectedRGB.red;
+
 					textRGB.setText(selectedRGB.toString());
-					//textRGB.setText(rgbString);
+					// textRGB.setText(rgbString);
 
 				}
 
@@ -205,27 +201,24 @@ private void createContents(final Shell shell) {
 		// create composite to hold selected text label, color, and cancel and
 		// ok buttons
 		Composite bot = new Composite(top, SWT.NONE);
-		bot.setLayout(new GridLayout(1,true));
-		
-		GridData botData=new GridData();
-		botData.horizontalAlignment=SWT.FILL;
-		botData.verticalAlignment=SWT.FILL;
+		bot.setLayout(new GridLayout(1, true));
+
+		GridData botData = new GridData();
+		botData.horizontalAlignment = SWT.FILL;
+		botData.verticalAlignment = SWT.FILL;
 		bot.setLayoutData(botData);
-		
-		
-		//Button button= new Button(bot, SWT.PUSH);
-		//button.setText("test button");
-		//creates the bottom row of buttons and text
+
+		// Button button= new Button(bot, SWT.PUSH);
+		// button.setText("test button");
+		// creates the bottom row of buttons and text
 		createBottomRow(bot);
-		
-	}	
-		
-	
-	
-	public void createBottomRow (Composite parent){
-				
+
+	}
+
+	public void createBottomRow(Composite parent) {
+
 		// Create a label with Selected color text
-		Label textLabel = new Label(parent,SWT.NONE );
+		Label textLabel = new Label(parent, SWT.NONE);
 		textLabel.setText("Selected:");
 
 		// Create a label to show selected color
@@ -234,18 +227,18 @@ private void createContents(final Shell shell) {
 		// set default color for selected text
 		startColor = new Color(getParent().getDisplay(), input);
 		textColor.setBackground(startColor);
-		
+
 		// Create a label with RGB text
-		Label rgbLabel = new Label(parent,SWT.NONE );
+		Label rgbLabel = new Label(parent, SWT.NONE);
 		rgbLabel.setText("");
-		
+
 		// Create a label to show selected RGB
 		textRGB = new Text(parent, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
 		// set default rgb
-		//String rgbString=input.red + ", "+ input.green + ", " + input.red;
-		textRGB.setText(input.toString());	
-		//textRGB.setText(rgbString);
-		
+		// String rgbString=input.red + ", "+ input.green + ", " + input.red;
+		textRGB.setText(input.toString());
+		// textRGB.setText(rgbString);
+
 		// Create the OK button and add a handler
 		// so that pressing it will set input
 		// to the entered value
@@ -254,11 +247,11 @@ private void createContents(final Shell shell) {
 		ok.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				// input = text.getText();
-				input=selectedRGB;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+				input = selectedRGB;
 				// dispose of colors
 				disposeColors();
 				ok.getParent().getShell().close();
-			
+
 			}
 		});
 
@@ -293,12 +286,11 @@ private void createContents(final Shell shell) {
 		textData.top = new FormAttachment(ok, 0, SWT.CENTER);
 		textData.left = new FormAttachment(textLabel);
 		textColor.setLayoutData(textData);
-		
+
 		FormData rgbLabelData = new FormData();
 		rgbLabelData.top = new FormAttachment(ok, 0, SWT.CENTER);
 		rgbLabelData.left = new FormAttachment(textColor);
 		rgbLabel.setLayoutData(rgbLabelData);
-		
 
 		FormData rgbData = new FormData();
 		rgbData.top = new FormAttachment(ok, 0, SWT.CENTER);
@@ -317,7 +309,7 @@ private void createContents(final Shell shell) {
 		ok.setLayoutData(okData);
 
 	}
-	
+
 	// shell.setDefaultButton(ok);
 	/**
 	 * disposes of colors
@@ -833,7 +825,7 @@ private void createContents(final Shell shell) {
 		rgbList.add(new RGB(152, 251, 152));
 		rgbList.add(new RGB(218, 112, 214));
 		rgbList.add(new RGB(255, 105, 180));
-		//rgbList.add(new RGB(255, 105, 180));
+		// rgbList.add(new RGB(255, 105, 180));
 		rgbList.add(new RGB(255, 160, 122));
 		rgbList.add(new RGB(210, 180, 140));
 		rgbList.add(new RGB(255, 255, 0));
@@ -889,29 +881,29 @@ private void createContents(final Shell shell) {
 		rgbList.add(new RGB(184, 134, 11));
 		rgbList.add(new RGB(255, 69, 0));
 		rgbList.add(new RGB(176, 48, 96));
-		rgbList.add(new RGB(105, 105,105));
+		rgbList.add(new RGB(105, 105, 105));
 		// rgbList.add(new RGB(105, 105, 105));
-		rgbList.add(new RGB(50,205,50));
-		rgbList.add(new RGB(160,82,45));
-		rgbList.add(new RGB(107,142,35));
-		rgbList.add(new RGB(72,61,139));
-		rgbList.add(new RGB(46,139,87));
-		rgbList.add(new RGB(255,0,0));
-		rgbList.add(new RGB(0,255,0));
-		rgbList.add(new RGB(0,0,255));
-		rgbList.add(new RGB(165,42,42));
-		rgbList.add(new RGB(178,34,34));
-		rgbList.add(new RGB(85,107,47));
-		rgbList.add(new RGB(139,69,19));
-		rgbList.add(new RGB(34,139,34));
-		rgbList.add(new RGB(47,79,79));
+		rgbList.add(new RGB(50, 205, 50));
+		rgbList.add(new RGB(160, 82, 45));
+		rgbList.add(new RGB(107, 142, 35));
+		rgbList.add(new RGB(72, 61, 139));
+		rgbList.add(new RGB(46, 139, 87));
+		rgbList.add(new RGB(255, 0, 0));
+		rgbList.add(new RGB(0, 255, 0));
+		rgbList.add(new RGB(0, 0, 255));
+		rgbList.add(new RGB(165, 42, 42));
+		rgbList.add(new RGB(178, 34, 34));
+		rgbList.add(new RGB(85, 107, 47));
+		rgbList.add(new RGB(139, 69, 19));
+		rgbList.add(new RGB(34, 139, 34));
+		rgbList.add(new RGB(47, 79, 79));
 		// rgbList.add(new RGB(47, 79, 79));
-		rgbList.add(new RGB(0,0,205));
-		rgbList.add(new RGB(25,25,112));
-		rgbList.add(new RGB(0,0,128));
-		//rgbList.add(new RGB(0,0,128));
-		rgbList.add(new RGB(0,100,0));
-		rgbList.add(new RGB(0,0,0));
+		rgbList.add(new RGB(0, 0, 205));
+		rgbList.add(new RGB(25, 25, 112));
+		rgbList.add(new RGB(0, 0, 128));
+		// rgbList.add(new RGB(0,0,128));
+		rgbList.add(new RGB(0, 100, 0));
+		rgbList.add(new RGB(0, 0, 0));
 
 	}
 

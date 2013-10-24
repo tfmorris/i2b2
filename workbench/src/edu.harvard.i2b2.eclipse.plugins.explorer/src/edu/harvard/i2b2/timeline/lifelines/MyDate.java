@@ -44,7 +44,7 @@ public class MyDate {
 
     public MyDate(String str) throws Exception{
        if(str.equals("today"))  {
-        MyDate today = loadRecord.getToday();
+        MyDate today = LoadRecord.getToday();
 
         this.month = today.getMonth();
         this.day = today.getDay();
@@ -54,7 +54,7 @@ public class MyDate {
        }
 
        else{
-        boolean yearFirst = (record.yearFirst == true); // prevents reference misuse?
+        boolean yearFirst = (Record.yearFirst == true); // prevents reference misuse?
         //System.out.println("yearFirst in MyDate " + (new Boolean(yearFirst)).toString());
 
         if(yearFirst) {

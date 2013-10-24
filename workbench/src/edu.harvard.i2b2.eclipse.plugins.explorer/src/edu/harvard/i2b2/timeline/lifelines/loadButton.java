@@ -11,12 +11,12 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 
-public class loadButton extends Panel {
+public class LoadButton extends Panel {
 
-  record theApplet;
+  Record theApplet;
   String loadFile;
 
-  loadButton(record theApplet) {
+  LoadButton(Record theApplet) {
 
         this.theApplet = theApplet;
 
@@ -49,7 +49,7 @@ public void paint(Graphics g) {
 
   public boolean mouseDown(Event e,Object arg) {
 
-        record.theData = new loadRecord(theApplet.getCodeBase() + loadFile,"none");
+        Record.theData = new LoadRecord(theApplet.getCodeBase() + loadFile,"none");
 
         theApplet.resetTabPanel();
 

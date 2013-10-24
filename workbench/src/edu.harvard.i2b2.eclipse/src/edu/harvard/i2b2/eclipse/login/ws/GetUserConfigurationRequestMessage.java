@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+* Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+* are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -16,6 +16,7 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 
 import edu.harvard.i2b2.pm.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.pm.datavo.i2b2message.MessageHeaderType;
+import edu.harvard.i2b2.pm.datavo.i2b2message.PasswordType;
 import edu.harvard.i2b2.pm.datavo.i2b2message.RequestHeaderType;
 import edu.harvard.i2b2.pm.datavo.i2b2message.RequestMessageType;
 import edu.harvard.i2b2.pm.datavo.i2b2message.SecurityType;
@@ -37,9 +38,14 @@ public class GetUserConfigurationRequestMessage extends ProjectManagementRequest
 
     private SecurityType securityType = null;
 
-	public GetUserConfigurationRequestMessage(String uname, String pword, String project) {
+	public GetUserConfigurationRequestMessage(String uname, edu.harvard.i2b2.pm.datavo.pm.PasswordType pword,  String project) {
 		securityType = new SecurityType();
-		securityType.setPassword(pword);
+		PasswordType ptype = new PasswordType();
+		ptype.setIsToken(pword.isIsToken());
+		ptype.setTokenMsTimeout(pword.getTokenMsTimeout());
+		ptype.setValue(pword.getValue());		
+		
+		securityType.setPassword(ptype);
 		securityType.setDomain(project);
 		securityType.setUsername(uname);
 	}

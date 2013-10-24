@@ -13,24 +13,24 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 
-public class upperBar extends Panel{
+public class UpperBar extends Panel{
     protected int width, height;
     protected MyDate dateMax, dateMin, validDateMin, validDateMax;
-    public scale aScale;
+    public Scale aScale;
 
     private MyDate today;
 
-    public upperBar(int width, int height,MyDate today) {
+    public UpperBar(int width, int height,MyDate today) {
         this.width = width;
         this.height = height;
 
-        dateMin = loadRecord.getMinDate();
-        dateMax = loadRecord.getMaxDate();
+        dateMin = LoadRecord.getMinDate();
+        dateMax = LoadRecord.getMaxDate();
 
-        validDateMin = loadRecord.getMinDate();
-        validDateMax = loadRecord.getMaxDate();
+        validDateMin = LoadRecord.getMinDate();
+        validDateMax = LoadRecord.getMaxDate();
 
-        aScale = new scale(width, validDateMin, validDateMax,today);
+        aScale = new Scale(width, validDateMin, validDateMax,today);
 
         this.today = today;
     }

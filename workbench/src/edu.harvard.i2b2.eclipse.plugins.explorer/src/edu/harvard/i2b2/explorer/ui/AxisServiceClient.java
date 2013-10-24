@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2009 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
- * Contributors:
- * 	
+ * Contributors: 
+ *   
+ *     Wensong Pan
+ *     
  */
 
 package edu.harvard.i2b2.explorer.ui;
@@ -16,14 +18,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class AxisServiceClient {
-	public static final String THIS_CLASS_NAME = AxisServiceClient.class.getName();
-    private static Log log = LogFactory.getLog(THIS_CLASS_NAME);	
-	
-    private static ServiceClient sender = null;
-	private AxisServiceClient() { 
+	public static final String THIS_CLASS_NAME = AxisServiceClient.class
+			.getName();
+	private static Log log = LogFactory.getLog(THIS_CLASS_NAME);
+
+	private static ServiceClient sender = null;
+
+	private AxisServiceClient() {
 	}
-	
-	public static  ServiceClient getServiceClient() throws AxisFault{
+
+	public static ServiceClient getServiceClient() throws AxisFault {
 		if (sender == null) {
 			try {
 				sender = new ServiceClient();
@@ -35,6 +39,5 @@ public class AxisServiceClient {
 		}
 		return sender;
 	}
-	
-	
+
 }
