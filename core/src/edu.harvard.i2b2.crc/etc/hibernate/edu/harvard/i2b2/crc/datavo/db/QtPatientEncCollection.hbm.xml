@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 25, 2006 1:08:57 PM by Hibernate Tools 3.1.0.beta5 -->
+<hibernate-mapping>
+    <class name="edu.harvard.i2b2.crc.datavo.db.QtPatientEncCollection" table="QT_PATIENT_ENC_COLLECTION">
+        <id name="patientEncCollId" type="integer">
+            <column name="PATIENT_ENC_COLL_ID" precision="5" scale="0" />
+            <generator class="assigned" />
+        </id>
+           <many-to-one name="qtQueryResultInstance" class="edu.harvard.i2b2.crc.datavo.db.QtQueryResultInstance" fetch="select">
+            <column name="RESULT_INSTANCE_ID" precision="5" scale="0" />
+        </many-to-one>
+        <property name="setIndex" type="java.lang.Long">
+            <column name="SET_INDEX" precision="10" scale="0" />
+        </property>
+        <property name="patientId" type="java.lang.Long">
+            <column name="PATIENT_NUM" precision="10" scale="0" />
+        </property>
+        <property name="encounterId" type="java.lang.Long">
+            <column name="ENCOUNTER_NUM" precision="10" scale="0" />
+        </property>
+    </class>
+</hibernate-mapping>

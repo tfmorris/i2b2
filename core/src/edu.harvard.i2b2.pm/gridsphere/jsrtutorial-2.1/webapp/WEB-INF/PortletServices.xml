@@ -1,0 +1,36 @@
+<!--
+
+    Portlet Services XML Descriptor
+
+    Edit this file to add/modify Portlet Services
+
+    $Id: PortletServices.xml,v 1.3 2007/08/14 16:47:36 mem61 Exp $
+-->
+
+<portlet-services>
+
+<!--
+    <service>
+        <name>AddressService</name>
+        <description>an example persistence service</description>
+        <interface>org.gridlab.gridsphere.jsrtutorial.services.address.AddressService</interface>
+        <implementation>org.gridlab.gridsphere.jsrtutorial.services.address.impl.AddressServiceImpl</implementation>
+    </service>
+
+    <service>
+        <name>GlobalDataService</name>
+        <description>an example photo service</description>
+        <interface>edu.harvard.i2b2.pm.services.GlobalDataService</interface>
+        <implementation>edu.harvard.i2b2.pm.services.impl.GlobalDataServiceImpl</implementation>
+   </service>
+-->
+
+    <service>
+        <name>PhotoService</name>
+        <description>an example photo service</description>
+        <interface>org.gridlab.gridsphere.jsrtutorial.services.photo.PhotoService</interface>
+        <implementation>org.gridlab.gridsphere.jsrtutorial.services.photo.impl.PhotoServiceImpl</implementation>
+    </service>
+
+</portlet-services>
+

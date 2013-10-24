@@ -1,0 +1,47 @@
+<portlet-tabbed-pane>
+    <portlet-tab>
+        <title lang="en">Global Hive Data</title>
+        <portlet-tabbed-pane style="sub-menu">
+            <portlet-tab label="registeredcellportlet">
+                <title lang="en">Registered  Cell</title>
+                <table-layout>
+                    <row-layout>
+                        <column-layout width="100%">
+                            <portlet-frame>
+                                <portlet-class>jsrtutorial#RegisteredCellPortlet</portlet-class>
+                            </portlet-frame>
+                        </column-layout>
+                        <column-layout width="100%"/>
+                    </row-layout>
+                </table-layout>
+            </portlet-tab>
+            <portlet-tab label="environmentortlet">
+                <title lang="en">Environment</title>
+                <table-layout>
+                    <row-layout>
+                        <column-layout width="100%">
+                            <portlet-frame>
+                                <portlet-class>jsrtutorial#EnvironmentDataPortlet</portlet-class>
+                            </portlet-frame>
+                        </column-layout>
+                        <column-layout width="100%"/>
+                    </row-layout>
+                </table-layout>
+            </portlet-tab>
+            
+            <portlet-tab label="globaldataportlet">
+                <title lang="en">Global Variables</title>
+                <table-layout>
+                    <row-layout>
+                        <column-layout width="100%">
+                            <portlet-frame>
+                                <portlet-class>jsrtutorial#GlobalDataPortlet</portlet-class>
+                            </portlet-frame>
+                        </column-layout>
+                        <column-layout width="100%"/>
+                    </row-layout>
+                </table-layout>
+            </portlet-tab>
+        </portlet-tabbed-pane>
+    </portlet-tab>
+</portlet-tabbed-pane>

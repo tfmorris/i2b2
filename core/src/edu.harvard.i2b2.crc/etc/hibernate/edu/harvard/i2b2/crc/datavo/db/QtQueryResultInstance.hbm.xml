@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 25, 2006 1:08:57 PM by Hibernate Tools 3.1.0.beta5 -->
+<hibernate-mapping>
+    <class name="edu.harvard.i2b2.crc.datavo.db.QtQueryResultInstance" table="QT_QUERY_RESULT_INSTANCE" >
+        <id name="resultInstanceId" type="edu.harvard.i2b2.crc.datavo.db.IntegerStringUserType">
+            <column name="RESULT_INSTANCE_ID" precision="5" scale="0" />
+            <generator class="sequence">
+		        <param name="sequence">QT_SQ_QRI_QRIID</param>
+		     </generator>
+        </id>
+        <many-to-one name="qtQueryStatusType" class="edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType" fetch="select">
+            <column name="STATUS_TYPE_ID" precision="3" scale="0" not-null="true" />
+        </many-to-one>
+        <many-to-one name="qtQueryResultType" class="edu.harvard.i2b2.crc.datavo.db.QtQueryResultType" fetch="select">
+            <column name="RESULT_TYPE_ID" precision="3" scale="0" not-null="true" />
+        </many-to-one>
+        <many-to-one name="qtQueryInstance" class="edu.harvard.i2b2.crc.datavo.db.QtQueryInstance" fetch="select">
+            <column name="QUERY_INSTANCE_ID" precision="5" scale="0" />
+        </many-to-one>
+          <property name="setSize" type="java.lang.Integer">
+            <column name="SET_SIZE" precision="10" scale="0" />
+        </property>
+        <property name="startDate" type="timestamp">
+            <column name="START_DATE" length="7" not-null="true" />
+        </property>
+        <property name="endDate" type="timestamp">
+            <column name="END_DATE" length="7" />
+        </property>
+         <property name="deleteFlag" type="string">
+            <column name="DELETE_FLAG"  />
+        </property>
+        
+        <set name="qtXmlResults" inverse="true">
+            <key>
+                <column name="RESULT_INSTANCE_ID" precision="5" scale="0" />
+            </key>
+            <one-to-many class="edu.harvard.i2b2.crc.datavo.db.QtXmlResult" />
+        </set>
+          <set name="qtPatientSetCollections" inverse="true">
+            <key>
+                <column name="RESULT_INSTANCE_ID" precision="5" scale="0" />
+            </key>
+            <one-to-many class="edu.harvard.i2b2.crc.datavo.db.QtPatientSetCollection" />
+        </set>
+        <set name="qtPatientEncCollections" inverse="true">
+            <key>
+                <column name="RESULT_INSTANCE_ID" precision="5" scale="0" />
+            </key>
+            <one-to-many class="edu.harvard.i2b2.crc.datavo.db.QtPatientEncCollection" />
+        </set>
+        <filter name="deleteResultInstanceFlagFilter" condition=":deleteFlagFilterParam = delete_flag"/>
+    </class>
+
+    <filter-def name="deleteResultInstanceFlagFilter">
+    <filter-param name="deleteFlagFilterParam" type="string"/>
+    </filter-def>
+
+</hibernate-mapping>

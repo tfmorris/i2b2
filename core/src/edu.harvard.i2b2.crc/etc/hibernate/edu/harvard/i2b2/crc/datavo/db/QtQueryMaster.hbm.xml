@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 25, 2006 1:08:57 PM by Hibernate Tools 3.1.0.beta5 -->
+<hibernate-mapping>
+
+
+
+    <class name="edu.harvard.i2b2.crc.datavo.db.QtQueryMaster" table="QT_QUERY_MASTER" >
+        <id name="queryMasterId" type="edu.harvard.i2b2.crc.datavo.db.IntegerStringUserType">
+            <column name="QUERY_MASTER_ID" precision="5" scale="0" />
+              <generator class="sequence">
+		        <param name="sequence">QT_SQ_QM_QMID</param>
+		     </generator>
+        </id>
+        <property name="name" type="string">
+            <column name="NAME" length="50" not-null="true" />
+        </property>
+        <property name="userId" type="string">
+            <column name="USER_ID" length="50" not-null="true" />
+        </property>
+        <property name="groupId" type="string">
+            <column name="GROUP_ID" length="50" not-null="true" />
+        </property>
+        <property name="createDate" type="timestamp">
+            <column name="CREATE_DATE" length="7" not-null="true" />
+        </property>
+        <property name="deleteDate" type="timestamp">
+            <column name="DELETE_DATE" length="7" />
+        </property>
+        <property name="requestXml" type="text">
+            <column name="REQUEST_XML" length="32000" />
+        </property>
+          <property name="generatedSql" type="text">
+            <column name="GENERATED_SQL" length="32000" />
+        </property>
+        <property name="deleteFlag" type="string">
+            <column name="DELETE_FLAG"  default="N"/>
+        </property>
+        
+        <set name="qtQueryInstances" inverse="true">
+            <key>
+                <column name="QUERY_MASTER_ID" precision="5" scale="0" />
+            </key>
+            <one-to-many class="edu.harvard.i2b2.crc.datavo.db.QtQueryInstance" />
+        </set>
+        <filter name="deleteMasterFlagFilter" condition="delete_flag = :deleteFlagFilterParam"/>
+    </class>
+    <filter-def name="deleteMasterFlagFilter">
+    <filter-param name="deleteFlagFilterParam" type="string"/>
+    </filter-def>
+</hibernate-mapping>
