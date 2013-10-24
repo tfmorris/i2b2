@@ -26,6 +26,8 @@ import edu.harvard.i2b2.pm.datavo.i2b2message.ResponseHeaderType;
 import edu.harvard.i2b2.pm.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.pm.datavo.i2b2message.ResultStatusType;
 import edu.harvard.i2b2.pm.datavo.i2b2message.StatusType;
+import edu.harvard.i2b2.pm.datavo.pm.ApprovalType;
+import edu.harvard.i2b2.pm.datavo.pm.ApprovalsType;
 import edu.harvard.i2b2.pm.datavo.pm.CellDataType;
 import edu.harvard.i2b2.pm.datavo.pm.CellDatasType;
 import edu.harvard.i2b2.pm.datavo.pm.ConfigureType;
@@ -34,6 +36,8 @@ import edu.harvard.i2b2.pm.datavo.pm.GlobalDataType;
 import edu.harvard.i2b2.pm.datavo.pm.GlobalDatasType;
 import edu.harvard.i2b2.pm.datavo.pm.ParamType;
 import edu.harvard.i2b2.pm.datavo.pm.ParamsType;
+import edu.harvard.i2b2.pm.datavo.pm.ProjectRequestType;
+import edu.harvard.i2b2.pm.datavo.pm.ProjectRequestsType;
 import edu.harvard.i2b2.pm.datavo.pm.ProjectType;
 import edu.harvard.i2b2.pm.datavo.pm.ProjectsType;
 import edu.harvard.i2b2.pm.datavo.pm.RoleType;
@@ -127,6 +131,10 @@ public class MessageFactory {
         	bodyType.getAny().add(of.createParam((ParamType) uType));    	
         else  if (uType.getClass().getName().equals("edu.harvard.i2b2.pm.datavo.pm.ParamsType"))
         	bodyType.getAny().add(of.createParams((ParamsType) uType));              
+        else  if (uType.getClass().getName().equals("edu.harvard.i2b2.pm.datavo.pm.ProjectRequestType"))
+        	bodyType.getAny().add(of.createProjectRequest((ProjectRequestType) uType));  
+        else  if (uType.getClass().getName().equals("edu.harvard.i2b2.pm.datavo.pm.ProjectRequestsType"))
+        	bodyType.getAny().add(of.createProjectRequests((ProjectRequestsType) uType));              
         else  if (uType.getClass().getName().equals("edu.harvard.i2b2.pm.datavo.pm.RoleType"))
         	bodyType.getAny().add(of.createRole((RoleType) uType));    	
         else  if (uType.getClass().getName().equals("edu.harvard.i2b2.pm.datavo.pm.RolesType"))
@@ -135,7 +143,14 @@ public class MessageFactory {
         	bodyType.getAny().add(of.createHive((ConfigureType) uType));    	
         else  if (uType.getClass().getName().equals("edu.harvard.i2b2.pm.datavo.pm.ConfiguresType"))
         	bodyType.getAny().add(of.createHives((ConfiguresType) uType));      
+        else  if (uType.getClass().getName().equals("edu.harvard.i2b2.pm.datavo.pm.ApprovalType"))
+        	bodyType.getAny().add(of.createApproval((ApprovalType) uType));    	
+        else  if (uType.getClass().getName().equals("edu.harvard.i2b2.pm.datavo.pm.ApprovalsType"))
+        	bodyType.getAny().add(of.createApprovals((ApprovalsType) uType));      
+        else  if (uType.getClass().getName().equals("edu.harvard.i2b2.pm.datavo.i2b2message.ResultStatusType"))
+        	bodyType.getAny().add(of.createResponse(((ResultStatusType) uType).getStatus().getValue()));     
 
+        
         return bodyType;
     }
 
@@ -155,7 +170,7 @@ public class MessageFactory {
 
         ApplicationType appType = new ApplicationType();
         appType.setApplicationName("PM Cell");
-        appType.setApplicationVersion("1.4");
+        appType.setApplicationVersion("1.55");
         messageHeader.setSendingApplication(appType);
 
         FacilityType facility = new FacilityType();

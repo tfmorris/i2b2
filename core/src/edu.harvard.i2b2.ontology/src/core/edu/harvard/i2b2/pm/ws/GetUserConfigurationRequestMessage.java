@@ -21,7 +21,6 @@ import edu.harvard.i2b2.ontology.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.RequestHeaderType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.RequestMessageType;
-import edu.harvard.i2b2.ontology.datavo.i2b2message.SecurityType;
 import edu.harvard.i2b2.ontology.util.OntologyJAXBUtil;
 import edu.harvard.i2b2.ontology.datavo.pm.GetUserConfigurationType;
 

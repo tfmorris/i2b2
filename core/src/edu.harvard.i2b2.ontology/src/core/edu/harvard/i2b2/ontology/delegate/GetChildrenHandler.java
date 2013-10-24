@@ -14,19 +14,15 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.ontology.dao.ConceptDao;
-import edu.harvard.i2b2.ontology.dao.GetChildrenDao;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptsType;
 import edu.harvard.i2b2.ontology.datavo.vdo.GetChildrenType;
-import edu.harvard.i2b2.ontology.util.StringUtil;
 import edu.harvard.i2b2.ontology.ws.GetChildrenDataMessage;
 import edu.harvard.i2b2.ontology.ws.MessageFactory;
 import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
@@ -54,6 +50,7 @@ public class GetChildrenHandler extends RequestHandler {
 				throw new I2B2Exception("GetChildrenHandler not configured");
 			}
 	}
+	@Override
 	public String execute() throws I2B2Exception{
 		// call ejb and pass input object
 		ConceptDao conceptDao = new ConceptDao();

@@ -38,8 +38,9 @@ public class SetLoaderTest {
 				.getSpringDataSource(dataSourceLookup.getDataSource());
 		uploaderDaoFactory = new OracleUploaderDAOFactory(dataSourceLookup,
 				dataSource);
-		// inputLoadFile = testFileDir + "/pdo_response.xml";
+
 		inputLoadFile = testFileDir + "/patient_data.xml";
+
 		inputLoadFileFormat = "XML";
 		encounterSource = "TESTENC";
 		sourceSystemCd = "TESTSOU";
@@ -48,10 +49,12 @@ public class SetLoaderTest {
 
 	}
 
+	@Ignore
 	@Test
 	public void conceptTest() throws Exception {
 		ConceptLoader cl = new ConceptLoader(uploaderDaoFactory, inputLoadFile,
-				inputLoadFileFormat, encounterSource, sourceSystemCd, uploadId);
+				inputLoadFileFormat, encounterSource, sourceSystemCd, false,
+				uploadId);
 		cl.load();
 	}
 
@@ -60,7 +63,7 @@ public class SetLoaderTest {
 	public void providerTest() throws Exception {
 		ProviderLoader cl = new ProviderLoader(uploaderDaoFactory,
 				inputLoadFile, inputLoadFileFormat, encounterSource,
-				sourceSystemCd, uploadId);
+				sourceSystemCd, false, uploadId);
 		cl.load();
 	}
 
@@ -72,6 +75,7 @@ public class SetLoaderTest {
 		pl.load();
 	}
 
+	@Ignore
 	@Test
 	public void encounterTest() throws Exception {
 		VisitLoader vl = new VisitLoader(uploaderDaoFactory, inputLoadFile,
@@ -79,9 +83,9 @@ public class SetLoaderTest {
 		vl.load();
 	}
 
-	@Ignore
 	@Test
 	public void observationText() throws Exception {
+		System.out.println("upload id " + uploadId);
 		ObservationFactLoader ofl = new ObservationFactLoader(
 				uploaderDaoFactory, inputLoadFile, inputLoadFileFormat,
 				encounterSource, null, sourceSystemCd, false, uploadId);

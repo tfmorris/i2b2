@@ -9,6 +9,7 @@
  */
 package edu.harvard.i2b2.crc.delegate.setfinder;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
@@ -233,6 +234,19 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 					RunQueryInstanceFromQueryDefinitionHandler handler = new RunQueryInstanceFromQueryDefinitionHandler(
 							requestXml);
 					responseBodyType = handler.execute();
+					// check if the response body type has lockedout error
+					if (handler.getLockedoutFlag()) {
+						procStatus = new StatusType();
+						procStatus.setType("ERROR");
+						procStatus
+								.setValue("LOCKEDOUT error: The user account is lockedout at ["
+										+ new Date(System.currentTimeMillis())
+										+ "]");
+						response = I2B2MessageResponseFactory
+								.buildResponseMessage(requestXml, procStatus,
+										responseBodyType);
+						return response;
+					}
 				}
 			} else if (headerType
 					.getRequestType()
@@ -303,6 +317,11 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 			} else if (headerType.getRequestType().equals(
 					PsmRequestTypeType.CRC_QRY_CANCEL_QUERY)) {
 				CancelQueryInstanceHandler handler = new CancelQueryInstanceHandler(
+						requestXml);
+				responseBodyType = handler.execute();
+			} else if (headerType.getRequestType().equals(
+					PsmRequestTypeType.CRC_QRY_GET_ANALYSIS_PLUGIN_METADATA)) {
+				GetAnalysisPluginMetadataTypeHandler handler = new GetAnalysisPluginMetadataTypeHandler(
 						requestXml);
 				responseBodyType = handler.execute();
 			}

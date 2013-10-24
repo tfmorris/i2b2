@@ -14,20 +14,16 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.ontology.dao.ConceptDao;
-import edu.harvard.i2b2.ontology.dao.GetTermInfoDao;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptsType;
 import edu.harvard.i2b2.ontology.datavo.vdo.GetTermInfoType;
-import edu.harvard.i2b2.ontology.util.StringUtil;
 import edu.harvard.i2b2.ontology.ws.GetTermInfoDataMessage;
 import edu.harvard.i2b2.ontology.ws.MessageFactory;
 
@@ -52,6 +48,7 @@ public class GetTermInfoHandler extends RequestHandler{
 		} 
 	}
 
+	@Override
 	public String execute() throws I2B2Exception {
 		// call ejb and pass input object
 		ConceptDao conceptDao = new ConceptDao();

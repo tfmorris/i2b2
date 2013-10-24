@@ -117,7 +117,7 @@ public class MessageFactory {
 
         ApplicationType appType = new ApplicationType();
         appType.setApplicationName("Workplace Cell");
-        appType.setApplicationVersion("1.0");
+        appType.setApplicationVersion("1.5");
         messageHeader.setSendingApplication(appType);
 
         FacilityType facility = new FacilityType();

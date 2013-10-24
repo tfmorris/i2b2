@@ -137,6 +137,48 @@ public class ProviderDAO extends CRCLoaderDAO implements IProviderDAO {
 	}
 
 	/**
+	 * Function to backup and clear provider dimension table using stored proc.
+	 * 
+	 * @param tempTableName
+	 * @throws Exception
+	 */
+	public void backupAndSyncProviderDimensionTable(
+			String tempConceptTableName,
+			String backupProviderDimensionTableName, int uploadId)
+			throws I2B2Exception {
+		Connection conn = null;
+		try {
+			conn = getDataSource().getConnection();
+			CallableStatement callStmt = conn.prepareCall("{call "
+					+ this.getDbSchemaName()
+					+ "SYNC_CLEAR_PROVIDER_TABLE(?,?,?,?)}");
+			callStmt.setString(1, tempConceptTableName);
+			callStmt.setString(2, backupProviderDimensionTableName);
+			callStmt.setInt(3, uploadId);
+			callStmt.registerOutParameter(4, java.sql.Types.VARCHAR);
+			callStmt.execute();
+			this.getSQLServerProcedureError(dataSourceLookup.getServerType(),
+					callStmt, 4);
+		} catch (SQLException sqlEx) {
+			sqlEx.printStackTrace();
+			throw new I2B2Exception(
+					"SQLException occured" + sqlEx.getMessage(), sqlEx);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new I2B2Exception("Exception occured" + ex.getMessage(), ex);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException sqlEx) {
+					sqlEx.printStackTrace();
+					log.error("Error while closing connection", sqlEx);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Patient_Mapping insert code.
 	 */
 	protected class TempProviderInsert extends BatchSqlUpdate {
@@ -159,9 +201,9 @@ public class ProviderDAO extends CRCLoaderDAO implements IProviderDAO {
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.INTEGER));
 			compile();

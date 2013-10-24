@@ -180,6 +180,20 @@ public class QueryExecutorHelperDao extends CRCDAO {
 
 				}
 
+			} else if (dsLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.ORACLE)) {
+				String clearGlobalTempTable = "delete from " + TEMP_TABLE;
+				String clearCountTable = "delete from " + TEMP_DX_TABLE;
+				Statement clearTempStmt = manualConnection.createStatement();
+				try {
+					clearTempStmt.executeUpdate(clearGlobalTempTable);
+					clearTempStmt.executeUpdate(clearCountTable);
+				} catch (SQLException dEx) {
+					;
+				} finally {
+					clearTempStmt.close();
+				}
+
 			}
 			// set transaction timeout
 			stmt.setQueryTimeout(transactionTimeout);
@@ -280,6 +294,7 @@ public class QueryExecutorHelperDao extends CRCDAO {
 			tm.commit();
 			log.debug("Query executor completed processing query instance[ "
 					+ queryInstanceId + " ]");
+
 		} catch (CRCTimeOutException timeoutEx) {
 			timeOutErrorFlag = true;
 			throw timeoutEx;
@@ -311,6 +326,12 @@ public class QueryExecutorHelperDao extends CRCDAO {
 			exception = sqlEx;
 			log.error("Error while executing sql", sqlEx);
 			throw new I2B2DAOException("Error while executing sql", sqlEx);
+
+		} catch (LockedoutException crcDaoEx) {
+			// I2B2DAOException
+			errorFlag = true;
+			exception = crcDaoEx;
+			throw crcDaoEx;
 		} catch (I2B2Exception i2b2Ex) {
 			errorFlag = true;
 			exception = i2b2Ex;
@@ -354,6 +375,7 @@ public class QueryExecutorHelperDao extends CRCDAO {
 			e.printStackTrace();
 			throw new I2B2DAOException("HeuristicRollbackException", e);
 		} finally {
+
 			// close resultset and statement
 			try {
 				if (resultSet != null) {
@@ -370,61 +392,70 @@ public class QueryExecutorHelperDao extends CRCDAO {
 				log.error("Error closing statement/resultset ", sqle);
 			}
 
-			if (tm != null && errorFlag) {
+			if (errorFlag) {
+				handleException(tm, errorFlag, queryInstanceId, sfDAOFactory,
+						exception);
+			}
+
+		}
+
+	}
+
+	private void handleException(javax.transaction.TransactionManager tm,
+			boolean errorFlag, String queryInstanceId,
+			SetFinderDAOFactory sfDAOFactory, Exception exception) {
+		if (tm != null && errorFlag) {
+			try {
+				// tm.rollback();
+				tm.rollback();
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (SystemException e) {
+				e.printStackTrace();
+			}
+			if (tm != null) {
 				try {
-					// tm.rollback();
-					tm.rollback();
-				} catch (IllegalStateException e) {
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (SystemException e) {
-					e.printStackTrace();
-				}
-				if (tm != null) {
-					try {
-						log
-								.info("Trying to update error status to query instance["
-										+ queryInstanceId + "]");
-						if (sfDAOFactory != null) {
-							// update set size and result status
-							// tm.begin();
-							tm.begin();
-							String stacktrace = StackTraceUtil
-									.getStackTrace(exception);
-							if (stacktrace != null) {
-								if (stacktrace.length() > 2000) {
-									stacktrace = stacktrace.substring(0, 1998);
-								} else {
-									stacktrace = stacktrace.substring(0,
-											stacktrace.length());
-								}
+					log.info("Trying to update error status to query instance["
+							+ queryInstanceId + "]");
+					if (sfDAOFactory != null) {
+						// update set size and result status
+						// tm.begin();
+						tm.begin();
+						String stacktrace = StackTraceUtil
+								.getStackTrace(exception);
+						if (stacktrace != null) {
+							if (stacktrace.length() > 2000) {
+								stacktrace = stacktrace.substring(0, 1998);
+							} else {
+								stacktrace = stacktrace.substring(0, stacktrace
+										.length());
 							}
-							setQueryInstanceStatus(sfDAOFactory,
-									queryInstanceId, 4, stacktrace);
-							// update the error status to result instance
-							setQueryResultInstanceStatus(sfDAOFactory,
-									queryInstanceId, 4, stacktrace);
-							// tm.commit();
-							tm.commit();
-							log.info("Updated error status to query instance["
-									+ queryInstanceId + "]");
 						}
-					} catch (Exception e) {
-						log
-								.error(
-										"Error while updating error status to query instance",
-										e);
-						try {
-							tm.rollback();
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
+						setQueryInstanceStatus(sfDAOFactory, queryInstanceId,
+								4, stacktrace);
+						// update the error status to result instance
+						setQueryResultInstanceStatus(sfDAOFactory,
+								queryInstanceId, 4, stacktrace);
+						// tm.commit();
+						tm.commit();
+						log.info("Updated error status to query instance["
+								+ queryInstanceId + "]");
+					}
+				} catch (Exception e) {
+					log
+							.error(
+									"Error while updating error status to query instance",
+									e);
+					try {
+						tm.rollback();
+					} catch (Exception e1) {
+						e1.printStackTrace();
 					}
 				}
 			}
 		}
-
 	}
 
 	private void setQueryInstanceStatus(SetFinderDAOFactory sfDAOFactory,
@@ -460,7 +491,7 @@ public class QueryExecutorHelperDao extends CRCDAO {
 			Connection manualConnection, SetFinderDAOFactory sfDAOFactory,
 			String requestXml, String patientSetId, String queryInstanceId,
 			String TEMP_DX_TABLE, int transactionTimeout, TransactionManager tm)
-			throws CRCTimeOutException, I2B2DAOException {
+			throws CRCTimeOutException, LockedoutException, I2B2DAOException {
 
 		QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
 
@@ -590,7 +621,7 @@ public class QueryExecutorHelperDao extends CRCDAO {
 							throw new I2B2DAOException(e.getMessage());
 						}
 						if (userLockedDate != null) {
-							throw new I2B2DAOException(EJBPMUtil.LOCKEDOUT
+							throw new LockedoutException(EJBPMUtil.LOCKEDOUT
 									+ " error : User account locked on ["
 									+ userLockedDate + "]");
 						}
@@ -617,7 +648,7 @@ public class QueryExecutorHelperDao extends CRCDAO {
 				throw new I2B2DAOException(e.getMessage());
 			}
 			if (userLockedDate != null) {
-				throw new I2B2DAOException(EJBPMUtil.LOCKEDOUT
+				throw new LockedoutException(EJBPMUtil.LOCKEDOUT
 						+ " error : User account locked on [" + userLockedDate
 						+ "]");
 			}
@@ -684,13 +715,15 @@ public class QueryExecutorHelperDao extends CRCDAO {
 				.getPatientSetResultDAO();
 		QtQueryResultInstance resultInstance = queryResultInstanceDao
 				.getResultInstanceById(resultInstanceId);
-		int setSize = resultInstance.getSetSize();
+		int resultTypeId = resultInstance.getQtQueryResultType()
+				.getResultTypeId();
+		int setSize = resultInstance.getRealSetSize();
 		if (setSize == 0) {
 			return userLockedDate;
 		}
 		int queryCount = queryResultInstanceDao
 				.getResultInstanceCountBySetSize(userId, lockoutQueryDay,
-						setSize, lockoutQueryCount);
+						resultTypeId, setSize, lockoutQueryCount);
 		if (queryCount > 0) {
 			userLockedDate = new Date(System.currentTimeMillis()).toString();
 			SecurityType serviceSecurityType = PMServiceAccountUtil

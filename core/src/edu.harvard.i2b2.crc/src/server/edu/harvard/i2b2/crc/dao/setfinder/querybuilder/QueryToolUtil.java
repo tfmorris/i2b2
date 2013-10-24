@@ -42,6 +42,7 @@ import edu.harvard.i2b2.crc.datavo.ontology.ConceptType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ConstrainOperatorType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ConstrainValueType;
 import edu.harvard.i2b2.crc.delegate.ontology.CallOntologyUtil;
+import edu.harvard.i2b2.crc.util.SqlClauseUtil;
 
 /**
  * Main class to generate setfinder sql from query definition xml. $Id:
@@ -127,8 +128,8 @@ public class QueryToolUtil extends CRCDAO {
 		}
 	}
 
-	public String generateSQL(Connection conn, String queryXML)
-			throws I2B2DAOException {
+	public String generateSQL(Connection conn, String queryXML,
+			boolean encounterSetFlag) throws I2B2DAOException {
 		String sql = null;
 		try {
 			this.conn = conn;
@@ -136,7 +137,11 @@ public class QueryToolUtil extends CRCDAO {
 			ontologyUtil = new CallOntologyUtil(queryXML);
 
 			org.jdom.Document controlDoc = getDocument(queryXML);
-			String dataRequested = "";
+			String dataRequested = " ";
+			if (encounterSetFlag) {
+				dataRequested = "PE";
+			}
+
 			Integer iteration = new Integer(0);
 			sql = ProcessControlFileI2B2("", controlDoc, dataRequested,
 					iteration);
@@ -738,317 +743,330 @@ public class QueryToolUtil extends CRCDAO {
 
 					// date constrain end
 
+					String noLockSqlServer = " ";
+					if (this.dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.SQLSERVER)) {
+						noLockSqlServer = " WITH(NOLOCK) ";
+					}
 					if (theTable.toLowerCase().equals(CONCEPT_TABLE)) {
-						EstSize = GetEstimatedSize(conn, theTable, theColumn,
-								theOperator, theData, DBNumPatients);
-						String noLockSqlServer = " ";
-						if (this.dataSourceLookup.getServerType()
-								.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
-							noLockSqlServer = " WITH(NOLOCK) ";
-						}
+						// EstSize = GetEstimatedSize(conn, theTable, theColumn,
+						// / theOperator, theData, DBNumPatients);
+
 						sql0 = FACT_CONCEPT_ID + " IN (select "
 								+ CONCEPT_DIM_ID + " from " + getDbSchemaName()
 								+ CONCEPT_TABLE + " c " + noLockSqlServer
 								+ " where " + CONCEPT_DIM_PATH + " "
 								+ theOperator + " " + theData + ")";
-
-						StringBuilder theFilter = new StringBuilder();
-
-						if (itemDateConstrain != null) {
-							theFilter.append(itemDateConstrain);
-						}
-
-						if (panelDateConstrain != null) {
-							theFilter.append(panelDateConstrain);
-						}
-						String queryDateConstrain = buildDateConstrain(
-								FACT_START_DATE, theQueryDateFrom,
-								theQueryDateTo);
-						if (queryDateConstrain != null) {
-							theFilter.append(queryDateConstrain);
-						}
-
-						List constraintList = itemXml
-								.getChildren("constrain_by_value");
-
-						if (constraintList != null) {
-							for (Iterator itConstraint = constraintList
-									.iterator(); itConstraint.hasNext();) {
-								Element constraintXml = (org.jdom.Element) itConstraint
-										.next();
-
-								String theValueType = constraintXml
-										.getChildText("value_type");
-
-								if (theValueType == null) {
-									theValueType = "";
-								}
-
-								String theValueOp = constraintXml
-										.getChildText("value_operator");
-
-								if (theValueOp == null) {
-									theValueOp = "";
-								}
-
-								String theValueCons = constraintXml
-										.getChildText("value_constraint");
-
-								if (theValueCons == null) {
-									theValueCons = "";
-								}
-
-								if (theValueType.equalsIgnoreCase("T")
-										|| theValueType
-												.equalsIgnoreCase(ConstrainValueType.TEXT
-														.value())) {
-									if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.EQ
-													.value())) {
-										theFilter.append(" AND "
-												+ FACT_VAL_TYPE
-												+ " = 'T' and "
-												+ FACT_TEXT_VAL
-												+ " = '"
-												+ theValueCons.replaceAll("'",
-														"''") + "'");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.NE
-													.value())) {
-										theFilter.append(" AND "
-												+ FACT_VAL_TYPE
-												+ " = 'T' and "
-												+ FACT_TEXT_VAL
-												+ " <> '"
-												+ theValueCons.replaceAll("'",
-														"''") + "'");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.LIKE
-													.value())) {
-										theFilter.append(" AND "
-												+ FACT_VAL_TYPE
-												+ " = 'T' and "
-												+ FACT_TEXT_VAL
-												+ " LIKE  '"
-												+ theValueCons.replaceAll("'",
-														"''") + "%'");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.IN
-													.value())) {
-										theFilter.append(" AND "
-												+ FACT_VAL_TYPE + " = 'T' and "
-												+ FACT_TEXT_VAL + " IN  "
-												+ theValueCons);
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.BETWEEN
-													.value())) {
-										theFilter.append(" AND "
-												+ FACT_VAL_TYPE + " = 'T' and "
-												+ FACT_TEXT_VAL + " BETWEEN  "
-												+ theValueCons);
-									}
-								} else if (theValueType
-										.equalsIgnoreCase(ConstrainValueType.FLAG
-												.value())) {
-									// theFilter.append(" AND " + FACT_VAL_TYPE
-									// + " = 'F'");
-									if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.EQ
-													.value())) {
-										theFilter.append(" AND "
-												+ FACT_FLAG_VAL
-												+ " = '"
-												+ theValueCons.replaceAll("'",
-														"''") + "'");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.NE
-													.value())) {
-										theFilter.append(" AND "
-												+ FACT_FLAG_VAL
-												+ " <> '"
-												+ theValueCons.replaceAll("'",
-														"''") + "'");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.IN
-													.value())) {
-										theFilter.append(" AND "
-												+ FACT_FLAG_VAL + " IN "
-												+ theValueCons);
-									}
-
-								} else if (theValueType
-										.equalsIgnoreCase(ConstrainValueType.NUMBER
-												.value())) {
-									String prefixNumberConstrain = ("  "
-											+ FACT_VAL_TYPE + " = 'N'");
-									if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.GT
-													.value())) {
-										// [VALTYPE_CD = 'N' AND NVAL_NUM > NNN
-										// AND TVAL_CHAR IN ( 'E','GE') OR (
-										// VALTYPE_CD = 'N' AND NVAL_NUM >= NNN
-										// AND TVAL_CHAR ='G'))]
-										theFilter.append(" AND (("
-												+ prefixNumberConstrain
-												+ " AND " + FACT_NUM_VAL
-												+ " > " + theValueCons
-												+ " AND " + FACT_TEXT_VAL
-												+ " IN ('GE','E'))" + " OR "
-												+ " (" + prefixNumberConstrain
-												+ " AND " + FACT_NUM_VAL
-												+ " >= " + theValueCons
-												+ " AND " + FACT_TEXT_VAL
-												+ " = 'G'))");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.GE
-													.value())) {
-										// [VALTYPE_CD = 'N' AND NVAL_NUM >= NNN
-										// AND TVAL_CHAR IN ( 'E','GE','G')]
-										theFilter.append("  AND "
-												+ prefixNumberConstrain
-												+ " AND " + FACT_NUM_VAL
-												+ " >= " + theValueCons
-												+ " AND " + FACT_TEXT_VAL
-												+ " IN ('G','E','GE')");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.EQ
-													.value())) {
-										// [VALTYPE_CD ='N' AND NVAL_NUM = NNN
-										// AND TVAL_CHAR='E']
-										theFilter.append("  AND "
-												+ prefixNumberConstrain
-												+ " AND " + FACT_NUM_VAL
-												+ " = " + theValueCons
-												+ " AND  " + FACT_TEXT_VAL
-												+ " = 'E'");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.NE
-													.value())) {
-										// [(VALTYPE_CD ='N' AND NVAL_NUM <> NNN
-										// AND TVAL_CHAR <> 'NE') OR (VALTYPE_CD
-										// ='N' AND NVAL_NUM = NNN AND TVAL_CHAR
-										// = 'NE') ]
-										theFilter.append("AND (("
-												+ prefixNumberConstrain
-												+ " AND " + FACT_NUM_VAL
-												+ " <> " + theValueCons
-												+ " AND " + FACT_TEXT_VAL
-												+ " <> 'NE')" + " OR " + " ("
-												+ prefixNumberConstrain
-												+ " AND " + FACT_NUM_VAL
-												+ " = " + theValueCons
-												+ " AND " + FACT_TEXT_VAL
-												+ " = 'NE'))");
-
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.LT
-													.value())) {
-										// [VALTYPE_CD = 'N' AND NVAL_NUM < NNN
-										// AND TVAL_CHAR IN ( 'E','LE') OR (
-										// VALTYPE_CD = 'N' AND NVAL_NUM <= NNN
-										// AND TVAL_CHAR ='L'))]
-										theFilter.append("AND (("
-												+ prefixNumberConstrain
-												+ " AND " + FACT_NUM_VAL
-												+ " < " + theValueCons
-												+ " AND " + FACT_TEXT_VAL
-												+ " IN ('LE','E'))" + " OR "
-												+ " (" + prefixNumberConstrain
-												+ " AND " + FACT_NUM_VAL
-												+ " <= " + theValueCons
-												+ " AND " + FACT_TEXT_VAL
-												+ " = 'L'))");
-
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.LE
-													.value())) {
-										// [VALTYPE_CD = 'N' AND NVAL_NUM <= NNN
-										// AND TVAL_CHAR IN ( 'E','LE','L')]
-										theFilter.append(" AND "
-												+ prefixNumberConstrain
-												+ " AND " + FACT_NUM_VAL
-												+ " <= " + theValueCons
-												+ " AND " + FACT_TEXT_VAL
-												+ " IN ('L','E','LE')");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.BETWEEN
-													.value())) {
-										// [VALTYPE_CD='N' AND NVAL_NUM BETWEEN
-										// NNN1 TO NNN2 AND TVAL_CHAR ='E']
-										theFilter.append("AND "
-												+ prefixNumberConstrain
-												+ " AND " + FACT_NUM_VAL
-												+ " BETWEEN " + theValueCons
-												+ " AND " + FACT_TEXT_VAL
-												+ " = 'E'");
-									}
-
-								} else if (theValueType
-										.equalsIgnoreCase(ConstrainValueType.MODIFIER
-												.value())) {
-									String modifierPrefix = (" AND "
-											+ FACT_VAL_TYPE + " = 'M' ");
-									// VALTYPE_CD = 'M' AND TVAL_CHAR =
-									// 'somevalue'
-									if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.EQ
-													.value())) {
-										theFilter.append(modifierPrefix
-												+ " and "
-												+ FACT_TEXT_VAL
-												+ " = '"
-												+ theValueCons.replaceAll("'",
-														"''") + "'");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.NE
-													.value())) {
-										theFilter.append(modifierPrefix
-												+ " and "
-												+ FACT_TEXT_VAL
-												+ " <> '"
-												+ theValueCons.replaceAll("'",
-														"''") + "'");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.IN
-													.value())) {
-										theFilter.append(modifierPrefix
-												+ " and " + FACT_TEXT_VAL
-												+ " IN (" + theValueCons + ")");
-									} else if (theValueOp
-											.equalsIgnoreCase(ConstrainOperatorType.LIKE
-													.value())) {
-										theFilter.append(modifierPrefix
-												+ " and "
-												+ FACT_TEXT_VAL
-												+ " LIKE '"
-												+ theValueCons.replaceAll("'",
-														"''") + "%'");
-									}
-								}
-							}
-						}
-
-						if (theFilter.length() > 0) {
-							if (sql0.trim().length() > 0) {
-								sql0 = "((" + sql0 + ")" + theFilter.toString()
-										+ ")";
-							} else {
-								sql0 = "(" + theFilter.toString().substring(4)
-										+ ")";
-							}
-						}
 					} else if (theTable.equals(PROVIDER_TABLE)) {
-						EstSize = GetEstimatedSize(conn, theTable, theColumn,
-								theOperator, theData, DBNumPatients);
+						// EstSize = GetEstimatedSize(conn, theTable, theColumn,
+						// theOperator, theData, DBNumPatients);
 						sql0 = FACT_PROVIDER_ID + " IN (SELECT "
 								+ PROVIDER_DIM_ID + " FROM "
-								+ getDbSchemaName() + PROVIDER_TABLE
-								+ " c where " + PROVIDER_DIM_PATH + " "
-								+ theOperator + " " + theData + ")";
+								+ getDbSchemaName() + PROVIDER_TABLE + " c "
+								+ noLockSqlServer + " where "
+								+ PROVIDER_DIM_PATH + " " + theOperator + " "
+								+ theData + ")";
+						// sql0 += itemDateConstrain;
+						// sql0 += panelDateConstrain;
+					}
 
-						sql0 += itemDateConstrain;
-						sql0 += panelDateConstrain;
+					StringBuilder theFilter = new StringBuilder();
 
+					if (itemDateConstrain != null) {
+						theFilter.append(itemDateConstrain);
+					}
+
+					if (panelDateConstrain != null) {
+						theFilter.append(panelDateConstrain);
+					}
+					String queryDateConstrain = buildDateConstrain(
+							FACT_START_DATE, theQueryDateFrom, theQueryDateTo);
+					if (queryDateConstrain != null) {
+						theFilter.append(queryDateConstrain);
+					}
+
+					List constraintList = itemXml
+							.getChildren("constrain_by_value");
+
+					if (constraintList != null) {
+						for (Iterator itConstraint = constraintList.iterator(); itConstraint
+								.hasNext();) {
+							Element constraintXml = (org.jdom.Element) itConstraint
+									.next();
+
+							String theValueType = constraintXml
+									.getChildText("value_type");
+
+							if (theValueType == null) {
+								theValueType = "";
+							}
+
+							String theValueOp = constraintXml
+									.getChildText("value_operator");
+
+							if (theValueOp == null) {
+								theValueOp = "";
+							}
+
+							String theValueCons = constraintXml
+									.getChildText("value_constraint");
+
+							if (theValueCons == null) {
+								theValueCons = "";
+							}
+
+							if (theValueType.equalsIgnoreCase("T")
+									|| theValueType
+											.equalsIgnoreCase(ConstrainValueType.TEXT
+													.value())) {
+								if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.EQ
+												.value())) {
+									theFilter.append(" AND "
+											+ FACT_VAL_TYPE
+											+ " = 'T' and "
+											+ FACT_TEXT_VAL
+											+ " = '"
+											+ theValueCons
+													.replaceAll("'", "''")
+											+ "'");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.NE
+												.value())) {
+									theFilter.append(" AND "
+											+ FACT_VAL_TYPE
+											+ " = 'T' and "
+											+ FACT_TEXT_VAL
+											+ " <> '"
+											+ theValueCons
+													.replaceAll("'", "''")
+											+ "'");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.LIKE
+												.value())) {
+									theFilter.append(" AND "
+											+ FACT_VAL_TYPE
+											+ " = 'T' and "
+											+ FACT_TEXT_VAL
+											+ " LIKE  '"
+											+ theValueCons
+													.replaceAll("'", "''")
+											+ "%'");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.IN
+												.value())) {
+									theValueCons = SqlClauseUtil.buildINClause(
+											theValueCons, true);
+
+									theFilter.append(" AND " + FACT_VAL_TYPE
+											+ " = 'T' and " + FACT_TEXT_VAL
+											+ " IN  (" + theValueCons + ")");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.BETWEEN
+												.value())) {
+									theValueCons = SqlClauseUtil
+											.buildBetweenClause(theValueCons);
+									theFilter.append(" AND " + FACT_VAL_TYPE
+											+ " = 'T' and " + FACT_TEXT_VAL
+											+ " BETWEEN  " + theValueCons);
+								}
+							} else if (theValueType
+									.equalsIgnoreCase(ConstrainValueType.FLAG
+											.value())) {
+								// theFilter.append(" AND " + FACT_VAL_TYPE
+								// + " = 'F'");
+								if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.EQ
+												.value())) {
+									theFilter.append(" AND "
+											+ FACT_FLAG_VAL
+											+ " = '"
+											+ theValueCons
+													.replaceAll("'", "''")
+											+ "'");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.NE
+												.value())) {
+									theFilter.append(" AND "
+											+ FACT_FLAG_VAL
+											+ " <> '"
+											+ theValueCons
+													.replaceAll("'", "''")
+											+ "'");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.IN
+												.value())) {
+									theValueCons = SqlClauseUtil.buildINClause(
+											theValueCons, true);
+									theFilter.append(" AND " + FACT_FLAG_VAL
+											+ " IN (" + theValueCons + ")");
+								}
+
+							} else if (theValueType
+									.equalsIgnoreCase(ConstrainValueType.NUMBER
+											.value())) {
+								String prefixNumberConstrain = ("  "
+										+ FACT_VAL_TYPE + " = 'N'");
+								// to make the sql injection proof
+								theValueCons.replaceAll("'", "''");
+								if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.GT
+												.value())) {
+									// [VALTYPE_CD = 'N' AND NVAL_NUM > NNN
+									// AND TVAL_CHAR IN ( 'E','GE') OR (
+									// VALTYPE_CD = 'N' AND NVAL_NUM >= NNN
+									// AND TVAL_CHAR ='G'))]
+									theFilter.append(" AND (("
+											+ prefixNumberConstrain + " AND "
+											+ FACT_NUM_VAL + " > "
+											+ theValueCons + " AND "
+											+ FACT_TEXT_VAL + " IN ('GE','E'))"
+											+ " OR " + " ("
+											+ prefixNumberConstrain + " AND "
+											+ FACT_NUM_VAL + " >= "
+											+ theValueCons + " AND "
+											+ FACT_TEXT_VAL + " = 'G'))");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.GE
+												.value())) {
+									// [VALTYPE_CD = 'N' AND NVAL_NUM >= NNN
+									// AND TVAL_CHAR IN ( 'E','GE','G')]
+									theFilter.append("  AND "
+											+ prefixNumberConstrain + " AND "
+											+ FACT_NUM_VAL + " >= "
+											+ theValueCons + " AND "
+											+ FACT_TEXT_VAL
+											+ " IN ('G','E','GE')");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.EQ
+												.value())) {
+									// [VALTYPE_CD ='N' AND NVAL_NUM = NNN
+									// AND TVAL_CHAR='E']
+									theFilter.append("  AND "
+											+ prefixNumberConstrain + " AND "
+											+ FACT_NUM_VAL + " = "
+											+ theValueCons + " AND  "
+											+ FACT_TEXT_VAL + " = 'E'");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.NE
+												.value())) {
+									// [(VALTYPE_CD ='N' AND NVAL_NUM <> NNN
+									// AND TVAL_CHAR <> 'NE') OR (VALTYPE_CD
+									// ='N' AND NVAL_NUM = NNN AND TVAL_CHAR
+									// = 'NE') ]
+									theFilter.append("AND (("
+											+ prefixNumberConstrain + " AND "
+											+ FACT_NUM_VAL + " <> "
+											+ theValueCons + " AND "
+											+ FACT_TEXT_VAL + " <> 'NE')"
+											+ " OR " + " ("
+											+ prefixNumberConstrain + " AND "
+											+ FACT_NUM_VAL + " = "
+											+ theValueCons + " AND "
+											+ FACT_TEXT_VAL + " = 'NE'))");
+
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.LT
+												.value())) {
+									// [VALTYPE_CD = 'N' AND NVAL_NUM < NNN
+									// AND TVAL_CHAR IN ( 'E','LE') OR (
+									// VALTYPE_CD = 'N' AND NVAL_NUM <= NNN
+									// AND TVAL_CHAR ='L'))]
+									theFilter.append("AND (("
+											+ prefixNumberConstrain + " AND "
+											+ FACT_NUM_VAL + " < "
+											+ theValueCons + " AND "
+											+ FACT_TEXT_VAL + " IN ('LE','E'))"
+											+ " OR " + " ("
+											+ prefixNumberConstrain + " AND "
+											+ FACT_NUM_VAL + " <= "
+											+ theValueCons + " AND "
+											+ FACT_TEXT_VAL + " = 'L'))");
+
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.LE
+												.value())) {
+									// [VALTYPE_CD = 'N' AND NVAL_NUM <= NNN
+									// AND TVAL_CHAR IN ( 'E','LE','L')]
+									theFilter.append(" AND "
+											+ prefixNumberConstrain + " AND "
+											+ FACT_NUM_VAL + " <= "
+											+ theValueCons + " AND "
+											+ FACT_TEXT_VAL
+											+ " IN ('L','E','LE')");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.BETWEEN
+												.value())) {
+									// [VALTYPE_CD='N' AND NVAL_NUM BETWEEN
+									// NNN1 TO NNN2 AND TVAL_CHAR ='E']
+									theValueCons = SqlClauseUtil
+											.buildBetweenClause(theValueCons);
+									theFilter.append("AND "
+											+ prefixNumberConstrain + " AND "
+											+ FACT_NUM_VAL + " BETWEEN "
+											+ theValueCons + " AND "
+											+ FACT_TEXT_VAL + " = 'E'");
+								}
+
+							} else if (theValueType
+									.equalsIgnoreCase(ConstrainValueType.MODIFIER
+											.value())) {
+								String modifierPrefix = (" AND "
+										+ FACT_VAL_TYPE + " = 'M' ");
+								// VALTYPE_CD = 'M' AND TVAL_CHAR =
+								// 'somevalue'
+								if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.EQ
+												.value())) {
+									theFilter.append(modifierPrefix
+											+ " and "
+											+ FACT_TEXT_VAL
+											+ " = '"
+											+ theValueCons
+													.replaceAll("'", "''")
+											+ "'");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.NE
+												.value())) {
+									theFilter.append(modifierPrefix
+											+ " and "
+											+ FACT_TEXT_VAL
+											+ " <> '"
+											+ theValueCons
+													.replaceAll("'", "''")
+											+ "'");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.IN
+												.value())) {
+
+									theValueCons = SqlClauseUtil.buildINClause(
+											theValueCons, true);
+									theFilter.append(modifierPrefix + " and "
+											+ FACT_TEXT_VAL + " IN ("
+											+ theValueCons + ")");
+								} else if (theValueOp
+										.equalsIgnoreCase(ConstrainOperatorType.LIKE
+												.value())) {
+									theFilter.append(modifierPrefix
+											+ " and "
+											+ FACT_TEXT_VAL
+											+ " LIKE '"
+											+ theValueCons
+													.replaceAll("'", "''")
+											+ "%'");
+								}
+							}
+						}
+					}
+
+					if (theFilter.length() > 0) {
+						if (sql0.trim().length() > 0) {
+							sql0 = "((" + sql0 + ")" + theFilter.toString()
+									+ ")";
+						} else {
+							sql0 = "(" + theFilter.toString().substring(4)
+									+ ")";
+						}
 					}
 
 					EstPanelSize = EstPanelSize + EstSize;
@@ -1301,6 +1319,10 @@ public class QueryToolUtil extends CRCDAO {
 												DAOFactoryHelper.SQLSERVER)) {
 									unLockSql = " WITH(NOLOCK) ";
 								}
+								String encounterSelect = " ";
+								if (dataRequested.equals("PE")) {
+									encounterSelect = FACT_ENCOUNTER_ID + " , ";
+								}
 
 								panelSQL[numPanels] = panelSQL[numPanels]
 										+
@@ -1308,11 +1330,11 @@ public class QueryToolUtil extends CRCDAO {
 										// fact_cnpt_pat_enct_idx
 										// observation_fact_pk
 
-										"SELECT " + queryHint + FACT_PATIENT_ID
-										+ " " + is_fact + " " + "FROM "
-										+ getDbSchemaName() + theTable2 + " "
-										+ unLockSql + "WHERE " + numFactsCheck
-										+ "(";
+										"SELECT " + queryHint + encounterSelect
+										+ FACT_PATIENT_ID + is_fact + " "
+										+ "FROM " + getDbSchemaName()
+										+ theTable2 + " " + unLockSql
+										+ "WHERE " + numFactsCheck + "(";
 							}
 						}
 
@@ -1387,7 +1409,7 @@ public class QueryToolUtil extends CRCDAO {
 							querySQL = panelSQL[0].replaceAll("<\\|>", "\r\n"
 									+ "UNION ALL" + "<\\|>\r\n");
 						} else {
-							if (sameVisit) {
+							if (sameVisit || dataRequested.equals("PE")) {
 								querySQL = panelSQL[0]
 										.replaceAll(
 												"<\\|>",
@@ -1414,7 +1436,7 @@ public class QueryToolUtil extends CRCDAO {
 						if (panelInvert[i]) {
 							continueQuery = true;
 
-							if (sameVisit) {
+							if (sameVisit || dataRequested.equals("PE")) {
 								querySQL = "INSERT INTO " + getDbSchemaName()
 										+ TEMP_TABLE + tableSuffix + " " + "("
 										+ TEMP_TABLE_PATIENT_ID + ", "
@@ -1497,6 +1519,10 @@ public class QueryToolUtil extends CRCDAO {
 										+ TEMP_TABLE_PATIENT_ID + " ";
 							}
 						} else if (sameVisit) {
+							String occuranceSql = " group by  encounter_num,patient_num having count(*) "
+									+ totalItemOccurrenceOperator[i]
+									+ totalItemOccurance[i];
+
 							querySQL = "INSERT INTO " + getDbSchemaName()
 									+ TEMP_TABLE + tableSuffix + " " + "("
 									+ TEMP_TABLE_PATIENT_ID + ", "
@@ -1506,17 +1532,46 @@ public class QueryToolUtil extends CRCDAO {
 									+ TEMP_TABLE_PATIENT_ID + ", " + panelCount
 									+ " FROM ( " + "\r\n" + querySQL + ") t ";
 
-							querySQL = "SELECT " + TEMP_TABLE_ENCOUNTER_ID
-									+ ", " + TEMP_TABLE_PATIENT_ID + ", "
-									+ panelCount + " panel_count into "
-									+ getDbSchemaName() + TEMP_TABLE
-									+ tableSuffix + "  FROM ( " + "\r\n"
-									+ querySQL + ") t ";
+							/*
+							 * querySQL = "SELECT " + TEMP_TABLE_ENCOUNTER_ID +
+							 * ", " + TEMP_TABLE_PATIENT_ID + ", " + panelCount
+							 * + " panel_count into " + getDbSchemaName() +
+							 * TEMP_TABLE + tableSuffix + "  FROM ( " + "\r\n" +
+							 * querySQL + ") t ";
+							 */
+
+							// // ///
+							querySQL = "";
+							// add insert statment for each select
+							for (int k = 0; k < singleItemSql.length; k++) {
+
+								// commented to see the select into will speed
+								// up the query
+								querySQL = querySQL + "\r\nINSERT INTO "
+										+ getDbSchemaName() + TEMP_TABLE
+										+ tableSuffix + " " + "("
+										+ TEMP_TABLE_ENCOUNTER_ID + ","
+										+ TEMP_TABLE_PATIENT_ID
+										+ ", panel_count) \r\n" + "SELECT "
+										+ TEMP_TABLE_ENCOUNTER_ID + ","
+										+ TEMP_TABLE_PATIENT_ID + ", "
+										+ panelCount + " FROM ( " + "\r\n"
+										+ singleItemSql[k] + // RAJESH CHANGE
+										// BEGIN
+										occuranceSql + // RAJESH CHANGE END
+										") t ";
+
+								if (k + 1 < singleItemSql.length) {
+									querySQL += "\r\n<*>\r\n";
+								}
+
+							}
+							// ///
 						} else {
 							String occuranceSql = " ";
 
 							if (totalItemOccurance[i] > 0) {
-								if (sameVisit) {
+								if (sameVisit || dataRequested.equals("PE")) {
 									occuranceSql = " group by encounter_num,patient_num having count(*) "
 											+ totalItemOccurrenceOperator[i]
 											+ totalItemOccurance[i];
@@ -1528,6 +1583,12 @@ public class QueryToolUtil extends CRCDAO {
 
 							}
 							querySQL = "";
+							String encounterSelect = " ";
+							if (dataRequested.equals("PE")) {
+								encounterSelect = TEMP_TABLE_ENCOUNTER_ID
+										+ " , ";
+							}
+
 							// add insert statment for each select
 							for (int k = 0; k < singleItemSql.length; k++) {
 
@@ -1536,11 +1597,14 @@ public class QueryToolUtil extends CRCDAO {
 								querySQL = querySQL + "\r\nINSERT INTO "
 										+ getDbSchemaName() + TEMP_TABLE
 										+ tableSuffix + " " + "("
+										+ encounterSelect
 										+ TEMP_TABLE_PATIENT_ID
 										+ ", panel_count) \r\n" + "SELECT "
+										+ encounterSelect
 										+ TEMP_TABLE_PATIENT_ID + ", "
 										+ panelCount + " FROM ( " + "\r\n"
-										+ singleItemSql[k] + // RAJESH CHANGE
+										+ singleItemSql[k] + // RAJESH
+										// CHANGE
 										// BEGIN
 										occuranceSql + // RAJESH CHANGE END
 										") t ";
@@ -1558,6 +1622,7 @@ public class QueryToolUtil extends CRCDAO {
 								}
 
 							}
+
 						}
 
 						String specCount = "";
@@ -1802,7 +1867,9 @@ public class QueryToolUtil extends CRCDAO {
 										String occuranceSql = " ";
 
 										if (totalItemOccurance[i] > 0) {
-											if (sameVisit) {
+											if (sameVisit
+													|| dataRequested
+															.equals("PE")) {
 												occuranceSql = " group by encounter_num,patient_num having count(*) "
 														+ totalItemOccurrenceOperator[i]
 														+ totalItemOccurance[i];
@@ -1834,7 +1901,8 @@ public class QueryToolUtil extends CRCDAO {
 												+ " = v."
 												+ TEMP_TABLE_PATIENT_ID + " ";
 
-										if (sameVisit) {
+										if (sameVisit
+												|| dataRequested.equals("PE")) {
 											querySQL = querySQL + "AND "
 													+ getDbSchemaName()
 													+ TEMP_TABLE + "."
@@ -1953,31 +2021,36 @@ public class QueryToolUtil extends CRCDAO {
 							+ " ";
 
 					if (dataRequested.equals("PE")) {
-						if (sameVisit) {
-							querySQLTemp = querySQLTemp + ", t."
-									+ TEMP_TABLE_ENCOUNTER_ID + " ";
-						} else {
-							querySQLTemp = querySQLTemp + ", e."
-									+ TEMP_TABLE_ENCOUNTER_ID + " ";
-						}
+						querySQLTemp = querySQLTemp + ", t."
+								+ TEMP_TABLE_ENCOUNTER_ID + " ";
 					}
+					// if (dataRequested.equals("PE")) {
+					// if (sameVisit) {
+					// querySQLTemp = querySQLTemp + ", t."
+					// + TEMP_TABLE_ENCOUNTER_ID + " ";
+					// } else {
+					// querySQLTemp = querySQLTemp + ", e."
+					// + TEMP_TABLE_ENCOUNTER_ID + " ";
+					// }
+					// }
 
 					querySQLTemp = querySQLTemp + "FROM " + getDbSchemaName()
 							+ TEMP_TABLE + tableSuffix + " t ";
 
-					if ((dataRequested.equals("PE")) && (!sameVisit)) {
-						querySQLTemp = querySQLTemp + ", " + getDbSchemaName()
-								+ ENCOUNTER_TABLE + " e" + " ";
-					}
+					// if ((dataRequested.equals("PE")) && (!sameVisit)) {
+					// querySQLTemp = querySQLTemp + ", " + getDbSchemaName()
+					// + ENCOUNTER_TABLE + " e" + " ";
+					// }
 
 					querySQLTemp = querySQLTemp + "WHERE panel_count = "
 							+ panelCount + "\r\n";
 
-					if ((dataRequested.equals("PE")) && (!sameVisit)) {
-						querySQLTemp = querySQLTemp + " AND e."
-								+ ENCOUNTER_PATIENT_ID + " = t."
-								+ TEMP_TABLE_PATIENT_ID + "\r\n";
-					}
+					// if ((dataRequested.equals("PE")) && (!sameVisit)) {
+					// querySQLTemp = querySQLTemp + " AND e."
+					// + ENCOUNTER_PATIENT_ID + " = t."
+					// + TEMP_TABLE_PATIENT_ID + "\r\n";
+					// }
+
 				}
 
 				if (origIteration == 0) {

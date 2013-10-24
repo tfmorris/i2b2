@@ -273,9 +273,14 @@ public class QueryManagerBean implements SessionBean {
 		int queryResultInstanceId = (Integer) returnValues
 				.get(QueryManagerBeanUtil.QT_QUERY_RESULT_INSTANCE_ID_PARAM);
 		log.debug("Query Result Instance id " + queryResultInstanceId);
+
+		log.debug("Status coming from queue : " + status);
 		StatusType statusType = new StatusType();
 		StatusType.Condition condition = new StatusType.Condition();
 		condition.setValue(status);
+		if (status != null && status.indexOf("LOCKEDOUT") > -1) {
+			status = "ERROR";
+		}
 		condition.setType(status);
 		statusType.getCondition().add(condition);
 		ResultResponseType responseType = new ResultResponseType();

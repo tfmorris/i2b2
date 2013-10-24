@@ -32,6 +32,35 @@ public class AnalysisPluginSpringDao extends CRCDAO implements
 
 	}
 
+	/**
+	 * Return plugin metadata
+	 * 
+	 * @param analysisName
+	 * @param projectId
+	 * @return
+	 */
+	public List<QtAnalysisPlugin> getAnalysisPluginMetadata(
+			String analysisName, String projectId) {
+		List<QtAnalysisPlugin> analysisPluginList = null;
+
+		// if the analysis name is ALL, then return all the plugin
+		if (analysisName != null && analysisName.equalsIgnoreCase("ALL")) {
+			String lookupSql = "select * from " + getDbSchemaName()
+					+ "qt_analysis_plugin where group_id = ? or group_id = '@'";
+			analysisPluginList = jdbcTemplate.query(lookupSql,
+					new Object[] { projectId }, analysisPluginMapper);
+		} else {
+			// if not get analysisname and the project = projectId or
+			// project='@'
+			String lookupSql = "select * from "
+					+ getDbSchemaName()
+					+ "qt_analysis_plugin where plugin_name = ? and (group_id = ? or group_id = '@')";
+			analysisPluginList = jdbcTemplate.query(lookupSql, new Object[] {
+					analysisName, projectId }, analysisPluginMapper);
+		}
+		return analysisPluginList;
+	}
+
 	public QtAnalysisPlugin lookupAnalysisPluginByNameVersionProject(
 			String analysisName, String version, String projectId)
 			throws I2B2DAOException {

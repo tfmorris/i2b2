@@ -9,40 +9,22 @@
  */
 package edu.harvard.i2b2.ontology.dao;
 
-import java.io.IOException;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Types;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.DOMOutputter;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
-import edu.harvard.i2b2.common.util.db.JDBCUtil;
-import edu.harvard.i2b2.ontology.datavo.i2b2message.MessageHeaderType;
-import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
-import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
-import edu.harvard.i2b2.ontology.datavo.vdo.GetReturnType;
-import edu.harvard.i2b2.ontology.datavo.vdo.XmlValueType;
 import edu.harvard.i2b2.ontology.ejb.DBInfoType;
 import edu.harvard.i2b2.ontology.util.OntologyUtil;
-import edu.harvard.i2b2.ontology.ws.GetCategoriesDataMessage;
 
 public class MetadataDbDao extends JdbcDaoSupport {
 	

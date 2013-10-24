@@ -38,7 +38,7 @@ import edu.harvard.i2b2.crc.datavo.db.StatusEnum;
 
 /**
  * This is class handles persistance of result instance and its update operation
- * $Id: QueryResultInstanceSpringDao.java,v 1.12 2009/12/16 18:05:47 rk903 Exp $
+ * $Id: QueryResultInstanceSpringDao.java,v 1.14 2010/07/22 18:54:51 rk903 Exp $
  * 
  * @author rkuttan
  */
@@ -241,9 +241,10 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 	 * @throws I2B2DAOException
 	 */
 	public int getResultInstanceCountBySetSize(String userId, int compareDays,
-			int setSize, int totalCount) throws I2B2DAOException {
-		int betweenDayValue = compareDays / 2;
-		int startBetweenDayValue = betweenDayValue * -1;
+			int resultTypeId, int setSize, int totalCount)
+			throws I2B2DAOException {
+		// int betweenDayValue = compareDays / 2;
+		int startBetweenDayValue = compareDays * -1;
 		int returnSetSize = 0;
 		String queryCountSql = "";
 
@@ -255,14 +256,13 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 					+ " qt_query_instance qi "
 					+ " where "
 					+ "  r1.start_date between sysdate- "
-					+ betweenDayValue
-					+ " and sysdate +  "
-					+ betweenDayValue
+					+ compareDays
+					+ " and sysdate   "
 					+ " and r2.start_date between sysdate- "
-					+ betweenDayValue
-					+ "  and sysdate + "
-					+ betweenDayValue
-					+ " and r1.result_type_id = r2.result_type_id "
+					+ compareDays
+					+ "  and sysdate "
+					+ " and r1.result_type_id = ?"
+					+ " and r2.result_type_id = ? "
 					+ " and  qi.user_id = ? "
 					+ " and qi.query_instance_id = r1.query_instance_id "
 					+ " and qi.query_instance_id = r2.query_instance_id "
@@ -279,14 +279,15 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 					+ " r1.start_date between DATEADD ( day , "
 					+ startBetweenDayValue
 					+ ", getDate())  and DATEADD ( day , "
-					+ betweenDayValue
+					+ "1"
 					+ ", getDate()) "
 					+ " and r2.start_date between DATEADD ( day , "
 					+ startBetweenDayValue
 					+ ", getDate()) and DATEADD ( day , "
-					+ betweenDayValue
+					+ "1"
 					+ ", getDate()) "
-					+ " and r1.result_type_id = r2.result_type_id "
+					+ " and r1.result_type_id = ? "
+					+ " and r2.result_type_id = ? "
 					+ " and  qi.user_id = ? "
 					+ " and qi.query_instance_id = r1.query_instance_id "
 					+ " and qi.query_instance_id = r2.query_instance_id "
@@ -302,9 +303,11 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 
 			log.debug("Executing sql [" + queryCountSql + "]");
 			preparedStmt = conn.prepareStatement(queryCountSql);
-			preparedStmt.setString(1, userId);
-			preparedStmt.setInt(2, setSize);
-			preparedStmt.setInt(3, totalCount);
+			preparedStmt.setInt(1, resultTypeId);
+			preparedStmt.setInt(2, resultTypeId);
+			preparedStmt.setString(3, userId);
+			preparedStmt.setInt(4, setSize);
+			preparedStmt.setInt(5, totalCount);
 
 			ResultSet resultSet = preparedStmt.executeQuery();
 			if (resultSet.next()) {
@@ -446,6 +449,7 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 			resultInstance.setQtQueryResultType(resultTypeDao
 					.getQueryResultTypeById(resultTypeId));
 			resultInstance.setSetSize(rs.getInt("SET_SIZE"));
+			resultInstance.setRealSetSize(rs.getInt("REAL_SET_SIZE"));
 			resultInstance.setObfuscateMethod(rs.getString("OBFUSC_METHOD"));
 			resultInstance.setStartDate(rs.getTimestamp("START_DATE"));
 			resultInstance.setEndDate(rs.getTimestamp("END_DATE"));

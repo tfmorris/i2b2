@@ -27,6 +27,7 @@ import edu.harvard.i2b2.crc.dao.IDAOFactory;
 import edu.harvard.i2b2.crc.dao.SetFinderDAOFactory;
 import edu.harvard.i2b2.crc.dao.setfinder.CRCTimeOutException;
 import edu.harvard.i2b2.crc.dao.setfinder.IQueryInstanceDao;
+import edu.harvard.i2b2.crc.dao.setfinder.LockedoutException;
 import edu.harvard.i2b2.crc.dao.setfinder.QueryExecutorDao;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
@@ -143,7 +144,7 @@ public class ExecRunnable {
 								.debug("QueryExecutorMDB completed processing query instance ["
 										+ queryInstanceId + "]");
 						// finally send reply to queue
-						sendReply(sessionId, patientSetId, replyToQueue);
+						sendReply(sessionId, patientSetId, "", replyToQueue);
 					}
 
 				} catch (CRCTimeOutException daoEx) {
@@ -167,10 +168,21 @@ public class ExecRunnable {
 
 					}
 				} catch (I2B2DAOException daoEx) {
-					// catch this error and ignore. send general reply message.
-					log.error(daoEx.getMessage(), daoEx);
-					// finally send reply to queue
-					sendReply(sessionId, patientSetId, replyToQueue);
+					if (daoEx instanceof LockedoutException) {
+						log.debug("Lockedout happend"
+								+ daoEx.getMessage());
+						// message.
+						log.error(daoEx.getMessage(), daoEx);
+						// finally send reply to queue
+						sendReply(sessionId, patientSetId, daoEx.getMessage(),
+								replyToQueue);
+					} else {
+						// catch this error and ignore. send general reply
+						// message.
+						log.error(daoEx.getMessage(), daoEx);
+						// finally send reply to queue
+						sendReply(sessionId, patientSetId, "", replyToQueue);
+					}
 				}
 			}
 			// setFinishedFlag(true);
@@ -196,7 +208,8 @@ public class ExecRunnable {
 	}
 
 	private void sendReply(String sessionId, String patientSetId,
-			Queue replyToQueue) throws JMSException, ServiceLocatorException {
+			String message, Queue replyToQueue) throws JMSException,
+			ServiceLocatorException {
 		QueueConnection conn = null;
 		QueueSession session = null;
 		QueueSender sender = null;
@@ -215,6 +228,8 @@ public class ExecRunnable {
 			mapMessage.setString(
 					QueryManagerBeanUtil.QT_QUERY_RESULT_INSTANCE_ID_PARAM,
 					patientSetId);
+			mapMessage.setString(QueryManagerBeanUtil.QUERY_STATUS_PARAM,
+					message);
 			sender = session.createSender(replyToQueue);
 			sender.send(mapMessage);
 		} catch (JMSException jmse) {

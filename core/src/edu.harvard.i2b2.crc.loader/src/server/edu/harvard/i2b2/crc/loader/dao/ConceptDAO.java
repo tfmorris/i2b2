@@ -137,6 +137,47 @@ public class ConceptDAO extends CRCLoaderDAO implements IConceptDAO {
 	}
 
 	/**
+	 * Function to backup and clear concept dimension table using stored proc.
+	 * 
+	 * @param tempTableName
+	 * @throws Exception
+	 */
+	public void backupAndSyncConceptDimensionTable(String tempConceptTableName,
+			String backupConceptDimensionTableName, int uploadId)
+			throws I2B2Exception {
+		Connection conn = null;
+		try {
+			conn = getDataSource().getConnection();
+			CallableStatement callStmt = conn.prepareCall("{call "
+					+ this.getDbSchemaName()
+					+ "SYNC_CLEAR_CONCEPT_TABLE(?,?,?,?)}");
+			callStmt.setString(1, tempConceptTableName);
+			callStmt.setString(2, backupConceptDimensionTableName);
+			callStmt.setInt(3, uploadId);
+			callStmt.registerOutParameter(4, java.sql.Types.VARCHAR);
+			callStmt.execute();
+			this.getSQLServerProcedureError(dataSourceLookup.getServerType(),
+					callStmt, 4);
+		} catch (SQLException sqlEx) {
+			sqlEx.printStackTrace();
+			throw new I2B2Exception(
+					"SQLException occured" + sqlEx.getMessage(), sqlEx);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new I2B2Exception("Exception occured" + ex.getMessage(), ex);
+		} finally {
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException sqlEx) {
+					sqlEx.printStackTrace();
+					log.error("Error while closing connection", sqlEx);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Patient_Mapping insert code.
 	 */
 	protected class TempConceptInsert extends BatchSqlUpdate {
@@ -159,9 +200,9 @@ public class ConceptDAO extends CRCLoaderDAO implements IConceptDAO {
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			compile();
 		}

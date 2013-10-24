@@ -26,7 +26,9 @@ import edu.harvard.i2b2.crc.dao.pdo.TablePdoQueryVisitDao;
 import edu.harvard.i2b2.crc.dao.role.IPriviledgeDao;
 import edu.harvard.i2b2.crc.dao.role.PriviledgeSpringDao;
 import edu.harvard.i2b2.crc.dao.setfinder.AnalysisPluginSpringDao;
+import edu.harvard.i2b2.crc.dao.setfinder.EncounterSetCollectionSpringDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IAnalysisPluginDao;
+import edu.harvard.i2b2.crc.dao.setfinder.IEncounterSetCollectionDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IPatientSetCollectionDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IQueryBreakdownTypeDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IQueryInstanceDao;
@@ -193,6 +195,12 @@ public class SQLServerDAOFactory implements IDAOFactory {
 		public IPatientSetCollectionDao getPatientSetCollectionDAO() {
 			// TODO Auto-generated method stub
 			return new PatientSetCollectionSpringDao(dataSource,
+					dataSourceLookup);
+		}
+
+		public IEncounterSetCollectionDao getEncounterSetCollectionDAO() {
+			// TODO Auto-generated method stub
+			return new EncounterSetCollectionSpringDao(dataSource,
 					dataSourceLookup);
 		}
 

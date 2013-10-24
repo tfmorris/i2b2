@@ -110,6 +110,16 @@
         </xs:complexContent>
     </xs:complexType>
     
+    <xs:complexType name="analysis_plugin_metadata_requestType">
+        <xs:complexContent>
+            <xs:extension base="crc:requestType">
+                <xs:sequence>
+                	<xs:element name="plugin_name" type="xs:string" default="ALL"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
     <xs:complexType name="query_definition_requestType">
         <xs:complexContent>
             <xs:extension base="crc:requestType">

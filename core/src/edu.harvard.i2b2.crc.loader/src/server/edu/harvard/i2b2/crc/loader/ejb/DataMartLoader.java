@@ -119,8 +119,14 @@ public class DataMartLoader implements IDataMartLoaderHelper {
 					.getLoadPatientSet() != null) ? true : false;
 			boolean conceptLoadFlag = (publishType.getLoadList()
 					.getLoadConceptSet() != null) ? true : false;
+			boolean conceptDeleteExistingDataFlag = (publishType.getLoadList()
+					.getLoadConceptSet() != null) ? publishType.getLoadList()
+					.getLoadConceptSet().isDeleteExistingData() : false;
 			boolean observerLoadFlag = (publishType.getLoadList()
 					.getLoadObserverSet() != null) ? true : false;
+			boolean observerDeleteExistingDataFlag = (publishType.getLoadList()
+					.getLoadObserverSet() != null) ? publishType.getLoadList()
+					.getLoadObserverSet().isDeleteExistingData() : false;
 			boolean stagingCleanUpFlag = publishType.getLoadList()
 					.isClearTempLoadTables();
 
@@ -213,10 +219,11 @@ public class DataMartLoader implements IDataMartLoaderHelper {
 			if (conceptLoadFlag) {
 				log.info("Concept load started " + uploadFileName + " uploadId"
 						+ uploadId);
+
 				ConceptLoader conceptLoader = new ConceptLoader(
 						uploaderDaoFactory, uploadFileName,
 						inputLoadFileFormat, encounterSource, sourceSystemCd,
-						uploadId);
+						conceptDeleteExistingDataFlag, uploadId);
 				performLoad(conceptLoader, UploadStatusDAO.CONCEPT_SET);
 				log.info("Concept load complete " + uploadFileName
 						+ " uploadId" + uploadId);
@@ -233,10 +240,11 @@ public class DataMartLoader implements IDataMartLoaderHelper {
 			if (observerLoadFlag) {
 				log.info("Provider load started " + uploadFileName
 						+ " uploadId" + uploadId);
+
 				ProviderLoader providerLoader = new ProviderLoader(
 						uploaderDaoFactory, uploadFileName,
 						inputLoadFileFormat, encounterSource, sourceSystemCd,
-						uploadId);
+						observerDeleteExistingDataFlag, uploadId);
 				performLoad(providerLoader, UploadStatusDAO.OBSERVER_SET);
 				log.info("Provider load complete " + uploadFileName
 						+ " uploadId" + uploadId);
@@ -336,6 +344,11 @@ public class DataMartLoader implements IDataMartLoaderHelper {
 			int totalRecords = dimensionLoader.loadTempTable();
 			utx.commit();
 
+			// if (deleteExistingDataFlag) {
+			// utx.begin();
+			// dimensionLoader.backupAndClearTable();
+			// utx.commit();
+			// }
 			utx.begin();
 			int loadedRecords = dimensionLoader.mergeTempTable();
 			utx.commit();
@@ -343,7 +356,12 @@ public class DataMartLoader implements IDataMartLoaderHelper {
 			utx.begin();
 			setStatus = uploadStatusDao.getUploadSetStatus(dimensionLoader
 					.getUploadId(), setTypeId);
-			setStatus.setLoadStatus("FINISHED");
+			if (loadedRecords == totalRecords) {
+				setStatus.setLoadStatus("FINISHED");
+			} else {
+				setStatus.setLoadStatus("WARNING");
+			}
+
 			setStatus.setLoadedRecord(loadedRecords);
 			setStatus.setEndDate(new Date(System.currentTimeMillis()));
 			setStatus.setNoOfRecord(totalRecords);

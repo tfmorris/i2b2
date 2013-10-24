@@ -18,6 +18,7 @@ import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.crc.datavo.pdo.query.ConstrainOperatorType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.ConstrainValueType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.ItemType;
+import edu.harvard.i2b2.crc.util.SqlClauseUtil;
 
 /**
  * Class to handle value constrains. Generates sql where clause based on the
@@ -50,20 +51,23 @@ public class ValueConstrainsHandler {
 				if (operatorType == null || value == null) {
 					continue;
 				}
+				
 				if (operatorType.value().equalsIgnoreCase(
 						ConstrainOperatorType.LIKE.value())) {
 					constrainSql = " obs.valtype_cd = 'T' AND obs.tval_char LIKE '"
-							+ value.replace("'", "''") + "%'";
+							+ value.replaceAll("'", "''") + "%'";
 				} else if (operatorType.value().equalsIgnoreCase(
 						ConstrainOperatorType.EQ.value())) {
 					constrainSql = " obs.valtype_cd = 'T' AND obs.tval_char   = '"
 							+ value.replaceAll("'", "''") + "' ";
 				} else if (operatorType.value().equalsIgnoreCase(
 						ConstrainOperatorType.IN.value())) {
-					constrainSql = " obs.valtype_cd = 'T' AND obs.tval_char   IN "
-							+ value;
+					value = SqlClauseUtil.buildINClause(value, true);
+					constrainSql = " obs.valtype_cd = 'T' AND obs.tval_char   IN ("
+							+ value + ")";
 				} else if (operatorType.value().equalsIgnoreCase(
 						ConstrainOperatorType.BETWEEN.value())) {
+					value = SqlClauseUtil.buildBetweenClause(value);
 					constrainSql = " obs.valtype_cd = 'T' AND obs.tval_char   BETWEEEN "
 							+ value;
 				} else if (operatorType.value().equalsIgnoreCase(
@@ -80,6 +84,7 @@ public class ValueConstrainsHandler {
 				if (operatorType == null || value == null) {
 					continue;
 				}
+				value.replaceAll("'", "''");
 				if (operatorType.value().equalsIgnoreCase(
 						ConstrainOperatorType.GT.value())) {
 					constrainSql = " ((obs.valtype_cd = 'N' AND obs.nval_num > "
@@ -106,6 +111,7 @@ public class ValueConstrainsHandler {
 							+ value + " AND obs.tval_char='E' ";
 				} else if (operatorType.value().equalsIgnoreCase(
 						ConstrainOperatorType.BETWEEN.value())) {
+					value = SqlClauseUtil.buildBetweenClause(value);
 					constrainSql = " obs.valtype_cd = 'N' AND obs.nval_num BETWEEN  "
 							+ value + " AND obs.tval_char ='E' ";
 				} else if (operatorType.value().equalsIgnoreCase(
@@ -134,6 +140,7 @@ public class ValueConstrainsHandler {
 							+ value.replaceAll("'", "''") + "' ";
 				} else if (operatorType.value().equalsIgnoreCase(
 						ConstrainOperatorType.IN.value())) {
+					value = SqlClauseUtil.buildINClause(value, true);
 					constrainSql = " obs.valueflag_cd IN " + value;
 				} else {
 					throw new I2B2Exception(
@@ -156,6 +163,7 @@ public class ValueConstrainsHandler {
 								+ value.replaceAll("'", "''") + "' ";
 					} else if (operatorType.value().equalsIgnoreCase(
 							ConstrainOperatorType.IN.value())) {
+						value = SqlClauseUtil.buildINClause(value, true);
 						constrainSql = " obs.valtype_cd = 'M' and obs.tval_char IN "
 								+ value + " ";
 					}
@@ -178,10 +186,6 @@ public class ValueConstrainsHandler {
 		}
 
 		return fullConstrainSql;
-	}
-
-	private String buildInString(String valueConstrain) {
-		return valueConstrain;
 	}
 
 }

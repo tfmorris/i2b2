@@ -165,12 +165,12 @@ public class VisitDAO extends CRCLoaderDAO implements IVisitDAO {
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
 			declareParameter(new SqlParameter(Types.LONGVARCHAR));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			compile();
 		}

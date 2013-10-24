@@ -16,20 +16,10 @@
         <xs:sequence>
             <xs:element name="query_name" type="xs:string"/>
             <xs:element name="query_description" type="xs:string"/>
-            <xs:element name="query_timing" type="qd:timingType" default="ANY"/>
+            <xs:element name="query_timing" type="xs:string" default="ANY"/>
             <xs:element name="specificity_scale" type="xs:int"/>
             <xs:element name="panel" type="qd:panelType" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
-    
-    <xs:simpleType name="timingType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="ANY"/>
-            <xs:enumeration value="SAME"/>
-            <xs:enumeration value="ORDER_BY_DATE"/>
-            <xs:enumeration value="SPAN_BY_DATE"/>
-        </xs:restriction>
-    </xs:simpleType>
-
  
 </xs:schema>

@@ -159,5 +159,14 @@
         </xs:complexContent>
     </xs:complexType>       
     
-    
+    <xs:complexType name="analysis_plugin_metadata_responseType">
+        <xs:complexContent>
+            <xs:extension base="crc:responseType">
+                <xs:sequence>
+                    <xs:element name="analysis_plugin_metadata_type" type="crc:analysis_plugin_metadata_typeType"
+                        minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
 </xs:schema>

@@ -95,10 +95,12 @@ public class LoaderStatusBean implements LoaderStatusBeanLocal,
 			throws I2B2Exception {
 		LoadDataResponseType loadDataResponse = new LoadDataResponseType();
 		LoaderDAOFactoryHelper daoHelper = new LoaderDAOFactoryHelper(
-				dataSourceLookup);
+				dataSourceLookup.getDomainId(), dataSourceLookup
+						.getProjectPath(), dataSourceLookup.getOwnerId());
 		ILoaderDAOFactory loaderDaoFactory = daoHelper.getDAOFactory();
 		IUploaderDAOFactory uploaderDaoFactory = loaderDaoFactory
 				.getUpLoaderDAOFactory();
+
 		UploadStatusDAOI statusDao = uploaderDaoFactory.getUploadStatusDAO();
 
 		UploadStatus uploadStatus = statusDao.findById(uploadId);

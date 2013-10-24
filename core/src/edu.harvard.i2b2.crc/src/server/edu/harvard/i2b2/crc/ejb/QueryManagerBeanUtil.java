@@ -119,8 +119,15 @@ public class QueryManagerBeanUtil {
 			log.info("STATUS IS RUNNING " + status);
 		} else {
 			String responseObj = (String) receivedMsg.getString("para1");
-			log.info("Got back response from executor " + responseObj);
-			status = "DONE";
+			status = (String) receivedMsg
+					.getString(QueryManagerBeanUtil.QUERY_STATUS_PARAM);
+			log.debug("Got back response from executor " + responseObj);
+
+			if (status != null && status.indexOf("LOCKEDOUT") > -1) {
+				;
+			} else {
+				status = "DONE";
+			}
 			queryResultInstanceId = receivedMsg
 					.getInt(QT_QUERY_RESULT_INSTANCE_ID_PARAM);
 			log.info("RESULT INSTANCE ID " + queryResultInstanceId);

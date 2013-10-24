@@ -12,7 +12,6 @@ package edu.harvard.i2b2.ontology.dao;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +41,6 @@ import edu.harvard.i2b2.ontology.datavo.vdo.GetReturnType;
 import edu.harvard.i2b2.ontology.datavo.vdo.GetTermInfoType;
 import edu.harvard.i2b2.ontology.datavo.vdo.VocabRequestType;
 import edu.harvard.i2b2.ontology.datavo.vdo.XmlValueType;
-import edu.harvard.i2b2.ontology.delegate.RequestHandler;
 import edu.harvard.i2b2.ontology.ejb.DBInfoType;
 import edu.harvard.i2b2.ontology.ejb.NodeType;
 import edu.harvard.i2b2.ontology.util.OntologyUtil;
@@ -51,12 +49,12 @@ import edu.harvard.i2b2.ontology.util.StringUtil;
 public class ConceptDao extends JdbcDaoSupport {
 	
     private static Log log = LogFactory.getLog(ConceptDao.class);
-    final static String CAT_CORE = " c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_totalnum, c_basecode, c_facttablecolumn, c_dimtablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_tooltip ";
+    final static String CAT_CORE = " c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_totalnum, c_basecode, c_facttablecolumn, c_dimtablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_tooltip, valuetype_cd ";
     final static String CAT_DEFAULT = " c_fullname, c_name ";
 
-    final static String DEFAULT = " c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_totalnum, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_tooltip ";
+    final static String DEFAULT = " c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_totalnum, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_tooltip, valuetype_cd ";
     final static String CORE = DEFAULT;
-    final static String ALL = ", update_date, download_date, import_date, sourcesystem_cd, valuetype_cd,";
+    final static String ALL = ", update_date, download_date, import_date, sourcesystem_cd, ";
 	final static String BLOB = ", c_metadataxml, c_comment ";
 
     final static String NAME_DEFAULT = " c_name ";
@@ -105,7 +103,7 @@ public class ConceptDao extends JdbcDaoSupport {
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			 String role = (String) it.next();
-			 if(role.toLowerCase().equals("protected_access")) {
+			 if(role.toUpperCase().equals("DATA_PROT")) {
 				 protectedAccess = true;
 				 break;
 			 }
@@ -268,7 +266,7 @@ public class ConceptDao extends JdbcDaoSupport {
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			 String role = (String) it.next();
-			 if(role.toLowerCase().equals("protected_access")) {
+			 if(role.toUpperCase().equals("DATA_PROT")) {
 				 protectedAccess = true;
 				 break;
 			 }
@@ -383,7 +381,7 @@ public class ConceptDao extends JdbcDaoSupport {
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			 String role = (String) it.next();
-			 if(role.toLowerCase().equals("protected_access")) {
+			 if(role.toUpperCase().equals("DATA_PROT")) {
 				 protectedAccess = true;
 				 break;
 			 }
@@ -480,7 +478,7 @@ public class ConceptDao extends JdbcDaoSupport {
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			 String role = (String) it.next();
-			 if(role.toLowerCase().equals("protected_access")) {
+			 if(role.toUpperCase().equals("DATA_PROT")) {
 				 protectedAccess = true;
 				 break;
 			 }
@@ -517,10 +515,11 @@ public class ConceptDao extends JdbcDaoSupport {
 
 		 String nameInfoSql = null;
 		    String compareName = null;
-			
+			// dont do the sql injection replace; it breaks the service.
 		    if(vocabType.getMatchStr().getStrategy().equals("exact")) {
 		    	nameInfoSql = "select " + parameters  + " from " + metadataSchema+tableName + " where upper(c_name) = ?  ";
 		    	compareName = vocabType.getMatchStr().getValue().toUpperCase();
+		  
 		    }
 		    
 		    else if(vocabType.getMatchStr().getStrategy().equals("left")){
@@ -597,7 +596,7 @@ public class ConceptDao extends JdbcDaoSupport {
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			 String role = (String) it.next();
-			 if(role.toLowerCase().equals("protected_access")) {
+			 if(role.toUpperCase().equals("DATA_PROT")) {
 				 protectedAccess = true;
 				 break;
 			 }
@@ -640,6 +639,7 @@ public class ConceptDao extends JdbcDaoSupport {
 			synonym = " and c_synonym_cd = 'N'";
 
 		// I have to do this the hard way because there are a dynamic number of codes to pass in
+		//   prevent SQL injection
 		String value = vocabType.getMatchStr().getValue();
 		if(value.contains("'")){
 			value = vocabType.getMatchStr().getValue().replaceAll("'", "''");
@@ -671,7 +671,7 @@ public class ConceptDao extends JdbcDaoSupport {
 			Iterator itTn = tableNames.iterator();
 			String table = (String)itTn.next();
 			String tableCdSql = ", (select distinct(c_table_cd) from "+ metadataSchema + "TABLE_ACCESS where c_table_name = '"+  table+ "') as tableCd"; 
-			String basecode = " '" + vocabType.getMatchStr().getValue() + "' ";
+	
 			codeInfoSql = "select " + parameters + tableCdSql + " from " + metadataSchema + table + whereClause	+ hidden + synonym;;
 			while(itTn.hasNext()){		
 				table = (String)itTn.next();
@@ -728,6 +728,7 @@ public class ConceptDao extends JdbcDaoSupport {
             child.setOperator(rs.getString("c_operator")); 
             child.setDimcode(rs.getString("c_dimcode")); 
             child.setTooltip(rs.getString("c_tooltip"));
+            child.setValuetypeCd(rs.getString("valuetype_cd"));
             }
             if(node.isBlob() == true){
 				try {
@@ -800,7 +801,7 @@ public class ConceptDao extends JdbcDaoSupport {
 					child.setImportDate(factory.getXMLGregorianCalendar(date.getTime())); 
 
 	            child.setSourcesystemCd(rs.getString("sourcesystem_cd"));
-	            child.setValuetypeCd(rs.getString("valuetype_cd"));
+
 			}
             return child;
         }

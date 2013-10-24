@@ -24,6 +24,7 @@ import edu.harvard.i2b2.crc.dao.IDAOFactory;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterInstanceResultResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionRequestType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
 import edu.harvard.i2b2.crc.ejb.QueryManagerLocal;
@@ -42,6 +43,7 @@ import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 public class RunQueryInstanceFromQueryDefinitionHandler extends RequestHandler {
 	QueryDefinitionRequestType queryDefRequestType = null;
 	String requestXml = null;
+	boolean lockedoutFlag = false;
 
 	/**
 	 * Constuctor which accepts i2b2 request message xml
@@ -117,6 +119,17 @@ public class RunQueryInstanceFromQueryDefinitionHandler extends RequestHandler {
 			// response = queryManagerLocal.processQuery(requestXml);
 			masterInstanceResponse = queryManagerLocal.processQuery(this
 					.getDataSourceLookup(), requestXml);
+			if (masterInstanceResponse.getStatus() != null) {
+				StatusType status = masterInstanceResponse.getStatus();
+				if (status.getCondition().get(0) != null) {
+					if (status.getCondition().get(0).getValue() != null) {
+						if (status.getCondition().get(0).getValue().indexOf(
+								"LOCKEDOUT") > -1) {
+							lockedoutFlag = true;
+						}
+					}
+				}
+			}
 			// masterInstanceResponse.setStatus(this.buildCRCStausType(
 			// RequestHandlerDelegate.DONE_TYPE, "DONE"));
 
@@ -138,5 +151,9 @@ public class RunQueryInstanceFromQueryDefinitionHandler extends RequestHandler {
 		}
 
 		return bodyType;
+	}
+
+	public boolean getLockedoutFlag() {
+		return lockedoutFlag;
 	}
 }

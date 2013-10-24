@@ -24,6 +24,7 @@ public interface IQueryRequestDao {
 	 * @return sql string
 	 * @throws I2B2DAOException
 	 */
-	public String[] buildSql(String queryRequestXml) throws I2B2DAOException;
+	public String[] buildSql(String queryRequestXml, boolean encounterSetFlag)
+			throws I2B2DAOException;
 
 }

@@ -55,7 +55,8 @@ public class QueryRequestSpringDao extends CRCDAO implements IQueryRequestDao {
 	 * @return sql string
 	 * @throws I2B2DAOException
 	 */
-	public String[] buildSql(String queryRequestXml) throws I2B2DAOException {
+	public String[] buildSql(String queryRequestXml, boolean encounterSetFlag)
+			throws I2B2DAOException {
 		String sql = null, ignoredItemMessage = null;
 		Connection conn = null;
 
@@ -63,7 +64,8 @@ public class QueryRequestSpringDao extends CRCDAO implements IQueryRequestDao {
 			// conn = getConnection();
 			conn = dataSource.getConnection();
 			QueryToolUtil queryUtil = new QueryToolUtil(dataSourceLookup);
-			sql = queryUtil.generateSQL(conn, queryRequestXml);
+			sql = queryUtil
+					.generateSQL(conn, queryRequestXml, encounterSetFlag);
 			ignoredItemMessage = queryUtil.getIgnoredItemMessage();
 		} catch (SQLException ex) {
 			log.error("Error while building sql", ex);

@@ -10,6 +10,20 @@
  */
 package edu.harvard.i2b2.ontology.ws;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.util.Date;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
@@ -25,266 +39,343 @@ import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.ResultStatusType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptsType;
+import edu.harvard.i2b2.ontology.datavo.vdo.DirtyValueType;
+import edu.harvard.i2b2.ontology.datavo.vdo.OntologyProcessStatusType;
 import edu.harvard.i2b2.ontology.util.OntologyJAXBUtil;
-
-import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMFactory;
-import org.apache.axiom.om.OMNamespace;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import java.math.BigDecimal;
-
-import java.util.Date;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 
 /**
  * Factory class to create request/response message objects.
- *
+ * 
  */
 public class MessageFactory {
-    private static Log log = LogFactory.getLog(MessageFactory.class);
+	private static Log log = LogFactory.getLog(MessageFactory.class);
 
-    /**
-     * Function creates Ontology response OMElement from xml string
-     * @param xmlString
-     * @return OMElement
-     * @throws XMLStreamException
-     */
-    public static OMElement createResponseOMElementFromString(String xmlString) 
-        throws I2B2Exception {
-        OMElement returnElement = null;
+	/**
+	 * Function creates Ontology response OMElement from xml string
+	 * 
+	 * @param xmlString
+	 * @return OMElement
+	 * @throws XMLStreamException
+	 */
+	public static OMElement createResponseOMElementFromString(String xmlString)
+			throws I2B2Exception {
+		OMElement returnElement = null;
 
-        try {
-            StringReader strReader = new StringReader(xmlString);
-            XMLInputFactory xif = XMLInputFactory.newInstance();
-            XMLStreamReader reader = xif.createXMLStreamReader(strReader);
+		try {
+			StringReader strReader = new StringReader(xmlString);
+			XMLInputFactory xif = XMLInputFactory.newInstance();
+			XMLStreamReader reader = xif.createXMLStreamReader(strReader);
 
-            StAXOMBuilder builder = new StAXOMBuilder(reader);
-            returnElement = builder.getDocumentElement();
+			StAXOMBuilder builder = new StAXOMBuilder(reader);
+			returnElement = builder.getDocumentElement();
 
-        } catch (XMLStreamException e) {
-            log.error("Error while converting Ontology response VDO to OMElement");
-            throw new I2B2Exception("XML Stream error ", e);
-        }
+		} catch (XMLStreamException e) {
+			log
+					.error("Error while converting Ontology response VDO to OMElement");
+			throw new I2B2Exception("XML Stream error ", e);
+		}
 
-        return returnElement;
-    }
+		return returnElement;
+	}
 
+	/**
+	 * Function to build patientData body type
+	 * 
+	 * @param obsSet
+	 *            Observation fact set to be returned to requester
+	 * @return BodyType object
+	 */
+	public static BodyType createBodyType(ConceptsType vocabData) {
 
+		edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory of = new edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory();
+		BodyType bodyType = new BodyType();
+		bodyType.getAny().add(of.createConcepts(vocabData));
 
-    /**
-     * Function to build patientData body type
-     *
-     * @param obsSet
-     *            Observation fact set to be returned to requester
-     * @return BodyType object
-     */
-    public static BodyType createBodyType(ConceptsType vocabData) {
+		return bodyType;
+	}
 
-        edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory of = new edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory();
-        BodyType bodyType = new BodyType();
-        bodyType.getAny().add(of.createConcepts(vocabData));
+	/**
+	 * Function to build Dirty state body type
+	 * 
+	 * @param type Dirty state to be returned
+	 * @return BodyType object
+	 */
+	public static BodyType createBodyType(DirtyValueType type) {
 
-        return bodyType;
-    }
+		edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory of = new edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory();
+		BodyType bodyType = new BodyType();
+		bodyType.getAny().add(of.createDirtyState(type));
 
-    /**
-     * Function to create response  message header based
-     * on request message header
-     *
-     * @return MessageHeader object
-     */
-    public static MessageHeaderType createResponseMessageHeader(MessageHeaderType reqMsgHeader) {
-        MessageHeaderType messageHeader = new MessageHeaderType();
+		return bodyType;
+	}	
+	
+	
+	
+	/**
+	 * Function to create response message header based on request message
+	 * header
+	 * 
+	 * @return MessageHeader object
+	 */
+	public static MessageHeaderType createResponseMessageHeader(
+			MessageHeaderType reqMsgHeader) {
+		MessageHeaderType messageHeader = new MessageHeaderType();
 
-        messageHeader.setI2B2VersionCompatible(new BigDecimal("1.1"));
+		messageHeader.setI2B2VersionCompatible(new BigDecimal("1.1"));
 		messageHeader.setHl7VersionCompatible(new BigDecimal("2.4"));
 
-        ApplicationType appType = new ApplicationType();
-        appType.setApplicationName("Ontology Cell");
-        appType.setApplicationVersion("1.0");
-        messageHeader.setSendingApplication(appType);
+		ApplicationType appType = new ApplicationType();
+		appType.setApplicationName("Ontology Cell");
+		appType.setApplicationVersion("1.5");
+		messageHeader.setSendingApplication(appType);
 
-        FacilityType facility = new FacilityType();
-        facility.setFacilityName("i2b2 Hive");
-        messageHeader.setSendingFacility(facility);
+		FacilityType facility = new FacilityType();
+		facility.setFacilityName("i2b2 Hive");
+		messageHeader.setSendingFacility(facility);
 
-        if (reqMsgHeader != null) {
-        	ApplicationType recvApp = new ApplicationType();
-        	recvApp.setApplicationName(reqMsgHeader.getSendingApplication().getApplicationName());
-        	recvApp.setApplicationVersion(reqMsgHeader.getSendingApplication().getApplicationVersion());
-        	messageHeader.setReceivingApplication(recvApp);
-        	
-        	FacilityType recvFac = new FacilityType();
-        	recvFac.setFacilityName(reqMsgHeader.getSendingFacility().getFacilityName());
-        	messageHeader.setReceivingFacility(recvFac);
+		if (reqMsgHeader != null) {
+			ApplicationType recvApp = new ApplicationType();
+			recvApp.setApplicationName(reqMsgHeader.getSendingApplication()
+					.getApplicationName());
+			recvApp.setApplicationVersion(reqMsgHeader.getSendingApplication()
+					.getApplicationVersion());
+			messageHeader.setReceivingApplication(recvApp);
 
-        	messageHeader.setSecurity(reqMsgHeader.getSecurity());
-        }
+			FacilityType recvFac = new FacilityType();
+			recvFac.setFacilityName(reqMsgHeader.getSendingFacility()
+					.getFacilityName());
+			messageHeader.setReceivingFacility(recvFac);
 
-        Date currentDate = new Date();
-        DTOFactory factory = new DTOFactory();
-        messageHeader.setDatetimeOfMessage(factory.getXMLGregorianCalendar(
-                currentDate.getTime()));
+			messageHeader.setSecurity(reqMsgHeader.getSecurity());
+		}
 
-        MessageControlIdType mcIdType = new MessageControlIdType();
-        mcIdType.setInstanceNum(1);
+		Date currentDate = new Date();
+		DTOFactory factory = new DTOFactory();
+		messageHeader.setDatetimeOfMessage(factory
+				.getXMLGregorianCalendar(currentDate.getTime()));
 
-        if (reqMsgHeader != null) {
-            if (reqMsgHeader.getMessageControlId() != null) {
-                mcIdType.setMessageNum(reqMsgHeader.getMessageControlId()
-                                                        .getMessageNum());
-                mcIdType.setSessionId(reqMsgHeader.getMessageControlId()
-                                                       .getSessionId());
-            }
-        }
+		MessageControlIdType mcIdType = new MessageControlIdType();
+		mcIdType.setInstanceNum(1);
 
-        messageHeader.setMessageControlId(mcIdType);
+		if (reqMsgHeader != null) {
+			if (reqMsgHeader.getMessageControlId() != null) {
+				mcIdType.setMessageNum(reqMsgHeader.getMessageControlId()
+						.getMessageNum());
+				mcIdType.setSessionId(reqMsgHeader.getMessageControlId()
+						.getSessionId());
+			}
+		}
 
-        ProcessingIdType proc = new ProcessingIdType();
-        proc.setProcessingId("P");
-        proc.setProcessingMode("I");
-        messageHeader.setProcessingId(proc);
+		messageHeader.setMessageControlId(mcIdType);
 
-        messageHeader.setAcceptAcknowledgementType("AL");
-        messageHeader.setApplicationAcknowledgementType("AL");
-        messageHeader.setCountryCode("US");
-        if (reqMsgHeader != null) {
-        	messageHeader.setProjectId(reqMsgHeader.getProjectId());
-        }
-        return messageHeader;
-    }
+		ProcessingIdType proc = new ProcessingIdType();
+		proc.setProcessingId("P");
+		proc.setProcessingMode("I");
+		messageHeader.setProcessingId(proc);
 
-    /**
-     * Function to create response message type
-     * @param messageHeader
-     * @param respHeader
-     * @param bodyType
-     * @return ResponseMessageType
-     */
-    public static ResponseMessageType createResponseMessageType(
-        MessageHeaderType messageHeader, ResponseHeaderType respHeader,
-        BodyType bodyType) {
-    	
-        ResponseMessageType respMsgType = new ResponseMessageType();
-        respMsgType.setMessageHeader(messageHeader);
-        respMsgType.setMessageBody(bodyType);
-        respMsgType.setResponseHeader(respHeader);
+		messageHeader.setAcceptAcknowledgementType("AL");
+		messageHeader.setApplicationAcknowledgementType("AL");
+		messageHeader.setCountryCode("US");
+		if (reqMsgHeader != null) {
+			messageHeader.setProjectId(reqMsgHeader.getProjectId());
+		}
+		return messageHeader;
+	}
 
-        return respMsgType;
-    }
+	/**
+	 * Function to create response message type
+	 * 
+	 * @param messageHeader
+	 * @param respHeader
+	 * @param bodyType
+	 * @return ResponseMessageType
+	 */
+	public static ResponseMessageType createResponseMessageType(
+			MessageHeaderType messageHeader, ResponseHeaderType respHeader,
+			BodyType bodyType) {
 
-    /**
-     * Function to convert ResponseMessageType to string
-     * @param respMessageType
-     * @return String
-     * @throws Exception
-     */
-    public static String convertToXMLString(ResponseMessageType respMessageType)
-        throws I2B2Exception {
-        StringWriter strWriter = null;
+		ResponseMessageType respMsgType = new ResponseMessageType();
+		respMsgType.setMessageHeader(messageHeader);
+		respMsgType.setMessageBody(bodyType);
+		respMsgType.setResponseHeader(respHeader);
 
-        try {
-            strWriter = new StringWriter();
+		return respMsgType;
+	}
 
-            edu.harvard.i2b2.ontology.datavo.i2b2message.ObjectFactory objectFactory = new edu.harvard.i2b2.ontology.datavo.i2b2message.ObjectFactory();
-            OntologyJAXBUtil.getJAXBUtil().marshaller(objectFactory.createResponse(respMessageType),
-                strWriter);
-        } catch (JAXBUtilException e) {
-            log.error(e.getMessage());
-            throw new I2B2Exception(
-                "Error converting response message type to string " +
-                e.getMessage(), e);
-        }
+	/**
+	 * Function to convert ResponseMessageType to string
+	 * 
+	 * @param respMessageType
+	 * @return String
+	 * @throws Exception
+	 */
+	public static String convertToXMLString(ResponseMessageType respMessageType)
+			throws I2B2Exception {
+		StringWriter strWriter = null;
 
-        return strWriter.toString();
-    }
+		try {
+			strWriter = new StringWriter();
 
-    /**
-     * Function to build Response message type and return it as an XML string
-     *
-     * @param concepts   The set of Ontology concepts that match request
-     *
-     * @return A String data type containing the ResponseMessage in XML format
-     * @throws Exception
-     */
-    public static ResponseMessageType createBuildResponse(
-        MessageHeaderType messageHeaderType,
-        ConceptsType concepts) {
-        ResponseMessageType respMessageType = null;
-        
-        ResponseHeaderType respHeader = createResponseHeader("DONE",
-                "Ontology processing completed");
-        
-        BodyType bodyType = createBodyType(concepts);
-        
-        respMessageType = createResponseMessageType(messageHeaderType, respHeader,
-                bodyType);
-        
-        return respMessageType;
-    }
+			edu.harvard.i2b2.ontology.datavo.i2b2message.ObjectFactory objectFactory = new edu.harvard.i2b2.ontology.datavo.i2b2message.ObjectFactory();
+			OntologyJAXBUtil.getJAXBUtil().marshaller(
+					objectFactory.createResponse(respMessageType), strWriter);
+		} catch (JAXBUtilException e) {
+			log.error(e.getMessage());
+			throw new I2B2Exception(
+					"Error converting response message type to string "
+							+ e.getMessage(), e);
+		}
 
-    /**
-     * Function to get i2b2 Request message header
-     *
-     * @return RequestHeader object
-     */
-    public static RequestHeaderType getRequestHeader() {
-        RequestHeaderType reqHeader = new RequestHeaderType();
-        reqHeader.setResultWaittimeMs(120000);
+		return strWriter.toString();
+	}
 
-        return reqHeader;
-    }
+	/**
+	 * Function to build Response message type and return it as an XML string
+	 * 
+	 * @param concepts
+	 *            The set of Ontology concepts that match request
+	 * 
+	 * @return A String data type containing the ResponseMessage in XML format
+	 * @throws Exception
+	 */
+	public static ResponseMessageType createBuildResponse(
+			MessageHeaderType messageHeaderType, ConceptsType concepts) {
+		ResponseMessageType respMessageType = null;
 
-    /**
-     * Function to create Response with given error message
-     * @param messageHeaderType
-     * @param errorMessage
-     * @return
-     * @throws Exception
-     */
-    public static ResponseMessageType doBuildErrorResponse(
-        MessageHeaderType messageHeaderType, String errorMessage) {
-        ResponseMessageType respMessageType = null;
+		ResponseHeaderType respHeader = createResponseHeader("DONE",
+				"Ontology processing completed");
 
-        MessageHeaderType messageHeader = createResponseMessageHeader(messageHeaderType);
-        ResponseHeaderType respHeader = createResponseHeader("ERROR",
-                errorMessage);
-        respMessageType = createResponseMessageType(messageHeader, respHeader,
-                null);
+		BodyType bodyType = createBodyType(concepts);
 
-        return respMessageType;
-    }
+		respMessageType = createResponseMessageType(messageHeaderType,
+				respHeader, bodyType);
 
-    /**
-     * Creates ResponseHeader for the given type and value
-     * @param type
-     * @param value
-     * @return
-     */
-    private static ResponseHeaderType createResponseHeader(String type,
-        String value) {
-        ResponseHeaderType respHeader = new ResponseHeaderType();
-        StatusType status = new StatusType();
-        status.setType(type);
-        status.setValue(value);
+		return respMessageType;
+	}
 
-        ResultStatusType resStat = new ResultStatusType();
-        resStat.setStatus(status);
-        respHeader.setResultStatus(resStat);
+	/**
+	 * Function to build Response message type and return it as an XML string
+	 * 
+	 * @param 
+	 * 
+	 * @return A String data type containing the ResponseMessage in XML format
+	 * @throws Exception
+	 */
+	public static ResponseMessageType createBuildResponse(
+			MessageHeaderType messageHeaderType) {
+		ResponseMessageType respMessageType = null;
 
-        return respHeader;
-    }
-   
+		ResponseHeaderType respHeader = createResponseHeader("DONE",
+				"Ontology processing completed");
+
+		ConceptsType concepts = null;
+		BodyType bodyType = createBodyType(concepts);
+
+		respMessageType = createResponseMessageType(messageHeaderType,
+				respHeader, bodyType);
+
+		return respMessageType;
+	}
+	
+	
+	
+	/**
+	 * Function to build Response message type and return it as an XML string
+	 * 
+	 * @param concepts
+	 *            The set of Ontology concepts that match request
+	 * 
+	 * @return A String data type containing the ResponseMessage in XML format
+	 * @throws Exception
+	 */
+	public static ResponseMessageType createBuildResponse(
+			MessageHeaderType messageHeaderType,DirtyValueType dirtyType) {
+		ResponseMessageType respMessageType = null;
+
+		ResponseHeaderType respHeader = createResponseHeader("DONE",
+				"Ontology processing completed");
+
+		BodyType bodyType = createBodyType(dirtyType);
+
+		respMessageType = createResponseMessageType(messageHeaderType,
+				respHeader, bodyType);
+
+		return respMessageType;
+	}
+
+	
+	
+	public static ResponseMessageType createProcessStatusResponse(
+			MessageHeaderType messageHeaderType,
+			OntologyProcessStatusType ontProcessStatusType) {
+
+		ResponseMessageType respMessageType = null;
+
+		ResponseHeaderType respHeader = createResponseHeader("DONE",
+				"Ontology processing completed");
+		edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory of = new edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory();
+		BodyType bodyType = new BodyType();
+		bodyType.getAny().add(
+				of.createOntologyProcessStatus(ontProcessStatusType));
+
+		respMessageType = createResponseMessageType(messageHeaderType,
+				respHeader, bodyType);
+
+		return respMessageType;
+	}
+
+	/**
+	 * Function to get i2b2 Request message header
+	 * 
+	 * @return RequestHeader object
+	 */
+	public static RequestHeaderType getRequestHeader() {
+		RequestHeaderType reqHeader = new RequestHeaderType();
+		reqHeader.setResultWaittimeMs(120000);
+
+		return reqHeader;
+	}
+
+	/**
+	 * Function to create Response with given error message
+	 * 
+	 * @param messageHeaderType
+	 * @param errorMessage
+	 * @return
+	 * @throws Exception
+	 */
+	public static ResponseMessageType doBuildErrorResponse(
+			MessageHeaderType messageHeaderType, String errorMessage) {
+		ResponseMessageType respMessageType = null;
+
+		MessageHeaderType messageHeader = createResponseMessageHeader(messageHeaderType);
+		ResponseHeaderType respHeader = createResponseHeader("ERROR",
+				errorMessage);
+		respMessageType = createResponseMessageType(messageHeader, respHeader,
+				null);
+
+		return respMessageType;
+	}
+
+	/**
+	 * Creates ResponseHeader for the given type and value
+	 * 
+	 * @param type
+	 * @param value
+	 * @return
+	 */
+	private static ResponseHeaderType createResponseHeader(String type,
+			String value) {
+		ResponseHeaderType respHeader = new ResponseHeaderType();
+		StatusType status = new StatusType();
+		status.setType(type);
+		status.setValue(value);
+
+		ResultStatusType resStat = new ResultStatusType();
+		resStat.setStatus(status);
+		respHeader.setResultStatus(resStat);
+
+		return respHeader;
+	}
+
 }

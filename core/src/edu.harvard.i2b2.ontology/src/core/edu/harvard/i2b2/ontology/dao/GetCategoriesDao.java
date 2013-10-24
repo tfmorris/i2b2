@@ -11,7 +11,6 @@ package edu.harvard.i2b2.ontology.dao;
 
 import java.io.IOException;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;

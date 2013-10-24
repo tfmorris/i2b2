@@ -10,38 +10,25 @@
 package edu.harvard.i2b2.ontology.delegate;
 
 import java.util.Iterator;
-import java.util.List;
-
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-
-import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.ontology.dao.DataSourceLookupHelper;
-import edu.harvard.i2b2.ontology.dao.GetCategoriesDao;
-import edu.harvard.i2b2.ontology.dao.MetadataDbDao;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.MessageHeaderType;
-import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.ontology.datavo.pm.ConfigureType;
 import edu.harvard.i2b2.ontology.datavo.pm.GetUserConfigurationType;
 import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
-import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
-import edu.harvard.i2b2.ontology.datavo.vdo.ConceptsType;
-import edu.harvard.i2b2.ontology.datavo.vdo.GetReturnType;
 import edu.harvard.i2b2.ontology.ejb.DBInfoType;
-import edu.harvard.i2b2.ontology.ejb.DataSourceLookup;
 import edu.harvard.i2b2.ontology.util.OntologyUtil;
-import edu.harvard.i2b2.ontology.ws.MessageFactory;
 import edu.harvard.i2b2.pm.ws.PMResponseMessage;
 import edu.harvard.i2b2.pm.ws.PMServiceDriver;
 
 
 
 public abstract class RequestHandler {
-    private static Log log = LogFactory.getLog(RequestHandler.class);
+    protected static Log log = LogFactory.getLog(RequestHandler.class);
     public abstract String  execute() throws I2B2Exception;
     private DBInfoType dbInfo;
     

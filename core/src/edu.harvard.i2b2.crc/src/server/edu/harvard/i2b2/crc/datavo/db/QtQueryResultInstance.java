@@ -20,6 +20,8 @@ public class QtQueryResultInstance implements java.io.Serializable {
 	private String description = null;
 
 	private Integer setSize = null;
+	private Integer realSetSize = null;
+
 	private Date startDate = null;
 	private Date endDate = null;
 	private String message = null;
@@ -181,6 +183,14 @@ public class QtQueryResultInstance implements java.io.Serializable {
 
 	public void setObfuscateMethod(String obfuscateMethod) {
 		this.obfuscateMethod = obfuscateMethod;
+	}
+
+	public Integer getRealSetSize() {
+		return realSetSize;
+	}
+
+	public void setRealSetSize(Integer realSetSize) {
+		this.realSetSize = realSetSize;
 	}
 
 }

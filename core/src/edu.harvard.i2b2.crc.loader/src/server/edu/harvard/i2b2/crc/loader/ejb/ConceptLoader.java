@@ -27,16 +27,19 @@ public class ConceptLoader extends AbstractDimensionLoader {
 
 	private static Log log = LogFactory.getLog(ConceptLoader.class);
 	IConceptDAO conceptDAO = null;
+	boolean deleteOldDataFlag = false;
 
 	public ConceptLoader(IUploaderDAOFactory uploaderDaoFactory,
 			String inputLoadFile, String inputLoadFileFormat,
-			String encounterSource, String sourceSystemCd, int uploadId) {
+			String encounterSource, String sourceSystemCd,
+			boolean deleteOldDataFlag, int uploadId) {
 		setUploaderDaoFactory(uploaderDaoFactory);
 		setInputLoadFile(inputLoadFile);
 		setInputLoadFileFormat(inputLoadFileFormat);
 		setEncounterSource(encounterSource);
 		setUploadId(uploadId);
 		setSourceSystemCd(sourceSystemCd);
+		this.deleteOldDataFlag = deleteOldDataFlag;
 		conceptDAO = uploaderDaoFactory.getConceptDAO();
 	}
 
@@ -133,8 +136,15 @@ public class ConceptLoader extends AbstractDimensionLoader {
 
 	@Override
 	public int mergeTempTable() throws I2B2Exception {
-		conceptDAO.createConceptFromTempTable(getStagingTableName(),
-				getUploadId());
+		String backupConceptDimensionTableName = "cd_bkup_" + getUploadId();
+		if (deleteOldDataFlag) {
+			conceptDAO.backupAndSyncConceptDimensionTable(
+					getStagingTableName(), backupConceptDimensionTableName,
+					getUploadId());
+		} else {
+			conceptDAO.createConceptFromTempTable(getStagingTableName(),
+					getUploadId());
+		}
 		log.info("Completed Concept insert operation for staging table"
 				+ getStagingTableName());
 		UploadStatusDAOI uploadStatusDao = uploaderDaoFactory

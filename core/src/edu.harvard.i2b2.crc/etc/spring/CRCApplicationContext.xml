@@ -29,7 +29,7 @@
   
   <bean id="appType" class="edu.harvard.i2b2.crc.datavo.i2b2message.ApplicationType">
     <property name="applicationName" value="edu.harvard.i2b2.crc"/>
-    <property name="applicationVersion" value="1.4"/>
+    <property name="applicationVersion" value="1.5"/>
   </bean>
   
  
@@ -77,6 +77,12 @@
           <value>PATIENTSET</value>
         </key>
          <value>edu.harvard.i2b2.crc.dao.setfinder.QueryResultPatientSetGenerator</value>   
+      </entry>
+      <entry>
+        <key>
+          <value>PATIENT_ENCOUNTER_SET</value>
+        </key>
+         <value>edu.harvard.i2b2.crc.dao.setfinder.QueryResultEncounterSetGenerator</value>   
       </entry>
       <entry>
         <key>

@@ -28,10 +28,12 @@ public class ProviderLoader extends AbstractDimensionLoader {
 	private static Log log = LogFactory.getLog(ProviderLoader.class);
 	private IUploaderDAOFactory uploaderDaoFactory = null;
 	IProviderDAO providerDAO = null;
+	boolean deleteOldDataFlag = false;
 
 	public ProviderLoader(IUploaderDAOFactory uploaderDaoFactory,
 			String inputLoadFile, String inputLoadFileFormat,
-			String encounterSource, String sourceSystemCd, int uploadId) {
+			String encounterSource, String sourceSystemCd,
+			boolean deleteOldDataFlag, int uploadId) {
 		this.uploaderDaoFactory = uploaderDaoFactory;
 		setUploaderDaoFactory(uploaderDaoFactory);
 		setInputLoadFile(inputLoadFile);
@@ -40,6 +42,7 @@ public class ProviderLoader extends AbstractDimensionLoader {
 		setUploadId(uploadId);
 		setSourceSystemCd(sourceSystemCd);
 		providerDAO = uploaderDaoFactory.getProviderDAO();
+		this.deleteOldDataFlag = deleteOldDataFlag;
 	}
 
 	public void load() throws I2B2Exception {
@@ -138,8 +141,15 @@ public class ProviderLoader extends AbstractDimensionLoader {
 
 	@Override
 	public int mergeTempTable() throws I2B2Exception {
-		providerDAO.createProviderFromTempTable(this.getStagingTableName(),
-				getUploadId());
+		String backupProviderDimensionTableName = "pd_bkup_" + getUploadId();
+		if (deleteOldDataFlag) {
+			providerDAO.backupAndSyncProviderDimensionTable(
+					getStagingTableName(), backupProviderDimensionTableName,
+					getUploadId());
+		} else {
+			providerDAO.createProviderFromTempTable(this.getStagingTableName(),
+					getUploadId());
+		}
 		log.info("Completed Provider insert operation for staging table"
 				+ getStagingTableName());
 		return providerDAO.getRecordCountByUploadId(this.getUploadId());

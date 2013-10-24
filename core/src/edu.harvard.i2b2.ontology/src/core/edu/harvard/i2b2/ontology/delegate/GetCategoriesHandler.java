@@ -14,8 +14,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
@@ -50,6 +48,7 @@ public class GetCategoriesHandler extends RequestHandler {
 		}
 
 	}
+	@Override
 	public String execute() throws I2B2Exception{
 		// call ejb and pass input object
 		ConceptDao conceptDao = new ConceptDao();

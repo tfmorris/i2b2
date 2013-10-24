@@ -35,6 +35,7 @@ import edu.harvard.i2b2.crc.ejb.QueryInfoLocalHome;
 import edu.harvard.i2b2.crc.ejb.QueryManagerLocalHome;
 import edu.harvard.i2b2.crc.ejb.QueryResultLocalHome;
 import edu.harvard.i2b2.crc.ejb.QueryRunLocalHome;
+import edu.harvard.i2b2.crc.ejb.analysis.AnalysisPluginInfoLocal;
 import edu.harvard.i2b2.crc.ejb.analysis.CronEjbLocal;
 import edu.harvard.i2b2.crc.ejb.analysis.StartAnalysisLocal;
 import edu.harvard.i2b2.crc.ejb.role.PriviledgeLocal;
@@ -266,6 +267,18 @@ public class QueryProcessorUtil {
 		try {
 			ctx = new InitialContext();
 			return (StartAnalysisLocal) ctx.lookup("QP1/StartAnalysis/local");
+		} catch (NamingException e) {
+			throw new I2B2Exception("Bean lookup error ", e);
+		}
+	}
+
+	public AnalysisPluginInfoLocal getAnalysisPluginInfoLocal()
+			throws I2B2Exception {
+		InitialContext ctx;
+		try {
+			ctx = new InitialContext();
+			return (AnalysisPluginInfoLocal) ctx
+					.lookup("QP1/AnalysisPluginInfo/local");
 		} catch (NamingException e) {
 			throw new I2B2Exception("Bean lookup error ", e);
 		}

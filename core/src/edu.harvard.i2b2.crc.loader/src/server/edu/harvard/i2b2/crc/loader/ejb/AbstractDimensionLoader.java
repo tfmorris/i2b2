@@ -93,6 +93,8 @@ public abstract class AbstractDimensionLoader {
 
 	public abstract int mergeTempTable() throws I2B2Exception;
 
+	// public abstract void backupAndClearTable() throws I2B2Exception;
+
 	// public abstract int updateSetStatus(int totalRecords, int updatedRecords,
 	// Exception exception) throws I2B2Exception;
 

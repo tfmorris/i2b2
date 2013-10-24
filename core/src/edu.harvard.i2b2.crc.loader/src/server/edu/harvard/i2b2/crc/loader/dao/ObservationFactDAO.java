@@ -319,11 +319,11 @@ public class ObservationFactDAO extends CRCLoaderDAO implements
 			declareParameter(new SqlParameter(Types.BIGINT));
 			declareParameter(new SqlParameter(Types.LONGVARCHAR)); // Types.CLOB
 			declareParameter(new SqlParameter(Types.VARCHAR));
-			declareParameter(new SqlParameter(Types.DATE));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
 			declareParameter(new SqlParameter(Types.VARCHAR));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.INTEGER));
 			compile();

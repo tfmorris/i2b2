@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	$Id: build.xml,v 1.19 2008/09/18 17:52:28 lcp5 Exp $
+	$Id: build.xml,v 1.21 2010/03/22 15:52:46 rk903 Exp $
 -->
 <project basedir="." default="all" name="Ontology Cell">
 
@@ -46,10 +46,15 @@
 					<schema dir="../${i2b2xmlproject}/xsd/cell/ont_1.1" includes="ONT_RESP.xsd" />
 					<schema dir="../${i2b2xmlproject}/xsd/cell/pm_1.1" includes="PM_USER.xsd" />
 					<schema dir="../${i2b2xmlproject}/xsd/hive/msg_1.1" includes="i2b2_response.xsd" />
+					<schema dir="../${i2b2xmlproject}/xsd/cell/fr_1.0" includes="FR_QRY.xsd" />
+					<schema dir="../${i2b2xmlproject}/xsd/cell/crc/loader_1.1" includes="CRC_UPLOADER_QRY.xsd" />
+							
 					<binding dir="." includes="etc/xsd_1.1/i2b2_vdo_bindings.xjb" />
 			<!--		<binding dir="." includes="etc/xsd_1.1/i2b2_rspdo_bindings.xjb" />  -->
 					<binding dir="." includes="etc/xsd_1.1/i2b2_response_message_bindings.xjb" />
 					<binding dir="." includes="etc/xsd_1.1/i2b2_pm_bindings.xjb" />
+					<binding dir="." includes="etc/xsd_1.1/i2b2_fr_bindings.xjb" />
+					<binding dir="." includes="etc/xsd_1.1/i2b2_crcloader_bindings.xjb" />
 				</xjc>
 		</target>
 
@@ -259,6 +264,12 @@
 
 <!-- *********************************************************************
 	$Log: build.xml,v $
+	Revision 1.21  2010/03/22 15:52:46  rk903
+	crc uploader jaxb added
+	
+	Revision 1.20  2010/03/18 18:47:05  rk903
+	fr added to datavo
+	
 	Revision 1.19  2008/09/18 17:52:28  lcp5
 	server-deploy  target (aar only)
 	

@@ -55,8 +55,8 @@ public class I2B2MessageResponseFactory {
 		
 		MessageHeaderType messageHeader = new MessageHeaderType();
 		ApplicationType appType = new ApplicationType();
-		appType.setApplicationName("edu.harvard.i2b2.fr");
-		appType.setApplicationVersion("1.0");
+		appType.setApplicationName("FRC Cell");
+		appType.setApplicationVersion("1.5");
 		
 		
 		if (requestXml != null) {

@@ -34,7 +34,7 @@ import edu.harvard.i2b2.crc.loader.util.FileTransferUtil;
  *           jndi-name="ejb.crc.loader.FRBean"
  *           local-jndi-name="ejb.crc.loader.FRBeanLocal"
  *           name="ejb.crc.loader.frbean" type="Stateless" view-type="both"
- *           transaction-type="Container"
+ *           transaction-type="Bean"
  * 
  * @ejb.interface remote-class="edu.harvard.i2b2.crc.loader.ejb.fr.FRBeanRemote"
  * 

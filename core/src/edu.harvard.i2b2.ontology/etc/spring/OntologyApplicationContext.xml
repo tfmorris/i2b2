@@ -3,10 +3,21 @@
 
 <!--
   - Application context definition for i2b2 with spring jdbc template.
-    $Id: OntologyApplicationContext.xml,v 1.4 2007/10/16 14:28:00 lcp5 Exp $
+    $Id: OntologyApplicationContext.xml,v 1.6 2010/06/01 20:10:49 rk903 Exp $
   -->
 <beans>
 
+<bean id="appType" class="edu.harvard.i2b2.ontology.datavo.i2b2message.ApplicationType">
+    <property name="applicationName" value="edu.harvard.i2b2.ontology"/>
+    <property name="applicationVersion" value="1.5"/>
+  </bean>
+  
+ 
+  
+ <bean id="message_header" class="edu.harvard.i2b2.ontology.datavo.i2b2message.MessageHeaderType">
+ 	<property name="sendingApplication" ref="appType"/>
+ </bean>
+ 
   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
     <property name="url" value="jdbc:oracle:thin:@localhost:1521:xe"/>
@@ -20,6 +31,12 @@
 
 <!-- *********************************************************************
   $Log: OntologyApplicationContext.xml,v $
+  Revision 1.6  2010/06/01 20:10:49  rk903
+  appversiont changed from 1.4 to1 .5
+
+  Revision 1.5  2010/03/22 15:50:59  rk903
+  message header bean added
+
   Revision 1.4  2007/10/16 14:28:00  lcp5
   Revision comment causing build problem
 

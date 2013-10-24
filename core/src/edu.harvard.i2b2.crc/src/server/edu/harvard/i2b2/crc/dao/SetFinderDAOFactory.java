@@ -2,6 +2,7 @@ package edu.harvard.i2b2.crc.dao;
 
 import edu.harvard.i2b2.crc.dao.role.IPriviledgeDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IAnalysisPluginDao;
+import edu.harvard.i2b2.crc.dao.setfinder.IEncounterSetCollectionDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IPatientSetCollectionDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IQueryBreakdownTypeDao;
 import edu.harvard.i2b2.crc.dao.setfinder.IQueryInstanceDao;
@@ -26,6 +27,8 @@ public interface SetFinderDAOFactory {
 	public IQueryResultInstanceDao getPatientSetResultDAO();
 
 	public IPatientSetCollectionDao getPatientSetCollectionDAO();
+
+	public IEncounterSetCollectionDao getEncounterSetCollectionDAO();
 
 	public IXmlResultDao getXmlResultDao();
 

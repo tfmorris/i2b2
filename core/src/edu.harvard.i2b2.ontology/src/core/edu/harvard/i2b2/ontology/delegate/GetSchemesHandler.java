@@ -16,10 +16,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 
-import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
-import edu.harvard.i2b2.ontology.dao.GetSchemesDao;
 import edu.harvard.i2b2.ontology.dao.SchemesDao;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
@@ -28,7 +26,6 @@ import edu.harvard.i2b2.ontology.datavo.vdo.ConceptsType;
 import edu.harvard.i2b2.ontology.datavo.vdo.GetReturnType;
 import edu.harvard.i2b2.ontology.ws.GetSchemesDataMessage;
 import edu.harvard.i2b2.ontology.ws.MessageFactory;
-import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
 
 public class GetSchemesHandler extends RequestHandler {
     private static Log log = LogFactory.getLog(GetSchemesHandler.class);
@@ -42,10 +39,11 @@ public class GetSchemesHandler extends RequestHandler {
 			setDbInfo(requestMsg.getMessageHeaderType());
 		} catch (JAXBUtilException e) {
 			log.error("error setting up getSchemesHandler");
-			throw new I2B2Exception("GetCodeInfoHandler not configured");
+			throw new I2B2Exception("GetSchemesHandler not configured");
 		} 
 
 	}
+	@Override
 	public String execute()throws I2B2Exception{
 		// call ejb and pass input object
 		SchemesDao schemesDao = new SchemesDao();

@@ -9,12 +9,7 @@
  */
 package edu.harvard.i2b2.ontology.ws;
 
-import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.ontology.delegate.RequestHandler;
-import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
-import edu.harvard.i2b2.ontology.ws.MessageFactory;
-
-import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

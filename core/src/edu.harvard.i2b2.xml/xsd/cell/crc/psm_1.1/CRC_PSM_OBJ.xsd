@@ -102,6 +102,11 @@
             <xs:any namespace="##any" processContents="skip"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:complexType name="analysis_parameter_xmlType" mixed="true">
+        <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##any" processContents="skip"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="query_status_typeType">
         <xs:sequence>
@@ -121,6 +126,25 @@
         </xs:sequence>
     </xs:complexType>
 
+	<xs:complexType name="analysis_plugin_metadata_typeType">
+        <xs:sequence>
+            <xs:element name="plugin_id" type="xs:string"/>
+            <xs:element name="plugin_name" type="xs:string"/>
+            <xs:element name="description" type="xs:string"/>
+            <xs:element name="version_cd" type="xs:string"/>
+            <xs:element name="parameter_info" type="crc:analysis_parameter_xmlType"/>
+            <xs:element name="parameter_info_xsd" type="crc:analysis_parameter_xmlType"/>
+            <xs:element name="status_cd" type="xs:string"/>
+            <xs:element name="command_line" type="xs:string"/>
+            <xs:element name="working_folder" type="xs:string"/>
+            <xs:element name="commandoption_cd" type="xs:string"/>
+            <xs:element name="user_id" type="xs:string"/>
+            <xs:element name="group_id" type="xs:string"/>
+            <xs:element name="create_date" type="xs:dateTime"/>
+            <xs:element name="update_date" type="xs:dateTime"/>
+        </xs:sequence>
+    </xs:complexType>
+    
     <xs:complexType name="query_masterType">
         <xs:sequence>
             <xs:element name="query_master_id" type="crc:query_master_idType"/>

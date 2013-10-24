@@ -101,6 +101,7 @@ public interface IQueryResultInstanceDao {
 	 * @throws I2B2DAOException
 	 */
 	public int getResultInstanceCountBySetSize(String userId, int compareDays,
-			int setSize, int totalCount) throws I2B2DAOException;
+			int resultTypeId, int setSize, int totalCount)
+			throws I2B2DAOException;
 
 }

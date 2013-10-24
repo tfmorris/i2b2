@@ -10,16 +10,23 @@
 package edu.harvard.i2b2.pm.dao;
 
 import java.io.IOException;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import javax.sql.DataSource;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,12 +62,15 @@ import edu.harvard.i2b2.pm.services.UserParamData;
 //import edu.harvard.i2b2.pm.services.VariableData;
 import edu.harvard.i2b2.pm.util.PMUtil;
 import edu.harvard.i2b2.pm.datavo.i2b2message.MessageHeaderType;
+import edu.harvard.i2b2.pm.datavo.pm.ApprovalType;
+import edu.harvard.i2b2.pm.datavo.pm.BlobType;
 import edu.harvard.i2b2.pm.datavo.pm.ConfigureType;
 import edu.harvard.i2b2.pm.datavo.pm.ParamType;
 import edu.harvard.i2b2.pm.datavo.pm.ParamsType;
 import edu.harvard.i2b2.pm.datavo.pm.PasswordType;
 import edu.harvard.i2b2.pm.datavo.pm.CellDataType;
 import edu.harvard.i2b2.pm.datavo.pm.GlobalDataType;
+import edu.harvard.i2b2.pm.datavo.pm.ProjectRequestType;
 import edu.harvard.i2b2.pm.datavo.pm.ProjectType;
 import edu.harvard.i2b2.pm.datavo.pm.RoleType;
 import edu.harvard.i2b2.pm.datavo.pm.RolesType;
@@ -389,6 +399,124 @@ public class PMDbDao extends JdbcDaoSupport {
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<DBInfoType> getApproval(ApprovalType approval, boolean ignoreDeleted) throws I2B2Exception, I2B2DAOException { 
+		//		log.info(sql + domainId + projectId + ownerId);
+		String sql = "select a.* from pm_approvals a ";
+		String sqlWhere = " where a.object_cd = 'APPROVAL' ";
+		String sqlFrom = "";
+		List<DBInfoType> queryResult = null;
+		try {
+			ArrayList al = new ArrayList();
+			if (approval.getId() != null)
+			{
+				sqlWhere +=  "and a.approval_id = ? ";
+				if (ignoreDeleted)
+					sqlWhere += "and a.status_cd<>'D' ";
+				al.add(approval.getId());
+			} 
+			else {
+				// Search if user and project are set
+				String foundUser = "", foundProject = "";
+				for (int i=0; i < approval.getSearch().size(); i++)
+				{
+					if (approval.getSearch().get(i).getBy().equalsIgnoreCase("USER"))
+						foundUser = approval.getSearch().get(i).getValue().toUpperCase();
+					if (approval.getSearch().get(i).getBy().equalsIgnoreCase("PORJECT"))
+						foundUser = approval.getSearch().get(i).getValue().toUpperCase();
+				}
+
+				if ((foundUser != "") && (foundProject != ""))
+				{
+					sqlFrom += ", pm_project_user_params p ";
+					sqlWhere += "and a.STATUS_CD = 'A' and p.STATUS_CD = 'A' and " +
+					"p.PARAM_NAME_CD = 'APPROVAL_ID' and p.VALUE = a.APPROVAL_ID and p.USER_ID = ? and p.PROJECT_ID = ?";
+					al.add(foundUser);
+					al.add(foundProject);
+
+				}
+				for (int i=0; i < approval.getSearch().size(); i++)
+				{
+					if ((approval.getSearch() != null) && (approval.getSearch().get(i).getBy().equalsIgnoreCase("NAME")))
+					{
+						sqlWhere +=  "and UPPER(a.approval_name) = ? ";
+						if (ignoreDeleted)
+							sqlWhere += "and a.status_cd<>'D' ";
+						al.add(approval.getSearch().get(i).getValue().toUpperCase());
+						//	queryResult = jt.query(sql, getApproval(), approval.getActivationDate());				
+					} 
+
+					if ((approval.getSearch() != null) && (approval.getSearch().get(i).getBy().equalsIgnoreCase("ACTIVATION_DATE")))
+					{
+						sqlWhere +=  "and a.activation_date = ? ";
+						if (ignoreDeleted)
+							sqlWhere += "and a.status_cd<>'D' ";
+						al.add(approval.getSearch().get(i).getValue().toUpperCase());
+						//	queryResult = jt.query(sql, getApproval(), approval.getActivationDate());				
+						/*
+				} 
+				if ((approval.getSearch() != null) && (approval.getSearch().size() == 2))
+				{
+					if ((approval.getSearch().get(0).getBy().equalsIgnoreCase("USER")) &&
+							(approval.getSearch().get(1).getBy().equalsIgnoreCase("PROJECT")))
+					{
+						sqlFrom += ", pm_project_user_params p ";
+						sqlWhere += "and a.STATUS_CD = 'A' and p.STATUS_CD = 'A' and " +
+						"p.PARAM_NAME_CD = 'APPROVAL' and p.VALUE = a.OBJECT_CD and p.USER_ID = ? and p.PROJECT_ID = ?";
+						al.add(approval.getSearch().get(0).getValue());
+						al.add(approval.getSearch().get(1).getValue());
+						// sql =  "select a.* from pm_approvals a, pm_project_user_params p where a.STATUS_CD = 'A' and p.STATUS_CD = 'A' and " +
+						//		"p.PARAM_NAME_CD = 'APPROVAL' and p.VALUE = a.OBJECT_CD and p.USER_ID = ? and p.PROJECT_ID = ?";
+						//		queryResult = jt.query(sql, getApproval(), approval.getSearch().get(0).getValue(), approval.getSearch().get(1).getValue());				
+					} else 	if ((approval.getSearch().get(0).getBy().equalsIgnoreCase("PROJECT")) &&
+							(approval.getSearch().get(1).getBy().equalsIgnoreCase("USER")))
+					{
+						sqlFrom += ", pm_project_user_params p ";
+						sqlWhere += "and a.STATUS_CD = 'A' and p.STATUS_CD = 'A' and " +
+						"p.PARAM_NAME_CD = 'APPROVAL' and p.VALUE = a.OBJECT_CD and p.PROJECT_ID = ? and p.USER_ID = ?";
+						al.add(approval.getSearch().get(0).getValue());
+						al.add(approval.getSearch().get(1).getValue());
+
+						//sql =  "select a.* from pm_approvals a, pm_project_user_params p where a.STATUS_CD = 'A' and p.STATUS_CD = 'A' and " +
+						//"p.PARAM_NAME_CD = 'APPROVAL' and p.VALUE = a.OBJECT_CD and p.p.PROJECT_ID = ? and p.USER_ID = ?";
+						//	queryResult = jt.query(sql, getApproval(), approval.getSearch().get(0).getValue(), approval.getSearch().get(1).getValue());				
+					}
+						 */
+					} else if ((approval.getSearch() != null) && ((foundUser == "") || (foundProject == "")) && (approval.getSearch().get(i).getBy().equalsIgnoreCase("USER")))
+					{
+						sqlFrom += ", pm_user_params p ";
+						sqlWhere += "and a.STATUS_CD = 'A' and p.STATUS_CD = 'A' and " +
+						"p.PARAM_NAME_CD = 'APPROVAL_ID' and p.VALUE = a.APPROVAL_ID and p.USER_ID = ? ";
+						al.add(approval.getSearch().get(i).getValue());
+						//sql =  "select a.* from pm_approvals a, pm_user_params p where a.STATUS_CD = 'A' and p.STATUS_CD = 'A' and " +
+						//"p.PARAM_NAME_CD = 'APPROVAL' and p.VALUE = a.OBJECT_CD and p.USER_ID = ? ";
+						//	queryResult = jt.query(sql, getApproval(), approval.getSearch().get(0).getValue());				
+					} else if ((approval.getSearch() != null) && ((foundUser == "") || (foundProject == "")) && (approval.getSearch().get(i).getBy().equalsIgnoreCase("PROJECT")))
+					{
+						sqlFrom += ", pm_project_params p ";
+						sqlWhere += "and a.STATUS_CD = 'A' and p.STATUS_CD = 'A' and " +
+						"p.PARAM_NAME_CD = 'APPROVAL_ID' and p.VALUE = a.APPROVAL_ID and p.PROJECT_ID = ? ";
+						al.add(approval.getSearch().get(i).getValue());
+
+						//sql =  "select a.* from pm_approvals a, pm_project_params p where a.STATUS_CD = 'A' and p.STATUS_CD = 'A' and " +
+						//"p.PARAM_NAME_CD = 'APPROVAL' and p.VALUE = a.OBJECT_CD and p.PROJECT_ID = ? ";
+						//	queryResult = jt.query(sql, getApproval(), approval.getSearch().get(0).getValue());				
+					}
+				}
+			}
+			sql += sqlFrom + sqlWhere;
+			log.debug("My sql statement: " + sql);
+			queryResult = jt.query(sql, getApproval(), al.toArray());				
+
+		} catch (DataAccessException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+			throw new I2B2DAOException("Database error");
+		}
+		return queryResult;	
+	}
+
+
+	@SuppressWarnings("unchecked")
 	public List<DBInfoType> getCellParam(String cellId, String project) throws I2B2Exception, I2B2DAOException { 
 		String sql =  "select * from  pm_cell_params where cell_id = ? and  project_path = ? and status_cd<>'D'";
 		//		log.info(sql + domainId + projectId + ownerId);
@@ -495,6 +623,20 @@ public class PMDbDao extends JdbcDaoSupport {
 
 		return queryResult;	
 	}
+
+	public List<DBInfoType> getAllProjectRequest(String project, String caller) throws I2B2Exception, I2B2DAOException { 
+		String sql = null;
+		List<DBInfoType> queryResult = null;
+
+		if ((validateRole(caller, "admin", null)) || (validateRole(caller, "admin", null)))
+		{
+			sql =  "select * from pm_project_request where status_cd<>'D'";
+			queryResult = jt.query(sql, getProjectRequest());
+		}
+
+		return queryResult;	
+	}
+
 
 	public List<DBInfoType> getAllUser(String project, String caller) throws I2B2Exception, I2B2DAOException { 
 		String sql = null;
@@ -607,6 +749,59 @@ public class PMDbDao extends JdbcDaoSupport {
 	}
 
 
+
+	public List<DBInfoType> setProjectRequest(final ProjectRequestType groupdata,String project, String caller) throws I2B2DAOException, I2B2Exception{
+		int numRowsAdded = 0;
+
+		List<DBInfoType> queryResult = null;
+		try {
+			String clob = null;
+			if (groupdata.getRequestXml() != null)
+			{
+				BlobType blobType = (BlobType)groupdata.getRequestXml();
+				for (int i=0; i < blobType.getContent().size(); i++)
+				{
+					clob  = (String) blobType.getContent().get(i);
+
+					//Clob myclob = (Clob) blobType.getContent().get(i);
+					//	int len = (int) myclob.length();
+					//	clob = myclob.getSubString(Long.parseLong("1"),len);
+					//				blobType.getContent().add(
+					//					JDBCUtil.getClobString(clob));
+					//		rData.setRequestXml(blobType);
+				}
+			}
+			String addSql = "insert into pm_project_request " + 
+			"(title, request_xml, project_id, change_date, entry_date, submit_char, changeby_char, status_cd) values (?,?,?,?,?,?,?,?)";
+			numRowsAdded = jt.update(addSql, 
+					groupdata.getTitle(), 
+					clob,
+					(project == null? "@" : project),
+					Calendar.getInstance().getTime(),
+					Calendar.getInstance().getTime(),
+					caller,
+					caller,
+			"A");
+
+			if (numRowsAdded != 0)
+			{
+				addSql = "select  *  from pm_project_request where id =  ( select max(id) from pm_project_request)";
+
+				queryResult = jt.query(addSql, getProjectRequest());
+			}
+
+		} catch (Exception e) {
+			log.error("Dao deleteuser failed");
+			log.error(e.getMessage());
+			throw new I2B2DAOException("Data access error " , e);
+		}
+
+		return queryResult;
+
+	}
+
+
+
 	public int setPassword(final String password, String caller) throws I2B2DAOException, I2B2Exception{
 		int numRowsAdded = 0;
 
@@ -652,6 +847,17 @@ public class PMDbDao extends JdbcDaoSupport {
 		return queryResult;	
 	}
 	 */
+
+
+	public List<DBInfoType> getAllApproval(String project, String caller) throws I2B2Exception, I2B2DAOException { 
+		String sql = null;
+		List<DBInfoType> queryResult = null;
+
+		sql =  "select * from pm_approvals where status_cd<>'D'";
+		queryResult = jt.query(sql, getApproval());
+
+		return queryResult;	
+	}
 
 	public List<DBInfoType> getAllCell(String project, String caller) throws I2B2Exception, I2B2DAOException { 
 		String sql = null;
@@ -706,15 +912,36 @@ public class PMDbDao extends JdbcDaoSupport {
 
 	public int updateSession(String userId, String sessionId, int timeout)
 	{
+		int numRowsAdded  = -1;
 		String addSql = "update pm_user_session set expired_date = ? " + 
-		" where session_id = ? and user_id =?";
+				" where session_id = ? and user_id =?";
 		Calendar now = Calendar.getInstance();
 		now.add(Calendar.MILLISECOND, timeout);
 
-		int numRowsAdded = jt.update(addSql, 
-				now,
-				userId,
-				sessionId);	
+		try {
+
+			numRowsAdded = jt.update(addSql, 
+					now.getTime(),
+					sessionId,
+					userId);	
+		} catch (Exception e)
+		{ try {
+			if (e.getMessage().contains("deadlock")
+					|| e.getMessage().contains("try restarting transaction")
+					|| e.getMessage().contains(
+							"failed to resume the transaction")) {
+				int tosleep = new Random().nextInt(2000);
+				log.warn("Transaction rolled back. Restarting transaction.");
+				Thread.sleep(tosleep);
+				numRowsAdded = jt.update(addSql, 
+						now.getTime(),
+						sessionId,
+						userId);	
+			} else {
+				throw e;
+			} } catch (Exception ee) {}
+
+		}
 
 		return numRowsAdded;
 	}
@@ -798,6 +1025,95 @@ public class PMDbDao extends JdbcDaoSupport {
 		return numRowsAdded;
 
 	}
+
+
+
+	public int setApproval(final ApprovalType groupdata, String project, String caller) throws I2B2DAOException, I2B2Exception{
+		int numRowsAdded = 0;
+
+		if ((validateRole(caller, "admin", null)) || (validateRole(caller, "manager", project)))
+		{
+
+			if ((getApproval(groupdata, false) == null) || (getApproval(groupdata, false).size() == 0))
+			{
+
+				String addSql = "insert into pm_approvals " + 
+				"(approval_id, approval_name, approval_description, approval_activation_date, approval_expiration_date, object_cd, change_date, entry_date, changeby_char, status_cd) values (?,?,?,?,?,?,?,?,?,?)";
+				numRowsAdded = jt.update(addSql, 
+						groupdata.getId(),
+						groupdata.getName(),
+						groupdata.getDescription(),
+						(groupdata.getActivationDate() != null?
+								groupdata.getActivationDate().toGregorianCalendar().getTime():null),
+						(groupdata.getExpirationDate() != null?
+								groupdata.getExpirationDate().toGregorianCalendar().getTime():null),
+						groupdata.getObjectCd(),
+						Calendar.getInstance().getTime(),
+						Calendar.getInstance().getTime(),
+						caller,
+				"A");
+			} else 
+			{
+				//user already exists, lets try to update
+				if ( groupdata.getActivationDate() != null)
+					log.debug("Activation Date: " + groupdata.getActivationDate().toString());
+				if ( groupdata.getExpirationDate() != null)
+				log.debug("Expiration Date: " + groupdata.getExpirationDate().toString());
+				String addSql = "update pm_approvals " + 
+				"set approval_name = ?, approval_description = ?, approval_activation_date = ?, approval_expiration_date = ?, object_cd = ?, change_date = ?, changeby_char = ?,  status_cd = 'A' where approval_id = ?";
+
+				numRowsAdded = jt.update(addSql, 
+						groupdata.getName(),
+						groupdata.getDescription(),
+						(groupdata.getActivationDate() != null?
+								groupdata.getActivationDate().toGregorianCalendar().getTime():null),
+						(groupdata.getExpirationDate() != null?
+								groupdata.getExpirationDate().toGregorianCalendar().getTime():null),
+						groupdata.getObjectCd(),
+						Calendar.getInstance().getTime(),
+						caller,
+						groupdata.getId());
+
+			}
+		}
+		else 
+		{
+			throw new I2B2DAOException("Access Denied for " + caller);
+		}
+		//	log.info(addSql +  " " + numRowsAdded);
+		log.debug("Number of rows added: " + numRowsAdded);
+
+		return numRowsAdded;
+
+	}
+
+	public int deleteApproval(String id, String project, String caller) throws I2B2DAOException, I2B2Exception{
+		int numRowsAdded = 0;
+
+		if ((validateRole(caller, "admin", null)) || (validateRole(caller, "manager", project)))
+		{
+			try {
+				String addSql = "update pm_approvals " + 
+				"set status_cd = 'D' where approval_id = ?";
+
+				numRowsAdded = jt.update(addSql, 
+						id);
+
+				if (numRowsAdded ==0)
+					throw new I2B2DAOException("approval not updated, does it exist?");				
+			} catch (DataAccessException e) {
+				log.error("Dao deleteuser failed");
+				log.error(e.getMessage());
+				throw new I2B2DAOException("Data access error " , e);
+			}
+		}
+		//	log.info(addSql +  " " + numRowsAdded);
+		log.debug("Number of rows deleted: " + numRowsAdded);
+
+		return numRowsAdded;
+
+	}
+
 
 
 	// All Global Process
@@ -985,13 +1301,51 @@ public class PMDbDao extends JdbcDaoSupport {
 		//	{
 		if (utype instanceof ProjectType)
 		{
-			if (((ProjectType) utype).getId() == null)
+			if (((ProjectType) utype).getUserName() == null)
 			{
-				sql =  "select * from pm_project_params where status_cd<>'D' order by project_id";
-				queryResult = jt.query(sql, getParam());
+				sql =  "select * from pm_project_params where status_cd<>'D' and project_id = ? order by project_id";
+				queryResult = jt.query(sql, getParam(), ((ProjectType) utype).getId());
 
 			} else 
 			{
+				ArrayList al = new ArrayList();
+
+				sql = "select * from pm_project_user_params where status_cd<>'D' ";
+
+				if (((ProjectType) utype).getUserName() != null) // || !((UserType) utype).getUserName().equals(""))
+				{
+					sql += " and user_id=?";
+					al.add(((ProjectType) utype).getUserName());
+					//sql =  "select * from pm_user_params where status_cd<>'D' order by user_id";
+					//queryResult = jt.query(sql, getUserParams());				
+				} 
+
+				if (((ProjectType) utype).getId() != null)
+				{
+					sql +=  " and project_id=?";
+					al.add(((ProjectType) utype).getId());
+
+				}
+				if (((ProjectType) utype).getParam() != null)
+				{
+					for (int i=0; i < ((ProjectType) utype).getParam().size(); i++)
+					{
+						if (((ProjectType) utype).getParam().get(i).getName() != null)
+						{
+							sql +=  " and param_name_cd=?";
+							al.add((((ProjectType) utype).getParam().get(i).getName()));
+						}
+						if (((ProjectType) utype).getParam().get(i).getValue() != null)
+						{
+							sql +=  " and value=?";
+							al.add((((ProjectType) utype).getParam().get(i).getValue()));
+						}
+
+					}
+				}
+				queryResult = jt.query(sql, getParam(), al.toArray());
+
+				/*
 				if (((ProjectType) utype).getUserName() != null && !((ProjectType) utype).getUserName().equals("") )
 				{
 					sql =  "select * from pm_project_user_params where project_id=? and user_id = ? and status_cd<>'D'";
@@ -1001,20 +1355,53 @@ public class PMDbDao extends JdbcDaoSupport {
 					sql =  "select * from pm_project_params where project_id=? and status_cd<>'D'";
 					queryResult = jt.query(sql, getParam(), ((ProjectType) utype).getId());
 				}
+				 */
 			}
 		}
 		else if (utype instanceof UserType)
 		{
-			if ((((UserType) utype).getUserName() == null) || ((UserType) utype).getUserName().equals(""))
+			ArrayList al = new ArrayList();
+
+			sql = "select * from pm_user_params where status_cd<>'D' ";
+
+			if (((UserType) utype).getUserName() != null) // || !((UserType) utype).getUserName().equals(""))
 			{
-				sql =  "select * from pm_user_params where status_cd<>'D' order by user_id";
-				queryResult = jt.query(sql, getUserParams());				
+				sql += " and user_id=?";
+				al.add(((UserType) utype).getUserName());
+				//sql =  "select * from pm_user_params where status_cd<>'D' order by user_id";
+				//queryResult = jt.query(sql, getUserParams());				
+			} 
+
+			if (((UserType) utype).getParam() != null)
+			{
+				for (int i=0; i < ((UserType) utype).getParam().size(); i++)
+				{
+					if (((UserType) utype).getParam().get(i).getName() != null)
+					{
+						sql +=  " and param_name_cd=?";
+						al.add((((UserType) utype).getParam().get(i).getName()));
+					}
+					if (((UserType) utype).getParam().get(i).getValue() != null)
+					{
+						sql +=  " and value=?";
+						al.add((((UserType) utype).getParam().get(i).getValue()));
+					}
+
+				}
+			}
+			queryResult = jt.query(sql, getUserParams(), al.toArray());
+		}
+		else if (utype instanceof ApprovalType)
+		{
+			if (((ApprovalType) utype).getId() == null)
+			{
+				sql =  "select * from pm_approvals where  status_cd<>'D' order by id";
+				queryResult = jt.query(sql, getApproval());
 			} else {
-				sql =  "select * from pm_user_params where user_id=?  and status_cd<>'D'";
-				queryResult = jt.query(sql, getUserParams(), ((UserType) utype).getUserName());
+				sql =  "select * from pm_pprovals_params where id=? and status_cd<>'D'";
+				queryResult = jt.query(sql, getParam(), ((ApprovalType) utype).getId());
 			}
 		}
-
 		else if (utype instanceof ConfigureType)
 		{
 			if (((ConfigureType) utype).getDomainId() == null)
@@ -1105,6 +1492,14 @@ public class PMDbDao extends JdbcDaoSupport {
 				if (((GlobalDataType) utype).getParam().get(0).getId() != null)
 					queryResult = jt.query(sql, getGlobal(), 						
 							((GlobalDataType) utype).getParam().get(0).getId());
+			}
+			else if (utype instanceof ApprovalType)
+			{
+				String sql =  "select * from pm_approval_params where id=? " + 	(showStatus == false? "" :" and status_cd<>'D'");
+
+				if (((ApprovalType) utype).getParam().get(0).getId() != null)
+					queryResult = jt.query(sql, getParam(), 						
+							((UserType) utype).getParam().get(0).getId());
 			}
 			else if (utype instanceof UserType)
 			{
@@ -1288,6 +1683,37 @@ public class PMDbDao extends JdbcDaoSupport {
 							Calendar.getInstance().getTime(),
 							caller,
 							((CellDataType) utype).getParam().get(0).getId());
+				}
+			} else if (utype instanceof ApprovalType)
+			{
+				if ((getParam(utype, false) == null) || (getParam(utype, false).size() == 0))
+				{
+					String addSql = "insert into pm_approval_params " + 
+					"(approval_id, datatype_cd, object_cd, param_name_cd, value, activation_date, expiration_date, change_date, entry_date, changeby_char, status_cd) values (?,?,?,?,?,?,?,?,?,?,?)";
+					numRowsAdded = jt.update(addSql, 
+							((ApprovalType) utype).getId(),
+							((ApprovalType) utype).getParam().get(0).getDatatype(),
+							((ApprovalType) utype).getObjectCd(),
+							((ApprovalType) utype).getParam().get(0).getName(),
+							((ApprovalType) utype).getParam().get(0).getValue(),
+							((ApprovalType) utype).getActivationDate(),
+							((ApprovalType) utype).getExpirationDate(),
+							Calendar.getInstance().getTime(),
+							Calendar.getInstance().getTime(),		
+							caller,
+					"A");
+				} else 
+				{
+					//user already exists, lets try to update
+					String addSql = "update pm_approval_params " + 
+					"set value = ?, datatype_cd = ?, change_date = ?, changeby_char = ?,  status_cd = 'A' where id = ?";
+
+					numRowsAdded = jt.update(addSql, 
+							((ApprovalType) utype).getParam().get(0).getValue(),
+							((ApprovalType) utype).getParam().get(0).getDatatype(),
+							Calendar.getInstance().getTime(),
+							caller,
+							((ApprovalType) utype).getParam().get(0).getId());
 				}
 			} else if (utype instanceof GlobalDataType)
 			{
@@ -1616,6 +2042,17 @@ public class PMDbDao extends JdbcDaoSupport {
 
 				if (utype instanceof ProjectType)
 				{
+					if ((((ProjectType) utype).getUserName() != null) &&
+					(((ProjectType) utype).getUserName().equals("SET")))
+					{
+						String addSql = "update pm_project_user_params " + 
+						"set status_cd = 'D', change_date = ?, changeby_char = ? where id = ?";
+
+						numRowsAdded = jt.update(addSql, 
+								Calendar.getInstance().getTime(),				
+								caller,
+								((ProjectType) utype).getParam().get(0).getId());						
+					} else {
 					String addSql = "update pm_project_params " + 
 					"set status_cd = 'D', change_date = ?, changeby_char = ? where id = ?";
 
@@ -1623,6 +2060,7 @@ public class PMDbDao extends JdbcDaoSupport {
 							Calendar.getInstance().getTime(),				
 							caller,
 							((ProjectType) utype).getParam().get(0).getId());
+					}
 				} else if (utype instanceof UserType)
 				{
 					String addSql = "update pm_user_params " + 
@@ -1663,6 +2101,15 @@ public class PMDbDao extends JdbcDaoSupport {
 							Calendar.getInstance().getTime(),				
 							caller,
 							((CellDataType) utype).getParam().get(0).getId());
+				} else if (utype instanceof ApprovalType)
+				{
+					String addSql = "update pm_approval_params " + 
+					"set status_cd = 'D', change_date = ?, changeby_char = ? where id = ?";
+
+					numRowsAdded = jt.update(addSql, 
+							Calendar.getInstance().getTime(),				
+							caller,
+							((ApprovalType) utype).getParam().get(0).getId());
 				} else if (utype instanceof GlobalDataType)
 				{
 					String addSql = "update pm_global_params " + 
@@ -1720,7 +2167,9 @@ public class PMDbDao extends JdbcDaoSupport {
 						numRowsAdded += executeRemoveRole("ADMIN", caller, utype);
 						numRowsAdded += executeRemoveRole("MANAGER", caller, utype);
 						numRowsAdded += executeRemoveRole("USER", caller, utype);
-
+					} else 
+					{
+						numRowsAdded += executeRemoveRole(((RoleType) utype).getRole(), caller, utype);
 					}	
 
 				}
@@ -1864,6 +2313,71 @@ public class PMDbDao extends JdbcDaoSupport {
 		return map;
 	}
 
+
+	private ParameterizedRowMapper getProjectRequest() {
+		ParameterizedRowMapper<ProjectRequestType> map = new ParameterizedRowMapper<ProjectRequestType>() {
+			public ProjectRequestType mapRow(ResultSet rs, int rowNum) throws SQLException {
+				ProjectRequestType rData = new ProjectRequestType();
+				DTOFactory factory = new DTOFactory();
+				rData.setId(rs.getString("id"));
+				rData.setProjectId(rs.getString("project_id"));
+				rData.setTitle(rs.getString("title"));
+				rData.setSubmitChar(rs.getString("submit_char"));
+				Date date = rs.getDate("entry_date");
+
+				if (date == null)
+					rData.setEntryDate(null);
+				else 
+					rData.setEntryDate(long2Gregorian(date.getTime())); 
+
+				Clob clob = rs.getClob("request_xml");
+
+				if (clob != null) {
+					try {
+						BlobType blobType = new BlobType();
+						blobType.getContent().add(
+								JDBCUtil.getClobString(clob));
+						rData.setRequestXml(blobType);
+					} catch (IOException ioe)
+					{
+						log.debug(ioe.getMessage());
+					}
+				}
+				//rData.setRequestXml(rs.getClob("request_xml"));
+				return rData;
+			} 
+		};
+		return map;
+	}
+
+	private ParameterizedRowMapper getApproval() {
+		ParameterizedRowMapper<ApprovalType> map = new ParameterizedRowMapper<ApprovalType>() {
+			public ApprovalType mapRow(ResultSet rs, int rowNum) throws SQLException {
+				ApprovalType rData = new ApprovalType();
+				DTOFactory factory = new DTOFactory();
+				rData.setId(rs.getString("approval_id"));
+				rData.setName(rs.getString("approval_name"));
+				rData.setDescription(rs.getString("approval_description"));
+				rData.setObjectCd(rs.getString("object_cd"));
+				Date date = rs.getDate("approval_activation_date");
+
+				if (date == null)
+					rData.setActivationDate(null);
+				else 
+					rData.setActivationDate(long2Gregorian(date.getTime())); 
+
+				date = rs.getDate("approval_expiration_date");
+				if (date == null)
+					rData.setExpirationDate(null);
+				else 
+					rData.setExpirationDate(long2Gregorian(date.getTime())); 
+
+
+				return rData;
+			} 
+		};
+		return map;
+	}
 	private ParameterizedRowMapper getParam() {
 		ParameterizedRowMapper<ParamType> map = new ParameterizedRowMapper<ParamType>() {
 			public ParamType mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -1879,6 +2393,17 @@ public class PMDbDao extends JdbcDaoSupport {
 		return map;
 	}
 
+	public static XMLGregorianCalendar long2Gregorian(long date) {
+		DatatypeFactory dataTypeFactory;
+		try {
+			dataTypeFactory = DatatypeFactory.newInstance();
+		} catch (DatatypeConfigurationException e) {
+			throw new RuntimeException(e);
+		}
+		GregorianCalendar gc = new GregorianCalendar();
+		gc.setTimeInMillis(date);
+		return dataTypeFactory.newXMLGregorianCalendar(gc);
+	}
 
 	private ParameterizedRowMapper getGlobal() {
 		ParameterizedRowMapper<GlobalDataType> map = new ParameterizedRowMapper<GlobalDataType>() {
@@ -1954,20 +2479,20 @@ public class PMDbDao extends JdbcDaoSupport {
 				SessionData rData = new SessionData();
 				//				DTOFactory factory = new DTOFactory();
 
+				
 				rData.setSessionID(rs.getString("session_id"));
 
-				Date date = rs.getDate("expired_date");
+				Date date = rs.getTimestamp("expired_date");
 				if (date == null)
 					rData.setExpiredDate(null);
 				else 
 					rData.setExpiredDate(date); 
 
-				date = rs.getDate("entry_date");
+				date = rs.getTimestamp("entry_date");
 				if (date == null)
 					rData.setIssuedDate(null);
 				else 
-					rData.setIssuedDate(date); 
-
+					rData.setIssuedDate(date); 	
 
 				return rData;
 			} 

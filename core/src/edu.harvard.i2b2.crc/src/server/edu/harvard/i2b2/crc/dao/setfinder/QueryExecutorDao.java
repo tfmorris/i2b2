@@ -37,6 +37,7 @@ import edu.harvard.i2b2.crc.datavo.i2b2message.SecurityType;
 import edu.harvard.i2b2.crc.datavo.pm.RoleType;
 import edu.harvard.i2b2.crc.datavo.pm.RolesType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultOutputOptionListType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultOutputOptionType;
 import edu.harvard.i2b2.crc.delegate.ejbpm.EJBPMUtil;
 import edu.harvard.i2b2.crc.util.I2B2RequestMessageHelper;
 import edu.harvard.i2b2.crc.util.PMServiceAccountUtil;
@@ -158,9 +159,14 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 			String missingItemMessage = null;
 			boolean missingItemFlag = false;
 			if (generatedSql.trim().length() == 0) {
+				// check if the sql is for patient set or encounter set
+				boolean encounterSetFlag = this
+						.getEncounterSetFlag(resultOutputList);
+
 				// generate sql and store
 				IQueryRequestDao requestDao = sfDAOFactory.getQueryRequestDAO();
-				String[] sqlResult = requestDao.buildSql(requestXml);
+				String[] sqlResult = requestDao.buildSql(requestXml,
+						encounterSetFlag);
 				generatedSql = sqlResult[0];
 				missingItemMessage = sqlResult[1];
 				// if (generatedSql == null) {
@@ -327,6 +333,20 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 					.getResultInstanceId(), statusTypeId, message, 0, 0, "");
 		}
 
+	}
+
+	public boolean getEncounterSetFlag(
+			ResultOutputOptionListType resultOutputList) {
+		boolean encounterFoundFlag = false;
+		for (ResultOutputOptionType resultOutputOption : resultOutputList
+				.getResultOutput()) {
+			if (resultOutputOption.getName().equalsIgnoreCase(
+					"PATIENT_ENCOUNTER_SET")) {
+				encounterFoundFlag = true;
+				break;
+			}
+		}
+		return encounterFoundFlag;
 	}
 
 	/**

@@ -166,8 +166,8 @@ public class PatientDAO extends CRCLoaderDAO implements IPatientDAO {
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.INTEGER));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
@@ -178,9 +178,9 @@ public class PatientDAO extends CRCLoaderDAO implements IPatientDAO {
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.LONGVARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
-			declareParameter(new SqlParameter(Types.DATE));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
 			compile();
 		}
 
@@ -247,7 +247,7 @@ public class PatientDAO extends CRCLoaderDAO implements IPatientDAO {
 					// getVitalStatusCd
 					// (),
 					(paramMap.get("import_date") != null) ? paramMap.get(
-							"import_date").getValue() : null //patient.getZipCd(
+							"import_date").getValue() : null // patient.getZipCd(
 			// )
 
 			};
