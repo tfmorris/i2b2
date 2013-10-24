@@ -1,0 +1,137 @@
+<project basedir="." default="all" name="i2b2Common">
+
+	<property name="Name" value="i2b2Common" />
+	<import file="common_build.xml" />
+
+	<target name="all" depends="dist">
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- 								INIT 								 -->
+	<!-- =================================================================== -->
+	<target name="init" depends="common_init" description="Prepare for build">
+
+		<path id="classpath">
+			<fileset dir="${lib}">
+				<include name="**/*.jar" />
+			</fileset>
+
+			<fileset dir="${genlib}">
+				<include name="*.jar" />
+			</fileset>
+			<pathelement location="${classes}" />
+		</path>
+
+		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+			<classpath refid="classpath" />
+		</taskdef>
+
+	</target>
+
+
+
+	<!-- =================================================================== -->
+	<!-- 								CLEAN 								 -->
+	<!-- =================================================================== -->
+	<target name="clean" depends="common_clean" description="Clean all build products" />
+
+
+	<!-- =================================================================== -->
+	<!-- 								COMMON JAXB GENERATION 				 -->
+	<!-- =================================================================== -->
+	<target name="jaxb_gen" depends="init">
+		<xjc destdir="${gensrc}" removeOldOutput="no">
+			<schema dir="../${i2b2xmlproject}/xsd/hive/pdo" includes="i2b2_PDO.xsd" />
+			<schema dir="../${i2b2xmlproject}/xsd/hive/msg" includes="i2b2_response.xsd" />
+			<binding dir="." includes="etc/xsd/i2b2_pdo_bindings.xjb" />
+			<binding dir="." includes="etc/xsd/i2b2_response_message_bindings.xjb" />
+		</xjc>
+	</target>
+<!--	<schema dir="../${i2b2xmlproject}/xsd/cell/pm" includes="PM_USER.xsd" />
+	<binding dir="." includes="etc/xsd/i2b2_pm_bindings.xjb" /> -->
+	
+	<!-- =================================================================== -->
+	<!-- 								COMPILE 							 -->
+	<!-- =================================================================== -->
+	<target name="compile" depends="init,jaxb_gen" description="Compile files without cleaning">
+		<mkdir dir="${classes}" />
+		<javac destdir="${classes}" optimize="${javac.opt}" debug="${javac.debug}">
+			<src path="${src}/core" />
+			<src path="${gensrc}" />
+		<!--	<src path="${src}/test" />  -->
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- 								DIST 								 -->
+	<!-- =================================================================== -->
+	<target name="dist" depends="init,compile" description="package application for distribution/deployment">
+
+		<echo message="${Name}: Creating the archive package!" />
+		<jar destfile="${dist}/${Name}-core.jar">
+			<fileset dir="${classes}">
+				<include name="**/**" />
+			</fileset>
+		</jar>
+	</target>
+
+
+
+
+	<!-- =================================================================== -->
+	<!-- 					JBOSS PRE-DEPLOYMENT SETUP						 -->
+	<!-- =================================================================== -->
+	<target name="jboss_pre_deployment_setup">
+		<!-- copy jar to jboss lib -->
+		<antcall target="copy_app_jar" />
+		<!-- delete axis spring jar -->
+		<antcall target="delete_axis_spring.jar" />
+		
+		<echo> Copying axis2.xml to conf directory</echo>
+		<copy todir="${jboss.home}/server/default/deploy/axis2.war/WEB-INF/conf">
+			<fileset dir="${etc}/axis2" >
+				<include name="axis2.xml"/>
+			</fileset>
+		</copy>
+	</target>
+
+
+	<target name="copy_app_jar">
+		<echo>Copying to ${jboss.home} directory</echo>
+		<copy todir="${jboss.home}/server/default/lib">
+			<fileset dir="${lib}/commons" >
+				<include name="commons-dbcp*.jar"/>
+				<include name="commons-pool*.jar"/>
+			</fileset>
+			<fileset dir="${lib}/jdbc" includes="**/*" />
+			<fileset dir="${lib}/jaxb" includes="**/*" />
+			<fileset dir="${lib}/spring" includes="**/*" />
+			<fileset dir="${lib}/jdom" includes="**/*" />
+		</copy>
+	</target>
+
+	<target name="delete_axis_spring.jar">
+		<delete includeemptydirs="true">
+			<fileset dir="${jboss.home}/server/default/deploy/axis2.war/WEB-INF/lib" includes="**/spring*.jar" />
+		</delete>
+	</target>
+	
+	
+
+	<!-- =================================================================== -->
+	<!-- 							DEPLOYMENT 								 -->
+	<!-- =================================================================== -->
+	<target name="deploy" depends="dist" description="Deployment step:copy distribution jar files to app server">
+		<echo message="${Name}: Copying archive package to app server" />
+		<copy todir="${jboss.home}/server/default/lib">
+			<fileset dir="${dist}">
+				<include name="**/**" />
+			</fileset>
+		</copy>
+	</target>
+
+
+
+</project>

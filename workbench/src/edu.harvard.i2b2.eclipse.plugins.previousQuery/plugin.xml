@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="i2b2 Category"
+            id="edu.harvard.i2b2.eclipse.plugins.previousQuery">
+      </category>
+      <view
+            name="Previous Queries"
+            icon="icons/core-cell.gif"
+            category="edu.harvard.i2b2.eclipse.plugins.previousQuery"
+            class="edu.harvard.i2b2.eclipse.plugins.previousquery.views.PreviousQueryView"
+            id="edu.harvard.i2b2.eclipse.plugins.previousquery.views.PreviousQueryView">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="edu.harvard.i2b2.eclipse.perspective">
+         <view
+               closeable="true"
+               id="edu.harvard.i2b2.eclipse.plugins.previousquery.views.PreviousQueryView"
+               moveable="true"
+               ratio="0.5"
+               relationship="bottom"
+               relative="edu.harvard.i2b2.eclipse.plugins.ontology.views.ontologyView"
+               standalone="false"
+               visible="false">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.viewActions">
+      <viewContribution
+            id="edu.harvard.i2b2.eclipse.plugins.previousQuery.viewActions"
+            targetID="edu.harvard.i2b2.eclipse.plugins.previousquery.views.PreviousQueryView">
+         <action
+               class="edu.harvard.i2b2.eclipse.plugins.previousquery.views.ViewResponseMessageToolbarActionDelegate"
+               icon="icons/xmlreceive_2.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.previousQuery.viewResponseMessage"
+               label="ResponseMessage"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the last response xml message"/>
+         <action
+               class="edu.harvard.i2b2.eclipse.plugins.previousquery.views.ViewRequestMessageToolbarActionDelegate"
+               icon="icons/xmlsend_2.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.previousQuery.viewRequestMessage"
+               label="RequestMessage"
+               state="false"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the last request xml message"/>
+         <action
+               class="edu.harvard.i2b2.eclipse.plugins.previousquery.views.ViewOptionToolbarActionDelegate"
+               icon="icons/options_1.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.previousQuery.viewOptions"
+               label="Opti&amp;ons"
+               state="false"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the options dialog"/>
+      </viewContribution>
+   </extension>
+   <extension
+         id="i2b2workbenchv3"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="edu.harvard.i2b2.eclipse.application"
+            name="i2b2 Workbench"/>
+   </extension>
+
+</plugin>

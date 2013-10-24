@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="i2b2 Category"
+            id="edu.harvard.i2b2.eclipse.plugins.explorer">
+      </category>
+      <view
+            name="Timeline View"
+            icon="icons/core-cell.gif"
+            category="edu.harvard.i2b2.eclipse.plugins.explorer"
+            class="edu.harvard.i2b2.eclipse.plugins.explorer.views.ExplorerView"
+            id="edu.harvard.i2b2.eclipse.plugins.explorer.views.ExplorerView">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension targetID="edu.harvard.i2b2.eclipse.perspective">
+         <view
+               closeable="true"
+               id="edu.harvard.i2b2.eclipse.plugins.explorer.views.ExplorerView"
+               moveable="true"
+               ratio="0.25"
+               relationship="right"
+               relative="org.eclipse.ui.editorss"
+               standalone="false"
+               visible="false"/>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.viewActions">
+      <viewContribution
+            id="edu.harvard.i2b2.eclipse.plugins.explorer.viewActions"
+            targetID="edu.harvard.i2b2.eclipse.plugins.explorer.views.ExplorerView">
+         <action
+               class="edu.harvard.i2b2.eclipse.plugins.explorer.views.ResponseMessageViewActionDelegate"
+               icon="icons/xmlreceive_2.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.explorer.viewResponseMessage"
+               label="Res&amp;ponseMessage"
+               state="false"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the last response xml message"/>
+         <action
+               class="edu.harvard.i2b2.eclipse.plugins.explorer.views.RequestMessageViewActionDelegate"
+               icon="icons/xmlsend_2.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.explorer.viewRequestMessage"
+               label="Re&amp;questMessage"
+               state="false"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the last request xml  message"/>
+         <action
+               class="edu.harvard.i2b2.eclipse.plugins.explorer.views.SearchViewActionDelegate"
+               icon="icons/search.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.explorer.viewSearch"
+               label="Sea&amp;rch"
+               state="false"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the search dialog"/>
+         <action
+               class="edu.harvard.i2b2.eclipse.plugins.explorer.views.OptionsViewActionDelegate"
+               icon="icons/options_1.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.explorer.viewOptions"
+               label="Opti&amp;ons"
+               state="false"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the options dialog"/>
+      </viewContribution>
+   </extension>
+
+</plugin>

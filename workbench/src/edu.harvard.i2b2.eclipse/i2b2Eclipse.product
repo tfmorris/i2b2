@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.1"?>
+
+<product name="i2b2 Workbench" id="edu.harvard.i2b2.eclipse.product" application="edu.harvard.i2b2.eclipse.application" useFeatures="false">
+
+   <aboutInfo>
+      <image path="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_64.gif"/>
+      <text>
+         i2b2 Workbench
+Version: 1.0 
+Build id: 20070606
+
+(c) Copyright i2b2 contributors and others 2005-2007.  All rights reserved.
+Visit http://www.i2b2.org/
+
+This product includes software developed by the
+Apache Software Foundation http://www.apache.org/
+Eclipse Foundation  http://www.eclipse.org/
+Sun Microsystems http://java.sun.com/
+JDOM Project  http://www.jdom.org/
+      </text>
+   </aboutInfo>
+
+   <configIni use="custom" path="/edu.harvard.i2b2.eclipse/configuration/config.ini"/>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <windowImages i16="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_16.gif" i32="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_32.gif" i48="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_48.gif" i64="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_64.gif" i128="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_128.gif"/>
+
+   <splash
+      location="edu.harvard.i2b2.eclipse" />
+   <launcher name="i2b2workbench">
+      <macosx icon="/edu.harvard.i2b2.eclipse/icons/Mac.icns"/>
+      <solaris/>
+      <win useIco="false">
+         <bmp
+            winSmallHigh="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_16_32.bmp"
+            winSmallLow="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_16_8.bmp"
+            win24Low="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_24_8.bmp"
+            winMediumHigh="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_32_32.bmp"
+            winMediumLow="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_32_8.bmp"
+            winLargeHigh="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_48_32.bmp"
+            winLargeLow="/edu.harvard.i2b2.eclipse/icons/i2b2_hive_48_8.bmp"/>
+      </win>
+   </launcher>
+
+   <plugins>
+      <plugin id="com.ibm.icu"/>
+      <plugin id="edu.harvard.i2b2.eclipse"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.commons_apache"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.crcxmljaxb"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.explorer"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.jdnc_support"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.log"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.ontology"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.pft"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.previousQuery"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.query"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.webservicesAxis2"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.xml_support_jaxb"/>
+      <plugin id="edu.harvard.i2b2.eclipse.plugins.xml_support_jdom"/>
+      <plugin id="org.apache.lucene"/>
+      <plugin id="org.eclipse.core.commands"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.expressions"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.core.runtime.compatibility.auth"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.help"/>
+      <plugin id="org.eclipse.help.appserver"/>
+      <plugin id="org.eclipse.help.base"/>
+      <plugin id="org.eclipse.help.ui"/>
+      <plugin id="org.eclipse.help.webapp"/>
+      <plugin id="org.eclipse.jface"/>
+      <plugin id="org.eclipse.jface.databinding"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.rcp"/>
+      <plugin id="org.eclipse.swt"/>
+      <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.tomcat"/>
+      <plugin id="org.eclipse.ui"/>
+      <plugin id="org.eclipse.ui.forms"/>
+      <plugin id="org.eclipse.ui.workbench"/>
+      <plugin id="org.eclipse.update.configurator"/>
+   </plugins>
+
+</product>

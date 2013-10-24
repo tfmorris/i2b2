@@ -1,0 +1,68 @@
+<project basedir="../" default="all" name="Base client">
+
+	
+	<property name="Project" value="edu.harvard.i2b2.eclipse" />
+
+	<!-- ========== Executable Targets ======================================== -->
+	<import file="../../edu.harvard.i2b2.common/common_build.xml" />
+	<property name="gensrc"     value="gensrc"/>
+
+	<!-- =================================================================== -->
+	<!-- 								INIT 								 -->
+	<!-- =================================================================== -->
+<!--	<target name="init" depends="common_init,common-classpath" description="Prepare for build">
+		<path id="classpath">
+			<path refid="common-classpath" />
+		</path>
+
+		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+			<classpath refid="classpath" />
+		</taskdef>
+
+	</target>
+	-->
+	
+
+ <target name="gensrcInit">
+	<path id="classpath">
+		<path refid="common-classpath" />
+	</path>
+	
+	<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+		<classpath refid="classpath" />
+	</taskdef>
+</target>
+	
+	
+	<!-- =================================================================== -->
+	<!-- 								CLEAN 								 -->
+	<!-- =================================================================== -->
+	<target name="clean"  description="Clean all build products" >
+	    <delete dir="${dist}"/> 
+	    <delete dir="${gensrc}"/>   
+	    <delete dir="${genlib}"/>
+	    <mkdir dir="${genlib}"/>
+	    <mkdir dir="${dist}"/>
+	    <mkdir dir="${gensrc}"/>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- 								COMMON JAXB GENERATION 				 -->
+	<!-- =================================================================== -->
+	<target name="jaxb_gen" depends="gensrcInit" description="Generate JAXB classes for i2b2 and Patient Data messages">
+		<xjc destdir="${gensrc}" removeOldOutput="no">
+	<schema dir="../${i2b2xmlproject}/xsd/cell/pm" includes="PM_USER.xsd" />
+	<schema dir="../${i2b2xmlproject}/xsd/hive/msg" includes="i2b2_response.xsd" />
+			
+	<binding dir="." includes="etc/xsd/i2b2_response_message_bindings.xjb" />
+	<binding dir="." includes="etc/xsd/i2b2_pm_bindings.xjb" />
+	<!-- binding dir="." includes="etc/xsd/i2b2_response_message_bindings.xjb" /-->
+		</xjc>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- 								ALL 								 -->
+	<!-- =================================================================== -->
+	<target name="all" depends="jaxb_gen">
+	</target>
+</project>

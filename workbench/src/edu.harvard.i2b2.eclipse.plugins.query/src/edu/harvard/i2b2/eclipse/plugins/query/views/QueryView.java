@@ -1,0 +1,143 @@
+/*
+ * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the i2b2 Software License v1.0 
+ * which accompanies this distribution. 
+ * 
+ * Contributors: 
+ *     Wensong Pan
+ */
+
+package edu.harvard.i2b2.eclipse.plugins.query.views;
+
+import java.awt.BorderLayout;
+import java.awt.Frame;
+import java.awt.Panel;
+
+import javax.swing.JRootPane;
+import javax.swing.UIManager;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.part.*;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.SWT;
+
+import edu.harvard.i2b2.eclipse.ICommonMethod;
+import edu.harvard.i2b2.query.QueryPanel;
+import edu.harvard.i2b2.query.QueryPanelInvestigator;
+
+
+/**
+ *  Class: QueryView 
+ *  
+ *  This class defines the Query View to the
+ *  Eclipse workbench
+ *  
+ *  @author Wensong Pan
+ */
+
+public class QueryView extends ViewPart implements ICommonMethod {
+	public static final String ID = "edu.harvard.i2b2.eclipse.plugins.query.views.QueryView";
+	public static final String THIS_CLASS_NAME = QueryView.class.getName();
+	
+	private static final Log log = LogFactory.getLog(QueryView.class);
+	
+	private java.awt.Container oAwtContainer;
+	
+	private int mode_ = 0;
+	
+	private QueryPanel queryPanel;
+	public QueryPanel queryPanel() {return queryPanel;}
+	
+	/**
+	 * The constructor.
+	 */
+	public QueryView() {
+	
+	}
+
+	/**
+	 * This is a callback that will allow us
+	 * to create the viewer and initialize it.
+	 */
+	public void createPartControl(Composite parent) {
+		log.info("Query Tool plugin version 1.0.0");
+		GridLayout topGridLayout = new GridLayout(1, false);
+		topGridLayout.numColumns = 1;
+		topGridLayout.marginWidth = 2;
+		topGridLayout.marginHeight = 2;
+		parent.setLayout(topGridLayout);		
+		
+		Composite queryComposite = new Composite(parent, SWT.NONE);
+		queryComposite.setLayout(new FillLayout(SWT.VERTICAL));
+		GridData gridData2 = new GridData();
+		gridData2.horizontalAlignment = GridData.FILL;
+		gridData2.verticalAlignment = GridData.FILL;
+		gridData2.grabExcessHorizontalSpace = true;
+		gridData2.grabExcessVerticalSpace = true;
+		queryComposite.setLayoutData(gridData2);
+		    
+	    Composite rightComp = new Composite(queryComposite, SWT.BORDER | SWT.EMBEDDED | SWT.DragDetect);
+	    /* Create and setting up frame */
+	    Frame frame = SWT_AWT.new_Frame(rightComp);
+	    Panel panel = new Panel(new BorderLayout());
+	    try {
+	    	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+	    } 
+	    catch(Exception e) {
+	    	System.out.println("Error setting native LAF: " + e);
+	    }
+	    	    
+	    frame.add(panel);
+	    JRootPane root = new JRootPane();
+	    panel.add(root);
+	    oAwtContainer = root.getContentPane();
+	    
+	    if(mode_ == 0) {
+	    	queryPanel = new QueryPanelInvestigator(this);
+	    }
+	    else {
+	    	queryPanel = new QueryPanel();
+	    }
+	    
+	    oAwtContainer.add(queryPanel);
+	    
+	}
+	
+	/**
+	 * This is a callback that will allow the i2b2 views to communicate
+	 * with each other.
+	 */
+	public void doSomething(Object obj) {
+		String msg = (String)obj;
+		//System.out.println("Query View: "+ msg);
+		queryPanel().getTopPanel().reset();
+		queryPanel().dataModel().redrawPanelFromXml(msg);
+	}
+
+	@Override
+	public void setInitializationData(IConfigurationElement cfig, String propertyName, Object data) {
+		//if(cfig!=null && propertyName!=null ) {
+    		super.setInitializationData(cfig, propertyName, data);
+    	//}
+		//else {
+	   // 	String msg = (String)data;
+		//	System.out.println("Query View: "+ msg);
+		//	queryPanel().getTopPanel().reset();
+		//	queryPanel().dataModel().redrawPanelFromXml(msg);
+		//}
+	}
+
+	/**
+	 * Passing the focus request to the viewer's control.
+	 */
+	public void setFocus() {
+
+	}
+}

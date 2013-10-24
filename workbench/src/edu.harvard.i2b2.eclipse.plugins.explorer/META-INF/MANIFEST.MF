@@ -1,0 +1,34 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Explorer Plug-in
+Bundle-SymbolicName: edu.harvard.i2b2.eclipse.plugins.explorer; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ edu.harvard.i2b2.eclipse,
+ edu.harvard.i2b2.eclipse.plugins.log;bundle-version="1.2.8",
+ edu.harvard.i2b2.eclipse.plugins.webservicesAxis2;bundle-version="1.1.0",
+ edu.harvard.i2b2.eclipse.plugins.xml_support_jaxb;bundle-version="2.1.2",
+ edu.harvard.i2b2.eclipse.plugins.xml_support_jdom;bundle-version="1.0",
+ edu.harvard.i2b2.eclipse.plugins.commons_apache;bundle-version="1.0.4",
+ org.eclipse.core.expressions,
+ org.eclipse.core.commands,
+ org.eclipse.core.runtime.compatibility.auth,
+ org.eclipse.equinox.common,
+ org.eclipse.equinox.preferences,
+ org.eclipse.equinox.registry,
+ org.eclipse.help,
+ org.eclipse.jface,
+ org.eclipse.osgi,
+ org.eclipse.rcp,
+ org.eclipse.update.configurator,
+ edu.harvard.i2b2.eclipse.plugins.crcxmljaxb;bundle-version="1.0.0",
+ edu.harvard.i2b2.eclipse.plugins.ontology;bundle-version="1.0.0"
+Eclipse-LazyStart: true
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: edu.harvard.i2b2.eclipse.plugins.explorer.views
+Eclipse-RegisterBuddy: edu.harvard.i2b2.eclipse.plugins.xml_support_jaxb,
+ edu.harvard.i2b2.eclipse.plugins.log,
+ edu.harvard.i2b2.eclipse.plugins.commons_apache
+Bundle-ClassPath: .

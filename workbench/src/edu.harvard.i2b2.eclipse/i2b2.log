@@ -1,0 +1,16 @@
+2007-06-08 10:15:47,572 INFO main edu.harvard.i2b2.explorer.ExplorerC - Explorer plugin version 1.0.0
+2007-06-08 10:15:49,650 INFO main edu.harvard.i2b2.eclipse.LoginView - Currently running in: PRODUCTION
+2007-06-08 10:15:51,665 INFO main edu.harvard.i2b2.previousquery.QueryPreviousRunsPanel - Previous Query plugin version 1.0.0
+2007-06-08 10:15:58,290 INFO main edu.harvard.i2b2.eclipse.plugins.query.views.QueryView - Query Tool plugin version 1.0.0
+2007-06-08 10:15:59,962 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryTopPanel - width: 517, height: 288
+2007-06-08 10:16:00,009 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryTopPanel - second width: 517, height: 291
+2007-06-08 10:16:00,072 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryConceptTreePanel - width: 517, height: 288
+2007-06-08 10:16:00,072 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryConceptTreePanel - second width: 517, height: 291
+2007-06-08 10:16:00,072 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryConceptTreePanel - width: 517, height: 288
+2007-06-08 10:16:00,072 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryConceptTreePanel - second width: 517, height: 291
+2007-06-08 10:16:00,072 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryConceptTreePanel - width: 517, height: 288
+2007-06-08 10:16:00,181 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryConceptTreePanel - second width: 517, height: 291
+2007-06-08 10:16:00,228 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryTopPanel - width: 516, height: 288
+2007-06-08 10:16:00,259 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryConceptTreePanel - width: 516, height: 288
+2007-06-08 10:16:00,259 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryConceptTreePanel - width: 516, height: 288
+2007-06-08 10:16:00,259 INFO AWT-EventQueue-0 edu.harvard.i2b2.query.QueryConceptTreePanel - width: 516, height: 288

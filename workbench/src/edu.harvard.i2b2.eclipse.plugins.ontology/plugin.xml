@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Ontology Category"
+            id="edu.harvard.i2b2.eclipse.plugins.ontology">
+      </category>
+      <view
+            name="Navigate Terms"
+            icon="icons/core-cell.gif"
+            category="edu.harvard.i2b2.eclipse.plugins.ontology"
+            class="edu.harvard.i2b2.eclipse.plugins.ontology.views.OntologyView"
+            id="edu.harvard.i2b2.eclipse.plugins.ontology.views.ontologyView">
+      </view>
+            <view
+            name="Find Terms"
+            icon="icons/core-cell.gif"
+            category="edu.harvard.i2b2.eclipse.plugins.ontology"
+            class="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.FindView"
+            id="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.findView">
+      </view>
+   </extension>
+      <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="edu.harvard.i2b2.eclipse.perspective">
+         <view
+         	   visible="true"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.views.ontologyView"
+               ratio="0.75"
+               relationship="left"
+               relative="org.eclipse.ui.editorss">
+         </view>
+         <view
+         	   visible="true"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.findView"
+               ratio="0.75"
+               relationship="left"
+               relative="org.eclipse.ui.editorss">
+         </view>
+      </perspectiveExtension>
+   </extension>
+      <extension
+            point="org.eclipse.ui.viewActions">
+        <viewContribution
+            id="edu.harvard.i2b2.eclipse.plugins.ontology.viewActions"
+            targetID="edu.harvard.i2b2.eclipse.plugins.ontology.views.ontologyView">
+        <action
+               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.ViewResponseMessageToolbarActionDelegate"
+               icon="icons/xmlreceive_2.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.viewResponseMessage"
+               label="ResponseMessage"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the last response xml message"/>
+         <action
+               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.ViewRequestMessageToolbarActionDelegate"
+               icon="icons/xmlsend_2.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.viewRequestMessage"
+               label="RequestMessage"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the last request xml message"/>
+        <action
+               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.ViewOptionToolbarActionDelegate"
+               icon="icons/options_1.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.viewOptions"
+               label="Opti&amp;ons"
+               state="false"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the options dialog"/>
+      </viewContribution>
+      <viewContribution
+            id="edu.harvard.i2b2.eclipse.plugins.ontology.viewActions"
+            targetID="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.findView">
+        <action
+               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.ViewResponseMessageToolbarActionDelegate"
+               icon="icons/xmlreceive_2.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.find.viewResponseMessage"
+               label="ResponseMessage"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the last response xml message"/>
+         <action
+               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.ViewRequestMessageToolbarActionDelegate"
+               icon="icons/xmlsend_2.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.find.viewRequestMessage"
+               label="RequestMessage"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the last request xml message"/>
+        <action
+               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.ViewOptionToolbarActionDelegate"
+               icon="icons/options_1.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.find.viewOptions"
+               label="Opti&amp;ons"
+               state="false"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the options dialog"/>
+      </viewContribution>
+      </extension>
+</plugin>
