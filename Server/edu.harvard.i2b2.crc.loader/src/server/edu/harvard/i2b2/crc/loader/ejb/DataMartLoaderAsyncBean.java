@@ -382,6 +382,8 @@ public class DataMartLoaderAsyncBean implements DataMartLoaderAsyncBeanRemote,
 					response.setPidSet(responseSetStatusType);
 				} else if (setStatus.getSetTypeId() == 7) {
 					response.setEventidSet(responseSetStatusType);
+				} else if (setStatus.getSetTypeId() == 8) {
+					response.setModifierSet(responseSetStatusType);
 				}
 
 			}

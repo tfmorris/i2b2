@@ -31,10 +31,13 @@ import edu.harvard.i2b2.crc.datavo.i2b2message.SecurityType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.PdoQryHeaderType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.PdoRequestTypeType;
+import edu.harvard.i2b2.crc.datavo.pm.ParamType;
 import edu.harvard.i2b2.crc.datavo.pm.ProjectType;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
 import edu.harvard.i2b2.crc.delegate.pm.PMServiceDriver;
 import edu.harvard.i2b2.crc.util.CacheUtil;
+import edu.harvard.i2b2.crc.util.LogTimingUtil;
+import edu.harvard.i2b2.crc.util.ParamUtil;
 
 /**
  * PDO query request delegate class $Id: PdoQueryRequestDelegate.java,v 1.16
@@ -128,7 +131,21 @@ public class PdoQueryRequestDelegate extends RequestHandlerDelegate {
 					if (roles != null) {
 						log.debug("User Roles count " + roles.size());
 					}
+					
+					ParamUtil paramUtil = new ParamUtil();
+					paramUtil.clearParam(projectId, securityType.getUsername(), securityType.getDomain(), ParamUtil.CRC_ENABLE_UNITCD_CONVERSION);
+					if (projectType.getParam() != null) {
+						for (ParamType param : projectType.getParam()) { 
+							if (param.getName() != null && param.getName().trim().equalsIgnoreCase(ParamUtil.CRC_ENABLE_UNITCD_CONVERSION))  {
+								paramUtil.putParam(projectId, securityType.getUsername(), securityType.getDomain(),ParamUtil.CRC_ENABLE_UNITCD_CONVERSION,param);
+								String unitCdCache = paramUtil.getParam(projectId, securityType.getUsername(), securityType.getDomain(),ParamUtil.CRC_ENABLE_UNITCD_CONVERSION);
+								log.debug("CRC param stored in the cache Project Id [" + projectId + "] user [" + securityType.getUsername() + "] domain [" + securityType.getDomain() + "] " + ParamUtil.CRC_ENABLE_UNITCD_CONVERSION  + "[" + unitCdCache + "]" );
+								break;
+							}
+						}
+					}
 
+					
 				} else {
 
 					log.error("Project role not set for the user ");

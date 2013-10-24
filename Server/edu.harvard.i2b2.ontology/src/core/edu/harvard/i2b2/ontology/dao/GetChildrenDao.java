@@ -34,10 +34,12 @@ import org.w3c.dom.Element;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
+import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontology.datavo.vdo.GetChildrenType;
 import edu.harvard.i2b2.ontology.datavo.vdo.XmlValueType;
 import edu.harvard.i2b2.ontology.util.OntologyUtil;
+import edu.harvard.i2b2.ontology.util.Roles;
 import edu.harvard.i2b2.ontology.util.StringUtil;
 
 public class GetChildrenDao extends JdbcDaoSupport {
@@ -48,7 +50,7 @@ public class GetChildrenDao extends JdbcDaoSupport {
 	final static String CORE = DEFAULT;
 	final static String BLOB = ", c_metadataxml, c_comment ";
 	
-	public List findChildrenByParent(final GetChildrenType childrenType, final List categories) throws DataAccessException{
+	public List findChildrenByParent(final GetChildrenType childrenType, final List categories, final ProjectType projectInfo) throws DataAccessException{
 
 		DataSource ds = null;
 		try {
@@ -121,7 +123,8 @@ public class GetChildrenDao extends JdbcDaoSupport {
 		String sql = "select " + parameters +" from " + metadataSchema+tableName  + " where c_fullname like ? and c_hlevel = ? "; 
 		sql = sql + hidden + synonym + " order by c_name ";
  
-	//	log.info(sql + path + level);
+		//	log.info(sql + path + level);
+		final  boolean obfuscatedUserFlag = Roles.getInstance().isRoleOfuscated( projectInfo );
 		
 		ParameterizedRowMapper<ConceptType> mapper = new ParameterizedRowMapper<ConceptType>() {
 	        public ConceptType mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -132,7 +135,10 @@ public class GetChildrenDao extends JdbcDaoSupport {
 	            child.setKey(rs.getString("c_fullname")); 
 	            child.setSynonymCd(rs.getString("c_synonym_cd"));
 	            child.setVisualattributes(rs.getString("c_visualattributes"));
-	            child.setTotalnum(rs.getInt("c_totalnum"));
+	            Integer totalNum = rs.getInt("c_totalnum");
+	            if (obfuscatedUserFlag == false ) { 
+	            	child.setTotalnum(totalNum);
+	            }
 	            child.setFacttablecolumn(rs.getString("c_facttablecolumn" ));
 	            child.setTablename(rs.getString("c_tablename")); 
 	            child.setColumnname(rs.getString("c_columnname")); 

@@ -23,6 +23,19 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.InstanceRequestType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.ItemType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.MasterDeleteRequestType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.MasterInstanceResultResponseType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.MasterResponseType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.PanelType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.PsmQryHeaderType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.PsmRequestTypeType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.QueryDefinitionRequestType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.QueryDefinitionType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.ResultOutputOptionListType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.ResultOutputOptionType;
+import edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.ResultResponseType;
 import edu.harvard.i2b2.ontology.datavo.crcloader.query.DataFormatType;
 import edu.harvard.i2b2.ontology.datavo.crcloader.query.DataListType;
 import edu.harvard.i2b2.ontology.datavo.crcloader.query.GetUploadInfoRequestType;
@@ -74,11 +87,11 @@ public class CallCRCUtil {
 		LoadDataResponseType loadDataResponseType = null;
 		try {
 			OMElement requestElement = buildOMElement(requestMessageType);
-			System.out.println("CRC Ontology call's request xml "
+			log.debug("CRC Ontology call's request xml "
 					+ requestElement);
 			OMElement response = getServiceClient("/publishDataRequest")
 					.sendReceive(requestElement);
-			System.out.println("CRC Ontology call's reponse xml " + response);
+			log.debug("CRC Ontology call's reponse xml " + response);
 			loadDataResponseType = getGetPublishDataResponseMessage(response
 					.toString());
 		} catch (JAXBUtilException jaxbEx) {
@@ -92,6 +105,108 @@ public class CallCRCUtil {
 		}
 		return loadDataResponseType;
 	}
+	
+	public MasterInstanceResultResponseType callSetfinderQuery(String conceptKey) throws I2B2Exception {
+		RequestMessageType requestMessageType = this.buildSetfinderQueryRequestMessage(conceptKey);
+		MasterInstanceResultResponseType masterInstanceResultResponseType = null;
+		try {
+			OMElement requestElement = buildOMElement(requestMessageType);
+			log.debug("CRC Ontology call's request xml "
+					+ requestElement);
+			OMElement response = getServiceClient("/request")
+					.sendReceive(requestElement);
+			log.debug("CRC Ontology call's reponse xml " + response);
+			masterInstanceResultResponseType = getMasterInstanceResultResponseMessage(response
+					.toString());
+		} catch (JAXBUtilException jaxbEx) {
+			throw new I2B2Exception("Error in CRC setfinder ", jaxbEx);
+		} catch (XMLStreamException e) {
+			throw new I2B2Exception("Error in CRC setfinder ", e);
+
+		} catch (AxisFault e) {
+
+			throw new I2B2Exception("Error in CRC setfinder ", e);
+		}
+		return masterInstanceResultResponseType;
+	}
+	
+	public MasterResponseType callDeleteMasterQuery(String userId, String queryMasterId)
+	throws I2B2Exception {
+		RequestMessageType requestMessageType = this.buildDeleteSetfinderStatusRequestMessage(userId, queryMasterId);
+		MasterResponseType masterResponseType = null;
+		try {
+			OMElement requestElement = buildOMElement(requestMessageType);
+			log.debug("CRC setfinder query delete call's request xml "
+					+ requestElement);
+			OMElement response = getServiceClient("/request")
+					.sendReceive(requestElement);
+			log.debug("CRC setfinder query delete call's request xml " + response);
+			masterResponseType = getMasterResponseMessage(response
+					.toString());
+		
+		} catch (JAXBUtilException jaxbEx) {
+			throw new I2B2Exception("Error in CRC upload ", jaxbEx);
+		} catch (XMLStreamException e) {
+			throw new I2B2Exception("Error in CRC upload ", e);
+		
+		} catch (AxisFault e) {
+		
+			throw new I2B2Exception("Error in CRC upload ", e);
+		}
+		return masterResponseType;
+	}
+	
+	public ResultResponseType callCRCQueryStatus(String queryInstanceId)
+	throws I2B2Exception {
+		RequestMessageType requestMessageType = this.buildSetfinderStatusRequestMessage(queryInstanceId);
+		ResultResponseType resultResponseType = null;
+		try {
+			OMElement requestElement = buildOMElement(requestMessageType);
+			log.debug("CRC setfinder query status call's request xml "
+					+ requestElement);
+			OMElement response = getServiceClient("/request")
+					.sendReceive(requestElement);
+			log.debug("CRC setfinder query status call's request xml " + response);
+			resultResponseType = getResultResponseMessage(response
+					.toString());
+		
+		} catch (JAXBUtilException jaxbEx) {
+			throw new I2B2Exception("Error in CRC upload ", jaxbEx);
+		} catch (XMLStreamException e) {
+			throw new I2B2Exception("Error in CRC upload ", e);
+		
+		} catch (AxisFault e) {
+		
+			throw new I2B2Exception("Error in CRC upload ", e);
+		}
+		return resultResponseType;
+	}
+	
+	public ResultResponseType pollQueryStatus(String instanceId)
+	throws I2B2Exception {
+		SetfinderQueryStatusRunner setfinderQueryStatusRunner = new SetfinderQueryStatusRunner();
+		setfinderQueryStatusRunner.setCRCUtil(this);
+		setfinderQueryStatusRunner.setQueryInstanceId(instanceId);
+		Thread t = new Thread(setfinderQueryStatusRunner);
+		t.start();
+		while (setfinderQueryStatusRunner.isNotDone()) {
+			try {
+				Thread.sleep(60000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		String exceptionMsg = setfinderQueryStatusRunner.getExceptionMsg();
+		if (exceptionMsg != null) {
+			throw new I2B2Exception("Error while getting status of upload ["
+					+ exceptionMsg + "]");
+		}
+		ResultResponseType resultResponse = setfinderQueryStatusRunner.getQueryInstanceStatusResponseType();
+				
+		
+		return resultResponse;
+	}
+
 
 	public LoadDataResponseType callCRCUploadStatus(String uploadId)
 			throws I2B2Exception {
@@ -99,11 +214,11 @@ public class CallCRCUtil {
 		LoadDataResponseType loadDataResponseType = null;
 		try {
 			OMElement requestElement = buildOMElement(requestMessageType);
-			System.out.println("CRC Ontology call's request xml "
+			log.debug("CRC Ontology call's request xml "
 					+ requestElement);
 			OMElement response = getServiceClient("/getLoadDataStatusRequest")
 					.sendReceive(requestElement);
-			System.out.println("CRC Ontology call's request xml " + response);
+			log.debug("CRC Ontology call's request xml " + response);
 			loadDataResponseType = getGetPublishDataResponseMessage(response
 					.toString());
 
@@ -169,6 +284,7 @@ public class CallCRCUtil {
 		}
 		loadType.setLoadConceptSet(loadOption);
 		loadType.setLoadObserverSet(loadOption);
+		loadType.setLoadModifierSet(loadOption);
 		publishDataRequest.setLoadList(loadType);
 		OutputOptionListType outOption = new OutputOptionListType();
 		publishDataRequest.setOutputList(outOption);
@@ -194,7 +310,7 @@ public class CallCRCUtil {
 		requestMessageType.setMessageHeader(messageHeaderType);
 
 		RequestHeaderType requestHeader = new RequestHeaderType();
-		requestHeader.setResultWaittimeMs(3000);
+		requestHeader.setResultWaittimeMs(1800000); //(3000);
 		requestMessageType.setRequestHeader(requestHeader);
 		return requestMessageType;
 	}
@@ -225,7 +341,124 @@ public class CallCRCUtil {
 		requestMessageType.setMessageHeader(messageHeaderType);
 
 		RequestHeaderType requestHeader = new RequestHeaderType();
-		requestHeader.setResultWaittimeMs(3000);
+		requestHeader.setResultWaittimeMs(1800000); //3000);
+		requestMessageType.setRequestHeader(requestHeader);
+		return requestMessageType;
+	}
+
+	public RequestMessageType buildSetfinderStatusRequestMessage(String queryInstanceId) {
+		InstanceRequestType instanceRequestType = new InstanceRequestType();
+		instanceRequestType.setQueryInstanceId(queryInstanceId);
+
+		MessageHeaderType messageHeaderType = (MessageHeaderType) ontologyUtil
+				.getSpringBeanFactory().getBean("message_header");
+		messageHeaderType.setSecurity(securityType);
+		messageHeaderType.setProjectId(projectId);
+
+		messageHeaderType.setReceivingApplication(messageHeaderType
+				.getSendingApplication());
+		FacilityType facilityType = new FacilityType();
+		facilityType.setFacilityName("sample");
+		messageHeaderType.setSendingFacility(facilityType);
+		messageHeaderType.setReceivingFacility(facilityType);
+
+		RequestMessageType requestMessageType = new RequestMessageType();
+		
+		edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.ObjectFactory();
+		BodyType bodyType = new BodyType();
+		PsmQryHeaderType psm = new PsmQryHeaderType();
+		psm.setRequestType(PsmRequestTypeType.CRC_QRY_GET_QUERY_RESULT_INSTANCE_LIST_FROM_QUERY_INSTANCE_ID);
+		bodyType.getAny().add(of.createPsmheader(psm));
+		
+		bodyType.getAny().add(of.createRequest(instanceRequestType));
+		requestMessageType.setMessageBody(bodyType);
+
+		requestMessageType.setMessageHeader(messageHeaderType);
+
+		RequestHeaderType requestHeader = new RequestHeaderType();
+		requestHeader.setResultWaittimeMs(1800000); //3000);
+		requestMessageType.setRequestHeader(requestHeader);
+		return requestMessageType;
+	}
+	
+	public RequestMessageType buildDeleteSetfinderStatusRequestMessage(String userId, String queryMasterId) {
+		MasterDeleteRequestType masterDeleteReqType = new MasterDeleteRequestType();
+		masterDeleteReqType.setQueryMasterId(queryMasterId);
+		masterDeleteReqType.setUserId(userId); 
+		
+		MessageHeaderType messageHeaderType = (MessageHeaderType) ontologyUtil
+				.getSpringBeanFactory().getBean("message_header");
+		messageHeaderType.setSecurity(securityType);
+		messageHeaderType.setProjectId(projectId);
+
+		messageHeaderType.setReceivingApplication(messageHeaderType
+				.getSendingApplication());
+		FacilityType facilityType = new FacilityType();
+		facilityType.setFacilityName("sample");
+		messageHeaderType.setSendingFacility(facilityType);
+		messageHeaderType.setReceivingFacility(facilityType);
+
+		RequestMessageType requestMessageType = new RequestMessageType();
+		
+		edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.ObjectFactory();
+		BodyType bodyType = new BodyType();
+		PsmQryHeaderType psm = new PsmQryHeaderType();
+		psm.setRequestType(PsmRequestTypeType.CRC_QRY_DELETE_QUERY_MASTER);
+		bodyType.getAny().add(of.createPsmheader(psm));
+		
+		bodyType.getAny().add(of.createRequest(masterDeleteReqType));
+		requestMessageType.setMessageBody(bodyType);
+
+		requestMessageType.setMessageHeader(messageHeaderType);
+
+		RequestHeaderType requestHeader = new RequestHeaderType();
+		requestHeader.setResultWaittimeMs(1800000); //(3000);
+		requestMessageType.setRequestHeader(requestHeader);
+		return requestMessageType;
+	}
+	
+	public RequestMessageType buildSetfinderQueryRequestMessage(String itemKey) {
+		QueryDefinitionType queryDef = new QueryDefinitionType();
+		PanelType panelType = new PanelType();
+		ItemType itemType = new ItemType();
+		itemType.setItemKey(itemKey);
+		panelType.getItem().add(itemType);
+		queryDef.getPanel().add(panelType);
+		
+		queryDef.setQueryName(itemKey.substring(0,(itemKey.length()>10)?9:itemKey.length()) + System.currentTimeMillis());
+		QueryDefinitionRequestType queryDefinitionRequestType = new QueryDefinitionRequestType();
+		ResultOutputOptionListType resultOutputOptionListType = new ResultOutputOptionListType();
+		ResultOutputOptionType resultOutputOptionType = new ResultOutputOptionType();
+		resultOutputOptionType.setName("PATIENT_COUNT_XML");
+		resultOutputOptionListType.getResultOutput().add(resultOutputOptionType);
+		queryDefinitionRequestType.setQueryDefinition(queryDef);
+		queryDefinitionRequestType.setResultOutputList(resultOutputOptionListType);
+
+		MessageHeaderType messageHeaderType = (MessageHeaderType) ontologyUtil
+				.getSpringBeanFactory().getBean("message_header");
+		messageHeaderType.setSecurity(securityType);
+		messageHeaderType.setProjectId(projectId);
+
+		messageHeaderType.setReceivingApplication(messageHeaderType
+				.getSendingApplication());
+		FacilityType facilityType = new FacilityType();
+		facilityType.setFacilityName("sample");
+		messageHeaderType.setSendingFacility(facilityType);
+		messageHeaderType.setReceivingFacility(facilityType);
+
+		RequestMessageType requestMessageType = new RequestMessageType();
+		edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.ontology.datavo.crc.setfinder.query.ObjectFactory();
+		BodyType bodyType = new BodyType();
+		PsmQryHeaderType psm = new PsmQryHeaderType();
+		psm.setRequestType(PsmRequestTypeType.CRC_QRY_RUN_QUERY_INSTANCE_FROM_QUERY_DEFINITION);
+		bodyType.getAny().add(of.createPsmheader(psm));
+		bodyType.getAny().add(of.createRequest(queryDefinitionRequestType));
+		requestMessageType.setMessageBody(bodyType);
+
+		requestMessageType.setMessageHeader(messageHeaderType);
+
+		RequestHeaderType requestHeader = new RequestHeaderType();
+		requestHeader.setResultWaittimeMs(1800000); //3000);
 		requestMessageType.setRequestHeader(requestHeader);
 		return requestMessageType;
 	}
@@ -247,6 +480,63 @@ public class CallCRCUtil {
 						LoadDataResponseType.class);
 
 		return loadDataResponseType;
+	}
+	
+	private MasterInstanceResultResponseType getMasterInstanceResultResponseMessage(
+			String responseXml) throws JAXBUtilException, I2B2Exception {
+		JAXBElement responseJaxb = OntologyJAXBUtil.getJAXBUtil()
+				.unMashallFromString(responseXml);
+		ResponseMessageType r = (ResponseMessageType) responseJaxb.getValue();
+		log.debug("CRC's ontology call response xml" + responseXml);
+
+		JAXBUnWrapHelper helper = new JAXBUnWrapHelper();
+		ResultStatusType rt = r.getResponseHeader().getResultStatus();
+		if (rt.getStatus().getType().equals("ERROR")) {
+			throw new I2B2Exception(rt.getStatus().getValue());
+		}
+		MasterInstanceResultResponseType masterInstanceResultResponseType = (MasterInstanceResultResponseType) helper
+				.getObjectByClass(r.getMessageBody().getAny(),
+						MasterInstanceResultResponseType.class);
+		
+		return masterInstanceResultResponseType;
+	}
+	
+	private MasterResponseType getMasterResponseMessage(
+			String responseXml) throws JAXBUtilException, I2B2Exception {
+		JAXBElement responseJaxb = OntologyJAXBUtil.getJAXBUtil()
+				.unMashallFromString(responseXml);
+		ResponseMessageType r = (ResponseMessageType) responseJaxb.getValue();
+		log.debug("CRC's ontology call response xml" + responseXml);
+
+		JAXBUnWrapHelper helper = new JAXBUnWrapHelper();
+		ResultStatusType rt = r.getResponseHeader().getResultStatus();
+		if (rt.getStatus().getType().equals("ERROR")) {
+			throw new I2B2Exception(rt.getStatus().getValue());
+		}
+		MasterResponseType masterResponseType = (MasterResponseType) helper
+				.getObjectByClass(r.getMessageBody().getAny(),
+						MasterResponseType.class);
+		
+		return masterResponseType;
+	}
+	
+	private ResultResponseType getResultResponseMessage(
+			String responseXml) throws JAXBUtilException, I2B2Exception {
+		JAXBElement responseJaxb = OntologyJAXBUtil.getJAXBUtil()
+				.unMashallFromString(responseXml);
+		ResponseMessageType r = (ResponseMessageType) responseJaxb.getValue();
+		log.debug("CRC's ontology call response xml" + responseXml);
+
+		JAXBUnWrapHelper helper = new JAXBUnWrapHelper();
+		ResultStatusType rt = r.getResponseHeader().getResultStatus();
+		if (rt.getStatus().getType().equals("ERROR")) {
+			throw new I2B2Exception(rt.getStatus().getValue());
+		}
+		ResultResponseType instanceResultResponseType = (ResultResponseType) helper
+				.getObjectByClass(r.getMessageBody().getAny(),
+						ResultResponseType.class);
+		
+		return instanceResultResponseType;
 	}
 
 	private OMElement buildOMElement(RequestMessageType requestMessageType)

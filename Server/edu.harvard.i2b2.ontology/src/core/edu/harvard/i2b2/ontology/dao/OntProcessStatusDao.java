@@ -2,7 +2,10 @@ package edu.harvard.i2b2.ontology.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -12,9 +15,12 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.jdbc.object.SqlUpdate;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
@@ -23,6 +29,7 @@ import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
 
 import edu.harvard.i2b2.ontology.datavo.vdo.DirtyValueType;
 import edu.harvard.i2b2.ontology.datavo.vdo.GetReturnType;
+import edu.harvard.i2b2.ontology.datavo.vdo.OntologyProcessStatusListType;
 import edu.harvard.i2b2.ontology.datavo.vdo.OntologyProcessStatusType;
 import edu.harvard.i2b2.ontology.ejb.DBInfoType;
 
@@ -54,11 +61,11 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 	}
 
 	public OntologyProcessStatusType createOntologyProcessStatus(
-			OntologyProcessStatusType ontProcessStatusType, String userId)
+			final OntologyProcessStatusType ontProcessStatusType, final String userId)
 			throws I2B2DAOException {
 		int numRowsAdded = 0;
 		try {
-			Date today = Calendar.getInstance().getTime();
+			Date today = new Date(System.currentTimeMillis());
 
 			String addSql = "insert into "
 					+ this.dbInfoType.getDb_fullSchema()
@@ -67,25 +74,84 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 			int processId = 0;
 			if (this.dbInfoType.getDb_serverType().equals("ORACLE")) {
 				log.info(addSql);
-				processId = jt.queryForInt("select "
-						+ this.dbInfoType.getDb_fullSchema()
-						+ "ONT_SQ_PS_PRID.nextval from dual");
+				
 				ontProcessStatusType.setProcessId(String.valueOf(processId));
-				numRowsAdded = jt.update(addSql, ontProcessStatusType
+				/*numRowsAdded = jt.update(addSql, ontProcessStatusType
 						.getProcessId(), ontProcessStatusType
 						.getProcessTypeCd(), ontProcessStatusType
 						.getProcessStepCd(), today, "PROCESSING", userId,
-						ontProcessStatusType.getMessage(), today, "C");
+						ontProcessStatusType.getMessage(), today, "C");*/
+				
+				/*numRowsAdded = jt.update(addSql, new Object[] { ontProcessStatusType
+						.getProcessId(), ontProcessStatusType
+						.getProcessTypeCd(), ontProcessStatusType
+						.getProcessStepCd(), today, "PROCESSING", userId,
+						ontProcessStatusType.getMessage(), today, "C" },
+						new int[] { Types.INTEGER, Types.VARCHAR, Types.VARCHAR,
+								Types.TIMESTAMP,  Types.VARCHAR,
+								Types.VARCHAR,Types.VARCHAR,Types.TIMESTAMP,Types.VARCHAR });
+								*/
+				SaveOntProcessStatus saveOntProcessStatus = new SaveOntProcessStatus(dataSource, 
+						dbInfoType);
+				saveOntProcessStatus.save(ontProcessStatusType, userId);
+				processId = Integer.parseInt(ontProcessStatusType.getProcessId());
+				/*numRowsAdded = jt.update(addSql, new PreparedStatementSetter() {
+					public void setValues(PreparedStatement ps) throws SQLException {
+						ps.setInt(1, Integer.parseInt(ontProcessStatusType
+								.getProcessId()));
+						ps.setString(2, ontProcessStatusType
+								.getProcessTypeCd());
+						ps.setString(3, ontProcessStatusType
+								.getProcessStepCd());
+						ps.setTimestamp(4, today);
+						ps.setString(5, "PROCESSING");
+						ps.setString(6, userId);
+						
+						ps.setString(7, ontProcessStatusType.getMessage());
+						ps
+								.setTimestamp(
+										8,
+										today);
+						ps.setString(9, "C");
+					
+					}
+				});*/
 			} else if (this.dbInfoType.getDb_serverType().equals("SQLSERVER")) {
 				addSql = "insert into "
 						+ this.dbInfoType.getDb_fullSchema()
 						+ "ONT_PROCESS_STATUS"
 						+ "(process_type_cd, process_step_cd, start_date,  process_status_cd, changedby_char, message,entry_date,status_cd) values (?,?,?,?,?,?,?,?)";
-				numRowsAdded = jt.update(addSql, ontProcessStatusType
+				/*numRowsAdded = jt.update(addSql, new Object[] {ontProcessStatusType
 						.getProcessTypeCd(), ontProcessStatusType
 						.getProcessStepCd(), today, "PROCESSING", userId,
-						ontProcessStatusType.getMessage(), today, "C");
-				processId = jt.queryForInt("SELECT @@IDENTITY");
+						ontProcessStatusType.getMessage(), today, "C"}, new int[] {Types.VARCHAR, Types.VARCHAR,
+						Types.TIMESTAMP,  Types.VARCHAR,
+						Types.VARCHAR,Types.VARCHAR,Types.TIMESTAMP,Types.VARCHAR});*/
+				
+				/*numRowsAdded = jt.update(addSql, new PreparedStatementSetter() {
+					public void setValues(PreparedStatement ps) throws SQLException {
+						ps.setString(1, ontProcessStatusType.getProcessTypeCd());
+						ps.setString(2, ontProcessStatusType
+								.getProcessStepCd());
+						ps.setDate(3, new java.sql.Date(today.getTime()));
+						
+						ps.setString(4, "PROCESSING");
+						ps.setString(5, userId);
+						
+						ps.setString(6, ontProcessStatusType.getMessage());
+						ps
+								.setDate(
+										7,
+										new java.sql.Date(today.getTime()));
+						ps.setString(8, "C");
+					
+					}
+				});*/
+				SaveOntProcessStatus saveOntProcessStatus = new SaveOntProcessStatus(dataSource, 
+						dbInfoType);
+				saveOntProcessStatus.save(ontProcessStatusType, userId);
+				processId = Integer.parseInt(ontProcessStatusType.getProcessId());
+				//processId = jt.queryForInt("SELECT @@IDENTITY");
 
 			}
 			ontProcessStatusType.setProcessId(String.valueOf(processId));
@@ -107,9 +173,91 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 		return ontProcessStatusType;
 	}
 
-	public int updateStatus(int processId, Date endDate, String processStateCd,
-			String statusCd) {
-		Date today = Calendar.getInstance().getTime();
+	
+	public List<OntologyProcessStatusType> findByProcessTypeAndStatus(String processTypeCd, String processStatusCd) {
+		String sql = "select * from " + dbInfoType.getDb_fullSchema()
+				+ "ONT_PROCESS_STATUS where process_status_cd = ? and process_type_cd = ? ";
+		List<OntologyProcessStatusType> ontProcessStatusType = jt.query(sql,
+				getParameterizedRowMapper(), processStatusCd,processTypeCd);
+		return ontProcessStatusType;
+	}
+	
+	public OntologyProcessStatusListType findProcessStatus(int processId, String processTypeCd, String processStatusCd, Date[] startDate, Date[] endDate, int maxReturnRow) {
+		String dbType = this.dbInfoType.getDb_serverType();
+		String topClause = " ", andClause = " ";
+		if (maxReturnRow == 0) { 
+			maxReturnRow = 1000;
+			log.debug("setting maximum return rows to 1000");
+		}
+		if (dbType.equalsIgnoreCase("SQLSERVER")) { 
+			topClause = " top " + maxReturnRow;
+		}
+		String sql = "select " + topClause + " * from " + dbInfoType.getDb_fullSchema()
+				+ "ONT_PROCESS_STATUS   ";
+		
+		List<Object> paramList = new ArrayList<Object>(); 
+		
+		String whereClause = "";
+		if (processId > 0) { 
+			
+			whereClause += " process_id = ? ";
+			paramList.add(processId);
+			andClause = " and ";
+		}
+		if (processTypeCd != null) {
+			whereClause += andClause + " process_type_cd = ? ";
+			paramList.add(processTypeCd);
+			andClause = " and ";
+		}
+		if (processStatusCd != null) { 
+			whereClause += andClause + " process_status_cd = ? ";
+			paramList.add(processStatusCd);
+			andClause = " and ";
+		}
+		if (startDate !=null) { 
+			if (startDate[0] != null) { 
+				whereClause += andClause + " start_date >= ?"; 
+				paramList.add(startDate[0]);
+				andClause = " and ";
+			}
+			if (startDate[1] != null) { 
+				whereClause += andClause + " start_date <= ?";
+				paramList.add(startDate[1]);
+				andClause = " and ";
+			}
+		}
+		if (endDate != null) { 
+			if (endDate[0] != null) { 
+				whereClause += andClause + " end_date >= ?"; 
+				paramList.add(endDate[0]);
+				andClause = " and ";
+			}
+			if (endDate[1] != null) { 
+				whereClause += andClause + " end_date <= ?";
+				paramList.add(endDate[1]);
+				andClause = " and ";
+			}
+		}
+		if (whereClause.length()>0) { 
+			sql = sql + " where " + whereClause;
+		}
+		sql += " order by process_id ";
+		
+		if (this.dbInfoType.getDb_serverType().equalsIgnoreCase("ORACLE")) { 
+			sql = " select * from (" + sql + " ) where rownum <= " + maxReturnRow ;
+		}
+		List<OntologyProcessStatusType> ontProcessStatusType = jt.getJdbcOperations().query(sql, paramList.toArray(new Object[]{}), getParameterizedRowMapper());
+		OntologyProcessStatusListType ontProcessStatusListType = new OntologyProcessStatusListType();
+		if (ontProcessStatusType != null) {
+			ontProcessStatusListType.getOntologyProcessStatus().addAll(ontProcessStatusType);
+		}
+		return ontProcessStatusListType;
+	}
+	
+	
+	public int updateStatus(final int processId, final Date endDate, final String processStateCd,
+			final String statusCd) throws I2B2DAOException {
+		final Timestamp today = new Timestamp(Calendar.getInstance().getTime().getTime());
 		String sql = "update " + dbInfoType.getDb_fullSchema()
 				+ "ONT_PROCESS_STATUS set ";
 		if (endDate != null) {
@@ -138,10 +286,14 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 
 	public int updateCRCUploadId(int processId, String uploadId) {
 		Date today = Calendar.getInstance().getTime();
+		int uploadIdInt = 0; 
+		if (uploadId != null) { 
+			uploadIdInt = Integer.parseInt(uploadId);
+		}
 		String sql = "update "
 				+ dbInfoType.getDb_fullSchema()
 				+ "ONT_PROCESS_STATUS set  crc_upload_id = ? where process_id = ? ";
-		int recordCount = jt.update(sql, uploadId, processId);
+		int recordCount = jt.update(sql, uploadIdInt, processId);
 		return recordCount;
 	}
 
@@ -155,12 +307,13 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 					throws SQLException {
 				OntologyProcessStatusType processStatusType = new OntologyProcessStatusType();
 				processStatusType.setProcessId(rs.getString("process_id"));
-				startDate = rs.getDate("start_date");
+				processStatusType.setProcessTypeCd(rs.getString("process_type_cd"));
+				startDate = rs.getTimestamp("start_date");
 				if (startDate != null) {
 					processStatusType.setStartDate(factory
 							.getXMLGregorianCalendar(startDate.getTime()));
 				}
-				endDate = rs.getDate("end_date");
+				endDate = rs.getTimestamp("end_date");
 				if (endDate != null) {
 					processStatusType.setEndDate(factory
 							.getXMLGregorianCalendar(endDate.getTime()));
@@ -351,6 +504,95 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 		}
 	}
 	
+	
+	private static class SaveOntProcessStatus extends SqlUpdate {
+
+		private String INSERT_ORACLE = "";
+		private String INSERT_SQLSERVER = "";
+		private String SEQUENCE_ORACLE = "";
+		private DBInfoType dbInfo  = null;
+
+		public SaveOntProcessStatus(DataSource dataSource,
+				DBInfoType dbInfo) {
+			
+			super();
+			this.dbInfo = dbInfo;
+			// sqlServerSequenceDao = new
+			// SQLServerSequenceDAO(dataSource,dataSourceLookup) ;
+			setDataSource(dataSource);
+			if (dbInfo.getDb_serverType().equalsIgnoreCase(
+					"ORACLE")) {
+				INSERT_ORACLE = "insert into "
+					+ dbInfo.getDb_fullSchema()
+					+ "ONT_PROCESS_STATUS"
+					+ "(process_id, process_type_cd, process_step_cd, start_date,  process_status_cd, changedby_char, message,entry_date,status_cd) values (?,?,?,?,?,?,?,?,?)";
+			setSql(INSERT_ORACLE);
+				
+				SEQUENCE_ORACLE =  "select "
+						+ this.dbInfo.getDb_fullSchema()
+						+ "ONT_SQ_PS_PRID.nextval from dual";
+				declareParameter(new SqlParameter(Types.INTEGER));
+
+			} else if (dbInfo.getDb_serverType().equalsIgnoreCase(
+			"SQLSERVER")) {
+				INSERT_SQLSERVER = "insert into "
+					+ dbInfo.getDb_fullSchema()
+					+ "ONT_PROCESS_STATUS"
+					+ "( process_type_cd, process_step_cd, start_date,  process_status_cd, changedby_char, message,entry_date,status_cd) values (?,?,?,?,?,?,?,?)";
+				setSql(INSERT_SQLSERVER);
+			}
+
+			
+			declareParameter(new SqlParameter(Types.VARCHAR));
+			declareParameter(new SqlParameter(Types.VARCHAR));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.VARCHAR));
+			declareParameter(new SqlParameter(Types.VARCHAR));
+			declareParameter(new SqlParameter(Types.VARCHAR));
+			declareParameter(new SqlParameter(Types.TIMESTAMP));
+			declareParameter(new SqlParameter(Types.VARCHAR));
+
+			compile();
+		}
+
+		public void save(OntologyProcessStatusType ontProcessStatusType, String userId) {
+			JdbcTemplate jdbc = getJdbcTemplate();
+			int processId = 0;
+			Object[] object = null;
+			if (dbInfo.getDb_serverType().equalsIgnoreCase(
+					"SQLSERVER")) {
+				object = new Object[] {
+
+						ontProcessStatusType
+						.getProcessTypeCd(), ontProcessStatusType
+						.getProcessStepCd(), new Date(System.currentTimeMillis()), "PROCESSING", userId,
+						ontProcessStatusType.getMessage(), new Date(System.currentTimeMillis()), "C" };
+
+			} else if (dbInfo.getDb_serverType().equalsIgnoreCase(
+			"ORACLE")) {
+				processId = jdbc.queryForInt(SEQUENCE_ORACLE);
+				ontProcessStatusType.setProcessId(String
+						.valueOf(processId));
+				object = new Object[] { ontProcessStatusType.getProcessId(),
+						ontProcessStatusType
+						.getProcessTypeCd(), ontProcessStatusType
+						.getProcessStepCd(), new Date(System.currentTimeMillis()), "PROCESSING", userId,
+						ontProcessStatusType.getMessage(), new Date(System.currentTimeMillis()), "C" };
+			}
+
+			update(object);
+			if (dbInfo.getDb_serverType().equalsIgnoreCase(
+					"SQLSERVER")) {
+				int processIdentityId = jdbc
+						.queryForInt("SELECT @@IDENTITY");
+
+				ontProcessStatusType.setProcessId(String
+						.valueOf(processIdentityId));
+				System.out.println(processIdentityId);
+			}
+		}
+	}
+
 	
 }
 

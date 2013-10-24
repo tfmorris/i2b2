@@ -30,6 +30,7 @@ import edu.harvard.i2b2.pm.ws.PMServiceDriver;
 public abstract class RequestHandler {
     protected static Log log = LogFactory.getLog(RequestHandler.class);
     public abstract String  execute() throws I2B2Exception;
+    
     private DBInfoType dbInfo;
     
     public ProjectType getRoleInfo(MessageHeaderType header) 
@@ -67,14 +68,27 @@ public abstract class RequestHandler {
 					if(procStatus.getType().equals("ERROR"))
 						return null;
 					// check that user has access to this project.
+					// IF THERE IS NO MATCH (header.projectId is null) 
+					//    this will return projectType == null.
 					ConfigureType pmConfigure = msg.readUserInfo();
 					Iterator it = pmConfigure.getUser().getProject().iterator();
 					while (it.hasNext())
 					{
-						projectType = (ProjectType)it.next();
-						if (projectType.getName().equals(header.getProjectId()));
+		/* BUG				projectType = (ProjectType)it.next();
+						log.debug("Matching PM response's project name [" + projectType.getName() + "] with the request  project name [" + header.getProjectId() + "]");
+						if (projectType.getName().equals(header.getProjectId())) { 
 							break;
+						}
+			*/			
+						ProjectType project = (ProjectType)it.next();
+						log.debug("Matching PM response's project  [" + project.getId() + "] with the request  project [" + header.getProjectId() + "]");
+						if (project.getId().equals(header.getProjectId())) { 
+							projectType = project;
+							break;
+						}
+	
 					}
+
 					
 				//	projectType = pmConfigure.getUser().getProject().get(0);
 				} catch (AxisFault e) {

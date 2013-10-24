@@ -9,6 +9,8 @@
  */
 package edu.harvard.i2b2.crc.dao.setfinder;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -17,17 +19,22 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.SqlUpdate;
 
+import edu.harvard.i2b2.common.exception.I2B2DAOException;
+import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.crc.dao.CRCDAO;
 import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType;
+import edu.harvard.i2b2.crc.loader.dao.DataSourceLookupDAOFactory;
 
 /**
  * Class to handle persistance operation of Query instance i.e. each run of
@@ -43,6 +50,11 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 	SaveQueryInstance saveQueryInstance = null;
 	QtQueryInstanceRowMapper queryInstanceMapper = null;
 	private DataSourceLookup dataSourceLookup = null;
+	
+	/** log **/
+	protected final Log log = LogFactory.getLog(getClass());
+	
+	
 
 	public QueryInstanceSpringDao(DataSource dataSource,
 			DataSourceLookup dataSourceLookup) {
@@ -125,9 +137,10 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 	 * 
 	 * @param queryInstance
 	 * @return QtQueryInstance
+	 * @throws I2B2DAOException 
 	 */
 	public QtQueryInstance update(QtQueryInstance queryInstance,
-			boolean appendMessageFlag) {
+			boolean appendMessageFlag) throws I2B2DAOException {
 
 		Integer statusTypeId = (queryInstance.getQtQueryStatusType() != null) ? queryInstance
 				.getQtQueryStatusType().getStatusTypeId()
@@ -142,19 +155,55 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 						+ " ? ";
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.SQLSERVER)) {
-				concatOperator = "+";
-				messageUpdate = " MESSAGE = isnull(Cast(MESSAGE as nvarchar(4000)),'') "
-						+ concatOperator + " ? ";
+				//concatOperator = "+";
+				// messageUpdate = " MESSAGE = isnull(Cast(MESSAGE as nvarchar(4000)),'') "
+				//		+ concatOperator + " ? ";
 				// Cast(notes as nvarchar(4000))
+				
+				//update message field
+				updateMessage(queryInstance.getQueryInstanceId(),queryInstance.getMessage(),true);
+			
+				if (queryInstance.getEndDate() != null) { 
+				//update rest of the fields
+				String sql = "UPDATE "
+					+ getDbSchemaName()
+					+ "QT_QUERY_INSTANCE set USER_ID = ?, GROUP_ID = ?,BATCH_MODE = ?,END_DATE = ? ,STATUS_TYPE_ID = ? "
+					+ " where query_instance_id = ? ";
+			
+				jdbcTemplate.update(sql, new Object[] {
+					queryInstance.getUserId(),
+					queryInstance.getGroupId(),
+					queryInstance.getBatchMode(),
+					queryInstance.getEndDate(),
+					statusTypeId,
+					 queryInstance.getQueryInstanceId() });
+				} else { 
+					//update rest of the fields
+					String sql = "UPDATE "
+						+ getDbSchemaName()
+						+ "QT_QUERY_INSTANCE set USER_ID = ?, GROUP_ID = ?,BATCH_MODE = ?,STATUS_TYPE_ID = ? "
+						+ " where query_instance_id = ? ";
+				
+					jdbcTemplate.update(sql, new Object[] {
+						queryInstance.getUserId(),
+						queryInstance.getGroupId(),
+						queryInstance.getBatchMode(),
+						statusTypeId,
+						 queryInstance.getQueryInstanceId() });
+				}
+				return queryInstance;
 			}
 
 		} else {
 			messageUpdate = " MESSAGE = ?";
 		}
+		
+		if (queryInstance.getEndDate() != null) { 
 		String sql = "UPDATE "
 				+ getDbSchemaName()
 				+ "QT_QUERY_INSTANCE set USER_ID = ?, GROUP_ID = ?,BATCH_MODE = ?,END_DATE = ? ,STATUS_TYPE_ID = ?, "
 				+ messageUpdate + " where query_instance_id = ? ";
+		
 		jdbcTemplate.update(sql, new Object[] {
 				queryInstance.getUserId(),
 				queryInstance.getGroupId(),
@@ -163,9 +212,96 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 				statusTypeId,
 				(queryInstance.getMessage() == null) ? "" : queryInstance
 						.getMessage(), queryInstance.getQueryInstanceId() });
+		} else { 
+			String sql = "UPDATE "
+				+ getDbSchemaName()
+				+ "QT_QUERY_INSTANCE set USER_ID = ?, GROUP_ID = ?,BATCH_MODE = ?,STATUS_TYPE_ID = ?, "
+				+ messageUpdate + " where query_instance_id = ? ";
+		
+		jdbcTemplate.update(sql, new Object[] {
+				queryInstance.getUserId(),
+				queryInstance.getGroupId(),
+				queryInstance.getBatchMode(),
+				statusTypeId,
+				(queryInstance.getMessage() == null) ? "" : queryInstance
+						.getMessage(), queryInstance.getQueryInstanceId() });
+		}
 		return queryInstance;
 	}
+	
 
+	/**
+	 * Update query instance message
+	 * 
+	 * @param queryInstanceId
+	 * @param message
+	 * @param appendMessageFlag
+	 * @return 
+	 */
+	public void updateMessage(String  queryInstanceId, String message,
+			boolean appendMessageFlag)  throws  I2B2DAOException {
+
+		String messageUpdate = "";
+		if (appendMessageFlag) {
+			String concatOperator = "";
+			if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.ORACLE)) {
+				concatOperator = "||";
+				messageUpdate = " MESSAGE = nvl(MESSAGE,'') " + concatOperator
+						+ " ? ";
+			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.SQLSERVER)) {
+				// Cast(notes as nvarchar(4000))
+				//messageUpdate = " message.write (?, NULL, 0) ";
+				
+				Connection conn = null;
+				try {
+					conn = getDataSource().getConnection();
+					CallableStatement callStmt = conn.prepareCall("{call "
+							+ getDbSchemaName() + "UPDATE_QUERYINSTANCE_MESSAGE(?,?,?)}");
+					callStmt.setString(1, message);
+					callStmt.setString(2, queryInstanceId);
+					callStmt.registerOutParameter(3, java.sql.Types.VARCHAR);
+					// callStmt.setString(2, tempPatientMappingTableName);
+					callStmt.execute();
+					this.getSQLServerProcedureError(dataSourceLookup.getServerType(),
+							callStmt, 3);
+				} catch (SQLException sqlEx) {
+					sqlEx.printStackTrace();
+					throw new I2B2DAOException(
+							"SQLException occured" + sqlEx.getMessage(), sqlEx);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					throw new I2B2DAOException("Exception occured" + ex.getMessage(), ex);
+				} finally {
+					if (conn != null) {
+						try {
+							conn.close();
+						} catch (SQLException sqlEx) {
+							sqlEx.printStackTrace();
+							log.error("Error while closing connection", sqlEx);
+						}
+					}
+				}
+				return ;
+				//////
+
+			}
+
+		} else {
+			messageUpdate = " MESSAGE = ?";
+		}
+		String sql = "UPDATE "
+				+ getDbSchemaName()
+				+ "QT_QUERY_INSTANCE set "
+				+ messageUpdate + " where query_instance_id = ? ";
+		jdbcTemplate.update(sql, new Object[] {
+				
+				(message == null) ? "" : 
+						message, queryInstanceId });
+		
+	}
+	
 	private static class SaveQueryInstance extends SqlUpdate {
 
 		private String INSERT_ORACLE = "";
@@ -252,7 +388,7 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 
 				queryInstance.setQueryInstanceId(String
 						.valueOf(queryInstanceIdentityId));
-				System.out.println(queryInstanceIdentityId);
+				
 			}
 		}
 	}
@@ -280,4 +416,19 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 			return queryInstance;
 		}
 	}
+	
+	private void getSQLServerProcedureError(String serverType,
+			CallableStatement callStmt, int outParamIndex) throws SQLException,
+			I2B2Exception {
+
+		if (serverType.equalsIgnoreCase(DataSourceLookupDAOFactory.SQLSERVER)) {
+			String errorMsg = callStmt.getString(outParamIndex);
+			if (errorMsg != null) {
+				log.debug("error codde" + errorMsg);
+				throw new I2B2Exception("Error from stored procedure ["
+						+ errorMsg + "]");
+			}
+		}
+	}
+	
 }

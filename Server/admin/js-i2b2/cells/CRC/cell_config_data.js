@@ -12,6 +12,7 @@
 		"CRC_sdx_QI.js",
 		"CRC_sdx_PRC.js",
 		"CRC_sdx_PRS.js",		
+		"CRC_sdx_ENS.js",		
 		"CRC_sdx_PR.js",
 		"CRC_sdx_QDEF.js",
 		"CRC_sdx_QGDEF.js",

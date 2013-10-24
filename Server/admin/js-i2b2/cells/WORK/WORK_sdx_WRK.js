@@ -103,11 +103,33 @@ i2b2.sdx.TypeControllers.WRK.RenderHTML= function(sdxData, options, targetDiv) {
 			o.QM_id = o.QI_id; // TODO: This needs to be properly resolved
 			o.start_date = i2b2.h.getXNodeVal(x, "start_date");
 			o.end_date = i2b2.h.getXNodeVal(x, "end_date");
+			o.description = i2b2.h.getXNodeVal(x, "description");
 			o.title = sdxData.sdxInfo.sdxDisplayName
 			newOptions.icon = "sdx_CRC_PRS.jpg";
 			newOptions.showchildren = false;
 			newOptions.title = o.title;
 			break;
+		case "ENCOUNTER_COLL":
+			// this is a EncounterRecordSet object
+			sdxCode = "ENS";
+			// XPath query exploits faults in XML message namespace declarations to avoid creation of namespace resolver kluges that perform no resolving
+			var x = i2b2.h.XPath(sdxData.origData.xmlOrig, "work_xml/descendant::result_instance_id/..")[0];
+			var o = {};
+			o.xmlOrig = x;
+			o.result_type = "ENCOUNTERSET";
+			o.size = i2b2.h.getXNodeVal(x, "set_size");
+			o.result_instance_id = i2b2.h.getXNodeVal(x, "result_instance_id");
+			o.PRS_id = o.result_instance_id;
+			o.QI_id = i2b2.h.getXNodeVal(x, "query_instance_id");
+			o.QM_id = o.QI_id; // TODO: This needs to be properly resolved
+			o.description = i2b2.h.getXNodeVal(x, "description");
+			o.start_date = i2b2.h.getXNodeVal(x, "start_date");
+			o.end_date = i2b2.h.getXNodeVal(x, "end_date");
+			o.title = sdxData.sdxInfo.sdxDisplayName
+			newOptions.icon = "sdx_CRC_PRS.jpg";
+			newOptions.showchildren = false;
+			newOptions.title = o.title;
+			break;			
 		case "PATIENT":
 			// this is an PatientRecord object
 			sdxCode = "PR";

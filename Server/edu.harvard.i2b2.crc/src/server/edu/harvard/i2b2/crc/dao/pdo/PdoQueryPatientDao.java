@@ -34,6 +34,7 @@ import edu.harvard.i2b2.crc.dao.pdo.input.SQLServerFactRelatedQueryHandler;
 import edu.harvard.i2b2.crc.dao.pdo.input.VisitListTypeHandler;
 import edu.harvard.i2b2.crc.dao.pdo.output.PatientFactRelated;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
+import edu.harvard.i2b2.crc.datavo.pdo.ParamType;
 import edu.harvard.i2b2.crc.datavo.pdo.PatientSet;
 import edu.harvard.i2b2.crc.datavo.pdo.PatientType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.EventListType;
@@ -48,12 +49,17 @@ import edu.harvard.i2b2.crc.datavo.pdo.query.PatientListType;
 public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 
 	private DataSourceLookup dataSourceLookup = null;
+	private List<ParamType> metaDataParamList = null;
 
 	public PdoQueryPatientDao(DataSourceLookup dataSourceLookup,
 			DataSource dataSource) {
 		setDataSource(dataSource);
 		setDbSchemaName(dataSourceLookup.getFullSchema());
 		this.dataSourceLookup = dataSourceLookup;
+	}
+	
+	public void setMetaDataParamList(List<ParamType> metaDataParamList) { 
+		this.metaDataParamList = metaDataParamList; 
 	}
 
 	/**
@@ -80,6 +86,8 @@ public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 			conn = getDataSource().getConnection();
 			PatientFactRelated patientRelated = new PatientFactRelated(
 					buildOutputOptionType(detailFlag, blobFlag, statusFlag));
+			patientRelated.setMetaDataParamList(this.metaDataParamList);
+			
 			String selectClause = patientRelated.getSelectClause();
 			ResultSet resultSet = null;
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
@@ -133,7 +141,7 @@ public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 					detailFlag, blobFlag, statusFlag);
 			while (resultSet.next()) {
 				PatientType patientDimensionType = patientBuilder
-						.buildPatientSet(resultSet);
+						.buildPatientSet(resultSet, this.metaDataParamList);
 				patientDimensionSet.getPatient().add(patientDimensionType);
 			}
 
@@ -148,7 +156,8 @@ public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 		} finally {
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn, tempTableName);
+				PdoTempTableUtil tempUtil = new PdoTempTableUtil(); 
+				tempUtil.deleteTempTableSqlServer(conn, tempTableName);
 			}
 			try {
 				JDBCUtil.closeJdbcResource(null, query, conn);
@@ -183,6 +192,8 @@ public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 
 		PatientFactRelated patientRelated = new PatientFactRelated(
 				buildOutputOptionType(detailFlag, blobFlag, statusFlag));
+		patientRelated.setMetaDataParamList(metaDataParamList);
+		
 		String selectClause = patientRelated.getSelectClause();
 		String mainSqlString = " SELECT " + selectClause + "  FROM "
 				+ getDbSchemaName()
@@ -218,7 +229,7 @@ public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 					detailFlag, blobFlag, statusFlag);
 			while (resultSet.next()) {
 				PatientType patientDimensionType = patientBuilder
-						.buildPatientSet(resultSet);
+						.buildPatientSet(resultSet, this.metaDataParamList);
 				patientDimensionSet.getPatient().add(patientDimensionType);
 			}
 
@@ -268,6 +279,8 @@ public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 		String inSqlClause = null;
 		PatientFactRelated patientRelated = new PatientFactRelated(
 				buildOutputOptionType(detailFlag, blobFlag, statusFlag));
+		patientRelated.setMetaDataParamList(metaDataParamList);
+		
 		String selectClause = patientRelated.getSelectClause();
 
 		String mainSqlString = " select " + selectClause + "  from "
@@ -318,7 +331,7 @@ public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 					detailFlag, blobFlag, statusFlag);
 			while (resultSet.next()) {
 				PatientType patientDimensionType = patientBuilder
-						.buildPatientSet(resultSet);
+						.buildPatientSet(resultSet,this.metaDataParamList);
 				patientDimensionSet.getPatient().add(patientDimensionType);
 			}
 
@@ -374,24 +387,7 @@ public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 		tempStmt.executeBatch();
 	}
 
-	private void deleteTempTable(Connection conn, String tempTableName) {
-
-		Statement deleteStmt = null;
-		try {
-			deleteStmt = conn.createStatement();
-			conn.createStatement().executeUpdate("drop table " + tempTableName);
-		} catch (SQLException sqle) {
-			;
-		} finally {
-			try {
-				deleteStmt.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-	}
+	
 
 	public PatientSet getPatientByFact(List<String> panelSqlList,
 			List<Integer> sqlParamCountList,
@@ -403,6 +399,8 @@ public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 				detailFlag, blobFlag, statusFlag);
 		PatientFactRelated patientFactRelated = new PatientFactRelated(
 				buildOutputOptionType(detailFlag, blobFlag, statusFlag));
+		patientFactRelated.setMetaDataParamList(metaDataParamList); 
+		
 		String selectClause = patientFactRelated.getSelectClause();
 		String serverType = dataSourceLookup.getServerType();
 		String factTempTable = "";
@@ -460,14 +458,14 @@ public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 					+ "patient_dimension patient where patient_num in (select distinct char_param1 from "
 					+ factTempTable + ") order by patient_num";
 			log.debug("Executing SQL [" + finalSql + "]");
-			System.out.println("Final Sql " + finalSql);
+			
 
 			query = conn.prepareStatement(finalSql);
 
 			resultSet = query.executeQuery();
 
 			while (resultSet.next()) {
-				PatientType patient = patientBuilder.buildPatientSet(resultSet);
+				PatientType patient = patientBuilder.buildPatientSet(resultSet, this.metaDataParamList);
 				patientSet.getPatient().add(patient);
 			}
 		} catch (SQLException sqlEx) {
@@ -477,10 +475,10 @@ public class PdoQueryPatientDao extends CRCDAO implements IPdoQueryPatientDao {
 			log.error("", ioEx);
 			throw new I2B2DAOException("IO exception", ioEx);
 		} finally {
-			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn, factTempTable);
-			}
+			
+				PdoTempTableUtil tempUtil = new PdoTempTableUtil(); 
+				tempUtil.clearTempTable(dataSourceLookup.getServerType(), conn, factTempTable);
+			
 			if (inputOptionListHandler != null
 					&& inputOptionListHandler.isEnumerationSet()) {
 				try {

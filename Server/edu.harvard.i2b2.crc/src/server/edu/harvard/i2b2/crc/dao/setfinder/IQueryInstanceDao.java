@@ -2,6 +2,7 @@ package edu.harvard.i2b2.crc.dao.setfinder;
 
 import java.util.List;
 
+import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
 
 public interface IQueryInstanceDao {
@@ -43,6 +44,18 @@ public interface IQueryInstanceDao {
 	 * @return QtQueryInstance
 	 */
 	public QtQueryInstance update(QtQueryInstance queryInstance,
-			boolean appendMessageFlag);
+			boolean appendMessageFlag) throws I2B2DAOException;
+	
+
+	/**
+	 * Update query instance message
+	 * 
+	 * @param queryInstanceId
+	 * @param message
+	 * @param appendMessageFlag
+	 * @return 
+	 */
+	public void updateMessage(String  queryInstanceId, String message,
+			boolean appendMessageFlag) throws I2B2DAOException ;
 
 }

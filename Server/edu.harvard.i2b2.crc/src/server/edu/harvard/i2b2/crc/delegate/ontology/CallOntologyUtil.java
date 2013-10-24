@@ -39,7 +39,10 @@ import edu.harvard.i2b2.crc.datavo.i2b2message.SecurityType;
 import edu.harvard.i2b2.crc.datavo.ontology.ConceptType;
 import edu.harvard.i2b2.crc.datavo.ontology.ConceptsType;
 import edu.harvard.i2b2.crc.datavo.ontology.GetChildrenType;
+import edu.harvard.i2b2.crc.datavo.ontology.GetModifierInfoType;
 import edu.harvard.i2b2.crc.datavo.ontology.GetTermInfoType;
+import edu.harvard.i2b2.crc.datavo.ontology.ModifierType;
+import edu.harvard.i2b2.crc.datavo.ontology.ModifiersType;
 import edu.harvard.i2b2.crc.datavo.ontology.ObjectFactory;
 import edu.harvard.i2b2.crc.util.PMServiceAccountUtil;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
@@ -97,7 +100,7 @@ public class CallOntologyUtil {
 	}
 
 	public ConceptsType callGetChildren(String itemKey)
-			throws XMLStreamException, JAXBUtilException, AxisFault {
+			throws XMLStreamException, JAXBUtilException, AxisFault,I2B2DAOException  {
 		RequestMessageType requestMessageType = getChildrenI2B2RequestMessage(itemKey);
 		OMElement requestElement = buildOMElement(requestMessageType);
 		log.debug("CRC Ontology call's request xml " + requestElement);
@@ -105,9 +108,20 @@ public class CallOntologyUtil {
 		ConceptsType conceptsType = getChildrenFromResponse(response.toString());
 		return conceptsType;
 	}
+	
+	public ModifierType callGetModifierInfo(String modifierKey, String appliedPath)
+	throws XMLStreamException, JAXBUtilException, AxisFault, I2B2DAOException  {
+		RequestMessageType requestMessageType = getModifierI2B2RequestMessage(modifierKey,appliedPath);
+		OMElement requestElement = buildOMElement(requestMessageType);
+		log.debug("CRC Ontology call's request xml " + requestElement);
+		OMElement response = getServiceClient().sendReceive(requestElement);
+		ModifierType modifierType = getModifierFromResponse(response.toString());
+		return modifierType;
+	}
+	
 
 	public ConceptsType callGetChildrenWithHttpClient(String itemKey)
-			throws XMLStreamException, JAXBUtilException {
+			throws XMLStreamException, JAXBUtilException,I2B2DAOException  {
 		HttpClient client = new HttpClient();
 		PostMethod postMethod = new PostMethod(this.ontologyUrl);
 
@@ -139,14 +153,44 @@ public class CallOntologyUtil {
 		ConceptsType conceptsType = getChildrenFromResponse(responseXml);
 		return conceptsType;
 	}
+	
+	
+	private ModifierType getModifierFromResponse(String responseXml)
+	throws JAXBUtilException, I2B2DAOException {
+		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
+				.unMashallFromString(responseXml);
+		ResponseMessageType r = (ResponseMessageType) responseJaxb.getValue();
+		log.debug("CRC's ontology call response xml" + responseXml);
+		if (r.getResponseHeader() != null && r.getResponseHeader().getResultStatus() !=null) { 
+			if (r.getResponseHeader().getResultStatus().getStatus().getType().equalsIgnoreCase("ERROR")) {
+				throw new I2B2DAOException("Error when getting modifier from ontology [" + r.getResponseHeader().getResultStatus().getStatus().getValue() +"]");
+			}
+		}
+		JAXBUnWrapHelper helper = new JAXBUnWrapHelper();
+		ModifiersType modifiersType = (ModifiersType) helper.getObjectByClass(r
+				.getMessageBody().getAny(), ModifiersType.class);
+		
+		if (modifiersType != null && modifiersType.getModifier() != null
+				&& modifiersType.getModifier().size() > 0) {
+			return modifiersType.getModifier().get(0);
+		} else {
+			return null;
+		}
+		
+	}
 
 	private ConceptsType getChildrenFromResponse(String responseXml)
-			throws JAXBUtilException {
+			throws JAXBUtilException, I2B2DAOException {
 		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
 				.unMashallFromString(responseXml);
 		ResponseMessageType r = (ResponseMessageType) responseJaxb.getValue();
 		log.debug("CRC's ontology call response xml" + responseXml);
 
+		if (r.getResponseHeader() != null && r.getResponseHeader().getResultStatus() !=null) { 
+			if (r.getResponseHeader().getResultStatus().getStatus().getType().equalsIgnoreCase("ERROR")) {
+				throw new I2B2DAOException("Error when getting children from ontology [" + r.getResponseHeader().getResultStatus().getStatus().getValue() +"]");
+			}
+		}
 		JAXBUnWrapHelper helper = new JAXBUnWrapHelper();
 		ConceptsType conceptsType = (ConceptsType) helper.getObjectByClass(r
 				.getMessageBody().getAny(), ConceptsType.class);
@@ -159,7 +203,11 @@ public class CallOntologyUtil {
 				.unMashallFromString(response.toString());
 		ResponseMessageType r = (ResponseMessageType) responseJaxb.getValue();
 		log.debug("CRC's ontology call response xml" + response);
-
+		if (r.getResponseHeader() != null && r.getResponseHeader().getResultStatus() !=null) { 
+			if (r.getResponseHeader().getResultStatus().getStatus().getType().equalsIgnoreCase("ERROR")) {
+				throw new I2B2DAOException("Error when getting metadata from ontology [" + r.getResponseHeader().getResultStatus().getStatus().getValue() +"]");
+			}
+		}
 		JAXBUnWrapHelper helper = new JAXBUnWrapHelper();
 		ConceptsType conceptsType = (ConceptsType) helper.getObjectByClass(r
 				.getMessageBody().getAny(), ConceptsType.class);
@@ -217,7 +265,7 @@ public class CallOntologyUtil {
 		getTermInfo.setSelf(conceptPath);
 		// max="300" hiddens="false" synonyms="false" type="core" blob="true"
 		getTermInfo.setMax(300);
-		getTermInfo.setHiddens(false);
+		getTermInfo.setHiddens(true);
 		getTermInfo.setSynonyms(false);
 		getTermInfo.setType("core");
 		getTermInfo.setBlob(true);
@@ -256,7 +304,7 @@ public class CallOntologyUtil {
 		getChildren.setParent(conceptPath);
 		// max="300" hiddens="false" synonyms="false" type="core" blob="true"
 		// getChildren.setMax(300);
-		getChildren.setHiddens(false);
+		getChildren.setHiddens(true);
 		getChildren.setSynonyms(false);
 		// getChildren.setType("core");
 		getChildren.setBlob(true);
@@ -265,6 +313,47 @@ public class CallOntologyUtil {
 		ObjectFactory of = new ObjectFactory();
 		BodyType bodyType = new BodyType();
 		bodyType.getAny().add(of.createGetChildren(getChildren));
+		requestMessageType.setMessageBody(bodyType);
+
+		requestMessageType.setMessageHeader(messageHeaderType);
+
+		RequestHeaderType requestHeader = new RequestHeaderType();
+		requestHeader.setResultWaittimeMs(180000);
+		requestMessageType.setRequestHeader(requestHeader);
+
+		return requestMessageType;
+
+	}
+	
+	private RequestMessageType getModifierI2B2RequestMessage(String modifierPath, String appliedPath) {
+		QueryProcessorUtil queryUtil = QueryProcessorUtil.getInstance();
+		MessageHeaderType messageHeaderType = (MessageHeaderType) queryUtil
+				.getSpringBeanFactory().getBean("message_header");
+		messageHeaderType.setSecurity(securityType);
+		messageHeaderType.setProjectId(projectId);
+
+		messageHeaderType.setReceivingApplication(messageHeaderType
+				.getSendingApplication());
+		FacilityType facilityType = new FacilityType();
+		facilityType.setFacilityName("sample");
+		messageHeaderType.setSendingFacility(facilityType);
+		messageHeaderType.setReceivingFacility(facilityType);
+		// build message body
+
+		GetModifierInfoType modifierInfoType = new GetModifierInfoType(); 
+		modifierInfoType.setSelf(modifierPath);
+		modifierInfoType.setAppliedPath(appliedPath);
+		
+		// max="300" hiddens="false" synonyms="false" type="core" blob="true"
+		// getChildren.setMax(300);
+		modifierInfoType.setHiddens(true);
+		modifierInfoType.setBlob(true);
+		modifierInfoType.setSynonyms(false);
+
+		RequestMessageType requestMessageType = new RequestMessageType();
+		ObjectFactory of = new ObjectFactory();
+		BodyType bodyType = new BodyType();
+		bodyType.getAny().add(of.createGetModifierInfo(modifierInfoType));
 		requestMessageType.setMessageBody(bodyType);
 
 		requestMessageType.setMessageHeader(messageHeaderType);

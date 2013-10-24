@@ -17,6 +17,54 @@ i2b2.PLUGINMGR.view.list = new i2b2Base_cellViewController(i2b2.PLUGINMGR, 'list
 i2b2.PLUGINMGR.view.list.visible = false;
 
 
+/*
+ * Adjust width of PLUGINMGR after users drags splitter
+ */
+//================================================================================================== //
+i2b2.PLUGINMGR.view.list.splitterDragged = function()
+{
+	var viewPortDim = document.viewport.getDimensions();
+	var splitter = $( i2b2.hive.mySplitter.name );
+	var pluginListBox = $("anaPluginListBox");
+	
+	var basicWidth	= parseInt(viewPortDim.width) - parseInt(splitter.style.left) - parseInt(splitter.offsetWidth);
+
+	pluginListBox.style.left				= parseInt(splitter.offsetWidth) + parseInt(splitter.style.left) + 3 + "px";
+	pluginListBox.style.width				= Math.max(basicWidth - 24, 0) + "px";	
+}
+
+//================================================================================================== //
+i2b2.PLUGINMGR.view.list.ResizeHeight = function(e) {
+	var viewObj = i2b2.PLUGINMGR.view.list;
+	if (viewObj.visible) {
+		var ds = document.viewport.getDimensions();
+		var h = ds.height;
+		if (h < 517) {h = 517;}	
+		// resize our visual components
+		var ve = $('anaPluginListBox').style;
+		var le = $('anaPluginList').style;
+		switch(viewObj.viewMode) {
+			case "Analysis":
+				if (viewObj.isZoomed) {
+						le.height = h-95-27;
+						ve.top = '';
+				} else {
+					if (i2b2.WORK && i2b2.WORK.isLoaded) {
+						le.height = 102-27;
+						ve.top = h-196+44;
+					} else {
+						le.height = 146-28;
+						ve.top = h-196;
+					}
+				}
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+
 // ================================================================================================== //
 i2b2.PLUGINMGR.view.list.Resize = function(e) {
 	var viewObj = i2b2.PLUGINMGR.view.list;
@@ -53,7 +101,7 @@ i2b2.PLUGINMGR.view.list.Resize = function(e) {
 	}
 }
 // attach resize events
-YAHOO.util.Event.addListener(window, "resize", i2b2.PLUGINMGR.view.list.Resize, i2b2.PLUGINMGR.view.list);
+//YAHOO.util.Event.addListener(window, "resize", i2b2.PLUGINMGR.view.list.Resize, i2b2.PLUGINMGR.view.list); // tdw9
 
 
 
@@ -84,7 +132,8 @@ i2b2.events.changedViewMode.subscribe((function(eventTypeName, newMode) {
 			t.show();
 			t.BuildCategories();
 			t.Render();
-			t.Resize();
+			t.splitterDragged();
+			//t.Resize();
 			break;
 		default:
 			t.hide();
@@ -240,7 +289,7 @@ i2b2.events.changedZoomWindows.subscribe((function(eventTypeName, zoomMsg) {
 			this.isZoomed = false;
 			this.visible = true;
 		}
-		this.Resize();
+		this.ResizeHeight();
 	}
 }),'',i2b2.PLUGINMGR.view.list);
 

@@ -16,6 +16,91 @@ console.time('execute time');
 i2b2.PLUGINMGR.view.PlugView = new i2b2Base_cellViewController(i2b2.PLUGINMGR, 'PlugView');
 i2b2.PLUGINMGR.view.PlugView.visible = false;
 
+
+/*
+ * Adjust width of PLUGINMGR after users drags splitter
+ */
+//================================================================================================== //
+i2b2.PLUGINMGR.view.PlugView.splitterDragged = function()
+{
+	var viewPortDim = document.viewport.getDimensions();
+	var splitter = $( i2b2.hive.mySplitter.name );
+	var pluginBox = $("anaPluginViewBox");
+	
+	if (splitter.style.visibility=="visible")
+	{
+		var basicWidth	= parseInt(viewPortDim.width) - parseInt(splitter.style.left) - parseInt(splitter.offsetWidth);
+		pluginBox.style.left				= parseInt(splitter.offsetWidth) + parseInt(splitter.style.left) + 3 + "px";
+		pluginBox.style.width				= Math.max(basicWidth - 24, 0) + "px";
+	}
+	else
+	{
+		pluginBox.style.left				= 15 + "px";
+		pluginBox.style.width				= Math.max( parseInt(viewPortDim.width)-36, 0) + "px";
+	}	
+}
+
+// ================================================================================================== //
+i2b2.PLUGINMGR.view.PlugView.ResizeHeight = function(e) {
+	// this function provides the resize functionality needed for this screen
+	var viewObj = i2b2.PLUGINMGR.view.PlugView;
+	var ve = $('anaPluginViewBox');
+	if (viewObj.visible) {
+		var ds = document.viewport.getDimensions();
+		var h = ds.height;
+		if (h < 517) {h = 517;}
+		ve.show();
+		// resize our visual components
+		switch(i2b2.hive.MasterView.getViewMode()) {
+			case "Admin":
+				break;
+			case "Analysis":
+				ve.show();
+				if (i2b2.WORK && i2b2.WORK.isLoaded) {
+					var z = h - 390 + 142;
+				} else {
+					var z = h - 390 + 100;
+				}
+				$('anaPluginViewFrame').style.height = z;
+				break;
+
+			case "AnalysisZoomed":
+				ve.show();
+				h = h - 98;
+				ve.style.left = '';
+				$('anaPluginViewFrame').style.height = h;				
+				break;
+		}
+		var t = i2b2.PLUGINMGR.ctrlr.main.currentPluginCtrlr;
+		if (t) {
+			if (t.cfg.config.plugin.standardTabs) {
+				// special resizing for tabs
+				var tn = $('anaPluginViewBox').select('DIV.yui-content')[0];
+				if (i2b2.hive.MasterView.getViewMode() == "AnalysisZoomed") {
+					tn.style.height = (h - 34);
+				} else {
+					tn.style.height = (h - 283);
+				}
+			}
+			if (t.Resize) {
+				// a plugin is currently loaded and has a Resize() routine, pass it redraw data
+				var rdp = Element.cumulativeOffset(ve);
+				var rdd = Element.getDimensions(ve);
+				var rd = {
+					height: rdd.height,
+					width: rdd.width,
+					left: rdp.left,
+					top: rdp.top
+				};
+				t.Resize(rd);
+			}
+		}
+	} else {
+		ve.hide();
+	}
+}
+
+
 // ================================================================================================== //
 i2b2.PLUGINMGR.view.PlugView.Resize = function(e) {
 	// this function provides the resize functionality needed for this screen
@@ -30,8 +115,6 @@ i2b2.PLUGINMGR.view.PlugView.Resize = function(e) {
 		ve.show();
 		// resize our visual components
 		switch(i2b2.hive.MasterView.getViewMode()) {
-			case "Admin":
-				break;
 			case "Analysis":
 				ve.show();
 				w = w - 18;
@@ -99,14 +182,14 @@ i2b2.PLUGINMGR.view.PlugView.Resize = function(e) {
 	}
 }
 // attach resize events
-YAHOO.util.Event.addListener(window, "resize", i2b2.PLUGINMGR.view.PlugView.Resize, i2b2.PLUGINMGR.view.PlugView);
+//YAHOO.util.Event.addListener(window, "resize", i2b2.PLUGINMGR.view.PlugView.Resize, i2b2.PLUGINMGR.view.PlugView); // tdw9
 
 
 // ================================================================================================== //
 i2b2.PLUGINMGR.view.PlugView.show = function() {
 	i2b2.PLUGINMGR.view.PlugView.visible = true;
 	$('anaPluginViewBox').show();
-	i2b2.PLUGINMGR.view.PlugView.Resize();
+	i2b2.PLUGINMGR.view.PlugView.ResizeHeight();
 	var t = i2b2.PLUGINMGR.ctrlr.main.currentPluginCtrlr;
 	if (t && t.wasShown) {
 		t.wasShown();
@@ -146,23 +229,29 @@ i2b2.events.changedViewMode.subscribe((function(eventTypeName, newMode) {
 	newMode = newMode[0];
 	this.viewMode = newMode;
 	switch(newMode) {
-	//	case "Admin":
-	//		this.view.PlugView.hide();
-	//		break;
 		case "AnalysisZoomed":
 		case "Analysis":
 			// check if other windows are zoomed and blocking us
 			var zw = i2b2.hive.MasterView.getZoomWindows();
-			if (zw.member("PLUGINLST")) {
+			if (zw.member("PLUGINLST"))
 				this.view.PlugView.hide();
-			} else {
+			else 
+			{
 				this.view.PlugView.show();
+				var splitter = $( i2b2.hive.mySplitter.name );
+				if ( newMode === "AnalysisZoomed")
+					splitter.style.visibility="hidden";
+				else
+					splitter.style.visibility="visible";
+				i2b2.PLUGINMGR.view.PlugView.splitterDragged();
 				// bug fix for IE
-				setTimeout("i2b2.PLUGINMGR.view.PlugView.Resize()", 100);
+				//setTimeout("i2b2.PLUGINMGR.view.PlugView.Resize()", 100); // tdw9
 			}
 			break;
 		default:
 			this.view.PlugView.hide();
+			var splitter = $( i2b2.hive.mySplitter.name ); // make splitter visible
+			splitter.style.visibility="visible";
 			break;
 	}
 }),'',i2b2.PLUGINMGR);
@@ -172,6 +261,24 @@ i2b2.events.changedViewMode.subscribe((function(eventTypeName, newMode) {
 i2b2.PLUGINMGR.view.PlugView.ZoomView = function() {
 	i2b2.hive.MasterView.toggleZoomWindow("PLUGINLST");
 }
+
+
+//================================================================================================== //
+i2b2.events.initView.subscribe((function(eventTypeName, zoomMsg) 
+{
+	newMode = zoomMsg[0];
+	if (!newMode.action) { return; }
+	if (newMode.window == "PLUGINLST") {
+		if (newMode.action == "ADD") {
+			this.visible = false;
+			this.isZoomed = false;
+		} else {
+			this.isZoomed = false;
+			this.visible = true;
+		}
+		this.Resize();
+	}
+}),'',i2b2.PLUGINMGR.view.PlugView);
 
 
 
@@ -187,7 +294,7 @@ i2b2.events.changedZoomWindows.subscribe((function(eventTypeName, zoomMsg) {
 			this.isZoomed = false;
 			this.visible = true;
 		}
-		this.Resize();
+		this.ResizeHeight();
 	}
 }),'',i2b2.PLUGINMGR.view.PlugView);
 

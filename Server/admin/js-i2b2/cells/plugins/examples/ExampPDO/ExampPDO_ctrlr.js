@@ -21,6 +21,8 @@ i2b2.ExampPDO.Init = function(loadedDiv) {
 	i2b2.ExampPDO.model.outputOptions.patients = true;
 	i2b2.ExampPDO.model.outputOptions.events = true;
 	i2b2.ExampPDO.model.outputOptions.observations = true;
+	i2b2.ExampPDO.model.outputOptions.modifiers = true;
+	i2b2.ExampPDO.model.outputOptions.observers = true;
 
 	// manage YUI tabs
 	this.yuiTabs = new YAHOO.widget.TabView("ExampPDO-TABS", {activeIndex:0});
@@ -47,6 +49,8 @@ i2b2.ExampPDO.Unload = function() {
 	i2b2.ExampPDO.model.outputOptions.patients = true;
 	i2b2.ExampPDO.model.outputOptions.events = true;
 	i2b2.ExampPDO.model.outputOptions.observations = true;
+	i2b2.ExampPDO.model.outputOptions.modifiers = true;
+	i2b2.ExampPDO.model.outputOptions.observers = true;	
 	return true;
 };
 
@@ -100,8 +104,21 @@ i2b2.ExampPDO.getResults = function() {
 		if (i2b2.ExampPDO.model.outputOptions.events) {
 			output_options += '	<event_set select="using_input_list" onlykeys="false"/>\n';
 		}
+		if (i2b2.ExampPDO.model.outputOptions.modifiers) {
+			output_options += '	<modifier_set blob="false" onlykeys="false"/>\n';
+			isModifier = ' withmodifiers="true" ';
+		} else {
+			isModifier = '';	
+		}
 		if (i2b2.ExampPDO.model.outputOptions.observations) {
-			output_options += '	<observation_set blob="false" onlykeys="false"/>\n';
+			
+			output_options += '	<observation_set blob="false" ' + isModifier + ' onlykeys="false"/>\n';
+		}
+		if (i2b2.ExampPDO.model.outputOptions.observers) {
+			output_options += '	<observer_set blob="false" onlykeys="false"/>\n';
+		}
+		if (i2b2.ExampPDO.model.outputOptions.modifiers) {
+			output_options += '	<modifier_set blob="false" onlykeys="false"/>\n';
 		}
 		var msg_filter = '<input_list>\n' +
 			'	<patient_list max="6" min="1">\n'+   // <--- only the first 5 records
@@ -112,15 +129,28 @@ i2b2.ExampPDO.getResults = function() {
 			'	<panel name="'+cdata.key+'">\n'+
 			'		<panel_number>0</panel_number>\n'+
 			'		<panel_accuracy_scale>0</panel_accuracy_scale>\n'+
-			'		<invert>0</invert>\n'+
-			'		<item>\n'+
+			'		<invert>0</invert>\n';
+			
+		if (i2b2.ExampPDO.model.conceptRecord.origData.isModifier) {
+			msg_filter += '		<item>\n'+
+				'			<item_key>'+i2b2.ExampPDO.model.conceptRecord.origData.parent.key+'</item_key>\n'+
+				'			     <constrain_by_modifier>\n'+
+     			'			     <applied_path>'+i2b2.ExampPDO.model.conceptRecord.origData.parent.dim_code+'%</applied_path>\n'+
+     			'			     <modifier_key>'+i2b2.ExampPDO.model.conceptRecord.origData.key+'</modifier_key>\n'+
+			    '			     </constrain_by_modifier>\n'+
+				'		</item>\n';
+		} else {	
+			msg_filter += '		<item>\n'+
 			'			<hlevel>'+cdata.level+'</hlevel>\n'+
 			'			<item_key>'+cdata.key+'</item_key>\n'+
 			'			<dim_tablename>'+cdata.tablename+'</dim_tablename>\n'+
 			'			<dim_dimcode>'+cdata.dimcode+'</dim_dimcode>\n'+
 			'			<item_is_synonym>'+cdata.synonym+'</item_is_synonym>\n'+
-			'		</item>\n'+
-			'	</panel>\n'+
+			'		</item>\n';
+		}
+		
+		
+		msg_filter += '	</panel>\n'+
 			'</filter_list>\n'+
 			'<output_option>\n'+
 				output_options+

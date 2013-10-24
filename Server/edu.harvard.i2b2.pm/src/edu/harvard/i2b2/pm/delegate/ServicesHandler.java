@@ -12,6 +12,7 @@ package edu.harvard.i2b2.pm.delegate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,7 +24,7 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.pm.services.HiveParamData;
 import edu.harvard.i2b2.pm.services.SessionData;
 import edu.harvard.i2b2.pm.services.UserParamData;
-import edu.harvard.i2b2.pm.util.PMUtil;
+import edu.harvard.i2b2.pm.util.*;
 //import edu.harvard.i2b2.pm.util.SessionKey;
 import edu.harvard.i2b2.pm.ws.MessageFactory;
 import edu.harvard.i2b2.pm.ws.ServicesMessage;
@@ -54,17 +55,12 @@ import edu.harvard.i2b2.pm.datavo.pm.RoleType;
 import edu.harvard.i2b2.pm.datavo.pm.RolesType;
 import edu.harvard.i2b2.pm.datavo.pm.UserType;
 import edu.harvard.i2b2.pm.datavo.pm.UsersType;
+import edu.harvard.i2b2.pm.ejb.DBInfoType;
 
-
-import jcifs.UniAddress;
-import jcifs.smb.NtlmPasswordAuthentication;
-import jcifs.smb.SmbAuthException;
-import jcifs.smb.SmbException;
-import jcifs.smb.SmbSession;
 
 public class ServicesHandler extends RequestHandler {
 	private ProjectType projectInfo = null;
-	private  ServicesMessage getServicesMsg = null;
+	private ServicesMessage getServicesMsg = null;
 
 	public ServicesHandler(ServicesMessage servicesMsg) throws I2B2Exception{
 		log.debug("Setting the servicesMsg");	
@@ -74,21 +70,22 @@ public class ServicesHandler extends RequestHandler {
 	}
 
 
-	private UserType validateSuppliedPassword (String method, String username, String password, String  domainController, String domain) throws Exception
+	private UserType validateSuppliedPassword (String username, String password, Hashtable param) throws Exception
 	{
 		PMDbDao pmDb = new PMDbDao();
 
 
-		if (method.equalsIgnoreCase("NTLM"))
+		//if (method.equalsIgnoreCase("NTLM"))
+		if ((param.get("authentication_method") != null) && (!param.get("authentication_method").equals("")))
 		{
 			//String SQL_QUERY ="from UserData where oid='" + username + "'";
 			List response = null;	
 			try {
 				response = pmDb.getUser(username, null);
 			} catch (I2B2DAOException e1) {
-				throw new Exception ( "Database error in getting user data for NTLM");
+				throw new Exception ( "Database error in getting user data for " + param.get("authentication_method"));
 			} catch (I2B2Exception e1) {
-				throw new Exception ("Database error in getting user data for NTLM");
+				throw new Exception ("Database error in getting user data for " + param.get("authentication_method"));
 			}
 
 			Iterator it = response.iterator();
@@ -104,25 +101,27 @@ public class ServicesHandler extends RequestHandler {
 
 				throw new Exception ("Username or password does not exist");
 			}
-			log.debug("Found user " + user.getUserName());
-			UniAddress mydomaincontroller = UniAddress.getByName( domainController );
-			log.debug("looking in controoler: " + domainController);
-			NtlmPasswordAuthentication mycreds = new NtlmPasswordAuthentication( domain, username, password );
+
+			// Handle all internal classnames.  Also for backward compatibility need to call it NTLM.
+			String classname = "";
+			if (param.get("authentication_method").equals("NTLM"))
+				classname = "edu.harvard.i2b2.pm.util.SecurityAuthenticationNTLM";
+			else if (param.get("authentication_method").equals("LDAP"))
+				classname = "edu.harvard.i2b2.pm.util.SecurityAuthenticationLDAP";
+			
+			ClassLoader classLoader = ServicesHandler.class.getClassLoader();
+
 			try {
-				log.debug("Starting NTLM authentication");
+				Class securityClass = classLoader.loadClass(classname);
 
-				SmbSession.logon( mydomaincontroller, mycreds );
-				log.debug("End NTLM authentication - User OK");
 
-				// SUCCESS
-			} catch( SmbAuthException sae ) {
-				// AUTHENTICATION FAILURE
-				log.debug("Error on smbAuth:" + sae.getMessage());
-				throw new Exception (sae.getMessage());
-			} catch( SmbException se ) {
-				// NETWORK PROBLEMS?
-				log.debug("Error on smb:" + se.getMessage());
-				throw new Exception (se.getMessage());
+				SecurityAuthentication security =  (SecurityAuthentication) securityClass.newInstance();
+
+				security.validateUser(username, password, param);
+
+			} catch (ClassNotFoundException e) {
+				log.equals("Did not find class: " + e.getMessage());
+				throw new Exception ("Error loading class: " + e.getMessage());
 			}
 
 			return user;
@@ -131,13 +130,11 @@ public class ServicesHandler extends RequestHandler {
 		{
 			//Check to see if user has authentication set
 
-			List response = null;	
-			log.debug("Searching to see if user had ntlm set");
+
+			List response = null;
+
 			try {
-				UserType userType = new UserType();
-				userType.setUserName(username);
-				response = pmDb.getAllParam(userType,null,null); //PMUtil.getInstance().getHashedPassword(password));
-				log.debug("got back: " + response.size());
+				response = pmDb.getUser(username, null, null, true); //PMUtil.getInstance().getHashedPassword(password));
 			} catch (I2B2DAOException e1) {
 				throw new Exception ( "Database error in getting user data");
 			} catch (I2B2Exception e1) {
@@ -145,82 +142,6 @@ public class ServicesHandler extends RequestHandler {
 			}
 
 			Iterator it = response.iterator();
-			method = "";
-			domainController = "";
-			domain = "";
-			while (it.hasNext())
-			{
-
-				UserParamData p = (UserParamData)it.next();
-				if (p.getName().equalsIgnoreCase("authentication_method"))
-					method  = p.getValue();
-				if (p.getName().equalsIgnoreCase("domain_controller"))
-					domainController  = p.getValue();
-				if (p.getName().equalsIgnoreCase("domain"))
-					domain  = p.getValue();
-			}
-			log.debug("method" + method);
-			log.debug("controller" + domainController);
-			log.debug("domain" + domain);
-
-			// user has NTLM set, so going to use that one.
-			if (method.equals("NTLM"))
-			{
-				response = null;	
-				try {
-					response = pmDb.getUser(username, null);
-				} catch (I2B2DAOException e1) {
-					throw new Exception ( "Database error in getting user data for NTLM");
-				} catch (I2B2Exception e1) {
-					throw new Exception ("Database error in getting user data for NTLM");
-				}
-
-				it = response.iterator();
-				UserType user = null;
-				while (it.hasNext())
-				{
-					user = (UserType)it.next();
-				}
-
-				if (user == null)
-				{
-					log.debug("Did not find user: " + username);
-
-					throw new Exception ("Username or password does not exist");
-				}
-				log.debug("Found user " + user.getUserName());
-				UniAddress mydomaincontroller = UniAddress.getByName( domainController );
-				log.debug("looking in controoler: " + domainController);
-				NtlmPasswordAuthentication mycreds = new NtlmPasswordAuthentication( domain, username, password );
-				try {
-					log.debug("Starting NTLM authentication");
-
-					SmbSession.logon( mydomaincontroller, mycreds );
-					log.debug("End NTLM authentication - User OK");
-
-					// SUCCESS
-				} catch( SmbAuthException sae ) {
-					// AUTHENTICATION FAILURE
-					log.debug("Error on smbAuth:" + sae.getMessage());
-					throw new Exception (sae.getMessage());
-				} catch( SmbException se ) {
-					// NETWORK PROBLEMS?
-					log.debug("Error on smb:" + se.getMessage());
-					throw new Exception (se.getMessage());
-				}
-
-				return user;				
-			} else
-				response = null;	
-			try {
-				response = pmDb.getUser(username, null, null); //PMUtil.getInstance().getHashedPassword(password));
-			} catch (I2B2DAOException e1) {
-				throw new Exception ( "Database error in getting user data");
-			} catch (I2B2Exception e1) {
-				throw new Exception ("Database error in getting user data");
-			}
-
-			it = response.iterator();
 			UserType user = null;
 			while (it.hasNext())
 
@@ -272,8 +193,11 @@ public class ServicesHandler extends RequestHandler {
 
 		//check if the session is still valid	
 		log.debug("checking date");
+		log.debug("Now Time: "+ now.toString());
+		log.debug("Current session: "+ session.getExpiredDate().toString());
 		if(now.after(session.getExpiredDate()))
 		{
+			log.debug("Session Expired");
 			return false;
 		}
 		log.debug("date ok");
@@ -340,19 +264,31 @@ public class ServicesHandler extends RequestHandler {
 
 			//Determine authentication method
 			log.debug("Get authentication method by using domain: " + domainId);
-			String method = "", domainController= "", domain= "";
+			//String method = "", domainController= "", domain= "";
+			String method;
 			for( it=pmDb.getEnvironmentData(domainId).iterator();it.hasNext();){
 				HiveParamData hivedata =(HiveParamData)it.next();
 
 				if (hivedata.getName().equalsIgnoreCase("authentication_method"))
 					method  = hivedata.getValue();
-				if (hivedata.getName().equalsIgnoreCase("domain_controller"))
-					domainController  = hivedata.getValue();
-				if (hivedata.getName().equalsIgnoreCase("domain"))
-					domain  = hivedata.getValue();
-				log.debug("method" + method);
-				log.debug("controller" + domainController);
-				log.debug("domain" + domain);
+
+
+			}
+
+			Hashtable params = new Hashtable();
+			//First get all the params for the user params
+			UserType userType = new UserType();
+			userType.setUserName(rmt.getUsername());
+
+			for( it=pmDb.getAllParam(userType,null,null).iterator();it.hasNext();){
+				UserParamData userdata =(UserParamData)it.next();			
+				params.put(userdata.getName(),  userdata.getValue());
+			}
+			//Get any remaining params from the environment
+			for( it=pmDb.getEnvironmentData(domainId).iterator();it.hasNext();){
+				HiveParamData hivedata =(HiveParamData)it.next();
+				params.put(hivedata.getName(),  hivedata.getValue());
+
 			}	
 
 			String password = rmt.getPassword().getValue();
@@ -363,9 +299,8 @@ public class ServicesHandler extends RequestHandler {
 			{
 				String sessionKey=password.replace("SessionKey:", "");
 				log.debug("Encrypted Session key: "+sessionKey+" passed in for validation.");
-				// Force a 4 hour timeout
-				//if (rmt.getPassword().getTokenMsTimeout() == null)
-					rmt.getPassword().setTokenMsTimeout(14400000);
+				if (rmt.getPassword().getTokenMsTimeout() == null)
+					rmt.getPassword().setTokenMsTimeout(1800000);
 				if (verifySession(pmDb, rmt.getPassword().getTokenMsTimeout(), sessionKey, rmt.getUsername()) == false)
 					throw new Exception ("Session invalid");
 
@@ -383,15 +318,6 @@ public class ServicesHandler extends RequestHandler {
 					throw new Exception ("Username or password does not exist");
 				}
 				//check the password
-				/*
-				try {
-					validateSuppliedPassword(method, rmt.getUsername(), k.getPassword(), domainController, domain);
-				} catch (Exception e)
-				{
-					log.debug("Invalid Password: " + rmt.getUsername() + ":" + k.getPassword());
-					throw new Exception (e.getMessage());
-				}
-				 */
 
 
 				//everything is good so just return the same session key and the other info
@@ -401,6 +327,7 @@ public class ServicesHandler extends RequestHandler {
 				PasswordType passType = new PasswordType();
 				passType.setIsToken(true);
 				passType.setValue(password);
+				passType.setTokenMsTimeout(rmt.getPassword().getTokenMsTimeout());
 				uType.setPassword(passType); //"SessionKey:"+sessionKey); //return the key instead of password
 				//uType.setKey(rmt.getPassword()); //return password so client can reaunthenticate later
 			}
@@ -410,10 +337,11 @@ public class ServicesHandler extends RequestHandler {
 
 				//get the user from the service
 				try {
-					log.debug("Validating user: " + rmt.getUsername() + " for service " + method);
+					log.debug("Validating user: " + rmt.getUsername());
 
-					UserType user = validateSuppliedPassword(method, rmt.getUsername(), rmt.getPassword().getValue(), domainController, domain);
+					UserType user = validateSuppliedPassword( rmt.getUsername(), rmt.getPassword().getValue(), params);
 					uType.setFullName(user.getFullName());
+					uType.setIsAdmin(user.isIsAdmin());
 				} catch (Exception e)
 				{
 					throw new Exception (e.getMessage());
@@ -458,26 +386,6 @@ public class ServicesHandler extends RequestHandler {
 
 			}
 
-
-			//Add user Params to userData
-			/*
-			response = pmDb.getAllParam(uType,null,null); //PMUtil.getInstance().getHashedPassword(password));
-			log.debug("got back: " + response.size());
-
-
-			it = response.iterator();
-
-			while (it.hasNext())
-			{
-
-				UserParamData p = (UserParamData)it.next();
-				ParamType param = new ParamType();
-				param.setName(p.getName());
-				param.setValue(p.getValue());
-				uType.getParam().add(param);
-			}
-			 */
-
 			log.debug("Working on GetUserConfigure");
 			GetUserConfigurationType userConfigurationType  = (GetUserConfigurationType) helper.getObjectByClass(getServicesMsg.getRequestType().getAny(),
 					GetUserConfigurationType.class);
@@ -488,6 +396,7 @@ public class ServicesHandler extends RequestHandler {
 				PMUtil.getInstance().convertToUppercaseStrings(userConfigurationType.getProject());
 				return runGetUserConfiguration(pmDb, userConfigurationType, rmt.getUsername(), rmt.getDomain(), cType, uType);
 			}
+
 
 			log.debug("Working on Rest of services: 1");
 			BodyType bodyType = getServicesMsg.getRequestType();
@@ -517,7 +426,7 @@ public class ServicesHandler extends RequestHandler {
 					return runGetApproval(pmDb, project, rmt.getUsername(), (ApprovalType) ((JAXBElement) obj).getValue() );				
 				else if (name.equals("get_all_approval"))
 					return runGetAllApproval(pmDb, project, rmt.getUsername() );
-				
+
 				else if (name.equals("set_cell"))
 					return runSetCell(pmDb, project, rmt.getUsername(), (CellDataType) ((JAXBElement) obj).getValue() );
 				else if (name.equals("delete_cell"))
@@ -531,7 +440,7 @@ public class ServicesHandler extends RequestHandler {
 				else if (name.equals("set_project_param"))
 					return runSetParam(pmDb, project, name, rmt.getUsername(), (ProjectType) ((JAXBElement) obj).getValue() );
 				else if (name.equals("set_project_user_param"))
-					return runSetParam(pmDb, project, name, rmt.getUsername(), (ProjectType) ((JAXBElement) obj).getValue() );
+					return runSetParam(pmDb, ((ProjectType) ((JAXBElement) obj).getValue()).getId(), name, rmt.getUsername(), (ProjectType) ((JAXBElement) obj).getValue() );
 				else if (name.equals("get_all_project_user_param"))
 					return runGetAllParam(pmDb, project,  rmt.getUsername(), (ProjectType) ((JAXBElement) obj).getValue() );
 				else if (name.equals("set_user_param"))
@@ -610,7 +519,7 @@ public class ServicesHandler extends RequestHandler {
 					ParamType param = new ParamType();
 					param.setId(Integer.valueOf(value));
 					ProjectType global = new ProjectType();
-					global.setUserName("SET");
+					global.setUserName(rmt.getUsername());
 					global.getParam().add(param);
 					return runDeleteParam(pmDb, project, rmt.getUsername(), global);
 				}				
@@ -635,6 +544,7 @@ public class ServicesHandler extends RequestHandler {
 					ParamType param = new ParamType();
 					param.setId(Integer.valueOf(value));
 					UserType global = new UserType();
+					global.setUserName(rmt.getUsername());
 					global.getParam().add(param);
 					return runDeleteParam(pmDb, project, rmt.getUsername(), global);
 				}					
@@ -651,13 +561,13 @@ public class ServicesHandler extends RequestHandler {
 					pType.setId(value);
 					return runGetAllParam(pmDb, project, rmt.getUsername(), pType );
 				}
-/*				else if (name.equals("get_all_user_param"))
+				/*				else if (name.equals("get_all_user_param"))
 				{
 					UserType pType = new UserType();
 					pType.setUserName(value);
 					return runGetAllParam(pmDb, project, rmt.getUsername(), pType );
 				}
-				*/
+				 */
 				else if (name.equals("get_project_user_param"))
 				{
 					ParamType param = new ParamType();
@@ -668,7 +578,7 @@ public class ServicesHandler extends RequestHandler {
 
 					return runGetParam(pmDb, project, rmt.getUsername(), global  );
 
-//					return runGetParam(pmDb, project, rmt.getUsername(), (ProjectType) ((JAXBElement) obj).getValue() );
+					//					return runGetParam(pmDb, project, rmt.getUsername(), (ProjectType) ((JAXBElement) obj).getValue() );
 				}
 				else if (name.equals("get_project_param"))
 				{
@@ -735,236 +645,9 @@ public class ServicesHandler extends RequestHandler {
 			log.error(e.getMessage());
 		}
 		return responseVdo;		
-		// call ejb and pass input object
-		/*
-		FolderDao addChildDao = new FolderDao();
-		ResponseMessageType responseMessageType = null;
-		int numAdded = -1;
-
-		// check to see if we have projectInfo (if not indicates PM service problem)
-		if(projectInfo == null) {
-			String response = null;
-			responseMessageType = MessageFactory.doBuildErrorResponse(addChildMsg.getMessageHeaderType(), "User was not validated");
-			response = MessageFactory.convertToXMLString(responseMessageType);
-			log.debug("USER_INVALID or PM_SERVICE_PROBLEM");
-			return response;	
-		}
-
-
-		else {	
-			try {
-				numAdded = addChildDao.addNode(addChildType, projectInfo, this.getDbInfo());
-			} catch (Exception e1) {
-				e1.printStackTrace();
-				log.error("AddChildHandler received exception");
-				responseMessageType = MessageFactory.doBuildErrorResponse(addChildMsg.getMessageHeaderType(), "Database error");
-			}
-		}
-		// no errors found 
-		if(responseMessageType == null) {
-			// no db error but response is empty
-			if (numAdded == 0) {
-				log.error("object not inserted");
-				responseMessageType = MessageFactory.doBuildErrorResponse(addChildMsg.getMessageHeaderType(), "Node not found");
-			}
-			else if (numAdded == -1) {
-				log.error("database error");
-				responseMessageType = MessageFactory.doBuildErrorResponse(addChildMsg.getMessageHeaderType(), "Database error");
-			}
-			else {
-				MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(addChildMsg.getMessageHeaderType());          
-				responseMessageType = MessageFactory.createBuildResponse(messageHeader, null);
-			}
-		}
-        String responseWdo = null;
-        responseWdo = MessageFactory.convertToXMLString(responseMessageType);
-		return responseWdo;
-		 */
-
-	}
-
-	//All Global process
-	/*
-	private String runDeleteGlobal(PMDbDao pmDb, String project, String caller,
-			GlobalDataType utype) {
-		ResponseMessageType responseMessageType = null;
-
-		try {
-			int result = pmDb.deleteGlobal(project, utype.getParam().get(0).getName(), caller);
-
-			ResultStatusType results = new ResultStatusType();
-			StatusType status  = new StatusType();
-			status.setValue(result + " records");
-			results.setStatus(status);
-			MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getServicesMsg.getRequestMessageType().getMessageHeader());    
-			responseMessageType = MessageFactory.createBuildResponse(messageHeader,results);
-
-		}
-		catch (Exception ee)
-		{
-			log.error(ee.getMessage());
-			// throw new Exception (ee.getMessage());
-			ee.printStackTrace();
-
-			MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getServicesMsg.getRequestMessageType().getMessageHeader());          
-			responseMessageType = MessageFactory.doBuildErrorResponse(messageHeader,
-					ee.getMessage());			
-		}
-
-		String responseVdo = "DONE";
-		try {
-			responseVdo = MessageFactory.convertToXMLString(responseMessageType);
-		} catch (I2B2Exception e) {
-			log.error(e.getMessage());
-		}
-		return responseVdo;
-	}
-
-	private String runSetGlobal(PMDbDao pmDb, String project, String caller,
-			GlobalDataType utype) {
-		ResponseMessageType responseMessageType = null;
-
-		try {
-
-			//String SQL_QUERY ="from UserData where oid='" + username + "'";
-
-			int result = pmDb.setGlobal(utype,project, caller);
-
-			ResultStatusType results = new ResultStatusType();
-			StatusType status  = new StatusType();
-			status.setValue(result + " records");
-			results.setStatus(status);
-			MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getServicesMsg.getRequestMessageType().getMessageHeader());    
-			responseMessageType = MessageFactory.createBuildResponse(messageHeader,results);
-
-		}
-		catch (Exception ee)
-		{
-			log.error(ee.getMessage());
-			// throw new Exception (ee.getMessage());
-			ee.printStackTrace();
-
-			MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getServicesMsg.getRequestMessageType().getMessageHeader());          
-			responseMessageType = MessageFactory.doBuildErrorResponse(messageHeader,
-					ee.getMessage());			
-		}
-
-		String responseVdo = "DONE";
-		try {
-			responseVdo = MessageFactory.convertToXMLString(responseMessageType);
-		} catch (I2B2Exception e) {
-			log.error(e.getMessage());
-		}
-		return responseVdo;
 	}
 
 
-	private String runGetAllGlobal(PMDbDao pmDb, String project, String caller) {
-		ResponseMessageType responseMessageType = null;
-
-		try {
-
-
-			List response = null;	
-			try {
-				response = pmDb.getAllGlobal(project, caller);
-			} catch (I2B2DAOException e1) {
-				throw new Exception ( "Database error in getting user data for NTLM");
-			} catch (I2B2Exception e1) {
-				throw new Exception ("Database error in getting user data for NTLM");
-			}
-
-			Iterator it = response.iterator();
-			GlobalDatasType users = new GlobalDatasType();
-			log.debug("Records returned: " + response.size());
-			while (it.hasNext())
-			{
-				GlobalDataType user = (GlobalDataType)it.next();
-
-				users.getGlobalData().add(user);
-			}
-
-			//everything is good so just return the same session key and the other info
-
-			MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getServicesMsg.getRequestMessageType().getMessageHeader());    
-			responseMessageType = MessageFactory.createBuildResponse(messageHeader,users);
-
-		}
-		catch (Exception ee)
-		{
-			log.error(ee.getMessage());
-			// throw new Exception (ee.getMessage());
-			ee.printStackTrace();
-
-			MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getServicesMsg.getRequestMessageType().getMessageHeader());          
-			responseMessageType = MessageFactory.doBuildErrorResponse(messageHeader,
-					ee.getMessage());			
-		}
-
-		String responseVdo = "DONE";
-		try {
-			responseVdo = MessageFactory.convertToXMLString(responseMessageType);
-		} catch (I2B2Exception e) {
-			log.error(e.getMessage());
-		}
-		return responseVdo;
-	}
-
-	private String runGetGlobal(PMDbDao pmDb, String project, String caller,
-			GlobalDataType utype) {
-		ResponseMessageType responseMessageType = null;
-
-		try {
-
-			log.debug("In GetGlobal");
-			List response = null;	
-			try {
-				response = pmDb.getGlobal(utype.getParam().get(0).getName());
-			} catch (I2B2DAOException e1) {
-				throw new Exception ( "Database error in getting user data for NTLM");
-			} catch (I2B2Exception e1) {
-				throw new Exception ("Database error in getting user data for NTLM");
-			}
-
-			Iterator it = response.iterator();
-			UserType user = null;
-			while (it.hasNext())
-				 user = (UserType)it.next();
-
-			//user = userManagerService.getUserByUserName(k.getUsername());
-			if (user == null)
-				throw new Exception ("Username or password does not exist");
-
-
-			//everything is good so just return the same session key and the other info
-			UserType uType = new UserType();
-			uType.setFullName(user.getFullName());
-			uType.setEmail(user.getEmail());
-
-			MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getServicesMsg.getRequestMessageType().getMessageHeader());    
-			responseMessageType = MessageFactory.createBuildResponse(messageHeader,uType);
-
-		}
-		catch (Exception ee)
-		{
-			log.error(ee.getMessage());
-			// throw new Exception (ee.getMessage());
-			ee.printStackTrace();
-
-			MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getServicesMsg.getRequestMessageType().getMessageHeader());          
-			responseMessageType = MessageFactory.doBuildErrorResponse(messageHeader,
-					ee.getMessage());			
-		}
-
-		String responseVdo = "DONE";
-		try {
-			responseVdo = MessageFactory.convertToXMLString(responseMessageType);
-		} catch (I2B2Exception e) {
-			log.error(e.getMessage());
-		}
-		return responseVdo;
-	}
-	 */
 
 	//All Param process
 	private String runDeleteParam(PMDbDao pmDb, String project, String caller,
@@ -1043,7 +726,7 @@ public class ServicesHandler extends RequestHandler {
 		return responseVdo;
 	}
 
-	
+
 
 
 	private String runGetAllProjectRequest(PMDbDao pmDb, String project, String caller) {
@@ -1094,7 +777,7 @@ public class ServicesHandler extends RequestHandler {
 		}
 		return responseVdo;
 	}
-	
+
 	private String runSetProjectRequest(PMDbDao pmDb, String project, String caller,
 			ProjectRequestType value) {
 		ResponseMessageType responseMessageType = null;
@@ -1106,8 +789,8 @@ public class ServicesHandler extends RequestHandler {
 			log.debug("Start of setProjectRequest");
 
 			String  result = "";
-			
-			
+
+
 			List response = null;	
 			try {
 				response = pmDb.setProjectRequest(value,project, caller);
@@ -1125,7 +808,7 @@ public class ServicesHandler extends RequestHandler {
 				result = user.getId();
 				log.debug("added ID: " + user.getId());
 			}
-			
+
 			ResultStatusType results = new ResultStatusType();
 			StatusType status  = new StatusType();
 			status.setValue(result);
@@ -1303,7 +986,7 @@ public class ServicesHandler extends RequestHandler {
 
 					Iterator it = response.iterator();
 					//ParamsType user = null;
-					 users = new  RolesType();
+					users = new  RolesType();
 					while (it.hasNext())
 					{
 						RoleType user = (RoleType)it.next();
@@ -1892,7 +1575,7 @@ public class ServicesHandler extends RequestHandler {
 				throw new Exception ("Database error in getting user data for NTLM");
 			}
 
-			
+
 			Iterator it = response.iterator();
 			ApprovalsType users = new ApprovalsType();
 			log.debug("Records returned: " + response.size());
@@ -1902,7 +1585,7 @@ public class ServicesHandler extends RequestHandler {
 				users.getApproval().add(user);
 				log.debug("added: " + user.getName());
 			}
-		
+
 			MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getServicesMsg.getRequestMessageType().getMessageHeader());    
 			responseMessageType = MessageFactory.createBuildResponse(messageHeader,users);
 
@@ -1927,8 +1610,8 @@ public class ServicesHandler extends RequestHandler {
 		return responseVdo;
 	}
 
-	
-	
+
+
 	//All Project process
 	private String runDeleteProject(PMDbDao pmDb, String caller, Object project) {
 		ResponseMessageType responseMessageType = null;

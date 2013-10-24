@@ -85,6 +85,9 @@ public class OntologyUtil {
 	private static final String FRCELL_WS_URL_PROPERTIES = "edu.harvard.i2b2.ontology.ws.fr.url";
 
 	private static final String CRCCELL_WS_URL_PROPERTIES = "edu.harvard.i2b2.ontology.ws.crc.url";
+	
+	private static final String SERVICE_ACCOUNT_USER = "edu.harvard.i2b2.ontology.pm.serviceaccount.user";
+	private static final String SERVICE_ACCOUNT_PASSWORD =  "edu.harvard.i2b2.ontology.pm.serviceaccount.password";
 
 	/** class instance field **/
 	private static OntologyUtil thisInstance = null;
@@ -257,6 +260,15 @@ public class OntologyUtil {
 	public String getCRCUrl() throws I2B2Exception {
 		return getPropertyValue(CRCCELL_WS_URL_PROPERTIES);
 	}
+	
+	public String getServiceAccountUser() throws I2B2Exception {
+		return getPropertyValue(SERVICE_ACCOUNT_USER);
+	}
+	
+	public String getServiceAccountPassword() throws I2B2Exception {
+		return getPropertyValue(SERVICE_ACCOUNT_PASSWORD);
+	}
+	
 
 	/**
 	 * Return app server datasource

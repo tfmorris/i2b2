@@ -64,7 +64,10 @@ i2b2.ONT.ctrlr.gen.loadCategories = function() {
 	// create a scoped callback message to pass the XML to our function defined above
 	var scopeCB = new i2b2_scopedCallback(processXML,i2b2.ONT.model.Categories);
 	// fire the AJAX call
-	i2b2.ONT.ajax.GetCategories("ONT:generalView", {}, scopeCB);
+	var options = {}
+	options.ont_hidden_records = i2b2.ONT.view['nav'].params.hiddens
+	options.ont_synonym_records = i2b2.ONT.view['nav'].params.synonyms	
+	i2b2.ONT.ajax.GetCategories("ONT:generalView", options, scopeCB);
 }
 
 // ================================================================================================== //

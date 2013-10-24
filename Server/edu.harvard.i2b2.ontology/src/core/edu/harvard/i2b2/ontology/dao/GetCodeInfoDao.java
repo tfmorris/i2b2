@@ -33,10 +33,12 @@ import org.w3c.dom.Element;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
+import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontology.datavo.vdo.VocabRequestType;
 import edu.harvard.i2b2.ontology.datavo.vdo.XmlValueType;
 import edu.harvard.i2b2.ontology.util.OntologyUtil;
+import edu.harvard.i2b2.ontology.util.Roles;
 import edu.harvard.i2b2.ontology.util.StringUtil;
 import edu.harvard.i2b2.ontology.ejb.ExpandedConceptType;;
 
@@ -48,7 +50,7 @@ public class GetCodeInfoDao extends JdbcDaoSupport {
 	final static String DEFAULT = " c_name ";
 	final static String BLOB = ", c_metadataxml, c_comment ";	
 
-	public List findCodeInfo(final VocabRequestType vocabType, final List categories) throws DataAccessException, I2B2Exception{
+	public List findCodeInfo(final VocabRequestType vocabType, final List categories, ProjectType projectInfo) throws DataAccessException, I2B2Exception{
 		DataSource ds = null;
 		try {
 			ds = OntologyUtil.getInstance().getDataSource("java:OntologyLocalDS");
@@ -155,6 +157,7 @@ public class GetCodeInfoDao extends JdbcDaoSupport {
 			return null;
 
 		log.debug(codeInfoSql);
+		final  boolean obfuscatedUserFlag = Roles.getInstance().isRoleOfuscated( projectInfo );
 		
 		ParameterizedRowMapper<ExpandedConceptType> mapper = new ParameterizedRowMapper<ExpandedConceptType>() {
 			public ExpandedConceptType mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -169,7 +172,10 @@ public class GetCodeInfoDao extends JdbcDaoSupport {
 					entry.setLevel(rs.getInt("c_hlevel"));
 					entry.setSynonymCd(rs.getString("c_synonym_cd"));
 					entry.setVisualattributes(rs.getString("c_visualattributes"));
-					entry.setTotalnum(rs.getInt("c_totalnum"));
+					Integer totalNum = rs.getInt("c_totalnum");
+					if (obfuscatedUserFlag == false) { 
+						entry.setTotalnum(totalNum);
+					}
 					entry.setFacttablecolumn(rs.getString("c_facttablecolumn" ));
 					entry.setTablename(rs.getString("c_tablename")); 
 					entry.setColumnname(rs.getString("c_columnname")); 

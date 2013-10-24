@@ -161,9 +161,15 @@ i2b2.WORK.ctrlr.main.Rename = function(target_node) {
 		}
 	}
 	var pn = target_node.data.i2b2_SDX;
+	var myXml = i2b2.h.XPath( pn.origData.xmlOrig,'work_xml')[0];  //descendant::metadataxml
+	var myXml2 = i2b2.h.Xml2String(myXml.childNodes[1]);
+	var myXml2 = myXml2.replace(/&lt;/g,'<');
+		var myXml2 = myXml2.replace(/&gt;/g,'>');
+
 	var varInput = {
 		rename_text: newName,
 		rename_target_id: pn.sdxInfo.sdxKeyValue,
+		rename_xml:  myXml2,
 		result_wait_time: 180
 	};
 	i2b2.WORK.ajax.renameChild("WORK:Workplace", varInput, scopedCallback);
@@ -256,6 +262,9 @@ i2b2.WORK.ctrlr.main.HandleDrop = function(sdxDropped) {
 		if (cSDX.sdxInfo.sdxType=="WORK") {
 			console.error("The action has been prevented.  This action should have been managed by the default WRK SDX controller");
 			return false;
+		} else if (cSDX.origData.isModifier) {
+			alert("Work item being dropped is not supported.");
+			return false;			
 		} else {
 			// add the new work item
 			i2b2.WORK.ctrlr.main.AddWorkItem(cSDX, trgtNode);
@@ -310,7 +319,20 @@ i2b2.WORK.ctrlr.main.AddWorkItem = function(sdxChild, targetTvNode, options) {
 			encapValues.prs_id = sdxChild.sdxInfo.sdxKeyValue;
 			encapValues.qi_id = sdxChild.origData.QI_id;
 			encapValues.prs_name = sdxChild.origData.title;
-			encapTitle = encapValues.prs_name;
+			encapTitle = sdxChild.origData.titleCRC;
+			encapValues.prs_description = sdxChild.origData.titleCRC;
+			encapValues.prs_set_size = sdxChild.origData.size;
+			encapValues.prs_start_date = sdxChild.origData.start_date;
+			encapValues.prs_end_date = sdxChild.origData.end_date;
+			break;
+		case "ENS":
+			encapXML = i2b2.WORK.cfg.msgs.encapsulateENS;
+			encapWorkType = "ENCOUNTER_COLL";
+			encapValues.prs_id = sdxChild.sdxInfo.sdxKeyValue;
+			encapValues.qi_id = sdxChild.origData.QI_id;
+			encapValues.prs_name = sdxChild.origData.title;
+			encapTitle = sdxChild.origData.titleCRC;
+			encapValues.prs_description = sdxChild.origData.titleCRC;
 			encapValues.prs_set_size = sdxChild.origData.size;
 			encapValues.prs_start_date = sdxChild.origData.start_date;
 			encapValues.prs_end_date = sdxChild.origData.end_date;

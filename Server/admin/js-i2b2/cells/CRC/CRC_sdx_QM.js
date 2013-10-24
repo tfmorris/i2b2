@@ -53,6 +53,13 @@ i2b2.sdx.TypeControllers.QM.RenderHTML= function(sdxData, options, targetDiv) {
 	var conceptId = sdxData.name;
 	var id = "CRC_ID-" + i2b2.GUID();
 	
+	
+	if (Object.isUndefined(conceptId))
+	{
+		options.title = sdxData.sdxInfo.sdxDisplayName;	
+	}
+
+	
 	// process drag drop controllers
 	if (!Object.isUndefined(options.dragdrop)) {
 // NOTE TO SELF: should attachment of node dragdrop controller be handled by the SDX system as well? 
@@ -224,6 +231,10 @@ i2b2.sdx.TypeControllers.QM.getChildRecords = function(sdxParentNode, onComplete
 			o.end_date = i2b2.h.getXNodeVal(qi[i1],'end_date');
 			o.query_status_type = i2b2.h.getXNodeVal(qi[i1],'query_status_type');
 			o.title = "Results of " + pn.origData.name;
+			if (i2b2.h.getXNodeVal(qi[i1],'description') != "COMPLETED")
+			{
+				o.title += " - " + i2b2.h.getXNodeVal(qi[i1],'description');
+			}
 			var sdxDataNode = i2b2.sdx.Master.EncapsulateData('QI',o);
 			// append to the QI record onto the QM in CRC data model
 			var sdxDataNode = i2b2.sdx.Master.Save(sdxDataNode, pn);

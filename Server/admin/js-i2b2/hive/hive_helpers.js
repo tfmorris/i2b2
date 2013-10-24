@@ -32,6 +32,18 @@ delete i2b2.protoObjhack;
 // ================================================================================================== //
 i2b2.h.parseXml = function(xmlString){
 	var xmlDocRet = false;
+	if (typeof window.ActiveXObject != "undefined" && new window.ActiveXObject("Microsoft.XMLDOM")) {  
+		//Internet Explorer
+		xmlDocRet = new ActiveXObject("Microsoft.XMLDOM");
+		xmlDocRet.async = "false";
+		xmlDocRet.loadXML(xmlString);
+		xmlDocRet.setProperty("SelectionLanguage", "XPath");
+	} else {
+		//Firefox, Mozilla, Opera, etc.
+		parser = new DOMParser();
+		xmlDocRet = parser.parseFromString(xmlString, "text/xml");
+	}
+	/* oring
 	try //Internet Explorer
 	{
 		xmlDocRet = new ActiveXObject("Microsoft.XMLDOM");
@@ -49,6 +61,7 @@ i2b2.h.parseXml = function(xmlString){
 			console.error(e.message)
 		}
 	}
+	*/
 	return xmlDocRet;
 };
 
@@ -90,14 +103,21 @@ i2b2.h.XPath = function(xmlDoc, xPath) {
 	return retArray;
 };
 
-i2b2.h.getXNodeVal = function(xmlElement, nodeName) {
+i2b2.h.getXNodeVal = function(xmlElement, nodeName, includeChildren) {
 	var gotten = i2b2.h.XPath(xmlElement, "descendant-or-self::"+nodeName+"/text()");
+	var final = "";
 	if (gotten.length > 0) {
-		gotten = gotten[0].nodeValue;
+		if (includeChildren == true || includeChildren == true) {
+			for (var i=0; i<gotten.length; i++) {
+				final += gotten[i].nodeValue;
+			}
+		} else {
+				final = gotten[0].nodeValue;			
+		}
 	} else {
-		gotten = undefined;
+		final = undefined;
 	}
-	return gotten;
+	return final;
 }
 
 i2b2.h.GenerateAlphaNumId = function(ReqIdLength) {
@@ -675,8 +695,8 @@ i2b2.bugfix1.prototype.bringToTop = function() {
 };
 i2b2.bugfix2 = function() {
 	YAHOO.lang.augmentProto(YAHOO.widget.Overlay, i2b2.bugfix1, true);
-	delete bugfix1;
-	delete bugfix2;
+	delete i2b2.bugfix1;
+	delete i2b2.bugfix2;
 };
 setTimeout('i2b2.bugfix2()',200);
 

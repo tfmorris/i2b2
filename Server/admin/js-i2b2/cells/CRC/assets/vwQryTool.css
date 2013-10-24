@@ -1,6 +1,6 @@
-
-
-
+.yui-skin-sam .qryTemporalConstraint .yuimenu .bd {
+	width:300px;
+}
 
 DIV#crcQueryToolBox {
 	position: absolute;
@@ -111,7 +111,6 @@ DIV#crcQueryToolBox DIV.qryPanelButtonBar DIV {
 	border:1px solid #667788;
 	height:16px;
 	line-height:16px;
-	overflow:hidden;
 	text-align:center;
 	float:left;
 }
@@ -119,7 +118,29 @@ DIV#crcQueryToolBox DIV.qryPanelButtonBar DIV {
 DIV#crcQueryToolBox DIV.qryButtonDate 	 {width:38px;}
 DIV#crcQueryToolBox DIV.qryButtonOccurs  {width:80px; margin:0px -1px;}
 DIV#crcQueryToolBox DIV.qryButtonExclude {width:46px;}
+DIV#crcQueryToolBox DIV.qryPanelTiming   {width:166px;text-align:left;}
 
+DIV#crcQueryToolBox DIV.qryPanelTiming .yuimenuitemlabel {width:120px;} 
+
+DIV#crcQueryToolBox DIV.qryPanelTiming Button {
+line-height:1;
+float:left;
+/*width:160px;*/
+min-height:1em;
+}
+
+DIV#crcQueryToolBox DIV.qryTemporalConstraint{
+	width:300px;
+	text-align:center;
+}
+
+DIV#crcQueryToolBox DIV.qryTemporalConstraint .yuimenuitemlabel {width:200px;}
+
+DIV#crcQueryToolBox DIV.qryTemporalConstraint Button {
+line-height:1;
+width:375px;
+min-height:1em;
+}
 DIV#crcQueryToolBox DIV#qryToolFooter {
 	border-top:1px solid #667788;
 	clear:both;
@@ -133,6 +154,7 @@ DIV#crcQueryToolBox DIV#qryToolFooter {
 
 
 DIV#crcQueryToolBox DIV#newBox,
+DIV#crcQueryToolBox DIV#printQueryBox,
 DIV#crcQueryToolBox DIV#runBox {
 	position:relative;
 	xdisplay:none;
@@ -155,6 +177,7 @@ DIV#crcQueryToolBox DIV#runBox {
 }
 
 DIV#crcQueryToolBox DIV#newBox a,
+DIV#crcQueryToolBox DIV#printQueryBox a,
 DIV#crcQueryToolBox DIV#runBox a {
 	color:#FFF;
 	display:block;
@@ -185,6 +208,7 @@ a.topicButton:hover {
 
 
 DIV#crcQueryToolBox DIV#newBox a:hover,
+DIV#crcQueryToolBox DIV#printQueryBox a:hover,
 DIV#crcQueryToolBox DIV#runBox a:hover {
 	background-color:#7687bf;
 }
@@ -209,13 +233,14 @@ DIV#crcQueryToolBox DIV#scrollBox {
 	position:relative;
 	overflow:hidden;
 	float:right;
+	width:172px;
 	z-index:5;
 }
 
 DIV#crcQueryToolBox DIV#queryBalloonBox {
 	bottom:80px;
 	height:30px;
-	padding:37px 0px 37px 50px;
+	padding:0px 0px 0px 0px;
 	position:absolute;
 	width:100%;
 	z-index:10;
@@ -230,6 +255,7 @@ DIV#crcQueryToolBox DIV.queryBalloon {
 	font-weight:bold;
 	text-align:center;
 	line-height:13px;
+	position:absolute;
 	float:left;
 	display:none;
 }
@@ -243,7 +269,8 @@ DIV#crcQueryToolBox DIV.queryBalloonAnd {
 	font-weight:bold;
 	text-align:center;
 	line-height:20px;
+	position:absolute;
 	float:left;
-	margin:10px 27px;
+	/*margin:10px 27px;*/
 	display:none;
 }

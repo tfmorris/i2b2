@@ -37,6 +37,7 @@ import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontology.datavo.vdo.GetReturnType;
 import edu.harvard.i2b2.ontology.datavo.vdo.XmlValueType;
 import edu.harvard.i2b2.ontology.util.OntologyUtil;
+import edu.harvard.i2b2.ontology.util.Roles;
 
 public class GetCategoriesDao extends JdbcDaoSupport {
 	
@@ -97,7 +98,7 @@ public class GetCategoriesDao extends JdbcDaoSupport {
 		log.debug(projectInfo.getId().toLowerCase());
 		
 		String tablesSql = "select distinct(c_table_cd), " + parameters + " from " +  metadataSchema +  "table_access where c_project = ? and c_role in " + roles;
-		
+		final boolean obfuscatedUserFlag = Roles.getInstance().isRoleOfuscated(projectInfo);
 		ParameterizedRowMapper<ConceptType> mapper = new ParameterizedRowMapper<ConceptType>() {
 	        public ConceptType mapRow(ResultSet rs, int rowNum) throws SQLException {
 	            ConceptType child = new ConceptType();
@@ -110,7 +111,10 @@ public class GetCategoriesDao extends JdbcDaoSupport {
 	            	child.setLevel(rs.getInt("c_hlevel"));
 	            	child.setSynonymCd(rs.getString("c_synonym_cd"));
 	            	child.setVisualattributes(rs.getString("c_visualattributes"));
-	            	child.setTotalnum(rs.getInt("c_totalnum"));
+	            	Integer totalNum = rs.getInt("c_totalnum");
+	            	if (obfuscatedUserFlag == false) { 
+	            		child.setTotalnum(totalNum);
+	            	}
 	            	child.setFacttablecolumn(rs.getString("c_facttablecolumn" ));
 	            	child.setTablename(rs.getString("c_tablename")); 
 	            	child.setColumnname(rs.getString("c_columnname")); 

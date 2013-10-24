@@ -74,7 +74,7 @@ public class QueryInstance {
 	}
 
 	public void updateInstanceStatus(String queryInstanceId, String statusType,
-			String message) {
+			String message) throws I2B2DAOException {
 		// get query instance
 		// update the status
 		IQueryInstanceDao queryInstanceDao = sfDAOFactory.getQueryInstanceDAO();

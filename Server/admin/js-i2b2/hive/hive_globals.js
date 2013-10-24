@@ -10,7 +10,6 @@
 console.group('Load & Execute component file: hive > globals');
 console.time('execute time');
 
-
 // View Controllers
 // ================================================================================================== //
 function i2b2Base_cellViewController(parentObj, viewName) { 

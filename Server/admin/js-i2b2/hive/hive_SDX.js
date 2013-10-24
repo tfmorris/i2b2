@@ -176,7 +176,9 @@ i2b2.sdx.Master.Attach2Data = function(domNode, type, key) {
 	}	
 	// disable attachement event
 	try {
-		domNode.setAttribute('onmouseover', null);
+		if (undefined!=domNode.setAttribute) {
+			domNode.setAttribute('onmouseover', null);
+		}
 	} catch(e) {}
 	return t;
 }

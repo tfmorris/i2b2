@@ -83,6 +83,8 @@ public class LoaderStatusBean implements LoaderStatusBeanLocal,
 					loadDataResponse.setPidSet(responseSetStatusType);
 				} else if (setStatus.getSetTypeId() == 7) {
 					loadDataResponse.setEventidSet(responseSetStatusType);
+				} else if (setStatus.getSetTypeId() == 8) {
+					loadDataResponse.setModifierSet(responseSetStatusType);
 				}
 			}
 			responseList.getLoadDataResponse().add(loadDataResponse);
@@ -150,6 +152,8 @@ public class LoaderStatusBean implements LoaderStatusBeanLocal,
 					loadDataResponse.setPidSet(responseSetStatusType);
 				} else if (setStatus.getSetTypeId() == 7) {
 					loadDataResponse.setEventidSet(responseSetStatusType);
+				} else if (setStatus.getSetTypeId() == 8) {
+					loadDataResponse.setModifierSet(responseSetStatusType);
 				}
 			}
 		}

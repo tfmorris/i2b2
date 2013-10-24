@@ -251,9 +251,9 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 		if (dataSourceLookup.getServerType().equalsIgnoreCase(
 				DAOFactoryHelper.ORACLE)) {
 			queryCountSql = " select count(r1.result_instance_id) result_count,r1.real_set_size "
-					+ " from qt_query_result_instance r1 inner join qt_query_result_instance r2 on "
+					+ " from " + this.getDbSchemaName() + "qt_query_result_instance r1 inner join " + this.getDbSchemaName()+ "qt_query_result_instance r2 on "
 					+ " r1.real_set_size = r2.real_set_size, "
-					+ " qt_query_instance qi "
+					+ this.getDbSchemaName() +"qt_query_instance qi "
 					+ " where "
 					+ "  r1.start_date between sysdate- "
 					+ compareDays
@@ -272,9 +272,9 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 		} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
 				DAOFactoryHelper.SQLSERVER)) {
 			queryCountSql = " select count(r1.result_instance_id) result_count,r1.real_set_size "
-					+ " from qt_query_result_instance r1 inner join qt_query_result_instance r2 on "
+					+ " from " + this.getDbSchemaName() + "qt_query_result_instance r1 inner join " + this.getDbSchemaName() + "qt_query_result_instance r2 on "
 					+ " r1.real_set_size = r2.real_set_size, "
-					+ " qt_query_instance qi "
+					+ this.getDbSchemaName() +"qt_query_instance qi "
 					+ " where "
 					+ " r1.start_date between DATEADD ( day , "
 					+ startBetweenDayValue
@@ -423,7 +423,7 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 
 				resultInstance.setResultInstanceId(String
 						.valueOf(resultInstanceIdentityId));
-				System.out.println(resultInstanceIdentityId);
+				
 			}
 
 		}

@@ -14,12 +14,15 @@ console.time('execute time');
 i2b2.hive.HelpViewer = {
 	show: function() {
 		if (!i2b2.hive.HelpViewer.yuiPanel) {
+					// load the help page
+		new Ajax.Updater('help-viewer-body', 'help/default.htm', {method: 'get', parameters: { cell: 'CORE', page:'ROOT' }});
+
 			// show non-modal dialog with help documentation		
 			var panel = new YAHOO.widget.Panel("help-viewer-panel", { 
 				draggable: true,
 				zindex:10000,
-				width: "650px", 
-				height: "450px", 
+				width: "900px", 
+				height: "550px", 
 				autofillheight: "body", 
 				constraintoviewport: true, 
 				context: ["showbtn", "tl", "bl"]

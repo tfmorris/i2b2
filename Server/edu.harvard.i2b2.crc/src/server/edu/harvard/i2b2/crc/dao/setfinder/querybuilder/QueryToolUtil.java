@@ -43,6 +43,7 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.ConstrainOperatorType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ConstrainValueType;
 import edu.harvard.i2b2.crc.delegate.ontology.CallOntologyUtil;
 import edu.harvard.i2b2.crc.util.SqlClauseUtil;
+import edu.harvard.i2b2.crc.util.StringUtil;
 
 /**
  * Main class to generate setfinder sql from query definition xml. $Id:
@@ -148,6 +149,7 @@ public class QueryToolUtil extends CRCDAO {
 		} catch (JAXBUtilException jEx) {
 			throw new I2B2DAOException(jEx.getMessage() + jEx);
 		} catch (I2B2Exception iEx) {
+			iEx.printStackTrace();
 			throw new I2B2DAOException(iEx.getMessage() + iEx);
 		}
 		return sql;
@@ -168,9 +170,9 @@ public class QueryToolUtil extends CRCDAO {
 			throws I2B2DAOException {
 		SAXBuilder parser = new SAXBuilder();
 		parser
-				.setFeature(
-						"http://apache.org/xml/features/standard-uri-conformant",
-						false);
+		.setFeature(
+				"http://apache.org/xml/features/standard-uri-conformant",
+				false);
 
 		StringReader strReader = new StringReader(queryXML);
 		StreamSource s = new StreamSource(strReader);
@@ -192,7 +194,7 @@ public class QueryToolUtil extends CRCDAO {
 		return controlDoc;
 	}
 
-	protected void SetQueryDatabaseConstants(DatabaseType dbType) {
+	private void SetQueryDatabaseConstants(DatabaseType dbType) {
 		if (dbType == DatabaseType.SqlServer) {
 			FACT_TABLE = "dw_f_conc_noval";
 			PATIENT_TABLE = "dw_dim_patient";
@@ -405,9 +407,9 @@ public class QueryToolUtil extends CRCDAO {
 			String dataRequested, // type of data requested: either "P" for
 			// patient or "PE" for patient and encounter
 			Integer iteration // number of calls into ProcessControlFile, used
-	// by query in query to uniquely identify temp
-	// tables
-	) throws I2B2DAOException {
+			// by query in query to uniquely identify temp
+			// tables
+			) throws I2B2DAOException {
 		try {
 			String querySQL = "";
 			String tableSuffix = "";
@@ -503,7 +505,7 @@ public class QueryToolUtil extends CRCDAO {
 							.getAttributeValue("time");
 					if (thePanelDateFromTime != null
 							&& thePanelDateFromTime
-									.equalsIgnoreCase("end_date")) {
+							.equalsIgnoreCase("end_date")) {
 						thePanelDateFromTime = this.FACT_END_DATE;
 					} else {
 						thePanelDateFromTime = this.FACT_START_DATE;
@@ -588,85 +590,171 @@ public class QueryToolUtil extends CRCDAO {
 				String sql1 = "";
 				EstPanelSize = 0;
 				boolean singleValidItem = false;
-
+				ItemMetaData itemMeta = null;
 				for (Iterator itItem = itemList.iterator(); itItem.hasNext();) {
 					j++;
 
 					Element itemXml = (org.jdom.Element) itItem.next();
 					String itemKey = itemXml.getChildText("item_key");
-					String itemClass = itemXml.getChildText("class");
-					ConceptType conceptType = ontologyUtil
-							.callOntology(itemKey);
 
-					ItemMetaData itemMeta = new ItemMetaData();
-
-					if (conceptType == null) {
-						// add it the message
-						ignoredItemMessageBuffer.append("\n [" + itemKey
-								+ "] in panel #" + i + "\n");
-						itemMeta.QueryTable = "";
-					} else {
+					String noLockSqlServer = " ";
+					if (this.dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.SQLSERVER)) {
+						noLockSqlServer = " WITH(NOLOCK) ";
+					}
+					String theTable = null;
+					String theColumn = null;
+					// if item key start with ""
+					if (itemKey.startsWith("patient_set_coll_id:")) {
 						singleValidItem = true;
+						String[] patientSetId = itemKey.split(":");
+						if (patientSetId[1] != null) {
+							sql0 = " patient_num "
+									+ " IN (select patient_num  from "
+									+ getDbSchemaName()
+									+ "qt_patient_set_collection " + " c "
+									+ noLockSqlServer
+									+ " where patient_set_coll_id = "
+									+ patientSetId[1] + ")";
+						}
+					} else if (itemKey.startsWith("patient_enc_coll_id:")) {
+						singleValidItem = true;
+						String[] encounterSetId = itemKey.split(":");
+						if (encounterSetId[1] != null) {
+							sql0 = " encounter_num "
+									+ " IN (select encounter_num  from "
+									+ getDbSchemaName()
+									+ "qt_patient_enc_collection " + " c "
+									+ noLockSqlServer
+									+ " where patient_enc_coll_id = "
+									+ encounterSetId[1] + ")";
+						}
+					} else {
+						String itemClass = itemXml.getChildText("class");
+						ConceptType conceptType = ontologyUtil
+								.callOntology(itemKey);
+
+						itemMeta = new ItemMetaData();
+
+						if (conceptType == null) {
+							// add it the message
+							ignoredItemMessageBuffer.append("\n [" + itemKey
+									+ "] in panel #" + i + "\n");
+							itemMeta.QueryTable = "";
+						} else {
+							singleValidItem = true;
+							itemMeta.QueryTable = conceptType.getTablename();
+							itemMeta.QueryColumn = conceptType.getColumnname();
+							itemMeta.QueryOp = conceptType.getOperator();
+							itemMeta.QueryCode = conceptType.getDimcode();
+							itemMeta.QueryFactTableColumn = conceptType
+									.getFacttablecolumn();
+							itemMeta.QueryColumnDataType = conceptType
+									.getColumndatatype();
+
+							if ((itemMeta.QueryOp != null)
+									&& (itemMeta.QueryOp.toUpperCase()
+											.equals("LIKE"))) {
+
+								if(this.dataSourceLookup.getServerType().toUpperCase().equals("SQLSERVER")){
+									itemMeta.QueryCode = StringUtil.escapeSQLSERVER(itemMeta.QueryCode);
+								}
+
+								else if(this.dataSourceLookup.getServerType().toUpperCase().equals("ORACLE")){
+									itemMeta.QueryCode = StringUtil.escapeORACLE(itemMeta.QueryCode);
+								}
+
+								if (itemMeta.QueryCode.lastIndexOf('\\') == itemMeta.QueryCode
+										.length() - 1) {
+									itemMeta.QueryCode = itemMeta.QueryCode
+											+ "%";
+								} else {
+									log
+									.debug("Adding \\ at the end of the Concept path ");
+									itemMeta.QueryCode = itemMeta.QueryCode
+											+ "\\%";
+								}
+							}
+						}
+						theTable = itemMeta.QueryTable;
+						if (theTable != null) {
+							theTable = theTable.toLowerCase();
+						} else {
+							theTable = "";
+						}
+
+						theColumn = itemMeta.QueryColumn;
+
+						if (theColumn != null) {
+							theColumn.toLowerCase();
+						} else {
+							theColumn = "";
+						}
+
+						String theOperator = itemMeta.QueryOp;
+
+						if (theOperator == null) {
+							theOperator = "";
+						}
+
+						String theData = itemMeta.QueryCode;
+
+						if (theData == null) {
+							theData = "";
+						}
+
+						EstSize = 0;
+						sql0 = "";
+						sql1 = "";
+
+						
+						if (theOperator.toUpperCase().equals("IN")) {
+							if (itemMeta.QueryColumnDataType
+									.equalsIgnoreCase("T")) {
+								theData = SqlClauseUtil.buildINClause(theData,
+										true);
+							} else if (itemMeta.QueryColumnDataType
+									.equalsIgnoreCase("N")) {
+								theData = SqlClauseUtil.buildINClause(theData,
+										false);
+							}
+							theData = "(" + theData + ")";
+						} else {
+							theData = theData.replaceAll("'", "''");
+							if (itemMeta.QueryColumnDataType
+									.equalsIgnoreCase("T")) {
+								theData = "'" + theData + "'";
+							}
+						}
+
+						//
+						// <C_OPERATOR>IN</C_OPERATOR>
+						// <C_DIMCODE>'NA','NAT. AM.','NI'</C_DIMCODE>
+						// <C_FACTTABLECOLUMN>PATIENT_NUM</C_FACTTABLECOLUMN>
+						// <C_TABLENAME>PATIENT_DIMENSION</C_TABLENAME>
+						// <C_COLUMNNAME>RACE_CD</C_COLUMNNAME>
+
 						itemMeta.QueryTable = conceptType.getTablename();
 						itemMeta.QueryColumn = conceptType.getColumnname();
 						itemMeta.QueryOp = conceptType.getOperator();
 						itemMeta.QueryCode = conceptType.getDimcode();
-						if ((itemMeta.QueryOp != null)
-								&& (itemMeta.QueryOp.toUpperCase()
-										.equals("LIKE"))) {
-							if (itemMeta.QueryCode.lastIndexOf('\\') == itemMeta.QueryCode
-									.length() - 1) {
-								itemMeta.QueryCode = itemMeta.QueryCode + "%";
-							} else {
-								log
-										.debug("Adding \\ at the end of the Concept path ");
-								itemMeta.QueryCode = itemMeta.QueryCode + "\\%";
-							}
-						}
+						itemMeta.QueryFactTableColumn = conceptType
+								.getFacttablecolumn();
+
+						sql0 = itemMeta.QueryFactTableColumn + " IN (select "
+								+ itemMeta.QueryFactTableColumn + " from "
+								+ getDbSchemaName() + itemMeta.QueryTable
+								+ " c " + noLockSqlServer + " where "
+								+ itemMeta.QueryColumn + " " + itemMeta.QueryOp
+								+ " " + theData;
+						if ((itemMeta.QueryOp != null) && (itemMeta.QueryOp.equals("LIKE")))
+							sql0 += " {ESCAPE '?'} ";
+						sql0 += ")";
+						
+						log.debug("~~~~~~~~~~~MM~~~~~~~");
+
 					}
-
-					String theTable = itemMeta.QueryTable;
-
-					if (theTable != null) {
-						theTable = theTable.toLowerCase();
-					} else {
-						theTable = "";
-					}
-
-					String theColumn = itemMeta.QueryColumn;
-
-					if (theColumn != null) {
-						theColumn.toLowerCase();
-					} else {
-						theColumn = "";
-					}
-
-					theColumn = TranslateColumnName(DatabaseType.SqlServer,
-							theTable, theColumn);
-					theTable = TranslateTableName(DatabaseType.SqlServer,
-							theTable);
-
-					String theOperator = itemMeta.QueryOp;
-
-					if (theOperator == null) {
-						theOperator = "";
-					}
-
-					String theData = itemMeta.QueryCode;
-
-					if (theData == null) {
-						theData = "";
-					}
-
-					EstSize = 0;
-					sql0 = "";
-					sql1 = "";
-
-					if (theOperator.toUpperCase().equals("IN")) {
-						theData = "(" + theData + ")";
-					} else {
-						theData = "'" + theData.replaceAll("'", "''") + "'";
-					}
+					log.debug("~~~~~~~~~~~MM~2~~~~~~" + sql0);
 
 					// date constraint start
 					String itemDateConstrain = "";
@@ -688,7 +776,7 @@ public class QueryToolUtil extends CRCDAO {
 										.getAttributeValue("time");
 								if (dateFromTime != null
 										&& dateFromTime
-												.equalsIgnoreCase("end_date")) {
+										.equalsIgnoreCase("end_date")) {
 									dateFromTime = this.FACT_END_DATE;
 								} else {
 									dateFromTime = this.FACT_START_DATE;
@@ -718,7 +806,7 @@ public class QueryToolUtil extends CRCDAO {
 
 								if (dateToTime != null
 										&& dateToTime
-												.equalsIgnoreCase("end_date")) {
+										.equalsIgnoreCase("end_date")) {
 									dateToTime = this.FACT_END_DATE;
 								} else {
 									dateToTime = this.FACT_START_DATE;
@@ -743,32 +831,20 @@ public class QueryToolUtil extends CRCDAO {
 
 					// date constrain end
 
-					String noLockSqlServer = " ";
-					if (this.dataSourceLookup.getServerType().equalsIgnoreCase(
-							DAOFactoryHelper.SQLSERVER)) {
-						noLockSqlServer = " WITH(NOLOCK) ";
-					}
-					if (theTable.toLowerCase().equals(CONCEPT_TABLE)) {
-						// EstSize = GetEstimatedSize(conn, theTable, theColumn,
-						// / theOperator, theData, DBNumPatients);
-
-						sql0 = FACT_CONCEPT_ID + " IN (select "
-								+ CONCEPT_DIM_ID + " from " + getDbSchemaName()
-								+ CONCEPT_TABLE + " c " + noLockSqlServer
-								+ " where " + CONCEPT_DIM_PATH + " "
-								+ theOperator + " " + theData + ")";
-					} else if (theTable.equals(PROVIDER_TABLE)) {
-						// EstSize = GetEstimatedSize(conn, theTable, theColumn,
-						// theOperator, theData, DBNumPatients);
-						sql0 = FACT_PROVIDER_ID + " IN (SELECT "
-								+ PROVIDER_DIM_ID + " FROM "
-								+ getDbSchemaName() + PROVIDER_TABLE + " c "
-								+ noLockSqlServer + " where "
-								+ PROVIDER_DIM_PATH + " " + theOperator + " "
-								+ theData + ")";
-						// sql0 += itemDateConstrain;
-						// sql0 += panelDateConstrain;
-					}
+					//
+					/*
+					 * if (theTable.toLowerCase().equals(CONCEPT_TABLE)) { sql0
+					 * = FACT_CONCEPT_ID + " IN (select " + CONCEPT_DIM_ID +
+					 * " from " + getDbSchemaName() + CONCEPT_TABLE + " c " +
+					 * noLockSqlServer + " where " + CONCEPT_DIM_PATH + " " +
+					 * theOperator + " " + theData + ")"; } else if
+					 * (theTable.equals(PROVIDER_TABLE)) { sql0 =
+					 * FACT_PROVIDER_ID + " IN (SELECT " + PROVIDER_DIM_ID +
+					 * " FROM " + getDbSchemaName() + PROVIDER_TABLE + " c " +
+					 * noLockSqlServer + " where " + PROVIDER_DIM_PATH + " " +
+					 * theOperator + " " + theData + ")"; }
+					 */
+					//
 
 					StringBuilder theFilter = new StringBuilder();
 
@@ -817,8 +893,8 @@ public class QueryToolUtil extends CRCDAO {
 
 							if (theValueType.equalsIgnoreCase("T")
 									|| theValueType
-											.equalsIgnoreCase(ConstrainValueType.TEXT
-													.value())) {
+									.equalsIgnoreCase(ConstrainValueType.TEXT
+											.value())) {
 								if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.EQ
 												.value())) {
@@ -828,7 +904,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " = '"
 											+ theValueCons
-													.replaceAll("'", "''")
+											.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.NE
@@ -839,7 +915,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " <> '"
 											+ theValueCons
-													.replaceAll("'", "''")
+											.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.LIKE
@@ -850,7 +926,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " LIKE  '"
 											+ theValueCons
-													.replaceAll("'", "''")
+											.replaceAll("'", "''")
 											+ "%'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.IN
@@ -882,7 +958,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_FLAG_VAL
 											+ " = '"
 											+ theValueCons
-													.replaceAll("'", "''")
+											.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.NE
@@ -891,7 +967,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_FLAG_VAL
 											+ " <> '"
 											+ theValueCons
-													.replaceAll("'", "''")
+											.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.IN
@@ -1023,7 +1099,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " = '"
 											+ theValueCons
-													.replaceAll("'", "''")
+											.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.NE
@@ -1033,7 +1109,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " <> '"
 											+ theValueCons
-													.replaceAll("'", "''")
+											.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.IN
@@ -1052,7 +1128,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " LIKE '"
 											+ theValueCons
-													.replaceAll("'", "''")
+											.replaceAll("'", "''")
 											+ "%'");
 								}
 							}
@@ -1177,11 +1253,9 @@ public class QueryToolUtil extends CRCDAO {
 
 						if (re.Invert == 1) {
 							panelInvert[numPanels] = true;
-							EstQuerySize = Math.round(EstQuerySize
-									* (1 - (1.0 * re.EstPanelSize)));
+
 						} else {
-							EstQuerySize = Math.round(EstQuerySize
-									* (1.0 * re.EstPanelSize));
+							;
 						}
 					} else {
 						newPanel = false;
@@ -1204,42 +1278,26 @@ public class QueryToolUtil extends CRCDAO {
 						theTable2 = theTable;
 					}
 
-					if ((newPanel)
-							|| (!theTable.equals(prevTable))
-							|| (theTable.equals(CONCEPT_TABLE)
-									|| theTable.equals(PROVIDER_TABLE) || theTable
-									.startsWith(TEMP_TABLE))) {
+					if ((newPanel) || (!theTable.equals(prevTable))) {
 						if (!panelSQL[numPanels].equals("")) {
 							panelSQL[numPanels] = panelSQL[numPanels] + ")<|>";
 						}
 
 						String numFactsCheck = "";
 
-						if (theTable.equals(CONCEPT_TABLE)
-								|| (theTable.equals(PROVIDER_TABLE))) {
-							theTable2 = FACT_TABLE;
-						}
+						theTable2 = FACT_TABLE;
 
 						String is_fact = "";
 
-						if (specificity > 1) {
-							if (theTable.equals(CONCEPT_TABLE)) {
-								is_fact = ", 1 is_fact";
-							} else {
-								is_fact = ", 0 is_fact";
-							}
-						}
-
-						if (sameVisit) {
+						if (sameVisit || dataRequested.equals("PE")) {
 							if (theTable.equals(PATIENT_TABLE)) {
 								panelSQL[numPanels] = panelSQL[numPanels]
-										+ "SELECT e." + ENCOUNTER_DIM_ID
-										+ ", e." + ENCOUNTER_PATIENT_ID + " "
-										+ is_fact + " " + "FROM "
-										+ getDbSchemaName() + ENCOUNTER_TABLE
-										+ " e, " + PATIENT_TABLE + " p "
-										+ "WHERE e." + ENCOUNTER_PATIENT_ID
-										+ " = p." + PATIENT_DIM_ID + " AND (";
+										+ "SELECT " + ENCOUNTER_DIM_ID + ", "
+										+ ENCOUNTER_PATIENT_ID + " " + is_fact
+										+ " " + "FROM " + getDbSchemaName()
+										+ ENCOUNTER_TABLE
+
+										+ " WHERE  (";
 
 								// p.num_facts > 0 AND (";
 							} else if ((theTable.equals(PATIENTLISTS_TABLE))) {
@@ -1306,11 +1364,11 @@ public class QueryToolUtil extends CRCDAO {
 								String queryHint = " ";
 								if (theTable.equals(PROVIDER_TABLE)) {
 									log
-											.debug("Join table is provider_dimension");
+									.debug("Join table is provider_dimension");
 									queryHint = "/*+ index(observation_fact observation_fact_pk) */";
 								} else {
 									log
-											.debug("Join table is concept_dimension");
+									.debug("Join table is concept_dimension");
 									queryHint = "/*+ index(observation_fact fact_cnpt_pat_enct_idx) */";
 								}
 								String unLockSql = " ";
@@ -1415,18 +1473,18 @@ public class QueryToolUtil extends CRCDAO {
 												"<\\|>",
 												" group by encounter_num,patient_num having count(*) "
 														+ totalItemOccurrenceOperator[i]
-														+ totalItemOccurance[i]
-														+ "\r\n" + "UNION ALL"
-														+ "<\\|>\r\n");
+																+ totalItemOccurance[i]
+																		+ "\r\n" + "UNION ALL"
+																		+ "<\\|>\r\n");
 							} else {
 								querySQL = panelSQL[0]
 										.replaceAll(
 												"<\\|>",
 												" group by patient_num having count(*) "
 														+ totalItemOccurrenceOperator[i]
-														+ totalItemOccurance[i]
-														+ "\r\n" + "UNION ALL"
-														+ "<\\|>\r\n");
+																+ totalItemOccurance[i]
+																		+ "\r\n" + "UNION ALL"
+																		+ "<\\|>\r\n");
 
 							}
 
@@ -1479,49 +1537,10 @@ public class QueryToolUtil extends CRCDAO {
 								 * + PATIENT_TABLE + ") t";
 								 */
 							}
-						} else if (specificity > 1) {
-							if (sameVisit) {
-								querySQL = "INSERT INTO "
-										+ getDbSchemaName()
-										+ TEMP_TABLE
-										+ tableSuffix
-										+ " "
-										+ "("
-										+ TEMP_TABLE_PATIENT_ID
-										+ ", "
-										+ TEMP_TABLE_ENCOUNTER_ID
-										+ ", panel_count, fact_count, fact_panels) \r\n"
-										+ "SELECT "
-										+ TEMP_TABLE_ENCOUNTER_ID
-										+ ", "
-										+ TEMP_TABLE_PATIENT_ID
-										+ ", "
-										+ panelCount
-										+ ", (case min(is_fact) when 0 then 1 else sum(is_fact) end), min(is_fact) FROM ( "
-										+ "\r\n" + querySQL + ") t GROUP BY "
-										+ TEMP_TABLE_ENCOUNTER_ID + ", "
-										+ TEMP_TABLE_PATIENT_ID + " ";
-							} else {
-								querySQL = "INSERT INTO "
-										+ getDbSchemaName()
-										+ TEMP_TABLE
-										+ tableSuffix
-										+ " "
-										+ "("
-										+ TEMP_TABLE_PATIENT_ID
-										+ ", panel_count, fact_count, fact_panels) \r\n"
-										+ "SELECT "
-										+ TEMP_TABLE_PATIENT_ID
-										+ ", "
-										+ panelCount
-										+ ", (case min(is_fact) when 0 then 1 else sum(is_fact) end), min(is_fact) FROM ( "
-										+ "\r\n" + querySQL + ") t GROUP BY "
-										+ TEMP_TABLE_PATIENT_ID + " ";
-							}
 						} else if (sameVisit) {
 							String occuranceSql = " group by  encounter_num,patient_num having count(*) "
 									+ totalItemOccurrenceOperator[i]
-									+ totalItemOccurance[i];
+											+ totalItemOccurance[i];
 
 							querySQL = "INSERT INTO " + getDbSchemaName()
 									+ TEMP_TABLE + tableSuffix + " " + "("
@@ -1574,11 +1593,11 @@ public class QueryToolUtil extends CRCDAO {
 								if (sameVisit || dataRequested.equals("PE")) {
 									occuranceSql = " group by encounter_num,patient_num having count(*) "
 											+ totalItemOccurrenceOperator[i]
-											+ totalItemOccurance[i];
+													+ totalItemOccurance[i];
 								} else {
 									occuranceSql = " group by patient_num having count(*) "
 											+ totalItemOccurrenceOperator[i]
-											+ totalItemOccurance[i];
+													+ totalItemOccurance[i];
 								}
 
 							}
@@ -1627,41 +1646,11 @@ public class QueryToolUtil extends CRCDAO {
 
 						String specCount = "";
 
-						if (specificity > 1) {
-							specCount = ", fact_count int, fact_panels "
-									+ TEMP_PANELCOUNT_DATATYPE + "";
-						}
-
 						if (panelItemsTable[0].equals("2")) {
 							querySQL = shortcutSQL[0] + querySQL;
 						}
 
-						if (dbType == DatabaseType.SqlServer) {
-							if (sameVisit) {
-								querySQL = "CREATE TABLE " + TEMP_TABLE
-										+ tableSuffix + " ("
-										+ TEMP_TABLE_ENCOUNTER_ID + " "
-										+ TEMP_TABLE_ENCOUNTER_DATATYPE + ", "
-										+ TEMP_TABLE_PATIENT_ID + " "
-										+ TEMP_TABLE_PATIENT_DATATYPE
-										+ ", panel_count "
-										+ TEMP_PANELCOUNT_DATATYPE + ""
-										+ specCount + ") " + "\r\n\r\n"
-										+ querySQL;
-							} else {
-								querySQL = "CREATE TABLE " + TEMP_TABLE
-										+ tableSuffix + " ("
-										+ TEMP_TABLE_PATIENT_ID + " "
-										+ TEMP_TABLE_PATIENT_DATATYPE
-										+ ", panel_count "
-										+ TEMP_PANELCOUNT_DATATYPE + ""
-										+ specCount + ") " + "\r\n\r\n"
-										+ querySQL;
-							}
-
-							;
-							querySQL = querySQL + "\r\n\r\n";
-						} else if (dbType == DatabaseType.Oracle) {
+						if (dbType == DatabaseType.Oracle) {
 							// querySQL = "begin \r\n" + querySQL + ";";
 							querySQL = querySQL + "\r\n<*>\r\n";
 						}
@@ -1711,157 +1700,11 @@ public class QueryToolUtil extends CRCDAO {
 									querySQL = querySQL + shortcutSQL[i];
 								}
 
-								if (dbType == DatabaseType.SqlServer) {
-									if ((specificity > 1)
-											&& (panelItemsTable[j].equals("1"))) {
-										querySQL = querySQL
-												+ "UPDATE t SET t.panel_count = "
-												+ newPanelCount
-												+ ", t.fact_count = t.fact_count * v.fact_count, t.fact_panels = t.fact_panels + v.fact_panels FROM "
-												+ TEMP_TABLE + tableSuffix
-												+ " t INNER JOIN ( " + "\r\n";
-
-										if (sameVisit) {
-											querySQL = querySQL
-													+ "SELECT "
-													+ TEMP_TABLE_PATIENT_ID
-													+ ", "
-													+ TEMP_TABLE_ENCOUNTER_ID
-													+ ", (case min(is_fact) when 0 then 1 else sum(is_fact) end) fact_count, min(is_fact) fact_panels FROM ( "
-													+ "\r\n";
-										} else {
-											querySQL = querySQL
-													+ "SELECT "
-													+ TEMP_TABLE_PATIENT_ID
-													+ ", (case min(is_fact) when 0 then 1 else sum(is_fact) end) fact_count, min(is_fact) fact_panels FROM ( "
-													+ "\r\n";
-										}
-
-										querySQL = querySQL + panelItemsSQL[j]
-												+ ") w GROUP BY "
-												+ TEMP_TABLE_PATIENT_ID + "";
-
-										if (sameVisit) {
-											querySQL = querySQL + ","
-													+ TEMP_TABLE_ENCOUNTER_ID
-													+ "";
-										}
-
-										querySQL = querySQL + ") v " + "\r\n"
-												+ "ON t."
-												+ TEMP_TABLE_PATIENT_ID
-												+ " = v."
-												+ TEMP_TABLE_PATIENT_ID + " ";
-
-										if (sameVisit) {
-											querySQL = querySQL + "AND t."
-													+ TEMP_TABLE_ENCOUNTER_ID
-													+ " = v."
-													+ TEMP_TABLE_ENCOUNTER_ID
-													+ " ";
-										}
-									} else {
-										querySQL = querySQL
-												+ "UPDATE t SET t.panel_count = "
-												+ newPanelCount + " FROM "
-												+ TEMP_TABLE + tableSuffix
-												+ " t INNER JOIN ( " + "\r\n"
-												+ panelItemsSQL[j] + ") v "
-												+ "\r\n" + "ON t."
-												+ TEMP_TABLE_PATIENT_ID
-												+ " = v."
-												+ TEMP_TABLE_PATIENT_ID + " ";
-
-										if (sameVisit) {
-											querySQL = querySQL + "AND t."
-													+ TEMP_TABLE_ENCOUNTER_ID
-													+ " = v."
-													+ TEMP_TABLE_ENCOUNTER_ID
-													+ " ";
-										}
-									}
-
-									if (firstFilter) {
-										firstFilter = false;
-									} else {
-										querySQL = querySQL
-												+ "\r\nWHERE t.panel_count = "
-												+ oldPanelCount + "\r\n";
-									}
-
-									querySQL = querySQL + "\r\n";
-								} else if (dbType == DatabaseType.Oracle) {
+								if (dbType == DatabaseType.Oracle) {
 									String previousQuerySQL = querySQL;
 									if ((specificity > 1)
 											&& (panelItemsTable[j].equals("1"))) {
-										querySQL = querySQL
-												+ "UPDATE "
-												+ getDbSchemaName()
-												+ TEMP_TABLE
-												+ " "
-												+ "SET (panel_count, fact_count, fact_panels) = "
-												+ "(SELECT "
-												+ newPanelCount
-												+ ", "
-												+ getDbSchemaName()
-												+ TEMP_TABLE
-												+ ".fact_count * v.fact_count, "
-												+ getDbSchemaName()
-												+ TEMP_TABLE
-												+ ".fact_panels + v.fact_panels "
-												+ "FROM (";
 
-										String subQuery = "";
-
-										if (sameVisit) {
-											subQuery = subQuery
-													+ "SELECT "
-													+ TEMP_TABLE_PATIENT_ID
-													+ ", "
-													+ TEMP_TABLE_ENCOUNTER_ID
-													+ ", (case min(is_fact) when 0 then 1 else sum(is_fact) end) fact_count, min(is_fact) fact_panels FROM ( "
-													+ "\r\n";
-										} else {
-											subQuery = subQuery
-													+ "SELECT "
-													+ TEMP_TABLE_PATIENT_ID
-													+ ", (case min(is_fact) when 0 then 1 else sum(is_fact) end) fact_count, min(is_fact) fact_panels FROM ( "
-													+ "\r\n";
-										}
-
-										subQuery = subQuery + panelItemsSQL[j]
-												+ ") GROUP BY "
-												+ TEMP_TABLE_PATIENT_ID + "";
-
-										if (sameVisit) {
-											subQuery = subQuery + ","
-													+ TEMP_TABLE_ENCOUNTER_ID
-													+ "";
-										}
-
-										subQuery = subQuery + ") v " + "\r\n"
-												+ "WHERE " + getDbSchemaName()
-												+ TEMP_TABLE + "."
-												+ TEMP_TABLE_PATIENT_ID
-												+ " = v."
-												+ TEMP_TABLE_PATIENT_ID + " ";
-
-										if (sameVisit) {
-											subQuery = subQuery + "AND "
-													+ getDbSchemaName()
-													+ TEMP_TABLE + "."
-													+ TEMP_TABLE_ENCOUNTER_ID
-													+ " = v."
-													+ TEMP_TABLE_ENCOUNTER_ID
-													+ " ";
-										}
-
-										querySQL = querySQL
-												+ subQuery
-												+ ")"
-												+ "\r\n"
-												+ " WHERE EXISTS ( SELECT 1 FROM ( "
-												+ "\r\n" + subQuery + ")";
 									} else {
 
 										String occuranceSql = " ";
@@ -1869,14 +1712,14 @@ public class QueryToolUtil extends CRCDAO {
 										if (totalItemOccurance[i] > 0) {
 											if (sameVisit
 													|| dataRequested
-															.equals("PE")) {
+													.equals("PE")) {
 												occuranceSql = " group by encounter_num,patient_num having count(*) "
 														+ totalItemOccurrenceOperator[i]
-														+ totalItemOccurance[i];
+																+ totalItemOccurance[i];
 											} else {
 												occuranceSql = " group by patient_num having count(*) "
 														+ totalItemOccurrenceOperator[i]
-														+ totalItemOccurance[i];
+																+ totalItemOccurance[i];
 											}
 
 										}
@@ -1890,16 +1733,16 @@ public class QueryToolUtil extends CRCDAO {
 												+ " WHERE EXISTS ( SELECT 1 FROM ( "
 												+ "\r\n"
 												+ panelItemsSQL[j]
-												+
-												// RAJ OCCURANCE CHANGE BEGIN
-												occuranceSql
-												+ // RAJ OCCURANCE CHANGE END
-												") v " + " WHERE "
-												+ getDbSchemaName()
-												+ TEMP_TABLE + "."
-												+ TEMP_TABLE_PATIENT_ID
-												+ " = v."
-												+ TEMP_TABLE_PATIENT_ID + " ";
+														+
+														// RAJ OCCURANCE CHANGE BEGIN
+														occuranceSql
+														+ // RAJ OCCURANCE CHANGE END
+														") v " + " WHERE "
+														+ getDbSchemaName()
+														+ TEMP_TABLE + "."
+														+ TEMP_TABLE_PATIENT_ID
+														+ " = v."
+														+ TEMP_TABLE_PATIENT_ID + " ";
 
 										if (sameVisit
 												|| dataRequested.equals("PE")) {
@@ -1945,77 +1788,7 @@ public class QueryToolUtil extends CRCDAO {
 						+ " WHERE 1=0";
 
 				if (specificity > 1) {
-					if (sameVisit) {
-						querySQLTemp = "SELECT " + TEMP_TABLE_PATIENT_ID + " ";
-
-						if (dataRequested.equals("PE")) {
-							querySQLTemp = querySQLTemp + ","
-									+ TEMP_TABLE_ENCOUNTER_ID + " ";
-						}
-
-						querySQLTemp = querySQLTemp + "FROM (" + "\r\n";
-						querySQLTemp = querySQLTemp + "SELECT "
-								+ TEMP_TABLE_PATIENT_ID;
-
-						if (dataRequested.equals("PE")) {
-							querySQLTemp = querySQLTemp + " ,"
-									+ TEMP_TABLE_ENCOUNTER_ID + "";
-						}
-
-						querySQLTemp = querySQLTemp
-								+ ", cast(sum(fact_count) as bigint) fact_count, fact_panels "
-								+ "FROM " + getDbSchemaName() + TEMP_TABLE
-								+ tableSuffix + " " + "WHERE panel_count = "
-								+ panelCount + " " + "GROUP BY "
-								+ TEMP_TABLE_PATIENT_ID;
-
-						if (dataRequested.equals("PE")) {
-							querySQLTemp = querySQLTemp + " ,"
-									+ TEMP_TABLE_ENCOUNTER_ID + "";
-						}
-
-						querySQLTemp = querySQLTemp + ", fact_panels" + "\r\n";
-						querySQLTemp = querySQLTemp + ") t GROUP BY "
-								+ TEMP_TABLE_PATIENT_ID;
-
-						if (dataRequested.equals("PE")) {
-							querySQLTemp = querySQLTemp + " ,"
-									+ TEMP_TABLE_ENCOUNTER_ID + "";
-						}
-
-						querySQLTemp = querySQLTemp
-								+ " HAVING sum(fact_count * power("
-								+ specificity + "," + numPanels
-								+ "-fact_panels)) >= "
-								+ (Math.pow(specificity, numPanels)) + "\r\n";
-					} else {
-						querySQLTemp = "SELECT t." + TEMP_TABLE_PATIENT_ID
-								+ " ";
-
-						if (dataRequested.equals("PE")) {
-							querySQLTemp = querySQLTemp + " , e."
-									+ TEMP_TABLE_ENCOUNTER_ID + " ";
-						}
-
-						querySQLTemp = querySQLTemp + "FROM "
-								+ getDbSchemaName() + TEMP_TABLE + tableSuffix
-								+ " t ";
-
-						if (dataRequested.equals("PE")) {
-							querySQLTemp = querySQLTemp + ", "
-									+ ENCOUNTER_TABLE + " e" + " ";
-						}
-
-						querySQLTemp = querySQLTemp + "WHERE t.panel_count = "
-								+ panelCount + " AND t.fact_count >= power("
-								+ specificity + ", t.fact_panels)" + "\r\n";
-
-						if (dataRequested.equals("PE")) {
-							querySQLTemp = querySQLTemp + " AND e."
-									+ ENCOUNTER_PATIENT_ID + " = t."
-									+ TEMP_TABLE_PATIENT_ID + "\r\n";
-						}
-					}
+					;
 				} else {
 					querySQLTemp = "SELECT DISTINCT t." + TEMP_TABLE_PATIENT_ID
 							+ " ";
@@ -2210,227 +1983,7 @@ public class QueryToolUtil extends CRCDAO {
 
 	}
 
-	public String TranslateTableName(DatabaseType controlFileDbType,
-			String tableName) {
-		if ((controlFileDbType == dbType) || (tableName == null)
-				|| (tableName.trim().length() == 0)) {
-			return tableName;
-		}
-
-		String newTableName = tableName.toLowerCase();
-
-		if (controlFileDbType == DatabaseType.SqlServer) {
-			if (newTableName.equals("dw_dim_concept")) {
-				newTableName = CONCEPT_TABLE;
-			} else if (newTableName.equals("dw_f_conc_noval")) {
-				newTableName = FACT_TABLE;
-			} else if (newTableName.equals("dw_dim_patient")) {
-				newTableName = PATIENT_TABLE;
-			} else if (newTableName.equals("dw_dim_provider")) {
-				newTableName = PROVIDER_TABLE;
-			} else if (newTableName.equals("dw_dim_enct")) {
-				newTableName = ENCOUNTER_TABLE;
-			} else if (newTableName.equals("dw_dim_patient_enct")) {
-				newTableName = ENCOUNTER_SHORTCUT_TABLE;
-			} else if (newTableName.equals("dw_patientlists")) {
-				newTableName = PATIENTLISTS_TABLE;
-			}
-		} else if (controlFileDbType == DatabaseType.Oracle) {
-			if (newTableName.equals("concept_dimension")) {
-				newTableName = CONCEPT_TABLE;
-			} else if (newTableName.equals("observation_fact")) {
-				newTableName = FACT_TABLE;
-			} else if (newTableName.equals("patient_dimension")) {
-				newTableName = PATIENT_TABLE;
-			} else if (newTableName.equals("provider_dimension")) {
-				newTableName = PROVIDER_TABLE;
-			} else if (newTableName.equals("visit_dimension")) {
-				newTableName = ENCOUNTER_TABLE;
-			} else if (newTableName.equals("dw_patientlists")) { // ??
-				newTableName = PATIENTLISTS_TABLE;
-			}
-		}
-
-		return newTableName;
-	}
-
-	protected String TranslateColumnName(DatabaseType controlFileDbType,
-			String tableName, String columnName) {
-		if ((controlFileDbType == dbType) || (tableName == null)
-				|| (tableName.trim().length() == 0) || (columnName == null)
-				|| (columnName.trim().length() == 0)) {
-			return columnName;
-		}
-
-		String newTableName = tableName.toLowerCase();
-		String newColumnName = columnName.toLowerCase();
-
-		if (controlFileDbType == DatabaseType.SqlServer) {
-			if (newTableName.equals("dw_dim_concept")) {
-				if (dbType == DatabaseType.Oracle) {
-					if (newColumnName.equals("c_basecode")) {
-						newColumnName = CONCEPT_DIM_ID;
-					} else if (newColumnName.equals("c_fullname")) {
-						newColumnName = CONCEPT_DIM_PATH;
-					}
-				}
-			} else if (newTableName.equals("dw_f_conc_noval")) {
-				if (dbType == DatabaseType.Oracle) {
-					if (newColumnName.equals("encounter_id_e")) {
-						newColumnName = FACT_ENCOUNTER_ID;
-					} else if (newColumnName.equals("concept_id")) {
-						newColumnName = FACT_CONCEPT_ID;
-					} else if (newColumnName.equals("patient_id_e")) {
-						newColumnName = FACT_PATIENT_ID;
-					} else if (newColumnName.equals("start_date")) {
-						newColumnName = FACT_START_DATE;
-					} else if (newColumnName.equals("practitioner_id")) {
-						newColumnName = FACT_PROVIDER_ID;
-					} else if (newColumnName.equals("principal_concept")) {
-						newColumnName = FACT_CONCEPT_RANK;
-					} else if (newColumnName.equals("valtype")) {
-						newColumnName = FACT_VAL_TYPE;
-					} else if (newColumnName.equals("tval")) {
-						newColumnName = FACT_TEXT_VAL;
-					} else if (newColumnName.equals("nval")) {
-						newColumnName = FACT_NUM_VAL;
-					} else if (newColumnName.equals("valueflag")) {
-						newColumnName = FACT_FLAG_VAL;
-					} else if (newColumnName.equals("sourcesystem")) {
-						newColumnName = "sourcesystem_cd";
-					}
-				}
-			} else if (newTableName.equals("dw_dim_patient")) {
-				if (dbType == DatabaseType.Oracle) {
-					if (newColumnName.equals("patient_id_e")) {
-						newColumnName = PATIENT_DIM_ID;
-					} else if (newColumnName.equals("langauge_cd")) {
-						newColumnName = "language_cd";
-					} else if (newColumnName.equals("statecityzip_cd")) {
-						newColumnName = "statecityzip_path";
-					} else if (newColumnName.equals("ss_text")) {
-						newColumnName = "patient_blob";
-					} else if (newColumnName.equals("date_of_birth")) {
-						newColumnName = "birth_date";
-					} else if (newColumnName.equals("date_of_death")) {
-						newColumnName = "death_date";
-					}
-				}
-			} else if (newTableName.equals("dw_dim_provider")) {
-				if (dbType == DatabaseType.Oracle) {
-					if (newColumnName.equals("c_basecode")) {
-						newColumnName = PROVIDER_DIM_ID;
-					} else if (newColumnName.equals("c_fullname")) {
-						newColumnName = PROVIDER_DIM_PATH;
-					}
-				}
-			} else if (newTableName.equals("dw_dim_enct")) {
-				if (dbType == DatabaseType.Oracle) {
-					if (newColumnName.equals("encounter_id_e")) {
-						newColumnName = ENCOUNTER_DIM_ID;
-					} else if (newColumnName.equals("inout_cd")) {
-						newColumnName = ENCOUNTER_INOUT_COL;
-					} else if (newColumnName.equals("company_cd")) {
-						newColumnName = ENCOUNTER_COMPANY_COL;
-					} else if (newColumnName.equals("start_date")) {
-						newColumnName = ENCOUNTER_START_DATE;
-					} else if (newColumnName.equals("patient_id_e")) {
-						newColumnName = ENCOUNTER_PATIENT_ID;
-					} else if (newColumnName.equals("clinicpath_cd")) {
-						newColumnName = "location_path";
-					} else if (newColumnName.equals("hl7_text")) {
-						newColumnName = "visit_blob";
-					} else if (newColumnName.equals("sourcesystem")) {
-						newColumnName = "sourcesystem_cd";
-					}
-				}
-			}
-		} else if (controlFileDbType == DatabaseType.Oracle) {
-			if (newTableName.equals("concept_dimension")) {
-				if (dbType == DatabaseType.SqlServer) {
-					if (newColumnName.equals("concept_id")) {
-						newColumnName = CONCEPT_DIM_ID;
-					} else if (newColumnName.equals("concept_path")) {
-						newColumnName = CONCEPT_DIM_PATH;
-					}
-				}
-			} else if (newTableName.equals("dw_f_conc_noval")) {
-				if (dbType == DatabaseType.SqlServer) {
-					if (newColumnName.equals("encounter_num")) {
-						newColumnName = FACT_ENCOUNTER_ID;
-					} else if (newColumnName.equals("concept_id")) {
-						newColumnName = FACT_CONCEPT_ID;
-					} else if (newColumnName.equals("patient_num")) {
-						newColumnName = FACT_PATIENT_ID;
-					} else if (newColumnName.equals("start_date")) {
-						newColumnName = FACT_START_DATE;
-					} else if (newColumnName.equals("provider_id")) {
-						newColumnName = FACT_PROVIDER_ID;
-					} else if (newColumnName.equals("modifier_cd")) {
-						newColumnName = FACT_CONCEPT_RANK;
-					} else if (newColumnName.equals("valtype_cd")) {
-						newColumnName = FACT_VAL_TYPE;
-					} else if (newColumnName.equals("tval_char")) {
-						newColumnName = FACT_TEXT_VAL;
-					} else if (newColumnName.equals("nval_num")) {
-						newColumnName = FACT_NUM_VAL;
-					} else if (newColumnName.equals("valueflag_cd")) {
-						newColumnName = FACT_FLAG_VAL;
-					} else if (newColumnName.equals("sourcesystem_cd")) {
-						newColumnName = "sourcesystem_cd";
-					}
-				}
-			} else if (newTableName.equals("dw_dim_patient")) {
-				if (dbType == DatabaseType.SqlServer) {
-					if (newColumnName.equals("patient_num")) {
-						newColumnName = PATIENT_DIM_ID;
-					} else if (newColumnName.equals("language_cd")) {
-						newColumnName = "langauge_cd";
-					} else if (newColumnName.equals("statecityzip_path")) {
-						newColumnName = "statecityzip_cd";
-					} else if (newColumnName.equals("patient_blob")) {
-						newColumnName = "ss_text";
-					} else if (newColumnName.equals("birth_date")) {
-						newColumnName = "date_of_birth";
-					} else if (newColumnName.equals("death_date")) {
-						newColumnName = "date_of_death";
-					}
-				}
-			} else if (newTableName.equals("dw_dim_provider")) {
-				if (dbType == DatabaseType.SqlServer) {
-					if (newColumnName.equals("provider_id")) {
-						newColumnName = PROVIDER_DIM_ID;
-					} else if (newColumnName.equals("provider_path")) {
-						newColumnName = PROVIDER_DIM_PATH;
-					}
-				}
-			} else if (newTableName.equals("dw_dim_enct")) {
-				if (dbType == DatabaseType.SqlServer) {
-					if (newColumnName.equals("encounter_num")) {
-						newColumnName = ENCOUNTER_DIM_ID;
-					} else if (newColumnName.equals("inout_cd")) {
-						newColumnName = ENCOUNTER_INOUT_COL;
-					} else if (newColumnName.equals("location_cd")) {
-						newColumnName = ENCOUNTER_COMPANY_COL;
-					} else if (newColumnName.equals("start_date")) {
-						newColumnName = ENCOUNTER_START_DATE;
-					} else if (newColumnName.equals("patient_num")) {
-						newColumnName = ENCOUNTER_PATIENT_ID;
-					} else if (newColumnName.equals("location_path")) {
-						newColumnName = "clinicpath_cd";
-					} else if (newColumnName.equals("visit_blob")) {
-						newColumnName = "hl7_text";
-					} else if (newColumnName.equals("sourcesystem_cd")) {
-						newColumnName = "sourcesystem";
-					}
-				}
-			}
-		}
-
-		return newColumnName;
-	}
-
-	protected ResultEntry[] OrderPanels(ArrayList panelEntries,
+	private ResultEntry[] OrderPanels(ArrayList panelEntries,
 			ArrayList itemEntries, boolean sameVisit, int specificity) {
 		try {
 			Integer firstPanel = -1;
@@ -2619,6 +2172,8 @@ public class QueryToolUtil extends CRCDAO {
 		public String QueryColumn;
 		public String QueryOp;
 		public String QueryCode;
+		public String QueryFactTableColumn;
+		public String QueryColumnDataType;
 	}
 
 	public enum DatabaseType {
@@ -2629,7 +2184,7 @@ public class QueryToolUtil extends CRCDAO {
 		RPDR, I2B2;
 	}
 
-	public PanelEntry callPanelIfNoItem(boolean doInvert,
+	private PanelEntry callPanelIfNoItem(boolean doInvert,
 			int totalItemOccurance, String totalItemOccurrenceOperator,
 			long EstQuerySize, long EstPanelSize, int panelNumber) {
 		PanelEntry panel = new PanelEntry();

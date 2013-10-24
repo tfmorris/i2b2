@@ -58,13 +58,13 @@ public class SchemesDao extends JdbcDaoSupport {
 		setDataSource(dbInfo.getDb_dataSource());
 		
 		
-		String schemesSql = "select distinct " + parameters  + " from " + metadataSchema + "schemes ";
+		String schemesSql = "select distinct " + parameters  + " from " + metadataSchema + "schemes order by c_name";
  
 		ParameterizedRowMapper<ConceptType> mapper = new ParameterizedRowMapper<ConceptType>() {
 	        public ConceptType mapRow(ResultSet rs, int rowNum) throws SQLException {
 	            ConceptType scheme = new ConceptType();
 
-	            //assume key is "" unless we explicitedly determine otherwise
+	            //assume key is "" unless we explicitly determine otherwise
 	            // "" is valid
 	            scheme.setKey("");	            
 	            String c_key = rs.getString("c_key");

@@ -10,7 +10,10 @@
  package edu.harvard.i2b2.ontology.ejb;
 
 import edu.harvard.i2b2.ontology.datavo.vdo.GetChildrenType;
+import edu.harvard.i2b2.ontology.datavo.vdo.GetModifierChildrenType;
+import edu.harvard.i2b2.ontology.datavo.vdo.GetModifierInfoType;
 import edu.harvard.i2b2.ontology.datavo.vdo.GetTermInfoType;
+import edu.harvard.i2b2.ontology.datavo.vdo.GetModifiersType;
 import edu.harvard.i2b2.ontology.datavo.vdo.VocabRequestType;
 import edu.harvard.i2b2.ontology.util.StringUtil;
 
@@ -59,6 +62,12 @@ public class NodeType {
 		blob = childrenType.isBlob();
 	}
 	
+	public NodeType(GetModifiersType modifiersType) {
+		node = StringUtil.getTableCd(modifiersType.getSelf());
+		type = modifiersType.getType();		
+		blob = modifiersType.isBlob();
+	}
+	
 	public NodeType(GetTermInfoType infoType) {
 		node = StringUtil.getTableCd(infoType.getSelf());
 		if (infoType.getType().equals("default")){
@@ -69,8 +78,32 @@ public class NodeType {
 		blob = infoType.isBlob();
 	}
 	
+	public NodeType(GetModifierInfoType modifierInfoType) {
+		node = StringUtil.getTableCd(modifierInfoType.getSelf());
+		if (modifierInfoType.getType().equals("default")){
+			type = "core";
+		}else {
+			type = modifierInfoType.getType();
+		}	
+		blob = modifierInfoType.isBlob();
+	}
+	
+	
+	public NodeType(GetModifierChildrenType modifierChildrenType) {
+		node = StringUtil.getTableCd(modifierChildrenType.getParent());
+		if (modifierChildrenType.getType().equals("default")){
+			type = "core";
+		}else {
+			type = modifierChildrenType.getType();
+		}
+		blob = modifierChildrenType.isBlob();
+	}
+	
 	public NodeType(VocabRequestType vocabType) {
-		node = vocabType.getCategory();
+		if(vocabType.getSelf() != null)
+			node = StringUtil.getTableCd(vocabType.getSelf());
+		else
+			node = vocabType.getCategory();
 		type = vocabType.getType();
 		blob = vocabType.isBlob();
 	}

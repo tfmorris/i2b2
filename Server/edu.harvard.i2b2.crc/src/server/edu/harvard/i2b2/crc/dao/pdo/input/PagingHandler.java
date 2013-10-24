@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
@@ -11,6 +12,7 @@ import edu.harvard.i2b2.crc.dao.CRCDAO;
 import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
 import edu.harvard.i2b2.crc.dao.pdo.IPageDao;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
+import edu.harvard.i2b2.crc.datavo.ontology.XmlValueType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.FactOutputOptionType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.FilterListType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.InputOptionListType;
@@ -39,6 +41,10 @@ public class PagingHandler extends CRCDAO {
 	QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
 	DAOFactoryHelper daoFactoryHelper = null;
 	PageMethod pageMethod = null;
+	Map projectParamMap = null;
+	Map<String,XmlValueType> modifierMetadataXmlMap = null; 
+	
+	
 
 	public static final String TOTAL_OBSERVATION = "TOTAL_OBSERVATION";
 	public static final String MAX_INPUT_LIST = "MAX_INPUT_LIST";
@@ -55,6 +61,17 @@ public class PagingHandler extends CRCDAO {
 		this.outputOptionList = new OutputOptionListType();
 		pageMethod = PageMethodFactory.buildPageMethod(pageMethodName);
 	}
+	
+	public void setProjectParamMap(Map projectParamMap) { 
+		this.projectParamMap = projectParamMap;
+	}
+	
+	public void setModifierMetadataXmlMap(Map<String,XmlValueType> modifierMetadataXmlMap) { 
+		this.modifierMetadataXmlMap = modifierMetadataXmlMap;
+	}
+	
+	
+	
 
 	public long getTotal(int maxInputList) throws SQLException, I2B2Exception {
 
@@ -79,6 +96,9 @@ public class PagingHandler extends CRCDAO {
 			factRelatedHandler = new SQLServerFactRelatedQueryHandler(
 					dataSourceLookup, inputList, filterList, outputOptionList);
 		}
+		factRelatedHandler.setProjectParamMap(this.projectParamMap);
+		factRelatedHandler.setModifierMetadataXmlMap(this.modifierMetadataXmlMap);
+		
 		FactOutputOptionType factOutputOptionType = new FactOutputOptionType();
 		factOutputOptionType.setOnlykeys(true);
 		outputOptionList.setObservationSet(factOutputOptionType);
@@ -101,11 +121,15 @@ public class PagingHandler extends CRCDAO {
 			}
 
 			sqlCountList.add(sqlParamCount);
+			String totalSql = pageTotalDao.buildTotalSql(factRelatedHandler,
+					singlePanel);
+			if (totalSql.trim().length() == 0) { 
+				continue;
+			}
 			panelSqlList.add("SELECT "
 					+ countClause
 					+ " from ( "
-					+ pageTotalDao.buildTotalSql(factRelatedHandler,
-							singlePanel) + " ) " + countSqlFrom + " totalsql");
+					+ totalSql + " ) " + countSqlFrom + " totalsql");
 		}
 
 		totalObservations = pageTotalDao.getTotalForAllPanel(panelSqlList,
@@ -135,6 +159,10 @@ public class PagingHandler extends CRCDAO {
 			factRelatedHandler = new SQLServerFactRelatedQueryHandler(
 					dataSourceLookup, inputList, filterList, outputOptionList);
 		}
+		//set project param
+		factRelatedHandler.setProjectParamMap(this.projectParamMap);
+		factRelatedHandler.setModifierMetadataXmlMap(this.modifierMetadataXmlMap);
+		
 		FactOutputOptionType factOutputOptionType = new FactOutputOptionType();
 		factOutputOptionType.setOnlykeys(true);
 		outputOptionList.setObservationSet(factOutputOptionType);
@@ -168,6 +196,9 @@ public class PagingHandler extends CRCDAO {
 
 			panelSql = pageTotalDao.buildTotalSql(factRelatedHandler,
 					singlePanel);
+			if (panelSql.length() ==0) { 
+				continue;
+			}
 			String minSql = inputOptionListHandler
 					.generateMinIndexSql(panelSql);
 			System.out.println("min sql for panel " + minSql);

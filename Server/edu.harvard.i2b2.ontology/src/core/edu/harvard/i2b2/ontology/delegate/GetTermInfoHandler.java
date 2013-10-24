@@ -14,6 +14,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.DataAccessException;
+
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
@@ -72,7 +74,9 @@ public class GetTermInfoHandler extends RequestHandler{
 			responseMessageType = MessageFactory.doBuildErrorResponse(getTermInfoMsg.getMessageHeaderType(), "Ontology database error");
 		} catch (I2B2Exception e1) {
 			responseMessageType = MessageFactory.doBuildErrorResponse(getTermInfoMsg.getMessageHeaderType(), "Ontology database configuration error");
-		} 
+		} catch (DataAccessException dataAccessEx) { 
+			responseMessageType = MessageFactory.doBuildErrorResponse(getTermInfoMsg.getMessageHeaderType(), "Could not locate record in table_access table");
+		}
 		//no errors found
 		if(responseMessageType == null) {
 //			no db error but response is empty

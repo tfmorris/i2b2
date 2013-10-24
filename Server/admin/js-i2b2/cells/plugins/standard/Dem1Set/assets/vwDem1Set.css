@@ -16,7 +16,6 @@ DIV#Dem1Set-TABS DIV.Dem1Set-MainContent {
 	border:solid #63758C;
 	border-width:1px 0;
 	overflow:auto;
-	height:100%;
 }
 DIV#Dem1Set-TABS DIV.Dem1Set-MainContentPad {
 	padding:10px 10px;

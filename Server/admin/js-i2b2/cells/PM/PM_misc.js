@@ -14,6 +14,7 @@ console.time('execute time');
 // helper functions in the object scope
 // ================================================================================================== //
 i2b2.h.getUser = function() { return i2b2.PM.model.login_username; }
+i2b2.h.getFullname = function() { return i2b2.PM.model.login_fullname; }
 i2b2.h.getPass = function() { return i2b2.PM.model.login_password; }
 i2b2.h.getDomain = function () { return i2b2.PM.model.login_domain; }
 i2b2.h.getProxy = function() { return i2b2.hive.cfg.urlProxy; }
@@ -24,12 +25,90 @@ i2b2.h.allowAnalysis = function() { return i2b2.PM.model.allow_analysis; }
 i2b2.h.adminOnly = function() { return i2b2.PM.model.admin_only; }
 
 i2b2.PM.model.login_username = '';
+i2b2.PM.model.login_fullname = '';
 i2b2.PM.model.login_password = '';
+i2b2.PM.model.login_projectname = '';
 i2b2.PM.model.login_domain = '';
 i2b2.PM.model.shrine_domain = false;
 i2b2.PM.model.admin_only = false;
 i2b2.PM.model.Domains = i2b2.hive.cfg.lstDomains;
+i2b2.PM.model.reLogin = false;
+i2b2.PM.model.IdleTimer = YAHOO.util.IdleTimer;
 
+
+i2b2.PM.model.IdleTimer.subscribe("idle", function(){
+
+		//if (!i2b2.PM.model.IdleTimer.dialogTimeout) {	
+		i2b2.PM.model.reLogin = true;
+		
+	
+	//	i2b2.h.LoadingMask.show();
+	//	i2b2.PM.doLoginDialog();
+		
+
+/*
+		var r=confirm("Your session will automatically time out in 5 minutes due to inactivity.  Please click \"OK\" to continue your session, or click cancel to log out.");
+		if (r==true)
+		  {
+				i2b2.PM.model.IdleTimer.stop();
+				i2b2.PM.udlogin.inputPass.value = i2b2.PM.model.login_password.substring(i2b2.PM.model.login_password.indexOf(">")+1,i2b2.PM.model.login_password.lastIndexOf("<") );
+						
+				i2b2.h.LoadingMask.show();
+
+				i2b2.PM.doLogin();			  
+		  }
+		else
+		  {
+			  i2b2.PM.doLogout();
+		  }
+		
+*/
+
+			
+			var handleCancel = function() {
+				i2b2.PM.doLogout();
+			};
+			var loopBackSubmit = function() {
+				i2b2.PM.model.IdleTimer.stop();
+				i2b2.PM.udlogin.inputPass.value = i2b2.PM.model.login_password.substring(i2b2.PM.model.login_password.indexOf(">")+1,i2b2.PM.model.login_password.lastIndexOf("<") );
+						
+				i2b2.h.LoadingMask.show();
+
+				i2b2.PM.doLogin();
+				i2b2.PM.model.dialogTimeout.hide();
+				i2b2.h.LoadingMask.hide();
+				};														   
+			i2b2.PM.model.dialogTimeout = new YAHOO.widget.SimpleDialog("dialogTimeout", {
+					width: "400px",
+					fixedcenter: true,
+					constraintoviewport: true,
+					modal: true,
+					zindex: 700,
+					buttons: [{
+						text: "OK",
+						handler: loopBackSubmit,
+						isDefault: true
+					}, {
+						text: "Logout",
+						handler: handleCancel
+					}]
+				});
+			$('dialogTimeout').show()
+			i2b2.PM.model.dialogTimeout.render(document.body);
+			
+			i2b2.PM.model.dialogTimeout.show();	
+			
+			
+			
+			
+			//var idleTimer = YAHOO.util.IdleTimer;
+		//	i2b2.PM.model.WarnTimer.start(10000);
+			
+
+												   
+            
+});
+               
 
 // login screen
 // ================================================================================================== //
@@ -41,7 +120,7 @@ i2b2.PM.model.html.loginDialog = '<div id="i2b2_login_modal_dialog" style="displ
 	'			<div id="loginMessage">Login incorrect or host not found.</div>\n'+
 	'			<div class="formDiv">\n'+
 	'				<div class="label">Username:</div>\n'+
-	'				<div class="input"><input type="text" name="uname" id="loginusr" value="i2b2" size="20" maxlength="50" /></div>\n'+
+	'				<div class="input"><input type="text" name="uname" id="loginusr" value="demo" size="20" maxlength="50" /></div>\n'+
 	'				<div class="label">Password:</div>\n'+
 	'				<div class="input"><input type="password" name="pword" id="loginpass" value="demouser" size="20" maxlength="50" /></div>\n'+
 	'				<div class="label">i2b2 Host:</div>\n'+

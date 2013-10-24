@@ -234,64 +234,65 @@ i2b2.sdx.TypeControllers.QI.getChildRecords = function(sdxParentNode, onComplete
 			o.size = i2b2.h.getXNodeVal(ps[i1],'set_size');
 			o.start_date = i2b2.h.getXNodeVal(ps[i1],'start_date');
 			o.end_date = i2b2.h.getXNodeVal(ps[i1],'end_date');
+			try {
+				o.title = i2b2.h.getXNodeVal(ps[i1],'description'); //[0].nodeValue;
+			} catch (e) {
+				o.title = i2b2.h.getXNodeVal(ps[i1],'name');
+			}
+			if (i2b2.h.XPath(ps[i1],'query_status_type/name/text()')[0].nodeValue != "COMPLETED")
+			{
+				o.title += " - " +  i2b2.h.XPath(ps[i1],'query_status_type/name/text()')[0].nodeValue;	
+			}
+
 			o.result_type = i2b2.h.XPath(ps[i1],'query_result_type/name/text()')[0].nodeValue;
 			var addme = false;
 			switch (o.result_type) {
-				case "PATIENTSET":
+				case "PATIENT_ENCOUNTER_SET":
 					o.PRS_id = i2b2.h.getXNodeVal(ps[i1],'result_instance_id');
 					// use given title if it exist otherwise generate a title
+					/*
 					try {
 						var t = i2b2.h.XPath(temp,'self::description')[0].firstChild.nodeValue;
 					} catch(e) { var t = null; }
-					if (!t) { t="Patient Set"; }
+					if (!t) { t="Encounter Set"; }
 					// create the title using shrine setting
 					if (o.size >= 10) {
 						if (i2b2.PM.model.userRoles.length == 1 && i2b2.PM.model.userRoles[0] == "DATA_OBFSC") {
-							o.title = t+" - "+o.size+"&plusmn;3 patients";
+							o.title = t+" - "+o.size+"&plusmn;3 encounters";
 						} else {
-							o.title = t+" - "+o.size+" patients";
+							o.title = t+" - "+o.size+" encounters";
 						}
 					} else {
 						if (i2b2.PM.model.userRoles.length == 1 && i2b2.PM.model.userRoles[0] == "DATA_OBFSC") {
-							o.title = t+" - 10 patients or less";
+							o.title = t+" - 10 encounters or less";
 						} else {
-							o.title = t+" - "+o.size+" patients";
+							o.title = t+" - "+o.size+" encounters";
 						}
-					}
+					} */
+					o.titleCRC = o.title;
+					o.title = pn.parent.sdxInfo.sdxDisplayName + ' [PATIENT_ENCOUNTER_SET_'+o.PRS_id+']';
+					o.result_instance_id = o.PRS_id;
+					var sdxDataNode = i2b2.sdx.Master.EncapsulateData('ENS',o);
+					addme = true;
+					break;				
+				case "PATIENTSET":
+					o.PRS_id = i2b2.h.getXNodeVal(ps[i1],'result_instance_id');
 					o.titleCRC = o.title;
 					o.title = pn.parent.sdxInfo.sdxDisplayName + ' [PATIENTSET_'+o.PRS_id+']';
 					o.result_instance_id = o.PRS_id;
 					var sdxDataNode = i2b2.sdx.Master.EncapsulateData('PRS',o);
 					addme = true;
 					break;
-				case "PATIENT_COUNT_XML":
+				default:
+				
 					o.PRC_id = i2b2.h.getXNodeVal(ps[i1],'result_instance_id');
-					// use given title if it exist otherwise generate a title
-					try {
-						var t = i2b2.h.XPath(temp,'self::description')[0].firstChild.nodeValue;
-					} catch(e) { var t = null; }
-					if (!t) { t="Patient Count"; }
-					// create the title using shrine setting
-					if (o.size >= 10) {
-						if (i2b2.PM.model.userRoles.length == 1 && i2b2.PM.model.userRoles[0] == "DATA_OBFSC") {
-							o.title = t+" - "+o.size+"&plusmn;3 patients";
-						} else {
-							o.title = t+" - "+o.size+" patients";
-						}
-					} else {
-						if (i2b2.PM.model.userRoles.length == 1 && i2b2.PM.model.userRoles[0] == "DATA_OBFSC") {
-							o.title = t+" - 10 patients or less";
-						} else {
-							o.title = t+" - "+o.size+" patients";
-						}
-					}
 					o.titleCRC = o.title;
-					o.title = pn.parent.sdxInfo.sdxDisplayName + ' [PATIENT_COUNT_XML_'+o.PRC_id+']';
+					//o.title = pn.parent.sdxInfo.sdxDisplayName + ' [PATIENT_COUNT_XML_'+o.PRC_id+']';
 					//o.title = 'PATIENT_COUNT_XML_'+o.PRC_id;
 					o.result_instance_id = o.PRC_id;
 					var sdxDataNode = i2b2.sdx.Master.EncapsulateData('PRC',o);
 					addme = true;
-					break;
+					break;					
 			}
 			if (addme) {
 			// save record in the SDX system
@@ -378,16 +379,46 @@ i2b2.sdx.TypeControllers.QI.LoadChildrenFromTreeview = function(node, onComplete
 		for(var i1=0; i1<1*results.length; i1++) {
 			var o = results[i1];
 			
+			
 			// add visual element
 			switch (o.sdxInfo.sdxType) {
 				case "PRS":	// patient record set
 					// add visual element
-					var renderOptions = {
-						dragdrop: "i2b2.sdx.TypeControllers.PRS.AttachDrag2Data",
-						icon: "sdx_CRC_PRS.jpg",
-						title: o.origData.titleCRC
-					};
+					 if (i2b2.PM.model.userRoles.indexOf("DATA_LDS") == -1) {
+						var renderOptions = {
+							dragdrop: "i2b2.sdx.TypeControllers.PRS.AttachDrag2Data",
+							icon: "sdx_CRC_PRS.jpg",
+							title: o.origData.titleCRC, 
+							showchildren: false
+						};
+					} else
+					{
+						var renderOptions = {
+							dragdrop: "i2b2.sdx.TypeControllers.PRS.AttachDrag2Data",
+							icon: "sdx_CRC_PRS.jpg",
+							title: o.origData.titleCRC, 
+							showchildren: true
+						};					
+					}
 					break;
+				case "ENS":	// encounter record set
+					// add visual element
+					 if (i2b2.PM.model.userRoles.indexOf("DATA_LDS") == -1) {
+						var renderOptions = {
+							dragdrop: "i2b2.sdx.TypeControllers.ENS.AttachDrag2Data",
+							icon: "sdx_CRC_PRS.jpg",
+							title: o.origData.titleCRC, 
+							showchildren: false
+						};
+					} else {
+						var renderOptions = {
+							dragdrop: "i2b2.sdx.TypeControllers.ENS.AttachDrag2Data",
+							icon: "sdx_CRC_PRS.jpg",
+							title: o.origData.titleCRC, 
+							showchildren: true						
+						};
+						}
+					break;					
 				case "PRC":	// patient record count
 					var renderOptions = {
 						dragdrop: "i2b2.sdx.TypeControllers.PRC.AttachDrag2Data",

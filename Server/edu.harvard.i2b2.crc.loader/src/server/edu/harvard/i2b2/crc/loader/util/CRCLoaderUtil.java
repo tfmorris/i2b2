@@ -29,6 +29,7 @@ import edu.harvard.i2b2.common.util.ServiceLocator;
 import edu.harvard.i2b2.common.util.ServiceLocatorException;
 import edu.harvard.i2b2.crc.loader.ejb.DataMartLoaderAsyncBeanLocal;
 import edu.harvard.i2b2.crc.loader.ejb.LoaderStatusBeanLocal;
+import edu.harvard.i2b2.crc.loader.ejb.MissingTermReportBeanLocal;
 import edu.harvard.i2b2.crc.loader.ejb.fr.FRLocalHome;
 
 /**
@@ -294,6 +295,17 @@ public class CRCLoaderUtil {
 		try {
 			ctx = new InitialContext();
 			return (LoaderStatusBeanLocal) ctx.lookup("LoaderStatusBean/local");
+		} catch (NamingException e) {
+			throw new I2B2Exception("Bean lookup error ", e);
+		}
+
+	}
+	
+	public MissingTermReportBeanLocal getMissingTermReportBean() throws I2B2Exception {
+		InitialContext ctx;
+		try {
+			ctx = new InitialContext();
+			return (MissingTermReportBeanLocal) ctx.lookup("MissingTermReportBean/local");
 		} catch (NamingException e) {
 			throw new I2B2Exception("Bean lookup error ", e);
 		}

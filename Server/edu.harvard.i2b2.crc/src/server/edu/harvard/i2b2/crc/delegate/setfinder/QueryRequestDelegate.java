@@ -24,6 +24,7 @@ import edu.harvard.i2b2.common.exception.StackTraceUtil;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
+import edu.harvard.i2b2.crc.dao.setfinder.querybuilder.ProcessTimingReportUtil;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
 import edu.harvard.i2b2.crc.datavo.I2B2MessageResponseFactory;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
@@ -38,6 +39,8 @@ import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
 import edu.harvard.i2b2.crc.delegate.ejbpm.EJBPMUtil;
 import edu.harvard.i2b2.crc.delegate.pm.PMServiceDriver;
 import edu.harvard.i2b2.crc.util.CacheUtil;
+import edu.harvard.i2b2.crc.util.LogTimingUtil;
+import edu.harvard.i2b2.crc.util.ParamUtil;
 
 /**
  * Setfinder query request delegate class $Id: QueryRequestDelegate.java,v 1.17
@@ -117,12 +120,15 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 
 				log.debug("project name from PM " + projectType.getName());
 				log.debug("project id from PM " + projectType.getId());
+				
+				
 				if (projectType.getRole() != null) {
 					log.debug("project role from PM "
 							+ projectType.getRole().get(0));
 
 					this.putRoles(projectId, securityType.getUsername(),
 							securityType.getDomain(), projectType.getRole());
+					
 
 					Node rootNode = CacheUtil.getCache().getRoot();
 					List<String> roles = (List<String>) rootNode
@@ -134,6 +140,26 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 				} else {
 					log.error("Project role not set for the user ");
 
+				}
+				
+				//check if process_timing_flag is set
+				LogTimingUtil.clearPocessTiming(projectId, securityType.getUsername(), securityType.getDomain());
+				ParamUtil paramUtil = new ParamUtil();
+				paramUtil.clearParam(projectId, securityType.getUsername(), securityType.getDomain(), ParamUtil.CRC_ENABLE_UNITCD_CONVERSION);
+				if (projectType.getParam() != null) {
+					for (ParamType param : projectType.getParam()) { 
+						if (param.getName() != null && param.getName().trim().equalsIgnoreCase(LogTimingUtil.PM_ENABLE_PROCESS_TIMING)) {
+							//this.putPocessTiming(projectId, securityType.getUsername(), securityType.getDomain(), param);
+							LogTimingUtil.putPocessTiming(projectId, securityType.getUsername(), securityType.getDomain(), param);
+							String cacheValue = LogTimingUtil.getPocessTiming(projectId, securityType.getUsername(), securityType.getDomain());
+							log.debug("CRC param stored in the cache Project Id [" + projectId + "] user [" + securityType.getUsername() + "] domain [" + securityType.getDomain() + "] " + ParamUtil.PM_ENABLE_PROCESS_TIMING  + "[" + cacheValue + "]" );
+
+						} else if (param.getName() != null && param.getName().trim().equalsIgnoreCase(ParamUtil.CRC_ENABLE_UNITCD_CONVERSION))  {
+							paramUtil.putParam(projectId, securityType.getUsername(), securityType.getDomain(),ParamUtil.CRC_ENABLE_UNITCD_CONVERSION,param);
+							String unitCdCache = paramUtil.getParam(projectId, securityType.getUsername(), securityType.getDomain(),ParamUtil.CRC_ENABLE_UNITCD_CONVERSION);
+							log.debug("CRC param stored in the cache Project Id [" + projectId + "] user [" + securityType.getUsername() + "] domain [" + securityType.getDomain() + "] " + ParamUtil.CRC_ENABLE_UNITCD_CONVERSION  + "[" + unitCdCache + "]" );
+						}
+					}
 				}
 
 			} catch (AxisFault e) {
@@ -162,7 +188,7 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 			}
 
 			// check if the role is DATA_AGG to proceed
-
+			boolean errorFlag = false;
 			JAXBUnWrapHelper unWrapHelper = new JAXBUnWrapHelper();
 			headerType = (PsmQryHeaderType) unWrapHelper
 					.getObjectByClass(
@@ -182,13 +208,12 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 							PsmRequestTypeType.CRC_QRY_GET_QUERY_MASTER_LIST_FROM_GROUP_ID)) {
 				// check if user have right permission to access this request
 				if (projectType != null && projectType.getRole().size() > 0) {
-					if ((!projectType.getRole().contains("ADMIN"))
-							&& (!projectType.getRole().contains("MANAGER"))) {
+					if ((!projectType.getRole().contains("MANAGER"))) {
 						// Not authorized
 						procStatus = new StatusType();
 						procStatus.setType("ERROR");
 						procStatus
-								.setValue("Authorization failure, should have ADMIN or  role");
+								.setValue("Authorization failure, should have MANAGER  role");
 						response = I2B2MessageResponseFactory
 								.buildResponseMessage(requestXml, procStatus,
 										bodyType);
@@ -199,7 +224,7 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 					procStatus = new StatusType();
 					procStatus.setType("ERROR");
 					procStatus
-							.setValue("Authorization failure, should have Admin role");
+							.setValue("Authorization failure, should have MANAGER role");
 					response = I2B2MessageResponseFactory.buildResponseMessage(
 							requestXml, procStatus, bodyType);
 					return response;
@@ -247,6 +272,11 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 										responseBodyType);
 						return response;
 					}
+					
+					//if (handler.getErrorFlag()) { 
+					//	errorFlag = true;
+					//}
+					
 				}
 			} else if (headerType
 					.getRequestType()
@@ -325,9 +355,15 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 						requestXml);
 				responseBodyType = handler.execute();
 			}
+			
 			procStatus = new StatusType();
-			procStatus.setType("DONE");
-			procStatus.setValue("DONE");
+			if (errorFlag == false) { 
+				procStatus.setType("DONE");
+				procStatus.setValue("DONE");
+			} else { 
+				procStatus.setType("ERROR");
+				procStatus.setValue("ERROR");
+			}
 
 			response = I2B2MessageResponseFactory.buildResponseMessage(
 					requestXml, procStatus, responseBodyType);

@@ -262,6 +262,11 @@ i2b2.ProjectRequest.Init = function(loadedDiv) {
 		}
 	});
 	*/
+		z = $('anaPluginViewFrame').getHeight() - 34;
+	$$('DIV#ProjectRequest-TABS DIV.ProjectRequest-MainContent')[0].style.height = z;
+	$$('DIV#ProjectRequest-TABS DIV.ProjectRequest-MainContent')[1].style.height = z;
+	$$('DIV#ProjectRequest-TABS DIV.ProjectRequest-MainContent')[2].style.height = z;
+
 
 };
 
@@ -303,6 +308,10 @@ i2b2.ProjectRequest.excprsDropped = function(sdxData) {
 
 i2b2.ProjectRequest.conceptDropped = function(sdxData) {
 	sdxData = sdxData[0];	// only interested in first record
+	if (sdxData.origData.isModifier) {
+			alert("Modifier item being dropped is not supported.");
+			return false;	
+	}	
 		// save the info to our local data model
 	i2b2.ProjectRequest.model.concepts.push(sdxData);
 	// sort and display the concept list
@@ -313,6 +322,11 @@ i2b2.ProjectRequest.conceptDropped = function(sdxData) {
 
 i2b2.ProjectRequest.excconceptDropped = function(sdxData) {
 	sdxData = sdxData[0];	// only interested in first record
+	if (sdxData.origData.isModifier) {
+			alert("Modifier item being dropped is not supported.");
+			return false;	
+	}
+	
 		// save the info to our local data model
 	i2b2.ProjectRequest.model.excconcepts.push(sdxData);
 	// sort and display the concept list

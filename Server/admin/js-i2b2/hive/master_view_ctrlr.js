@@ -16,6 +16,29 @@ i2b2.hive.MasterView = {
 	_ZoomWindows: [],
 	eventChangeMode: {},
 	eventZoomWindows: {},
+	// ================================================================================================== //
+	initViewMode: function()
+	{
+		var newMode = 'Patients';
+		var tn = $("viewMode-"+newMode);
+		if (tn) 
+		{
+			// remove highlighting from old screen mode links
+			var old = $$('.selectedView');
+			old.each(function(el)
+			{
+				el.removeClassName('selectedView');
+			});			
+			// highlight the new screen mode's label
+			tn.addClassName('selectedView');
+		}
+
+		// update data
+		this._currentView = newMode;
+		this.eventInitView.fire( newMode );
+		return true;
+	},
+
 // ================================================================================================== //
 	setViewMode: function(requestedMode) {
 		if (this._currentView == requestedMode) { return true; }
@@ -95,9 +118,12 @@ i2b2.hive.MasterView = {
 }
 
 // create custom events
+i2b2.hive.MasterView.eventInitView	= new YAHOO.util.CustomEvent('ViewModeInit');
 i2b2.hive.MasterView.eventChangeMode = new YAHOO.util.CustomEvent('ViewModeChange');
 i2b2.hive.MasterView.eventZoomWindows = new YAHOO.util.CustomEvent('ZoomListChange');
 // expose only the subscriber function in the i2b2 framework event collection
+i2b2.events.initView		= {};
+i2b2.events.initView.subscribe = (function(a1,a2,a3,a4,a5,a6) {i2b2.hive.MasterView.eventInitView.subscribe.call(i2b2.hive.MasterView.eventInitView, a1,a2,a3,a4,a5,a6); });
 i2b2.events.changedViewMode = {};
 i2b2.events.changedViewMode.subscribe = (function(a1,a2,a3,a4,a5,a6) {i2b2.hive.MasterView.eventChangeMode.subscribe.call(i2b2.hive.MasterView.eventChangeMode, a1,a2,a3,a4,a5,a6); });
 i2b2.events.changedZoomWindows = {};

@@ -34,7 +34,7 @@ public class QueryResultPatientAgeCountGenerator extends CRCDAO implements
 				.setDbSchemaName(sfDAOFactory.getDataSourceLookup()
 						.getFullSchema());
 
-		String age1CountSql = "select count(dx.patient_num) patient_count, '0-20' patient_range"
+		String age1CountSql = "select count(distinct dx.patient_num) patient_count, '0-20' patient_range"
 				+ " from "
 				+ this.getDbSchemaName()
 				+ "patient_dimension pd ,"

@@ -40,6 +40,8 @@ import edu.harvard.i2b2.ontology.datavo.i2b2message.ResultStatusType;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptsType;
 import edu.harvard.i2b2.ontology.datavo.vdo.DirtyValueType;
+import edu.harvard.i2b2.ontology.datavo.vdo.ModifiersType;
+import edu.harvard.i2b2.ontology.datavo.vdo.OntologyProcessStatusListType;
 import edu.harvard.i2b2.ontology.datavo.vdo.OntologyProcessStatusType;
 import edu.harvard.i2b2.ontology.util.OntologyJAXBUtil;
 
@@ -79,10 +81,10 @@ public class MessageFactory {
 	}
 
 	/**
-	 * Function to build patientData body type
+	 * Function to build concepts body type
 	 * 
-	 * @param obsSet
-	 *            Observation fact set to be returned to requester
+	 * @param vocabData
+	 *            Concept set to be returned to requester
 	 * @return BodyType object
 	 */
 	public static BodyType createBodyType(ConceptsType vocabData) {
@@ -108,7 +110,21 @@ public class MessageFactory {
 
 		return bodyType;
 	}	
-	
+	/**
+	 * Function to build Modifiers body type
+	 * 
+	 * @param vocabData
+	 *            Modifier set to be returned to requester
+	 * @return BodyType object
+	 */
+	public static BodyType createBodyType(ModifiersType vocabData) {
+
+		edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory of = new edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory();
+		BodyType bodyType = new BodyType();
+		bodyType.getAny().add(of.createModifiers(vocabData));
+
+		return bodyType;
+	}
 	
 	
 	/**
@@ -126,13 +142,13 @@ public class MessageFactory {
 
 		ApplicationType appType = new ApplicationType();
 		appType.setApplicationName("Ontology Cell");
-		appType.setApplicationVersion("1.5");
+		appType.setApplicationVersion("1.608");
 		messageHeader.setSendingApplication(appType);
 
 		FacilityType facility = new FacilityType();
 		facility.setFacilityName("i2b2 Hive");
 		messageHeader.setSendingFacility(facility);
-
+		
 		if (reqMsgHeader != null) {
 			ApplicationType recvApp = new ApplicationType();
 			recvApp.setApplicationName(reqMsgHeader.getSendingApplication()
@@ -140,13 +156,12 @@ public class MessageFactory {
 			recvApp.setApplicationVersion(reqMsgHeader.getSendingApplication()
 					.getApplicationVersion());
 			messageHeader.setReceivingApplication(recvApp);
-
+		
 			FacilityType recvFac = new FacilityType();
 			recvFac.setFacilityName(reqMsgHeader.getSendingFacility()
 					.getFacilityName());
 			messageHeader.setReceivingFacility(recvFac);
-
-			messageHeader.setSecurity(reqMsgHeader.getSecurity());
+			messageHeader.setSecurity(reqMsgHeader.getSecurity());			
 		}
 
 		Date currentDate = new Date();
@@ -303,7 +318,29 @@ public class MessageFactory {
 		return respMessageType;
 	}
 
-	
+	/**
+	 * Function to build Response message type and return it as an XML string
+	 * 
+	 * @param modifiers
+	 *            The set of Ontology modifiers that match request
+	 * 
+	 * @return A String data type containing the ResponseMessage in XML format
+	 * @throws Exception
+	 */
+	public static ResponseMessageType createBuildResponse(
+			MessageHeaderType messageHeaderType, ModifiersType modifiers) {
+		ResponseMessageType respMessageType = null;
+
+		ResponseHeaderType respHeader = createResponseHeader("DONE",
+				"Ontology processing completed");
+
+		BodyType bodyType = createBodyType(modifiers);
+		respMessageType = createResponseMessageType(messageHeaderType,
+				respHeader, bodyType);
+
+		return respMessageType;
+	}
+
 	
 	public static ResponseMessageType createProcessStatusResponse(
 			MessageHeaderType messageHeaderType,
@@ -317,6 +354,25 @@ public class MessageFactory {
 		BodyType bodyType = new BodyType();
 		bodyType.getAny().add(
 				of.createOntologyProcessStatus(ontProcessStatusType));
+
+		respMessageType = createResponseMessageType(messageHeaderType,
+				respHeader, bodyType);
+
+		return respMessageType;
+	}
+	
+	public static ResponseMessageType createProcessStatusListResponse(
+			MessageHeaderType messageHeaderType,
+			OntologyProcessStatusListType ontProcessStatusListType) {
+
+		ResponseMessageType respMessageType = null;
+
+		ResponseHeaderType respHeader = createResponseHeader("DONE",
+				"Ontology processing completed");
+		edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory of = new edu.harvard.i2b2.ontology.datavo.vdo.ObjectFactory();
+		BodyType bodyType = new BodyType();
+		bodyType.getAny().add(
+				of.createOntologyProcessStatusList(ontProcessStatusListType));
 
 		respMessageType = createResponseMessageType(messageHeaderType,
 				respHeader, bodyType);
@@ -377,5 +433,7 @@ public class MessageFactory {
 
 		return respHeader;
 	}
+	
+	
 
 }

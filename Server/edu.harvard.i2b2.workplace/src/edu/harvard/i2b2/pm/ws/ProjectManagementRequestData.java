@@ -58,7 +58,7 @@ abstract public class ProjectManagementRequestData {
 		
 		ApplicationType appType = new ApplicationType();
 		appType.setApplicationName("Workplace Cell");
-		appType.setApplicationVersion("1.5"); 
+		appType.setApplicationVersion("1.608"); 
 		messageHeader.setSendingApplication(appType);
 		
 		FacilityType facility = new FacilityType();
@@ -66,7 +66,7 @@ abstract public class ProjectManagementRequestData {
 		messageHeader.setSendingFacility(facility);
 		
 		ApplicationType appType2 = new ApplicationType();
-		appType2.setApplicationVersion("1.5");
+		appType2.setApplicationVersion("1.608");
 		appType2.setApplicationName("Project Management Cell");		
 		messageHeader.setReceivingApplication(appType2);
 	

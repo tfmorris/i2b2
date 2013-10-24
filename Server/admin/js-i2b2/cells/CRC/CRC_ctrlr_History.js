@@ -43,7 +43,7 @@ i2b2.CRC.ctrlr.history = {
 					var o = new Object;
 					o.xmlOrig = qm[i];
 					o.id = i2b2.h.getXNodeVal(qm[i],'query_master_id');
-					o.name = i2b2.h.getXNodeVal(qm[i],'name');
+					o.realname = i2b2.h.getXNodeVal(qm[i],'name');
 					o.userid = i2b2.h.getXNodeVal(qm[i],'user_id');
 					o.group = i2b2.h.getXNodeVal(qm[i],'group_id');
 					o.created = i2b2.h.getXNodeVal(qm[i],'create_date');
@@ -56,7 +56,7 @@ i2b2.CRC.ctrlr.history = {
 							dStr = ' [' + (d.getMonth()+1) + '-' + d.getDate() + '-' + d.getFullYear().toString() + ']';
 						}
 					}
-					o.name += dStr + ' ['+o.userid+']';
+					o.name = o.realname +  dStr + ' ['+o.userid+']';
 					// encapsulate into an SDX package
 					var sdxDataPack = i2b2.sdx.Master.EncapsulateData('QM',o);
 					// save the node to the CRC data model
@@ -80,6 +80,7 @@ i2b2.CRC.ctrlr.history = {
 			result_wait_time: 180,
 			crc_max_records: i2b2.CRC.view['history'].params.maxQueriesDisp,
 			crc_sort_by: i2b2.CRC.view['history'].params.sortBy,
+			crc_user_type: 	(i2b2.PM.model.userRoles.indexOf("MANAGER") == -1? 	"CRC_QRY_getQueryMasterList_fromUserId" : "CRC_QRY_getQueryMasterList_fromGroupId"),	
 			crc_sort_order: i2b2.CRC.view['history'].params.sortOrder
 		};
 		i2b2.CRC.ajax.getQueryMasterList_fromUserId("CRC:History", options, scopeCB);
@@ -117,6 +118,33 @@ i2b2.CRC.ctrlr.history = {
 		}
 	},
 	
+	queryDeleteNoPrompt: function(qmID) {
+		// function requires a Query Master ID
+			// create a scoped callback message 
+			var scopeCB = new i2b2_scopedCallback();
+			scopeCB.scope = i2b2.CRC.model.QueryMasters;
+			scopeCB.callback = function(i2b2CellMsg) {
+				// define the XML processing function
+				console.group("CALLBACK Processing AJAX i2b2CellMsg");
+				console.dir(i2b2CellMsg);
+				i2b2.CRC.view.history.queryResponse = i2b2CellMsg.msgResponse;
+				i2b2.CRC.view.history.queryRequest = i2b2CellMsg.msgRequest;
+				i2b2.CRC.view.history.queryUrl = i2b2CellMsg.msgUrl;
+				//if (i2b2CellMsg.error) {		
+				//	alert("An error has occurred in the Cell's AJAX library.\n Press F12 for more information");
+				//}
+				// refresh the Query History data
+				i2b2.CRC.ctrlr.history.Refresh();
+			};
+			
+			// fire the AJAX call
+			var options = {
+				result_wait_time: 180,
+				qm_key_value: qmID
+			};
+			i2b2.CRC.ajax.deleteQueryMaster("CRC:History", options, scopeCB);
+	},
+	
 // ================================================================================================== //
 	queryRename: function(qmID, newQueryName, sdxPackage) {
 		this.queryNewName = newQueryName || false;
@@ -133,7 +161,7 @@ i2b2.CRC.ctrlr.history = {
 			// display the query name input dialog
 			this._queryPromptName(handleSubmit);
 			// get the old name (and trim whitespace)
-			$('inputQueryName').value = sdxPackage.origData.name;
+			$('inputQueryName').value = sdxPackage.origData.realname;
 			return;
 		}
 		

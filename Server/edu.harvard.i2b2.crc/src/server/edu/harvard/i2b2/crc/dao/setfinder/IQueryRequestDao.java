@@ -1,5 +1,7 @@
 package edu.harvard.i2b2.crc.dao.setfinder;
 
+import java.util.Map;
+
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 
 public interface IQueryRequestDao {
@@ -27,4 +29,19 @@ public interface IQueryRequestDao {
 	public String[] buildSql(String queryRequestXml, boolean encounterSetFlag)
 			throws I2B2DAOException;
 
+	
+	/**
+	 * set the project param flag
+	 * @param Map projectParamMap
+	 */
+	public void setProjectParam(Map projectParamMap) ; 
+	
+	
+	/**
+	 * set the large text value constrain
+	 * @param allowLargeTextValueConstrainFlag
+	 */
+	public void setAllowLargeTextValueConstrainFlag(boolean allowLargeTextValueConstrainFlag) ;
+		
+	
 }

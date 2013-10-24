@@ -19,7 +19,8 @@
         <role name="noacc" read="false" write="false" create="false"/>
       </security>
     </attribute>
-    <attribute name="RedeliveryLimit">0</attribute>
+    <attribute name="RedeliveryLimit">1</attribute>
+    <attribute name="RedeliveryDelay">1</attribute>
   </mbean>
 
   	<!--

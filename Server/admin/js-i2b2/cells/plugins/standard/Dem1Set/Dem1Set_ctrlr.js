@@ -30,6 +30,12 @@ i2b2.Dem1Set.Init = function(loadedDiv) {
 			}
 		}
 	});
+	
+	z = $('anaPluginViewFrame').getHeight() - 34;
+	$$('DIV#Dem1Set-TABS DIV.Dem1Set-MainContent')[0].style.height = z;
+	$$('DIV#Dem1Set-TABS DIV.Dem1Set-MainContent')[1].style.height = z;
+	$$('DIV#Dem1Set-TABS DIV.Dem1Set-MainContent')[2].style.height = z;
+	
 };
 
 i2b2.Dem1Set.Unload = function() {
@@ -89,10 +95,10 @@ i2b2.Dem1Set.getResults = function() {
 
 
 			// get all the patient records
-			var pData = i2b2.h.XPath(results.refXML, 'descendant::patient/param[@name]/text()/..');
+			var pData = i2b2.h.XPath(results.refXML, 'descendant::patient/param[@column]/text()/..');
 			var hData = new Hash();
 			for (var i1=0; i1<pData.length; i1++) {
-				var n = pData[i1].getAttribute('name');
+				var n = pData[i1].getAttribute('column');
 				var t1 = hData.get(n);
 				if (!t1) { t1 = new Hash(); }
 				var v = pData[i1].firstChild.nodeValue;

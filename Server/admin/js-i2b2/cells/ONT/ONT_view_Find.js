@@ -14,6 +14,9 @@ console.time('execute time');
 // create and save the view object
 i2b2.ONT.view.find = new i2b2Base_cellViewController(i2b2.ONT, 'find');
 i2b2.ONT.view.find.visible = false;
+i2b2.ONT.view.find.modifier = false;
+this.currentTab = 'names';
+
 // redefine the option functions
 // ================================================================================================== //
 i2b2.ONT.view.find.showOptions = function(subScreen) {
@@ -51,7 +54,7 @@ i2b2.ONT.view.find.showOptions = function(subScreen) {
 	this.modalOptions.show();
 	// load settings
 	$('ONTFINDMaxQryDisp').value = this.params.max;
-	$('ONTFINDshowSynonyms').checked = parseBoolean(this.params.synonyms);
+	//$('ONTFINDshowSynonyms').checked = parseBoolean(this.params.synonyms);
 	$('ONTFINDshowHiddens').checked = parseBoolean(this.params.hiddens);			
 }
 
@@ -73,7 +76,7 @@ i2b2.ONT.view.find.selectSubTab = function(tabCode) {
 	// toggle between the Navigate and Find Terms tabs
 	switch (tabCode) {
 		case "names":
-			this.currentSubTab = 'names';
+			this.currentTab = 'names';
 			$('ontFindTabName').blur();
 			$('ontFindTabName').className = 'findSubTabSelected';
 			$('ontFindTabCode').className = 'findSubTab';
@@ -87,6 +90,8 @@ i2b2.ONT.view.find.selectSubTab = function(tabCode) {
 			$('ontFindTabCode').blur();
 			$('ontFindTabName').className = 'findSubTab';
 			$('ontFindTabCode').className = 'findSubTabSelected';
+			$('ontFindFrameModifier').hide();
+			//$('ontSearchModifiersResults').hide();			
 			$('ontFindFrameName').hide();
 			$('ontFindFrameCode').show();
 			$('ontSearchNamesResults').hide();
@@ -111,9 +116,10 @@ i2b2.ONT.view.find.PopulateCategories = function() {
 	for (var i=0; i<i2b2.ONT.model.Categories.length; i++) {
 		var cat = i2b2.ONT.model.Categories[i];
 		// ONT options dropdown
-		var cid = cat.key;
-		cid = /\\\\\w*\\/.exec(cid);
-		cid = cid[0].replace(/\\/g,'');
+		//var cid = cat.key;
+		//cid = /\\\\\w*\\/.exec(cid);
+		//cid = cid[0].replace(/\\/g,'');
+		var cid = cat.key.substring(2,cat.key.indexOf('\\',3))
 		tno = document.createElement('OPTION');
 		tno.setAttribute('value', cid);
 		var tnt = document.createTextNode(cat.name);
@@ -149,7 +155,10 @@ i2b2.ONT.view.find.PopulateSchemes = function() {
 // ================================================================================================== //
 i2b2.ONT.view.find.Resize = function(e) {
 	// this function provides the resize functionality needed for this screen
-	var viewObj = i2b2.ONT.view.main;
+	i2b2.ONT.view['find'].params.synonyms = $('ONTFINDshowSynonyms').checked;
+    i2b2.ONT.view['find'].params.hiddens = $('ONTFINDshowHiddens').checked;	
+
+    var viewObj = i2b2.ONT.view.main;
 	var ds = document.viewport.getDimensions();
 	var w = ds.width;
 	var h = ds.height;
@@ -177,14 +186,208 @@ i2b2.ONT.view.find.Resize = function(e) {
 		if (i2b2.ONT.view.main.isZoomed) { z = h-166; }
 		$('ontSearchNamesResults').style.height = z;
 		$('ontSearchCodesResults').style.height = z;
+		$('ontSearchModifiersResults').style.height = z + 45;
+		if (i2b2.ONT.view.find.modifier) 
+		{ 
+			if (this.currentTab == 'names') 
+			{
+				if (i2b2.ONT.view.main.isZoomed)
+					$('ontSearchNamesResults').style.height = h-446;
+				else 
+					$('ontSearchNamesResults').style.height = 10;				
+			} 
+			else 
+			{			
+				if (i2b2.ONT.view.main.isZoomed)
+					$('ontSearchCodesResults').style.height = h-446;
+				else 
+					$('ontSearchCodesResults').style.height = 10;				
+			}
+			//$('wrkWorkplace').hide();
+			$('ontFindFrameModifier').show();
+			$('ontSearchModifiersResults').show();		
+		} 
+		else 
+		{
+			//$('wrkWorkplace').show();
+			$('ontFindFrameModifier').hide();
+			$('ontSearchModifiersResults').hide();					
+		}		
 	}
 	$('ontFindFrameName').style.height = 44; //h-355
 	$('ontFindFrameCode').style.height = 44; //h-355
 }
 
 // ================================================================================================== //
-console.info("SUBSCRIBED TO [window.resize]");
-YAHOO.util.Event.addListener(window, "resize", i2b2.ONT.view.find.Resize, i2b2);
+//console.info("SUBSCRIBED TO [window.resize]"); // tdw9
+//YAHOO.util.Event.addListener(window, "resize", i2b2.ONT.view.find.Resize, i2b2); // tdw9
+
+
+//================================================================================================== //
+i2b2.ONT.view.find.ResizeHeight = function() {
+	// this function provides the resize functionality needed for this screen
+	var viewObj = i2b2.ONT.view.main;
+	var ds = document.viewport.getDimensions();
+	var h = ds.height;
+	if (h < 517) {h = 517;}
+	switch(i2b2.hive.MasterView.getViewMode()) {
+		case "Patients":
+			if (i2b2.WORK && i2b2.WORK.isLoaded) {
+				var z = parseInt((h - 321)/2)-57;
+			} else {
+				var z = h-362;
+			}
+			break;
+		case "Analysis":
+			if (i2b2.WORK && i2b2.WORK.isLoaded) {
+				var z = parseInt((h - 321)/2)-57;
+			} else {
+				var z = h-362;
+			}
+			break;
+		default:
+			break;
+	}
+	if (z) 
+	{
+		if (i2b2.ONT.view.main.isZoomed) { z = h-166; }
+		$('ontSearchNamesResults').style.height = z;
+		$('ontSearchCodesResults').style.height = z;
+		$('ontSearchModifiersResults').style.height = z + 45;
+		if (i2b2.ONT.view.find.modifier) 
+		{ 
+			if (this.currentTab == 'names') 
+			{
+				if (i2b2.ONT.view.main.isZoomed)
+					$('ontSearchNamesResults').style.height = h-446;
+				else 
+					$('ontSearchNamesResults').style.height = 10;				
+			} 
+			else 
+			{			
+				if (i2b2.ONT.view.main.isZoomed)
+					$('ontSearchCodesResults').style.height = h-446;
+				else 
+					$('ontSearchCodesResults').style.height = 10;				
+			}
+			//$('wrkWorkplace').hide();
+			$('ontFindFrameModifier').show();
+			$('ontSearchModifiersResults').show();		
+		} 
+		else 
+		{
+			//$('wrkWorkplace').show();
+			$('ontFindFrameModifier').hide();
+			$('ontSearchModifiersResults').hide();					
+		}		
+	}
+	$('ontFindFrameName').style.height = 44; //h-355
+	$('ontFindFrameCode').style.height = 44; //h-355
+}
+
+
+
+//================================================================================================== //
+i2b2.ONT.view.find.setChecked = function(here) {
+	//var oCheckedItem = here.parent.checkedItem;
+    if (here.cfg.getProperty("checked")) {//(oCheckedItem != here) {
+          here.cfg.setProperty("checked", false);
+         // here.parent.checkedItem = here;
+    } else {
+		   here.cfg.setProperty("checked", true);
+	}
+}
+
+//================================================================================================== //
+i2b2.ONT.view.find.doPatientCount = function() { 
+	i2b2.ONT.view.find.setChecked(this);
+	i2b2.ONT.view['find'].params.patientCount = this.cfg.getProperty("checked");
+}
+
+//================================================================================================== //
+i2b2.ONT.view.find.useShortTooltip = function() { 
+	i2b2.ONT.view.find.setChecked(this);
+	i2b2.ONT.view['find'].params.shortTooltip = this.cfg.getProperty("checked");	
+}
+
+//================================================================================================== //
+i2b2.ONT.view.find.showConceptCode = function() { 
+	i2b2.ONT.view.find.setChecked(this);
+	i2b2.ONT.view['find'].params.showConceptCode = this.cfg.getProperty("checked");
+}
+
+//================================================================================================== //
+i2b2.ONT.view.find.doRefreshAll = function() { 
+	i2b2.ONT.view.find.PopulateCategories();
+}
+
+//================================================================================================== //
+i2b2.ONT.view.find.doShowModifiers = function(e) { 
+	var op = i2b2.ONT.view.find.contextRecord;	
+	$('ontFindFrameModifierTitle').innerHTML = 'Find Modifiers for ' + op.sdxInfo.sdxDisplayName;
+	i2b2.ONT.view.find.modifier = true;
+	i2b2.ONT.view.find.Resize();
+	i2b2.hive.MasterView.addZoomWindow("ONT");
+//	i2b2.ONT.view.nav.PopulateCategories();
+}
+
+// ================================================================================================== //
+i2b2.ONT.view.find.ContextMenuValidate = function(p_oEvent) {
+	var clickId = null;
+	var currentNode = this.contextEventTarget;
+	while (!currentNode.id) {
+		if (currentNode.parentNode) {
+			currentNode = currentNode.parentNode;
+		} else {
+			// we have recursed up the tree to the window/document DOM... it's a bad click
+			this.cancel();
+			return;
+		}
+	}
+	clickId = currentNode.id;
+	
+	var items = this.getItems();
+	var addItem = { text: "Find Modifiers",	onclick: { fn: i2b2.ONT.view.find.doShowModifiers } };
+	
+	 if ($('ONTFINDdisableModifiers').checked) {
+		if (items.length == 2 )
+		{
+				this.removeItem(1);
+		}
+	 } else if (items.length == 1) {
+		 this.insertItem(addItem,1);
+	 }
+	// see if the ID maps back to a treenode with SDX data
+	var tvNode = i2b2.ONT.view.find.yuiTreeName.getNodeByProperty('nodeid', clickId);
+	
+	if (tvNode == null) {
+		tvNode = i2b2.ONT.view.find.yuiTreeCode.getNodeByProperty('nodeid', clickId);
+	}
+
+	if (tvNode) {
+		if (tvNode.data.i2b2_SDX) {
+			if (tvNode.data.i2b2_SDX.sdxInfo.sdxType == "CONCPT") {
+				i2b2.ONT.view.find.contextRecord = tvNode.data.i2b2_SDX;
+			} else {
+				this.cancel();
+				return;
+			}
+		}
+	}
+};
+
+//================================================================================================== //
+i2b2.ONT.view.find.ContextMenu = new YAHOO.widget.ContextMenu( 
+		"divContextMenu-Find",  
+			{ lazyload: true,
+			trigger: $('ontFindDisp'), 
+			itemdata: [
+				{ text: "Refresh All",	onclick: { fn: i2b2.ONT.view.find.doRefreshAll } },
+				{ text: "Find Modifiers",	onclick: { fn: i2b2.ONT.view.find.doShowModifiers } }
+		] }  
+); 
+//================================================================================================== //
+i2b2.ONT.view.find.ContextMenu.subscribe("triggerContextMenu",i2b2.ONT.view.find.ContextMenuValidate); 
 
 
 // This is done once the entire cell has been loaded
@@ -205,6 +408,12 @@ i2b2.events.afterCellInit.subscribe(
 				// register the treeview with the SDX subsystem to be a container for CONCPT objects
 				i2b2.sdx.Master.AttachType("ontSearchNamesResults","CONCPT");
 			}
+			if (!thisview.yuiTreeModifier) {
+				thisview.yuiTreeModifier = new YAHOO.widget.TreeView("ontSearchModifiersResults");
+				thisview.yuiTreeModifier.setDynamicLoad(i2b2.sdx.Master.LoadChildrenFromTreeview,1);
+				// register the treeview with the SDX subsystem to be a container for CONCPT objects
+				i2b2.sdx.Master.AttachType("ontSearchModifiersResults","CONCPT");
+			}			
 			if (!thisview.yuiTreeCode) {
 				thisview.yuiTreeCode = new YAHOO.widget.TreeView("ontSearchCodesResults");
 				thisview.yuiTreeCode.setDynamicLoad(i2b2.sdx.Master.LoadChildrenFromTreeview,1);
@@ -237,6 +446,16 @@ i2b2.events.afterCellInit.subscribe(
 	})
 );
 
+//================================================================================================== //
+i2b2.events.initView.subscribe((function(eventTypeName, newMode) {
+// -------------------------------------------------------
+	newMode = newMode[0];
+	this.viewMode = newMode;
+	this.visible = true;
+	this.Resize();
+// -------------------------------------------------------
+}),'',i2b2.ONT.view.find);
+
 
 i2b2.events.changedViewMode.subscribe((function(eventTypeName, newMode) {
 // -------------------------------------------------------
@@ -266,7 +485,8 @@ i2b2.events.changedZoomWindows.subscribe((function(eventTypeName, zoomMsg) {
 		case "ONT":
 		case "HISTORY":
 		case "WORK":
-			this.Resize();
+			this.ResizeHeight();
+			//this.Resize(); //tdw9
 	}
 // -------------------------------------------------------
 }),'',i2b2.ONT.view.find);

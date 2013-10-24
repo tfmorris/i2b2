@@ -16,7 +16,7 @@
     <connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
     <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>
     <user-name>i2b2demodata</user-name>
-    <password>i2b2demodata</password>
+    <password>demouser</password>
     <idle-timeout-minutes>1</idle-timeout-minutes>
     <exception-sorter-class-name>org.jboss.resource.adapter.jdbc.vendor.OracleExceptionSorter</exception-sorter-class-name>
     <metadata>
@@ -31,7 +31,7 @@
     <connection-url>jdbc:sqlserver://localhost:1433;DatabaseName=i2b2demodata</connection-url>
     <driver-class>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver-class>
     <user-name>i2b2demodata</user-name>
-    <password>i2b2demodata</password>
+    <password>demouser</password>
     <idle-timeout-minutes>1</idle-timeout-minutes>
     <set-tx-query-timeout>true</set-tx-query-timeout>
     <metadata>

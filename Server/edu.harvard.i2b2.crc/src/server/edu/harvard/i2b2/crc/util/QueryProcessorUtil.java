@@ -115,11 +115,17 @@ public class QueryProcessorUtil {
 	/** property name for ontology url schema name **/
 	private static final String ONTOLOGYCELL_WS_URL_PROPERTIES = "queryprocessor.ws.ontology.url";
 
-	private static final String ONTOLOGYCELL_ROOT_WS_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.url";
+	public static final String ONTOLOGYCELL_ROOT_WS_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.url";
 
-	private static final String ONTOLOGYCELL_GETTERMINFO_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.operation.getterminfo";
+	public static final String ONTOLOGYCELL_GETTERMINFO_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.operation.getterminfo";
 
-	private static final String ONTOLOGYCELL_GETCHILDREN_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.operation.getchildren";
+	public static final String ONTOLOGYCELL_GETCHILDREN_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.operation.getchildren";
+	
+	public static final String ONTOLOGYCELL_GETMODIFIERINFO_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.operation.getmodifierinfo";
+	
+	public static final String SINGLEPANEL_SKIPTEMPTABLE_PROPERTIES = "edu.harvard.i2b2.crc.setfinderquery.singlepanel.skiptemptable";
+	
+	public static final String SINGLEPANEL_SKIPTEMPTABLE_MAXCONCEPT_PROPERTIES = "edu.harvard.i2b2.crc.setfinderquery.skiptemptable.maxconcept";
 
 	/** spring bean name for datasource **/
 	private static final String DATASOURCE_BEAN_NAME = "dataSource";
@@ -442,6 +448,8 @@ public class QueryProcessorUtil {
 		return Integer.parseInt(pagingIteration);
 
 	}
+	
+	
 
 	/**
 	 * Get Project management bypass project role

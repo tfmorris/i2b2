@@ -111,6 +111,14 @@ public class QueryService {
 		ProviderRestService rs = new ProviderRestService();
 		return rs.getLoadDataStatusRequest(request);
 	}
+	
+	public OMElement getMissingTermRequest(OMElement request) {
+		Assert.notNull(request,
+				"Missing term request OMElement must not be null");
+		log.debug("Inside missing term request " + request);
+		ProviderRestService rs = new ProviderRestService();
+		return rs.getMissingTermRequest(request);
+	}
 
 	// --------------------------------------------
 	// Creates delegate based on the request type

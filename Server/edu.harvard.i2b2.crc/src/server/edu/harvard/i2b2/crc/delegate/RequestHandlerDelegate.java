@@ -26,6 +26,7 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
 import edu.harvard.i2b2.crc.datavo.i2b2message.RequestMessageType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.ResponseMessageType;
+import edu.harvard.i2b2.crc.datavo.pm.ParamType;
 import edu.harvard.i2b2.crc.util.CacheUtil;
 
 /**
@@ -102,6 +103,22 @@ public abstract class RequestHandlerDelegate {
 			Node rootNode = cache.getRoot();
 			String roleTree = domainId + "/" + projectId + "/" + userId;
 			rootNode.put(roleTree, roles);
+
+		} catch (MalformedObjectNameException e) {
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	protected void putPocessTiming(String projectId, String userId, String domainId,
+			ParamType paramType) {
+		// get cache
+		try {
+			Cache cache = CacheUtil.getCache();
+			Node rootNode = cache.getRoot();
+			String roleTree = domainId + "/" + projectId + "/" + userId + "/" + paramType.getName();
+			rootNode.put(roleTree, paramType.getValue());
 
 		} catch (MalformedObjectNameException e) {
 			e.printStackTrace();

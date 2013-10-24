@@ -11,16 +11,22 @@ package edu.harvard.i2b2.crc.dao.setfinder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
+import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
 import edu.harvard.i2b2.crc.dao.CRCDAO;
 import edu.harvard.i2b2.crc.dao.setfinder.querybuilder.QueryToolUtil;
+import edu.harvard.i2b2.crc.dao.setfinder.querybuilder.QueryToolUtilNew;
+import edu.harvard.i2b2.crc.dao.setfinder.querybuilder.RecursiveBuild;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
+import edu.harvard.i2b2.crc.util.ParamUtil;
+import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 /**
  * Helper class for setfinder operation. Builds sql from query definition,
@@ -38,7 +44,11 @@ public class QueryRequestSpringDao extends CRCDAO implements IQueryRequestDao {
 
 	JdbcTemplate jdbcTemplate = null;
 	DataSourceLookup dataSourceLookup = null;
-
+	String processTimingFlag = "NONE";
+	Map projectParamMap = null;
+	boolean allowLargeTextValueConstrainFlag = true;
+	
+	
 	public QueryRequestSpringDao(DataSource dataSource,
 			DataSourceLookup dataSourceLookup) {
 		setDataSource(dataSource);
@@ -47,6 +57,21 @@ public class QueryRequestSpringDao extends CRCDAO implements IQueryRequestDao {
 
 	}
 
+	
+	
+	
+	public void setProjectParam(Map projectParamMap) {
+		this.projectParamMap = projectParamMap;
+		if (projectParamMap != null && projectParamMap.get(ParamUtil.PM_ENABLE_PROCESS_TIMING) != null) {
+			this.processTimingFlag = (String)projectParamMap.get(ParamUtil.PM_ENABLE_PROCESS_TIMING);
+		}
+		
+	}
+	
+	public void setAllowLargeTextValueConstrainFlag(boolean allowLargeTextValueConstrainFlag)  { 
+		this.allowLargeTextValueConstrainFlag = allowLargeTextValueConstrainFlag;
+	}
+	
 	/**
 	 * Function to build sql from given query definition This function uses
 	 * QueryToolUtil class to build sql
@@ -57,16 +82,45 @@ public class QueryRequestSpringDao extends CRCDAO implements IQueryRequestDao {
 	 */
 	public String[] buildSql(String queryRequestXml, boolean encounterSetFlag)
 			throws I2B2DAOException {
-		String sql = null, ignoredItemMessage = null;
+		String sql = null, ignoredItemMessage = null, processTimingMessage = null;
 		Connection conn = null;
 
 		try {
 			// conn = getConnection();
 			conn = dataSource.getConnection();
-			QueryToolUtil queryUtil = new QueryToolUtil(dataSourceLookup);
-			sql = queryUtil
-					.generateSQL(conn, queryRequestXml, encounterSetFlag);
-			ignoredItemMessage = queryUtil.getIgnoredItemMessage();
+
+			// check to switch between the old and new setfinder query
+			// generator.
+			String queryGeneratorVersion = "1.6";
+			try {
+				QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
+				queryGeneratorVersion = qpUtil
+						.getCRCPropertyValue("edu.harvard.i2b2.crc.setfinder.querygenerator.version");
+			} catch (I2B2Exception e) {
+				// ignore this default will be 1.6
+			}
+			if (queryGeneratorVersion.equals("1.6")) {
+				RecursiveBuild recursiveBuild = new RecursiveBuild(dataSourceLookup,queryRequestXml,encounterSetFlag);
+				recursiveBuild.setProjectParamMap(this.projectParamMap);
+				recursiveBuild.setAllowLargeTextValueConstrainFlag(allowLargeTextValueConstrainFlag);
+				
+				recursiveBuild.startSqlBuild();
+				sql = recursiveBuild.getSql();
+				ignoredItemMessage = recursiveBuild.getIgnoredItemMessage();
+				processTimingMessage = recursiveBuild.getProcessTimingMessage();
+				//QueryToolUtilNew queryUtil = new QueryToolUtilNew(
+				//		dataSourceLookup, queryRequestXml, encounterSetFlag);
+				//sql = queryUtil.getSetfinderSqlForQueryDefinition();
+				//ignoredItemMessage = queryUtil.getIgnoredItemMessage();
+			} else {
+				log
+						.warn("*** USING THE OLD QUERY GENERATOR *** QueryToolUtil.java");
+				QueryToolUtil queryUtil = new QueryToolUtil(dataSourceLookup);
+				sql = queryUtil.generateSQL(conn, queryRequestXml,
+						encounterSetFlag);
+				ignoredItemMessage = queryUtil.getIgnoredItemMessage();
+			}
+
 		} catch (SQLException ex) {
 			log.error("Error while building sql", ex);
 			throw new I2B2DAOException("Error while building sql ", ex);
@@ -78,7 +132,8 @@ public class QueryRequestSpringDao extends CRCDAO implements IQueryRequestDao {
 			}
 		}
 
-		return new String[] { sql, ignoredItemMessage };
+		return new String[] { sql, ignoredItemMessage, processTimingMessage };
 	}
 
+	
 }

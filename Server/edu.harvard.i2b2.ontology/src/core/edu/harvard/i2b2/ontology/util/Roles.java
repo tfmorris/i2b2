@@ -29,5 +29,30 @@ public class Roles {
 	   }
 	   return false;
    }
+   
+   public boolean isRoleAdmin(ProjectType projectInfo) { 
+
+	   ArrayList<String> roles = (ArrayList<String>) projectInfo.getRole();
+	   for(String param :roles) {
+		   // Bug 728; enable feature for role = editor only
+		//   if(param.equalsIgnoreCase("manager")) 
+		//	   return true;
+		 
+		   if(param.equalsIgnoreCase("admin")) { 
+			   return true;
+		   }
+	   }
+	   return false;
+   }
+   
+   public boolean isRoleOfuscated(ProjectType projectInfo) { 
+	   ArrayList<String> roles = (ArrayList<String>) projectInfo.getRole();
+	   for(String param :roles) {
+		   if (param.equalsIgnoreCase("DATA_AGG")) { 
+			   return false;
+		   }
+	   }
+	   return true;
+   }
 	
 }

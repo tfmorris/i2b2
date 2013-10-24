@@ -34,7 +34,8 @@ public class I2B2RequestMessageHelper {
 	JAXBUnWrapHelper unWrapHelper = null;
 	JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
 	JAXBElement jaxbElement = null;
-
+	RequestMessageType requestMessageType = null;
+	
 	public I2B2RequestMessageHelper(String requestXml) throws I2B2Exception {
 		this.requestXml = requestXml;
 		unWrapHelper = new JAXBUnWrapHelper();
@@ -45,6 +46,8 @@ public class I2B2RequestMessageHelper {
 				throw new I2B2Exception(
 						"null value in after unmarshalling request string ");
 			}
+			requestMessageType = (RequestMessageType) jaxbElement
+			.getValue();
 		} catch (JAXBUtilException jaxbUtilEx) {
 			log.error("Error processing request xml [" + requestXml + "]",
 					jaxbUtilEx);
@@ -52,15 +55,12 @@ public class I2B2RequestMessageHelper {
 		}
 	}
 
+	public RequestMessageType getI2B2RequestMessageType() { 
+		return this.requestMessageType;
+	}
+	
 	private BodyType getBodyType() {
-		String queryName = null;
-		QueryDefinitionType queryDef = null;
-
-		RequestMessageType requestMessageType = (RequestMessageType) jaxbElement
-				.getValue();
-		BodyType bodyType = requestMessageType.getMessageBody();
-		return bodyType;
-
+		return requestMessageType.getMessageBody();
 	}
 
 	public QueryDefinitionType getQueryDefinition() throws JAXBUtilException {
@@ -131,6 +131,22 @@ public class I2B2RequestMessageHelper {
 		}
 		return timeOut;
 
+	}
+	
+	public String getVersion() { 
+		RequestMessageType requestMessageType = (RequestMessageType) jaxbElement
+				.getValue();
+		String version = "";
+		if (requestMessageType.getMessageHeader().getSendingApplication() != null) {
+			version = requestMessageType.getMessageHeader().getSendingApplication().getApplicationVersion(); 
+			if (version == null) { 
+				version = "";
+			} else  {
+				version = version.trim();
+			}
+		}
+		
+		return version;
 	}
 
 	public static String getAnalysisDefinitionXml(

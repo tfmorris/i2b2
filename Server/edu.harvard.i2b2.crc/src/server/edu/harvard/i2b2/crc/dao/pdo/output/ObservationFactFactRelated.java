@@ -25,7 +25,7 @@ public class ObservationFactFactRelated extends FactRelated {
 	}
 
 	public String getDefaultSelectClause() {
-		return " obs.encounter_num obs_encounter_num, obs.patient_num obs_patient_num, obs.concept_cd obs_concept_cd,obs.provider_id obs_provider_id, obs.start_date obs_start_date , obs.modifier_cd obs_modifier_cd ";
+		return " obs.encounter_num obs_encounter_num, obs.patient_num obs_patient_num, obs.concept_cd obs_concept_cd,obs.provider_id obs_provider_id, obs.start_date obs_start_date , obs.modifier_cd obs_modifier_cd , obs.instance_num obs_instance_num ";
 	}
 
 	/**
@@ -37,7 +37,7 @@ public class ObservationFactFactRelated extends FactRelated {
 		String selectClause = "";
 
 		if (isSelected()) {
-			selectClause = " obs.encounter_num obs_encounter_num, obs.patient_num obs_patient_num, obs.concept_cd obs_concept_cd, obs.provider_id obs_provider_id, obs.start_date obs_start_date , obs.modifier_cd obs_modifier_cd ";
+			selectClause = " obs.encounter_num obs_encounter_num, obs.patient_num obs_patient_num, obs.concept_cd obs_concept_cd, obs.provider_id obs_provider_id, obs.start_date obs_start_date , obs.modifier_cd obs_modifier_cd , obs.instance_num obs_instance_num ";
 
 			// Adding modifier_cd slow down the query , obs.modifier_cd
 			// obs_modifier_cd "
@@ -66,7 +66,7 @@ public class ObservationFactFactRelated extends FactRelated {
 		String selectClause = "";
 
 		if (isSelected()) {
-			selectClause = " obs.encounter_num obs_encounter_num, obs.patient_num obs_patient_num, obs.concept_cd obs_concept_cd, obs.provider_id obs_provider_id, obs.start_date obs_start_date , obs.modifier_cd obs_modifier_cd ";
+			selectClause = " obs.encounter_num obs_encounter_num, obs.patient_num obs_patient_num, obs.concept_cd obs_concept_cd, obs.provider_id obs_provider_id, obs.start_date obs_start_date , obs.modifier_cd obs_modifier_cd, obs.instance_num obs_instance_num ";
 
 			// Adding modifier_cd slow down the query , obs.modifier_cd
 			// obs_modifier_cd "

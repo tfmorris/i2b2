@@ -293,16 +293,37 @@ public class ObservationFactDAO extends CRCLoaderDAO implements
 		 */
 		protected ObservationFactInsert(DataSource ds,
 				String observationFactTable, String schemaName) {
-			super(ds, "INSERT INTO " + schemaName + observationFactTable
-					+ "  (" + "encounter_id, " + "encounter_id_source, "
-					+ "concept_cd, " + "patient_id, " + "patient_id_source, "
-					+ "provider_id, " + "start_date, " + "modifier_cd, "
-					+ "valtype_cd, " + "tval_char, " + "nval_num, "
-					+ "valueflag_cd, " + "quantity_num, " + "confidence_num, "
-					+ "observation_blob, " + "units_cd, " + "end_date, "
-					+ "location_cd, " + "update_date, " + "download_date, "
-					+ "import_Date, " + "sourcesystem_cd," + "upload_id) "
-					+ " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+			super(
+					ds,
+					"INSERT INTO "
+							+ schemaName
+							+ observationFactTable
+							+ "  ("
+							+ "encounter_id, "
+							+ "encounter_id_source, "
+							+ "concept_cd, "
+							+ "patient_id, "
+							+ "patient_id_source, "
+							+ "provider_id, "
+							+ "start_date, "
+							+ "modifier_cd, "
+							+ "instance_num, "
+							+ "valtype_cd, "
+							+ "tval_char, "
+							+ "nval_num, "
+							+ "valueflag_cd, "
+							+ "quantity_num, "
+							+ "confidence_num, "
+							+ "observation_blob, "
+							+ "units_cd, "
+							+ "end_date, "
+							+ "location_cd, "
+							+ "update_date, "
+							+ "download_date, "
+							+ "import_Date, "
+							+ "sourcesystem_cd,"
+							+ "upload_id) "
+							+ " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
@@ -311,6 +332,7 @@ public class ObservationFactDAO extends CRCLoaderDAO implements
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.TIMESTAMP));
 			declareParameter(new SqlParameter(Types.VARCHAR));
+			declareParameter(new SqlParameter(Types.INTEGER));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.VARCHAR));
 			declareParameter(new SqlParameter(Types.FLOAT));
@@ -354,7 +376,10 @@ public class ObservationFactDAO extends CRCLoaderDAO implements
 							: null,
 					// observationFactMap.get("modifier_cd"),
 					(observationType.getModifierCd() != null) ? observationType
-							.getModifierCd().getValue() : null,
+							.getModifierCd().getValue() : "@",
+					(observationType.getInstanceNum() != null) ? observationType
+							.getInstanceNum().getValue()
+							: 1,
 					// observationFactMap.get("valtype_cd"),
 					observationType.getValuetypeCd(),
 					// observationFactMap.get("tval_char"),

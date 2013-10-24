@@ -6,17 +6,20 @@
 <!--
  *  *************************
  *       i2b2 Web Client
- *           v1.5.4
+ *           v1.6.09
  *  *************************
- *  @modified: 6/16/2011
+ *  @modified: 04/12/2013
  *  Contributors:
  *     Nick Benik
  *     Griffin Weber, MD, PhD
- *     Michael Mendis
+ *     Mike Mendis
+ *     Shawn Murphy MD, PhD
  *
  */-->
 
-
+<script type="text/javascript">
+	var i2b2build = "1.6.009   [04/12/2013 4:07 PM] ";
+</script>
 
 <!-- LOAD YUI FROM Yahoo's CDN
 <script type="text/javascript" src="http://yui.yahooapis.com/2.5.2/build/yahoo/yahoo.js" ></script>
@@ -31,7 +34,7 @@
 <script type="text/javascript" src="js-ext/yui/build/dom/dom.js"></script>
 <script type="text/javascript" src="js-ext/yui/build/yuiloader/yuiloader.js"></script>
 <script type="text/javascript" src="js-ext/yui/build/dragdrop/dragdrop.js" ></script>
-<script type="text/javascript" src="js-ext/yui/build/element/element-beta.js"></script>
+<script type="text/javascript" src="js-ext/yui/build/element/element.js"></script>
 <script type="text/javascript" src="js-ext/yui/build/container/container_core.js"></script>
 <script type="text/javascript" src="js-ext/yui/build/container/container.js"></script>
 <script type="text/javascript" src="js-ext/yui/build/resize/resize.js"></script>
@@ -47,10 +50,12 @@
 <script type="text/javascript" src="js-ext/yui/build/datatable/datatable.js"></script>
 <script type="text/javascript" src="js-ext/yui/build/button/button.js"></script>
 <script type="text/javascript" src="js-ext/yui/build/paginator/paginator-min.js"></script>
+<script type="text/javascript" src="js-ext/yui/build/slider/slider-min.js"></script>
 <!--
 		<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.6.0/build/assets/skins/sam/skin.css"> 
 -->
 	<link rel="stylesheet" type="text/css" href="js-ext/yui/build/assets/skins/sam/skin.css"> 
+	<link rel="stylesheet" type="text/css" href="js-i2b2/ui.styles/ui.styles.css"> 
 
 
 
@@ -71,6 +76,8 @@
 
 </style>
 
+<script type="text/javascript" src="js-ext/idle-timer.js"></script>
+
 <script type="text/javascript" src="js-ext/YUI_DataTable_PasswordCellEditor.js"></script>
 <script type="text/javascript" src="js-ext/YUI_DataTable_MD5CellEditor.js"></script>
 
@@ -80,17 +87,92 @@
 <script type="text/javascript" src="js-ext/excanvas.js"></script>
 
 
+<script type="text/javascript" src="js-ext/bubbling-min.js"></script>
+<script type="text/javascript" src="js-ext/accordion-min.js"></script>
+
+<style type="text/css">
+.myAccordion {
+    float: left;
+    width: 260px;
+	 float: left;
+}
+    .myAccordion .yui-cms-accordion {
+		width: 230px;
+		position:relative;
+		z-index:10000;
+    }
+    .myAccordion .moreinfo {
+        padding-left: 30px;
+    }
+      .myAccordion .yui-cms-accordion .yui-cms-item {
+        list-style-type: none;
+        float: left;
+        display: inline;
+        width: auto;
+      }
+        .myAccordion .yui-cms-accordion .yui-cms-item .accordionToggleItem {
+          width: 1px;
+          height: 1px;
+          display: block;
+          background: url(assets/images/accordion.gif) no-repeat 0px -200px;
+          text-decoration: none;
+          float: left;
+        }
+        .myAccordion .yui-cms-accordion .yui-cms-item.selected .accordionToggleItem {
+          background: url(assets/images/accordion.gif) no-repeat 0px -300px;
+        }
+
+        .myAccordion .yui-cms-accordion .yui-cms-item .bd {
+            width: 0px;
+            overflow: hidden;
+        }
+		
+            .myAccordion .yui-cms-accordion .yui-cms-item .bd .fixed {
+  			background: none repeat scroll 0 50% #BBCCEE;
+            padding: 5px;
+    		border: 1px solid #667788;			
+
+
+			
+            overflow: hidden;
+            width: 200px;
+            height: 250px;
+            }
+			
+            .myAccordion .yui-cms-accordion .yui-cms-item .bd .fixedbody {
+		    background: none repeat scroll 0 0 #FFFFFF;
+    		border: 1px solid #667788;
+    		padding: 1px 5px;
+            height: 245px;
+
+	
+			}			
+			
+</style>
+
+
+
 <!-- load i2b2 framework -->
 <script type="text/javascript" src="js-i2b2/i2b2_loader.js"></script>
 <link type="text/css" href="assets/i2b2.css" rel="stylesheet" />
 <link type="text/css" href="assets/i2b2-NEW.css" rel="stylesheet" />
 
+<!-- other auxiliary javascript source files -->
+<script type="text/javascript" src="js-i2b2/hive/hive.ui.js"></script>
 
 <script type="text/javascript">
 /****************************************************/
 /******************** INITIALIZE ********************/
 /****************************************************/
-function initI2B2() {
+
+// declare and obtain the dimension of the initial browser viewport and initialize screen width division
+var rightSideProportion = 0.65;                         
+var initBrowserViewPortDim = document.viewport.getDimensions();
+var rightSideWidth = initBrowserViewPortDim.width * rightSideProportion; 	// this component will take up 75% of the screen
+
+function initI2B2() 
+{
+	//debugOnScreen("default.htm.initI2B2: browserViewPort = " + initBrowserViewPortDim.width + " " + initBrowserViewPortDim.height );
 	i2b2.events.afterCellInit.subscribe(
 		(function(en,co,a) {
 			var cellObj = co[0];
@@ -118,20 +200,36 @@ function initI2B2() {
 		})
 	);
 
-
 	i2b2.events.afterLogin.subscribe(
-		(function() {
+		(function() 
+		{
 			// after successful login hide the login box and display the application GUI
 			$('topBar').style.display = 'block';
 			$('screenQueryData').style.display = 'block';
+			var splitterName = 'main.splitter';			
+			
+			// update dimension values
+			initBrowserViewPortDim = document.viewport.getDimensions();
+			rightSideWidth = initBrowserViewPortDim.width * rightSideProportion; 	// this component will take up 60% of the screen
+
 			if (i2b2.PM.model.admin_only)
 			{
 				i2b2.hive.MasterView.setViewMode('Admin');
 				$('viewMode-Patients').style.display = 'none';
-				$('viewMode-Analysis').style.display = 'none';			
-			} else {
-				i2b2.hive.MasterView.setViewMode('Patients');
+				$('viewMode-Analysis').style.display = 'none';
+				// hide the splitter from view since we don't need it in admin-only mode
+				var splitter = $( splitterName );
+				splitter.style.visibility="hidden";
+			} 
+			else 
+			{
+				// create the splitter object only after login and not in admin-only mode
+				i2b2.hive.mySplitter = new Splitter(splitterName, {cont: 'screenQueryData'});
+				i2b2.hive.MasterView.initViewMode(); //tdw9
 			}
+			$('viewMode-Project').innerHTML = "Project: " + i2b2.PM.model.login_projectname;
+			$('viewMode-User').innerHTML = "User: " + i2b2.PM.model.login_fullname;
+			$('viewMode-User').title = i2b2.PM.model.userRoles;
 			if (i2b2.PM.model.login_debugging) { $('debugMsgSniffer').show(); }
 		}), i2b2
 	);
@@ -169,10 +267,18 @@ YAHOO.util.Event.addListener(window, "load", init);
 </div>
 
 
+<div id="modifier-viewer-panel" style="display:none;">
+	<div class="hd">i2b2 Web Client Modifier</div>
+	<div class="bd" id="modifier-viewer-body">
+		<p>Lorem Ipsum...</p>
+	</div>
+	<div class="ft"></div>
+</div>
+
 <div id="help-viewer-panel" style="display:none;">
 	<div class="hd">i2b2 Web Client Help</div>
 	<div class="bd" id="help-viewer-body">
-		<p>Lorem Ipsum...</p>
+		<p>Please wait loading help.</p>
 	</div>
 	<div class="ft"></div>
 </div>
@@ -206,6 +312,9 @@ YAHOO.util.Event.addListener(window, "load", init);
 <table border="0" cellspacing="0" cellpadding="0" width="100%" id="topBarTable">
 <tr>
 	<td align="left" valign="middle"><img src="assets/images/title.gif" id="topBarTitle" border="0" alt="" /></td>
+    <td align="left" valign="middle"><div id="viewMode-Project"></div></td>
+	<td align="right" valign="middle"><div id="viewMode-User"></div></td>
+
 	<td align="right" valign="middle">
 		<div id="topBar" style="display:none;">
     <!--        <form name="projectsForm" style="margin: 0pt; padding: 0pt;" onSubmit="i2b2.PM.selectProject(); return false;">
@@ -216,8 +325,7 @@ YAHOO.util.Event.addListener(window, "load", init);
       
       		<span id="viewMode-Patients">
 				<a href="Javascript:void(0)" onClick="i2b2.hive.MasterView.setViewMode('Patients');">Find Patients</a>
-				&nbsp;|&nbsp;
-            </span>
+				&nbsp;|&nbsp;            </span>
    <!--         <span id="viewMode-Admin">
 	            <a href="Javascript:void(0)" onClick="i2b2.hive.MasterView.setViewMode('Admin');">Admin</a>
     	        &nbsp;|&nbsp;
@@ -225,17 +333,13 @@ YAHOO.util.Event.addListener(window, "load", init);
             -->
             <span id="viewMode-Analysis">
 				<a href="Javascript:void(0)" onClick="i2b2.hive.MasterView.setViewMode('Analysis');">Analysis Tools</a>
-				&nbsp;|&nbsp;
-            </span>
+				&nbsp;|&nbsp;            </span>
 			<span id="debugMsgSniffer" style="display:none">
 				<a href="Javascript:void(0)" onClick="i2b2.hive.MsgSniffer.show();">Message Log</a>
-				&nbsp;|&nbsp;
-			</span>
+				&nbsp;|&nbsp;			</span>
 			<a id="helpLink" href="Javascript:void(0)" onClick="i2b2.hive.HelpViewer.show();">Help</a>
 			&nbsp;|&nbsp;
-			<a href="Javascript:void(0);" onClick="i2b2.PM.doLogout();">Logout</a>
-		</div>
-	</td>
+			<a href="Javascript:void(0);" onClick="i2b2.PM.doLogout();">Logout</a>		</div>	</td>
 </tr>
 </table>
 
@@ -245,7 +349,7 @@ YAHOO.util.Event.addListener(window, "load", init);
 
 <!-- ############### <ONT View> ############### -->
 	<div id="ontMainBox" style="display:none">
-		<div class="TopTabs">
+		<div id="ontTopTabs">
 			<div style="position:absolute;z-index:200;">
 				<div id="tabNavigate" class="tabBox active" onClick="i2b2.ONT.view.main.selectTab('nav')">
 				<div>Navigate Terms</div>
@@ -259,10 +363,9 @@ YAHOO.util.Event.addListener(window, "load", init);
 <!--				<a href="JavaScript:showXML('ONT',i2b2.ONT.view.main.currentTab,'Response');" class="debug"><img src="assets/images/msg_response.gif" border="0" width="16" height="16"  alt="Show XML Response" title="Show XML Response" /></a> -->
 				<a href="JavaScript:showXML('ONT',i2b2.ONT.view.main.currentTab,'Stack');" class="debug"><img src="assets/images/msg_stack.gif" border="0" width="16" height="16"  alt="Show XML Message Stack" title="Show XML Message Stack" /></a>
 				<a href="JavaScript:i2b2.ONT.view.main.showOptions();"><img src="assets/images/options.gif" border="0" width="16" height="16" alt="Show Options" title="Show Options" /></a>
-				<a href="JavaScript:i2b2.ONT.view.main.ZoomView();"><img id="ontZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/ONT/assets/zoom_icon.gif" alt="Toggle Zoom" title="Toggle Zoom" /></a>
-			</div>
+				<a href="JavaScript:i2b2.ONT.view.main.ZoomView();"><img id="ontZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/ONT/assets/zoom_icon.gif" alt="Resize Workspace" title="Resize Workspace" /></a>			</div>
 		</div>
-		<div id="ontMainDisp">
+  <div id="ontMainDisp">
 			<div id="ontNavDisp">
 				<!--<div id="standardQuery">Standard Query Items</div>-->
 				<div id="ontNavResults"></div>
@@ -274,12 +377,12 @@ YAHOO.util.Event.addListener(window, "load", init);
 					<form id="ontFormFindName" method="post" action="JavaScript:i2b2.ONT.ctrlr.FindBy.clickSearchName();" style="margin:0px; padding:0px;">
 					<table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;">
 					<tr>
-						<td style="width:100px;" valign="middle"><select name="ontFindStrategy" style="width:90px;overflow:hidden;font-size:11px;"><option value="contains">contains</option><option value="exact">exact</option><option value="left">left</option><option value="right">right</option></select></td>
+						<td style="width:100px;" valign="middle"><select name="ontFindStrategy" style="width:90px;overflow:hidden;font-size:11px;"><option value="contains">Containing</option><option value="exact">Exact</option><option value="left">Starting with</option><option value="right">Ending with</option></select></td>
 						<td valign="middle"><input name="ontFindNameMatch" type="text" maxlength="100" style="border:1px solid #7c9cba;width:100%;font-size:11px;" /></td>
 					</tr>
 					<tr><td colspan="2" style="height:5px;overflow:hidden;"></td></tr>
 					<tr>
-						<td valign="middle" style="width:100px;"><div class="ontFindButton"><a href="JavaScript:i2b2.ONT.ctrlr.FindBy.clickSearchName();">Find</a></div><div id="ontFindNameButtonWorking" style="display:none;"><img src="js-i2b2/cells/ONT/assets/loadera16.gif"/></div></td>
+						<td valign="middle" style="width:135px;"><div class="ontFindButton"><a href="JavaScript:i2b2.ONT.ctrlr.FindBy.clickSearchName();">Find</a></div><div id="ontFindNameButtonWorking" style="display:none">Searching...</div></td>
 						<td valign="middle"><select id="ontFindCategory" name="ontFindCategory" style="font-size:11px;"><option value="i2b2">Any Category</option></select></td>
 					</tr>
 					</table>
@@ -303,7 +406,25 @@ YAHOO.util.Event.addListener(window, "load", init);
 					</table>
 					</form>
 				</div>
-				<div id="ontSearchCodesResults" oncontextmenu="return false"></div>
+				<div id="ontSearchCodesResults" oncontextmenu="return false"></div>                
+				<div id="ontFindFrameModifier"  style="display:none" class="findSubFrame">
+                <div id="ontFindFrameModifierTitle"></div>
+					<form id="ontFormFindModifier" method="post" action="JavaScript:i2b2.ONT.ctrlr.FindBy.clickSearchModifier();" style="margin:0px; padding:0px;">
+					<table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+					<tr>
+						<td style="width:100px;" valign="middle"><select name="ontFindStrategy" style="width:90px;overflow:hidden;font-size:11px;"><option value="contains">Containing</option><option value="exact">Exact</option><option value="left">Starting with</option><option value="right">Ending with</option></select></td>
+						<td colspan="2" valign="middle"><input name="ontFindModifierMatch" type="text" maxlength="100" style="border:1px solid #7c9cba;width:100%;font-size:11px;" /></td>
+					</tr>
+					<tr><td colspan="3" style="height:5px;overflow:hidden;"></td></tr>
+					<tr>
+						<td valign="middle"><div class="ontFindButton" style="width:75px;"><a href="JavaScript:i2b2.ONT.ctrlr.FindBy.clickSearchModifier('name');">Find Name</a></div><div id="ontFindNameButtonWorking" style="display:none;"><img src="js-i2b2/cells/ONT/assets/loadera16.gif"/></div></td>
+						<td valign="middle"><div class="ontFindButton" style="width:75px;"><a href="JavaScript:i2b2.ONT.ctrlr.FindBy.clickSearchModifier('code');">Find Code</a></div><div id="ontFindNameButtonWorking" style="display:none;"><img src="js-i2b2/cells/ONT/assets/loadera16.gif"/></div></td>
+						<td valign="middle"><div class="ontFindButton" style="width:75px;"><a href="JavaScript:i2b2.ONT.ctrlr.FindBy.clickSearchModifier('all');">Get All</a></div><div id="ontFindNameButtonWorking" style="display:none;"><img src="js-i2b2/cells/ONT/assets/loadera16.gif"/></div></td>
+					</tr>
+					</table>
+					</form>
+				</div>                
+				<div id="ontSearchModifiersResults" oncontextmenu="return false"></div>                
 			</div>
 			<div id="ontBalloonBox" xonmouseover="i2b2.ONT.view.main.hballoon.hideBalloons()">
 			<!--
@@ -313,7 +434,22 @@ YAHOO.util.Event.addListener(window, "load", init);
 			-->
 			</div>
 		</div>
-		<div style="clear:both;"></div>
+        <!--
+                  <div class="myAccordion">
+                    <div class="yui-cms-accordion vertical fast">
+                        <div class="yui-cms-item">
+                
+                            <a href="#" class="accordionToggleItem" title="click to expand">&nbsp;</a>
+                            <div class="bd">
+                              <div class="fixed" id="ontModifier">
+                                Modifier Info
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+              </div>
+              -->
+	<div style="clear:both;"></div>
 	</div>
 <!-- ############### </ONT View> ############### -->
 
@@ -327,7 +463,7 @@ YAHOO.util.Event.addListener(window, "load", init);
 				<div>PM Navigation</div>
 			</div>
 		</div>
-		<div class="bodyBox">
+	  <div class="bodyBox">
         <div id="pmNavTreeview" class="StatusBoxText"></div>
 		</div>
 	</div>
@@ -344,10 +480,9 @@ YAHOO.util.Event.addListener(window, "load", init);
 				<div id="pmMainTitle">Primary Table</div>
 			</div>
 			<div class="opXML">
-				<a href="JavaScript:showXML('PM','Admin','Stack');" class="debug"><img src="assets/images/msg_stack.gif" border="0" width="16" height="16"  alt="Show XML Message Stack" title="Show XML Message Stack" /></a>
-			</div>
+				<a href="JavaScript:showXML('PM','Admin','Stack');" class="debug"><img src="assets/images/msg_stack.gif" border="0" width="16" height="16"  alt="Show XML Message Stack" title="Show XML Message Stack" /></a>			</div>
 		</div>
-		<div class="bodyBox">
+  <div class="bodyBox">
 			<div id="pmAdminMainView" class="StatusBoxText" style="overflow:auto">
 				<div id="pmAdminHelp" style="margin-bottom:20px">Intro to PM Administration interface</div>
 
@@ -371,10 +506,9 @@ YAHOO.util.Event.addListener(window, "load", init);
 			</div>
 			<div class="opXML">
 				<a href="JavaScript:showXML('PM','main','Stack');" class="debug"><img src="assets/images/msg_stack.gif" border="0" width="16" height="16"  alt="Show XML Message Stack" title="Show XML Message Stack" /></a>
-				<a href="JavaScript:i2b2.WORK.view.main.ZoomView();"><img id="wrkZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/WORK/assets/zoom_icon.gif" alt="Toggle Zoom" title="Toggle Zoom" /></a> 
-			</div>
+				<a href="JavaScript:i2b2.WORK.view.main.ZoomView();"><img id="wrkZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/WORK/assets/zoom_icon.gif" alt="Resize Workspace" title="Resize Workspace" /></a>			</div>
 		</div>
-		<div class="bodyBox">
+	  <div class="bodyBox">
     <span id="goParam" class="yui-button yui-push-button" style="float:right;">
         <span class="first-child">
             <button type="button">Add</button>
@@ -399,10 +533,9 @@ YAHOO.util.Event.addListener(window, "load", init);
 <!--				<a href="JavaScript:showXML('WORK','main','Response');" class="debug"><img src="assets/images/msg_response.gif" border="0" width="16" height="16" alt="Show XML Response" title="Show XML Response" /></a> -->
 				<a href="JavaScript:showXML('WORK','main','Stack');" class="debug"><img src="assets/images/msg_stack.gif" border="0" width="16" height="16"  alt="Show XML Message Stack" title="Show XML Message Stack" /></a>
 <!--				<a href="JavaScript:i2b2.WORK.view.main.showOptions();"><img src="assets/images/options.gif" border="0" width="16" height="16" alt="Show Options" title="Show Options" /></a> -->
-				<a href="JavaScript:i2b2.WORK.view.main.ZoomView();"><img id="wrkZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/WORK/assets/zoom_icon.gif" alt="Toggle Zoom" title="Toggle Zoom" /></a>
-			</div>
+				<a href="JavaScript:i2b2.WORK.view.main.ZoomView();"><img id="wrkZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/WORK/assets/zoom_icon.gif" alt="Resize Workspace" title="Resize Workspace" /></a>			</div>
 		</div>
-		<div class="bodyBox">
+  <div class="bodyBox">
 			<div id="wrkTreeview" class="StatusBoxText"></div>
 		</div>
 	</div>
@@ -421,10 +554,9 @@ YAHOO.util.Event.addListener(window, "load", init);
 <!--				<a href="JavaScript:showXML('CRC','history','Response');" class="debug"><img src="assets/images/msg_response.gif" border="0" width="16" height="16" alt="Show XML Response" title="Show XML Response" /></a> -->
 				<a href="JavaScript:showXML('CRC','history','Stack');" class="debug"><img src="assets/images/msg_stack.gif" border="0" width="16" height="16"  alt="Show XML Message Stack" title="Show XML Message Stack" /></a>
 				<a href="JavaScript:i2b2.CRC.view.history.showOptions();"><img src="assets/images/options.gif" border="0" width="16" height="16" alt="Show Options" title="Show Options" /></a>
-				<a href="JavaScript:i2b2.CRC.view.history.ZoomView();"><img id="histZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/WORK/assets/zoom_icon.gif" alt="Toggle Zoom" title="Toggle Zoom" /></a>
-			</div>
+				<a href="JavaScript:i2b2.CRC.view.history.ZoomView();"><img id="histZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/WORK/assets/zoom_icon.gif" alt="Resize Workspace" title="Resize Workspace" /></a>			</div>
 		</div>
-		<div class="bodyBox">
+  <div class="bodyBox">
 			<div id="crcHistoryData" oncontextmenu="return false"></div>
 		</div>
 	</div>
@@ -443,16 +575,28 @@ YAHOO.util.Event.addListener(window, "load", init);
 <!--				<a href="JavaScript:showXML('CRC','QT','Response');" class="debug"><img src="assets/images/msg_response.gif" border="0" width="16" height="16" alt="Show XML Response" title="Show XML Response" /></a> -->
 				<a href="JavaScript:showXML('CRC','QT','Stack');" class="debug"><img src="assets/images/msg_stack.gif" border="0" width="16" height="16"  alt="Show XML Message Stack" title="Show XML Message Stack" /></a>
 				<a href="JavaScript:i2b2.CRC.view.QT.showOptions();"><img src="assets/images/options.gif" border="0" width="16" height="16" alt="Show Options" title="Show Options" /></a>
-				<a href="JavaScript:i2b2.CRC.view.QT.ZoomView();"><img id="qtZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/CRC/assets/zoom_icon.gif" alt="Toggle Zoom" title="Toggle Zoom" /></a>
-			</div>
+				<a href="JavaScript:i2b2.CRC.view.QT.ZoomView();"><img id="qtZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/CRC/assets/zoom_icon.gif" alt="Resize Workspace" title="Resize Workspace" /></a>			</div>
 		</div>
-		<div class="bodyBox" >
-			<div class="queryNameBar" style="width:512px;">
+  <div class="bodyBox" id="crcQueryToolBox.bodyBox">
+			<div class="queryNameBar" id="queryNameBar" style="width:512px;">
 				<div class="queryLabel">Query Name:&nbsp;</div>
 				<div id="queryName"></div>
 			</div>
-			<div id="crcQryToolPanels" style="width:512px;overflow:hidden;">
-			<div style="width:550px;">
+			<div class="queryNameBar" id="temporalConstraintBar" style="width:512px;">
+				<div class="queryLabel" id="temporalConstraintLabel" style="width:120px">Temporal Constraint:&nbsp;</div>
+                <div class="qryTemporalConstraint" id="temporalConstraintDiv" style="float:left;overflow:hidden">
+						<input type="submit" id="queryTiming" name="queryTiming" value="Treat all groups independently"> 
+                        <select id="menubutton1select" name="menubutton1select"> 
+                            <option value="ANY">Treat all groups independently</option> 
+                            <option value="SAMEVISIT">Selected groups occur in the same financial encounter</option> 
+                         <!--   <option value="ENCOUNTER">Selected groups occur in financial encounters in the specified order</option>
+                            <option value="SAMEINSTANCENUM">Items Instance will be the same</option>  -->
+                        </select>   
+                </div>
+			</div>
+			
+		<div id="crcQryToolPanels" style="width:512px;overflow:hidden;">
+			<div id = "crc.innerQueryPanel" style="width:550px;">
 				<div class="qryPanel">
 					<div class="qryPanelTitle">
 						<div class="qryPanelClear" style="float:right"><a href="JavaScript:i2b2.CRC.ctrlr.QT.panelControllers[0].doDelete();"><img src="js-i2b2/cells/CRC/assets/QryTool_b_clear.gif" border="0" alt="Clear" /></a></div>
@@ -463,6 +607,20 @@ YAHOO.util.Event.addListener(window, "load", init);
 						<div class="qryButtonOccurs" style="float:left"><a id="queryPanelOccursB1" class="queryPanelButton" href="JavaScript:i2b2.CRC.ctrlr.QT.panelControllers[0].showOccurs()" title="Select the minimum number of times this group's criterion has occured...">Occurs &gt; <span id="QP1Occurs">0</span>x</a></div>
 						<div class="qryButtonExclude" style="float:left"><a id="queryPanelExcludeB1" class="queryPanelButton" href="JavaScript:i2b2.CRC.ctrlr.QT.panelControllers[0].doExclude()" title="Exclude records matching this group's criteria...">Exclude</a></div>
 					</div>
+					<div class="qryPanelTiming">
+                    	<div id="queryPanelTimingText"  style="float:left">
+						<input type="submit" id="queryPanelTimingB1" name="queryPanelTiming" value="Treat Independently"> 
+                        <select id="menubutton1select" name="menubutton1select"> 
+                            <option value="ANY">Treat Independently</option> 
+                            <option value="SAMEVISIT">Occurs in Same Encounter</option> 
+                        </select>                         
+                        </div>
+                        <div class="qryButtonLimitB1" id="qryButtonLimitB1" style="display:none; float:right;"><a id="queryPanelLimitB1" class="queryPanelButton" href="JavaScript:i2b2.CRC.ctrlr.QT.panelControllers[0].showLimit()" title="Select the minimum number of times this group's criterion has occured...">Limit</a></div>
+
+   				<!--	<div class="qryPanelButtonBar2">
+                    	<div class="qryPanelTiming" id="queryPanelTimingB1" style="float:left"></div> -->
+      
+                    </div>
 					<div id="QPD1" style="clear:both" oncontextmenu="return false" class="queryPanel"></div>
 				</div>
 				<div class="qryPanel" style="margin-left:2px;">
@@ -475,6 +633,13 @@ YAHOO.util.Event.addListener(window, "load", init);
 						<div class="qryButtonOccurs" style="float:left"><a id="queryPanelOccursB2" class="queryPanelButton" href="JavaScript:i2b2.CRC.ctrlr.QT.panelControllers[1].showOccurs()" title="Select the minimum number of times this group's criterion has occured...">Occurs &gt; <span id="QP2Occurs">0</span>x</a></div>
 						<div class="qryButtonExclude" style="float:left"><a id="queryPanelExcludeB2" class="queryPanelButton" href="JavaScript:i2b2.CRC.ctrlr.QT.panelControllers[1].doExclude()" title="Exclude records matching this group's criteria...">Exclude</a></div>
 					</div>
+   					<div class="qryPanelTiming" style="float:left">
+						<input type="submit" id="queryPanelTimingB2" name="queryPanelTiming" value="Treat Independently"> 
+                        <select id="menubutton1select" name="menubutton1select"> 
+                            <option value="ANY">Treat Independently</option>
+                            <option value="SAMEVISIT">Occurs in Same Encounter</option> 
+                        </select>                         
+                    </div>
 					<div id="QPD2" style="clear:both" oncontextmenu="return false" class="queryPanel"></div>
 				</div>
 				<div class="qryPanel" style="margin-left:2px;">
@@ -487,6 +652,13 @@ YAHOO.util.Event.addListener(window, "load", init);
 						<div class="qryButtonOccurs" style="float:left"><a id="queryPanelOccursB3" class="queryPanelButton" href="JavaScript:i2b2.CRC.ctrlr.QT.panelControllers[2].showOccurs()" title="Select the minimum number of times this group's criterion has occured...">Occurs &gt; <span id="QP3Occurs">0</span>x</a></div>
 						<div class="qryButtonExclude" style="float:left"><a id="queryPanelExcludeB3" class="queryPanelButton" href="JavaScript:i2b2.CRC.ctrlr.QT.panelControllers[2].doExclude()" title="Exclude records matching this group's criteria...">Exclude</a></div>
 					</div>
+					<div class="qryPanelTiming" style="float:left">
+						<input type="submit" id="queryPanelTimingB3" name="queryPanelTiming" value="Treat Independently"> 
+                        <select id="menubutton1select" name="menubutton1select"> 
+                            <option value="ANY">Treat Independently</option> 
+                            <option value="SAMEVISIT">Occurs in Same Encounter</option> 
+                        </select>                         
+                    </div>
 					<div id="QPD3" style="clear:both" oncontextmenu="return false" class="queryPanel"></div>
 				</div>
 				<div style="clear:both; width:100%; height:5px; overflow:hidden;"></div>
@@ -502,9 +674,10 @@ YAHOO.util.Event.addListener(window, "load", init);
 
 			</div>
 			<div id="qryToolFooter" style="width:512px; overflow:hidden">
-				<div id="runBox"><a href="JavaScript:i2b2.CRC.ctrlr.QT.doQueryRun()">Run Query</a></div>
-				<div id="newBox"><a href="JavaScript:i2b2.CRC.ctrlr.QT.doQueryClear();">New Query</a></div>
-				<div id="groupCount" style="width:175px;float:left;height:16px;overflow:hidden;"></div>
+				<div id="runBox"><a href="JavaScript:i2b2.CRC.ctrlr.QT.doQueryRun()"><span id="runBoxText">Run Query</span></a></div>
+				<div id="newBox"><a href="JavaScript:i2b2.CRC.ctrlr.QT.doQueryClear();">Clear</a></div>
+				<div id="printQueryBox"><a href="JavaScript:i2b2.CRC.ctrlr.QT.doPrintQuery();">Print Query</a></div>
+				<div id="groupCount" style="width:75px;float:left;height:16px;overflow:hidden;"></div>
 				<div id="scrollBox">
 					<a href="JavaScript:i2b2.CRC.ctrlr.QT.doScrollFirst();"><img id="panelScrollFirst" src="js-i2b2/cells/CRC/assets/QryTool_b_first_hide.gif" border="0" alt="Go First" /></a>
 					<a href="JavaScript:i2b2.CRC.ctrlr.QT.doScrollPrev();"><img id="panelScrollPrev" src="js-i2b2/cells/CRC/assets/QryTool_b_prev_hide.gif" border="0" alt="Go Previous" /></a>
@@ -521,8 +694,13 @@ YAHOO.util.Event.addListener(window, "load", init);
 	<div id="crcStatusBox" style="display:none">
 		<div class="TopTabs">
 			<div class="tabBox tabQueryStatus active"><div>Query Status</div></div>
+			<div class="opXML">
+
+				<a href="JavaScript:i2b2.CRC.ctrlr.QT.doPrintQuery();"><img id="qtPrintImg" width="16" height="16" border="0" src="js-i2b2/cells/CRC/assets/printer_img.gif" alt="Print Query" title="Print Query" /></a>		
+             </div>            
+            
 		</div>
-		<div class="StatusBox">
+  <div class="StatusBox">
 			<div id="infoQueryStatusText" class="StatusBoxText" oncontextmenu="return false"></div>
 		</div>
 	</div>
@@ -538,10 +716,9 @@ YAHOO.util.Event.addListener(window, "load", init);
 			<div class="tabBox tabPluginList active" ><div>Plugins</div></div>
 			<div class="opXML">
 <!--			<a href="JavaScript:i2b2.PLUGINMGR.view.list.showOptions();"><img src="assets/images/options.gif" border="0" width="16" height="16"></a> -->
-				<a href="JavaScript:i2b2.PLUGINMGR.view.list.ZoomView();"><img id="pluglstZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/CRC/assets/zoom_icon.gif" alt="Toggle Zoom" /></a>
-			</div>
+				<a href="JavaScript:i2b2.PLUGINMGR.view.list.ZoomView();"><img id="pluglstZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/CRC/assets/zoom_icon.gif" alt="Resize Workspace" /></a>			</div>
 		</div>
-		<a id="plugListRecDETAIL-CLONE" class="pluginRecordBox DETAIL" style="display:none">
+<a id="plugListRecDETAIL-CLONE" class="pluginRecordBox DETAIL" style="display:none">
 			<div class="Icon"><img src="js-i2b2/cells/PLUGINMGR/assets/DEFAULTLIST_icon_32x32.gif" alt="" /></div>
 			<div class="txtBoundBox">
 				<div class="Name">Plugin Name</div>
@@ -576,10 +753,9 @@ YAHOO.util.Event.addListener(window, "load", init);
 <!--				<a href="JavaScript:showXML('PLUGINMGR','PlugView','Response');" class="debug"><img src="assets/images/msg_response.gif" border="0" width="16" height="16" alt="Show XML Response" title="Show XML Response" /></a> -->
 				<a href="JavaScript:showXML('PLUGINMGR','PlugView','Stack');" class="debug"><img src="assets/images/msg_stack.gif" border="0" width="16" height="16"  alt="Show XML Message Stack" title="Show XML Message Stack" /></a>
 				<a href="JavaScript:i2b2.PLUGINMGR.view.PlugView.showOptions();"><img src="assets/images/options.gif" border="0" width="16" height="16" alt="Show Options" title="Show Options" /></a>
-				<a href="JavaScript:i2b2.PLUGINMGR.ctrlr.main.ZoomView();"><img id="plugviewZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/PLUGINMGR/assets/zoom_icon.gif" alt="Toggle Zoom" title="Toggle Zoom" /></a>
-			</div>
+				<a href="JavaScript:i2b2.PLUGINMGR.ctrlr.main.ZoomView();"><img id="plugviewZoomImg" width="16" height="16" border="0" src="js-i2b2/cells/PLUGINMGR/assets/zoom_icon.gif" alt="Resize Workspace" title="Resize Workspace" /></a>			</div>
 		</div>
-		<div class="PluginViewBox">
+  <div class="PluginViewBox">
 			<div id="anaPluginViewFrame" oncontextmenu="return false">
 				<div class="initialMsg">Select a plugin to load from the "Plugins" window.</div>
 			</div>
@@ -590,8 +766,8 @@ YAHOO.util.Event.addListener(window, "load", init);
 <!-- ############### </Plugin Viewer> ############### -->
 
 	<div class="pageMask" id="itemOptionsMask" style="display:none" onClick="hidePopMenu();" onMouseDown="hidePopMenu();"></div>
-	<div class="pageMask" id="itemConstraintsMask" style="background-color: #000; filter:alpha(opacity=25); -moz-opacity:0.25;opacity: 0.25; display:none">&nbsp;</div>
-	<div id="itemOptions" style="display:none"></div>
+  <div class="pageMask" id="itemConstraintsMask" style="background-color: #000; filter:alpha(opacity=25); -moz-opacity:0.25;opacity: 0.25; display:none">&nbsp;</div>
+  <div id="itemOptions" style="display:none"></div>
 	<div id="itemConstraints" style=""></div>
 
 <!-- ############### <Option Screens> ############### -->
@@ -630,6 +806,10 @@ YAHOO.util.Event.addListener(window, "load", init);
 				<div style="font-size:12px; margin-left:50px" >Maximum Number of Children to Display: <input id="ONTNAVMaxQryDisp" style="width:35px" value="200" /></div>
 				<div style="margin-left:50px"><input type="checkbox" id="ONTNAVshowHiddens" /> Show Hidden Terms</div>
 				<div style="margin-left:50px"><input type="checkbox" id="ONTNAVshowSynonyms" /> Show Synonymous Terms</div>
+				<div style="margin-left:50px"><input type="checkbox" checked id="ONTNAVshowPatientCounts" /> Enable Patient Counts</div>
+				<div style="margin-left:50px"><input type="checkbox" id="ONTNAVshowShortTooltips" /> Use Short Tooltips</div>
+				<div style="margin-left:50px"><input type="checkbox" id="ONTNAVshowCodeTooltips" /> Show Concept Codes in Tooltips</div>
+    			<div style="margin-left:50px"><input type="checkbox" id="ONTNAVdisableModifiers" /> Disable Modifiers</div>                
 		</div>
 	</div>
 	<div id="optionsOntFind" style="display:none;">
@@ -638,8 +818,12 @@ YAHOO.util.Event.addListener(window, "load", init);
 				<br />
 				<div style="font-size:12px; margin-left:50px" >Maximum Number of Children to Display: <input id="ONTFINDMaxQryDisp" style="width:35px" value="200" /></div>
 				<div style="margin-left:50px"><input type="checkbox" id="ONTFINDshowHiddens" /> Show Hidden Terms</div>
-				<div style="margin-left:50px"><input type="checkbox" id="ONTFINDshowSynonyms" /> Show Synonymous Terms</div>
-		</div>
+				<div style="margin-left:50px"><input type="checkbox" checked id="ONTFINDshowSynonyms" /> Show Synonymous Terms</div>
+				<div style="margin-left:50px"><input type="checkbox" id="ONTFINDshowPatientCounts" /> Enable Patient Counts</div>
+				<div style="margin-left:50px"><input type="checkbox" id="ONTFINDshowShortTooltips" /> Use Short Tooltips</div>
+				<div style="margin-left:50px"><input type="checkbox" checked id="ONTFINDshowCodeTooltips" /> Show Concept Codes in Tooltips</div> 		
+    			<div style="margin-left:50px"><input type="checkbox" id="ONTFINDdisableModifiers" /> Disable Modifiers</div>                
+         </div>
 	</div>
 <!-- ############### </Option Screens> ############### -->
 	<div id="calendarDiv" style="z-index:1520; display:none;"></div>
@@ -679,7 +863,7 @@ YAHOO.util.Event.addListener(window, "load", init);
 
 
 	<div id="constraintOccurs" style="display:none;">
-		<div class="hd" style="background:#6677AA;">Constrain Group by Number of Occurrences</div>
+		<div class="hd" style="background:#6677AA;">Constrain Group by Number of Occurances</div>
 		<div class="bd">
 			<br />Event(s) within the group occur more than
 			<select style="width: 46px;" id="constraintOccursInput" name="constraintOccursInput">
@@ -703,23 +887,127 @@ YAHOO.util.Event.addListener(window, "load", init);
 				<option value="17">17</option>
 				<option value="18">18</option>
 				<option value="19">19</option>
-			</select> times.
+			</select> times.<br/>
+    
+    <br/>
+    <div id="constraintEncounterBased" style="display:none;">
+    	<input type="checkbox" id="constraintEncounterFirst"  name="constraintEncounterBefore">Only use FIRST financial encounter in which the event(s) occur.<br/>
+    	<input type="checkbox" id="constraintEncounterLast"  name="constraintEncounterLast">Only use LAST financial encounter in which the event(s) occur.
+    
+    </div>
+    <div id="constraintTextBased" style="display:none;">
+    
+   		 <p>Application of relevance for text searches only</p> 
+    	Percent of the matching documents which should be returned where documents with the highest relevance will be returned first.
+        
+            <div id="slider-bg" class="yui-h-slider" tabindex="-1" title="Slider" style="float:left;"> 
+			    <div id="slider-thumb" class="yui-slider-thumb"><img src="http://yui.yahooapis.com/2.9.0/build/slider/assets/thumb-n.gif"></div> 
+			</div> 
+		 	<div style="float:left;padding:5px 0 0 5px;">
+	            <span id="slider-value">100</span>%
+            </div>
+            <br  clear="all"/>
+            </div>
 		</div>
 	</div>
 
+<!-- ############### Temporal Interval Limits ############### -->
 
+<div id="constraintLimits" style="display:none;">
+		<div class="hd" style="background:#6677AA;">Temporal Interval Limits</div>
+        <div class="bd">
+    		This group must occur<br/>
+
+                    <input type="checkbox" id="aaa"  name="aaa">At least 
+                    <select style="width: 46px;" id="bbb" name="bbb">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                    </select> 
+                    <select style="width: 100px; margin-bottom:5px;" id="ccc" name="ccc">
+                            <option value="1">Days(s)</option>
+                            <option value="2">Month(s)</option>
+                            <option value="3">Year(s)</option>
+                        </select>         
+                    after the previous group.
+                    <br/>
+                    <input type="checkbox" id="ddd"  name="ddd">No more than 
+                    <select style="width: 46px;" id="bbb" name="bbb">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                    </select> 
+                    <select style="width: 100px; margin-bottom:5px;" id="ccc" name="ccc">
+                            <option value="1">Days(s)</option>
+                            <option value="2">Month(s)</option>
+                            <option value="3">Year(s)</option>
+                        </select>         
+                    after the previous group.
+                    <br/>                    
+                    <input type="checkbox" id="ddd"  name="ddd">At least 
+                    <select style="width: 46px;" id="bbb" name="bbb">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                    </select> 
+                    <select style="width: 100px; margin-bottom:5px;" id="ccc" name="ccc">
+                            <option value="1">Days(s)</option>
+                            <option value="2">Month(s)</option>
+                            <option value="3">Year(s)</option>
+                        </select>         
+                    before the next group.
+                    <br/>        
+                                         <input type="checkbox" id="ddd"  name="ddd">No more than 
+                    <select style="width: 46px;" id="bbb" name="bbb">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                    </select> 
+                    <select style="width: 100px; margin-bottom:5px;" id="ccc" name="ccc">
+                            <option value="1">Days(s)</option>
+                            <option value="2">Month(s)</option>
+                            <option value="3">Year(s)</option>
+                        </select>         
+                    before the next group.
+                    <br/>                           
+        </div>
+	</div>
 
 <!-- ############### <LabRange> ############### -->
 	<div id="itemLabRange" style="display:none;">
 		<div class="hd" style="background:#6677AA;">Lab Range Constraint</div>
 		<div class="bd modLabValues">
-			<div style="margin: 0px 5% 12px; text-align: center;">Searches by Lab values can be constrained by the high/low flag set by the performing laboratory, or by the values themselves.</div>
+			<div style="margin: 0px 5% 12px; text-align: center;" id="valueContraintText"></div>
 			<div class="mlvBody">
 				<div class="mlvtop">
 					<div class="mlvModesGroup">
-						<div class="mlvMode"><input name="mlvfrmType" id="mlvfrmTypeNONE" value="NO_VALUE" type="radio" checked="checked" /> No value [<a href="JavaScript:alert('Picking no value for the test value will select all of the tests irrespective of its associated value.');" style="text-decoration:none;color:#000;">?</a>]</div>
-						<div class="mlvMode"><input name="mlvfrmType" id="mlvfrmTypeFLAG" value="BY_FLAG" type="radio" /> By flag [<a href="JavaScript:alert('Picking a value flag will select those tests determined to be abnormal by the laboratory\nthat performed the test. This has an advantage over selecting by numeric comparisons\nbecause differences in calibration and errors in units are eliminated. The disadvantage\nto numeric comparisons is that the laboratory may not be reliable in setting this flag.');" style="text-decoration:none;color:#000;">?</a>]</div>
-						<div class="mlvMode"><input name="mlvfrmType" id="mlvfrmTypeVALUE" value="BY_VALUE" type="radio" /> By value [<a href="JavaScript:alert('Picking a numeric value will select those tests that, according to an operator, will be\nabove, below, or between certain values. This gives fine control over the value that\nthe test result must have in order for it to be selected. The disadvantage of using\nnumeric comparisons is that differences in calibration and errors in units can create\nerroneous results.');" style="text-decoration:none;color:#000;">?</a>]</div>
+						<div class="mlvMode"><input name="mlvfrmType" id="mlvfrmTypeNONE" value="NO_VALUE" type="radio" checked="checked" /> No value</div>
+						<div class="mlvMode"><input name="mlvfrmType" id="mlvfrmTypeFLAG" value="BY_FLAG" type="radio" /> By flag</div>
+						<div class="mlvMode"><input name="mlvfrmType" id="mlvfrmTypeVALUE" value="BY_VALUE" type="radio" /> By value</div>
 					</div>
 					<div class="mlvInputGroup">
 						<div id="mlvfrmFLAG" style="display:none">
@@ -738,6 +1026,15 @@ YAHOO.util.Event.addListener(window, "load", init);
 									<option value="GE">GREATER THAN OR EQUAL (&gt;=)</option>
 								</select>
 							</p>
+							<p id="mlvfrmEnterStringOperator">
+								Please select operator:<br />
+								<select id='mlvfrmStringOperator'>
+									<option value="LIKE[contains]">Contains</option>
+									<option value="LIKE[exact]">Exact</option>
+									<option value="LIKE[begin]">Starts With</option>
+									<option value="LIKE[end]">Ends With</option>
+								</select>
+							</p>                            
 							<p id="mlvfrmEnterVal">
 								Please enter a value:<br />
 								<input id="mlvfrmNumericValue" class="numInput" />
@@ -746,7 +1043,9 @@ YAHOO.util.Event.addListener(window, "load", init);
 								<input id="mlvfrmNumericValueLow" class="numInput" /> &nbsp;-&nbsp; <input id="mlvfrmNumericValueHigh" class="numInput" />
 							</p>
 
-							<p id="mlvfrmEnterStr">Please enter a value:<br /><input id="mlvfrmStrValue" class="strInput" /> </p>
+							<p id="mlvfrmEnterStr">Enter Search Text:<br /><input id="mlvfrmStrValue" class="strInput" /> </p>
+
+							<p id="mlvfrmEnterDbOperator"><input id="mlvfrmDbOperator" type="checkbox"/> Use Database Operators <i>(Advanced Searching)</i><br/></p>
 
 							<p id="mlvfrmEnterEnum">Please select a value:<br />
 								<select id="mlvfrmEnumValue" class="enumInput" multiple="multiple" size="5" style="overflow: scroll; width: 562px;">
@@ -757,39 +1056,53 @@ YAHOO.util.Event.addListener(window, "load", init);
 					</div>
 
 					<div style="clear:both;height:1px;overflow:hidden;"></div>
-
-					<div id="mlvfrmUnitsContainer" style="margin: 10px 0px 0px 15px;">
-						Units =
-						<select id='mlvfrmUnits' class="units"><option value="0">Loading...</option></select>
-						<span id="mlvUnitExcluded" style="color:#900; margin-left: 20px">A value cannot be specified for these units.</span>
+					
+				<!-- BEGIN snm0 -->
+				<!-- Lab value bars display section -->
+				<div id="mlvfrmBarContainer" style="margin: 10px; padding: 10px; text-align: center; border: 1px solid #000080; height: auto; display:none">
+				<!-- <div id="mlvfrmBarContainer" class="barContainer" style="white-space:nowrap; display:none"> -->
+					<div style="height: 55px">
+						<!-- top text -->
+						<div>Click on a bar segment to help specify a value or range:</div>
+						<div>Range in <span id="mlvfrmLblUnits" style="font-decoration:italic bold">mm/Hg</span></div>
+                        <!-- bars are drawn -->
+                        <div id="barToxL" style="float:left; background: none repeat scroll 0% 0% rgb(0, 0, 0); height: 15px; width: 72px;">
+                        	<a href="#lblToxL" onclick="i2b2.CRC.view.modalLabValues.updateValue(event)" title="Toxic low value" class="barlink">&nbsp;</a></div>
+                        <div id="barLofL" style="float:left; background: none repeat scroll 0% 0% rgb(255, 0, 0); height: 15px; width: 72px;">
+                        	<a href="#lblLofL" onclick="i2b2.CRC.view.modalLabValues.updateValue(event)" title="Abnormal low value" class="barlink">&nbsp;</a></div>
+                        <div id="barHofL" style="float:left; background: none repeat scroll 0% 0% rgb(255, 255, 0); height: 15px; width: 72px;">
+                        	<a href="#lblHofL" onclick="i2b2.CRC.view.modalLabValues.updateValue(event)" title="Indeterminant low value" class="barlink">&nbsp;</a></div>
+                        <div id="barNorm" style="float:left; background: none repeat scroll 0% 0% rgb(0, 255, 0); height: 15px; width: 72px;">
+                        	<a href="#" onclick="i2b2.CRC.view.modalLabValues.updateValue(event)"  title="Normal" class="barlink">&nbsp;</a></div>
+                        <div id="barLofH" style="float:left; background: none repeat scroll 0% 0% rgb(255, 255, 0); height: 15px; width: 72px;">
+                        	<a href="#lblLofH" onclick="i2b2.CRC.view.modalLabValues.updateValue(event)" title="Indeterminant high value" class="barlink">&nbsp;</a></div>
+                        <div id="barHofH" style="float:left; background: none repeat scroll 0% 0% rgb(255, 0, 0); height: 15px; width: 72px;">
+                        	<a href="#lblHofH" onclick="i2b2.CRC.view.modalLabValues.updateValue(event)" title="Abnormal high value" class="barlink">&nbsp;</a></div>
+                        <div id="barToxH" style="float:left; background: none repeat scroll 0% 0% rgb(0, 0, 0); height: 15px; width: 72px;">
+                        	<a href="#lblToxH" onclick="i2b2.CRC.view.modalLabValues.updateValue(event)" title="Toxic high value" class="barlink">&nbsp;</a></div>
+                        <!-- labels are drawn -->
+                        <div id="lblToxL" style="float: left; text-align: right; width: 72px;">&nbsp;</div>
+                        <div id="lblLofL" style="float: left; text-align: right; width: 72px;">&nbsp;</div>
+                        <div id="lblHofL" style="float: left; text-align: right; width: 72px;">&nbsp;</div>
+                        <div id="lblNorm" style="float: left; text-align: left; width: 72px;">&nbsp;</div>
+                        <div id="lblLofH" style="float: left; text-align: left; width: 72px;">&nbsp;</div>
+                        <div id="lblHofH" style="float: left; text-align: left; width: 72px;">&nbsp;</div>
+                        <div id="lblToxH" style="float: left; text-align: left; width: 72px;">&nbsp;</div>
 					</div>
 				</div>
-				<div id="mlvfrmBarContainer" class="barContainer" style="white-space:nowrap; display:none">
-					<table id="mlvfrmBarVALUES" class="bar" width="100%" cellspacing="0">
-						<tr>
-							<td colspan="5" align="center">Range in <span id="mlvfrmLblUnits" style="font-decoration:italic bold">mm/Hg</span></td>
-						</tr>
-						<tr>
-							<td class="barfrag" style="background:#F00; width:10%; border-left: 1px solid #000"><a href="javascript:void(0);" title="Low Toxic" class="barlink">&nbsp;</a></td>
-							<td class="barfrag" style="background:#FFA500; width:20%"><a href="javascript:void(0);" title="Low Abnormal" class="barlink">&nbsp;</a></td>
-							<td class="barfrag" style="background:#080; width:40%"><a href="javascript:void(0);" title="Normal" class="barlink">&nbsp;</a></td>
-							<td class="barfrag" style="background:#FFA500; width:20%" ><a href="javascript:void(0);" title="High Abnormal" class="barlink">&nbsp;</a></td>
-							<td class="barfrag" style="background:#F00; width:10%"><a href="javascript:void(0);" title="High Toxic" class="barlink">&nbsp;</a></td>
-						</tr>
-						<tr>
-							<td><div class="barlabel" id="mlvfrmLblLowToxic">LowTx</div></td>
-							<td><div class="barlabel" id="mlvfrmLblHighOfLow">HofL</div></td>
-							<td><div class="barlabel" id="mlvfrmLblLowOfHigh">LofH</div></td>
-							<td><div class="barlabel" id="mlvfrmLblHighToxic">HighTx</div></td>
-							<td>&nbsp;</td>
-						</tr>
-					</table>
+				
+				<!-- Units display section -->
+				<div id="mlvfrmUnitsContainer" style="margin: 10px 0px 0px 15px; display:none">
+						<div style="float:left; text-align:left; bottom: 0">Units = &nbsp;</div>
+						<span><select id='mlvfrmUnits' class="units" style="width: 500px; float:left;"><option value="0">Loading...</option></select></span>
+						<span id="mlvUnitExcluded" style="color:#900; margin-left: 20px">A value cannot be specified for these units.</span>
+				</div>
+				<!-- END snm0 -->
 				</div>
 			</div>
 		</div>
 	</div>
 <!-- ############### </LabRange> ############### -->
-
 
 <!-- ############### <Query Rename Dialog> ############### -->
 	<div id="dialogQmName" style="display:none;">
@@ -811,16 +1124,33 @@ YAHOO.util.Event.addListener(window, "load", init);
 			<div style="margin-left:50px"><input class="inputQueryName" style="width:275px" /></div>
 			<div style="height:25px;"></div>
 			<div style="font-size:12px; margin-left:50px" >Please check the query result type(s):</div>
-			<div style="border: 1px solid rgb(171, 173, 179); margin-left: 50px; width: 275px; padding: 4px">
+			<div style="border: 1px solid rgb(171, 173, 179); height:100px; overflow:auto; margin-left: 50px; width: 275px; padding: 4px" id="dialogQryRunResultType">
 				<div id="crcDlgResultOutputPRC"><input type="checkbox" class="chkQueryType" name="queryType" value="PRC" checked="checked" /> Patient Count (aggregate number only)</div>
 				<div id="crcDlgResultOutputPRS"><input type="checkbox" class="chkQueryType" name="queryType" value="PRS" /> Patient Set (list of matching patients)</div>
+				<div id="crcDlgResultOutputENS"><input type="checkbox" class="chkQueryType" name="queryType" value="ENS" /> Encounter Set (list of matching encounters)</div>
 			</div>
 		</div>
 	</div>
 <!-- ############### </Query Run Dialog> ############### -->
 
+<!-- ############### <Timeout Dialog> ############### -->
+	<div id="dialogTimeout" style="display:none;">
+		<div class="hd" style="background:#6677AA;">Session Timing Out</div>
+		<div class="bd">
+			<br />
+			<div style="font-size:12px; margin-left:10px" >Your session will automatically time out in 5 minutes due to inactivity.  Please click "OK" to continue your session, or click cancel to log out.</div>
+			<div style="height:15px;"></div>
+		</div>
+	</div>
+<!-- ############### </Timeout Dialog> ############### -->
 
-
+<!-- ############### <Draggable Splitter> ############### -->
+	<div id="main.splitter" class="vertical_splitter" style="top:33px"></div>	<!-- Overwriting the default top position -->
+	<!-- Debug output -->
+	<!-- <div id="main.debug" style="position: absolute; top: 300px; left: 300px; color: red"> <p></p><br> </div> -->
+<!-- ############### <Draggable Splitter> ############### -->
+	
 </div>
+
 </body>
 </html>

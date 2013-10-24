@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2006-2011 Massachusetts General Hospital 
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the i2b2 Software License v2.1 
+ * which accompanies this distribution. 
+ * 
+ * Contributors:
+ * 		Lori Phillips
+ */
 package edu.harvard.i2b2.ontology.dao;
 
 import java.sql.ResultSet;
@@ -21,6 +30,7 @@ import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.xml.XMLUtil;
 import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
+import edu.harvard.i2b2.ontology.datavo.vdo.ModifierType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ModifyChildType;
 import edu.harvard.i2b2.ontology.datavo.vdo.XmlValueType;
 import edu.harvard.i2b2.ontology.datavo.vdo.DeleteChildType;
@@ -104,7 +114,7 @@ public class ConceptPersistDao extends JdbcDaoSupport {
 			XmlValueType metadataXml=addChildType.getMetadataxml();
 			if (metadataXml != null) {
 				String addSql = "insert into " + metadataSchema+tableName  + 
-				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_metadataxml, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date, sourcesystem_cd, valuetype_cd) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_metadataxml, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date, sourcesystem_cd, valuetype_cd, m_applied_path) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				log.info(addSql);
 
 				Element element = metadataXml.getAny().get(0);
@@ -114,17 +124,17 @@ public class ConceptPersistDao extends JdbcDaoSupport {
 						addChildType.getLevel(), StringUtil.getPath(addChildType.getKey()),addChildType.getName(), addChildType.getSynonymCd(), 
 						addChildType.getVisualattributes(), addChildType.getBasecode(), xml, addChildType.getFacttablecolumn() ,addChildType.getTablename() ,
 						addChildType.getColumnname() , addChildType.getColumndatatype() ,addChildType.getOperator() ,addChildType.getDimcode() ,addChildType.getComment() ,
-						addChildType.getTooltip(),today,  today,today, addChildType.getSourcesystemCd() ,addChildType.getValuetypeCd());
+						addChildType.getTooltip(),today,  today,today, addChildType.getSourcesystemCd() ,addChildType.getValuetypeCd(), "@");
 			}		
 			else {
 				String addSql = "insert into " + metadataSchema+tableName  + 
-				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date,sourcesystem_cd, valuetype_cd) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date,sourcesystem_cd, valuetype_cd, m_applied_path) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				log.info(addSql);
 				numRowsAdded = jt.update(addSql, 
 						addChildType.getLevel(), StringUtil.getPath(addChildType.getKey()),addChildType.getName(), addChildType.getSynonymCd(), 
 						addChildType.getVisualattributes(), addChildType.getBasecode(), addChildType.getFacttablecolumn() ,addChildType.getTablename() ,
 						addChildType.getColumnname() , addChildType.getColumndatatype() ,addChildType.getOperator() ,addChildType.getDimcode() ,addChildType.getComment() ,
-						addChildType.getTooltip(), today, today,today, addChildType.getSourcesystemCd() ,addChildType.getValuetypeCd());
+						addChildType.getTooltip(), today, today,today, addChildType.getSourcesystemCd() ,addChildType.getValuetypeCd(), "@");
 			}
 		} catch (DataAccessException e) {
 			log.error("Dao addChild failed");
@@ -264,8 +274,16 @@ public class ConceptPersistDao extends JdbcDaoSupport {
 		        }
 			};
 			//extract table code
-			String tableCd = StringUtil.getTableCd(modifyChildType.getSelf().getKey());
-			// table code to table name conversion
+			String tableCd = null;
+			if((modifyChildType.getSelf().getModifier() == null)||(modifyChildType.getSelf().getModifier().getName() == null)){
+				tableCd = StringUtil.getTableCd(modifyChildType.getSelf().getKey());
+				log.info("path: " + StringUtil.getPath(modifyChildType.getSelf().getKey()));
+			}
+			else {
+				tableCd = StringUtil.getTableCd(modifyChildType.getSelf().getModifier().getKey());
+				log.info("path: " + StringUtil.getPath(modifyChildType.getSelf().getModifier().getKey()));
+			}
+				// table code to table name conversion
 			String tableName=null;
 			if (!protectedAccess){
 				String tableSql = "select distinct(c_table_name) from " + metadataSchema + "table_access where c_table_cd = ? and c_protected_access = ? ";
@@ -285,66 +303,93 @@ public class ConceptPersistDao extends JdbcDaoSupport {
 				}
 			}
 
-			log.info("path: " + StringUtil.getPath(modifyChildType.getSelf().getKey()));
+	//		log.info("path: " + StringUtil.getPath(modifyChildType.getSelf().getKey()));
 
 	
 			String updateSql = " update " + metadataSchema+tableName  + " set update_date = ?, c_visualattributes = ?, c_tooltip = ?, c_name = ?, c_basecode = ?, valuetype_cd = ?, " +
 					" c_tablename = ?, c_columnname = ?, c_facttablecolumn = ?, c_operator = ?, c_columndatatype = ?, c_metadataxml = ? where c_fullname = ? and c_synonym_cd = 'N'";
 
-	//		log.info(updateSql);
-			
-		int numRowsModified= -1;
+			//		log.info(updateSql);
+			String xml = "";
+			int numRowsModified= -1;
 			try {
 
-				String xml = "";
-				XmlValueType metadataXml=modifyChildType.getSelf().getMetadataxml();
+				XmlValueType metadataXml = null;
+				if((modifyChildType.getSelf().getModifier() == null)||(modifyChildType.getSelf().getModifier().getName() == null))
+					metadataXml=modifyChildType.getSelf().getMetadataxml();
+				else
+					metadataXml=modifyChildType.getSelf().getModifier().getMetadataxml();
 				if (metadataXml != null){
 					Element element = metadataXml.getAny().get(0);
 					if(element != null)
 						xml = XMLUtil.convertDOMElementToString(element);
 				}
-				
-				numRowsModified = jt.update(updateSql,today, modifyChildType.getSelf().getVisualattributes(), modifyChildType.getSelf().getTooltip(),
+				if((modifyChildType.getSelf().getModifier() == null)||(modifyChildType.getSelf().getModifier().getName() == null)){
+	//				log.debug("no modifier present");
+					numRowsModified = jt.update(updateSql,today, modifyChildType.getSelf().getVisualattributes(), modifyChildType.getSelf().getTooltip(),
 							modifyChildType.getSelf().getName(), modifyChildType.getSelf().getBasecode(), modifyChildType.getSelf().getValuetypeCd(), 
 							modifyChildType.getSelf().getTablename(), modifyChildType.getSelf().getColumnname(),  modifyChildType.getSelf().getFacttablecolumn(),  modifyChildType.getSelf().getOperator(),  
 							modifyChildType.getSelf().getColumndatatype(), xml, StringUtil.getPath(modifyChildType.getSelf().getKey()));
-				
-			
-			//	log.debug("1.Number of rows modified " + numRowsModified);
-				
+				}
+				else {
+		//			log.debug("updating modifier " + modifyChildType.getSelf().getModifier().getName());
+					numRowsModified = jt.update(updateSql,today, modifyChildType.getSelf().getModifier().getVisualattributes(), modifyChildType.getSelf().getModifier().getTooltip(),
+							modifyChildType.getSelf().getModifier().getName(), modifyChildType.getSelf().getModifier().getBasecode(), "", 
+							modifyChildType.getSelf().getModifier().getTablename(), modifyChildType.getSelf().getModifier().getColumnname(),  modifyChildType.getSelf().getModifier().getFacttablecolumn(),  modifyChildType.getSelf().getModifier().getOperator(),  
+							modifyChildType.getSelf().getModifier().getColumndatatype(), xml, StringUtil.getPath(modifyChildType.getSelf().getModifier().getKey()));
+
+					//	log.debug("1.Number of rows modified " + numRowsModified);
+				}
 				if(modifyChildType.isInclSynonyms()){
 					// apply the modification to the synonyms as well.
-						
+
 					String updateSynonymsSql = " update " + metadataSchema+tableName  + " set update_date = ?, c_visualattributes = ?, c_tooltip = ?,c_basecode = ?, valuetype_cd = ?, " +
 					" c_tablename = ?, c_columnname = ?, c_facttablecolumn = ?, c_operator = ?, c_columndatatype = ?, c_metadataxml = ? where c_fullname = ? and c_synonym_cd = 'Y'";
 
-			//		log.info(updateSynonymsSql);
-					
-					numRowsModified += jt.update(updateSynonymsSql,today, modifyChildType.getSelf().getVisualattributes(), modifyChildType.getSelf().getTooltip(),
-						modifyChildType.getSelf().getBasecode(), modifyChildType.getSelf().getValuetypeCd(), 
-						modifyChildType.getSelf().getTablename(), modifyChildType.getSelf().getColumnname(),  modifyChildType.getSelf().getFacttablecolumn(),  modifyChildType.getSelf().getOperator(),  
-						modifyChildType.getSelf().getColumndatatype(), xml, StringUtil.getPath(modifyChildType.getSelf().getKey()));
-			//		log.debug("2. Number of rows modified " + numRowsModified);
+					//		log.info(updateSynonymsSql);
+
+
+					if((modifyChildType.getSelf().getModifier() == null)||(modifyChildType.getSelf().getModifier().getName() == null)){
+				//		log.debug("SYN: updating modifier " + modifyChildType.getSelf().getModifier().getName());
+						numRowsModified += jt.update(updateSynonymsSql,today, modifyChildType.getSelf().getVisualattributes(), modifyChildType.getSelf().getTooltip(),
+								modifyChildType.getSelf().getBasecode(), modifyChildType.getSelf().getValuetypeCd(), 
+								modifyChildType.getSelf().getTablename(), modifyChildType.getSelf().getColumnname(),  modifyChildType.getSelf().getFacttablecolumn(),  modifyChildType.getSelf().getOperator(),  
+								modifyChildType.getSelf().getColumndatatype(), xml, StringUtil.getPath(modifyChildType.getSelf().getKey()));
+						//		
+					}
+
+					else{
+				//		log.debug("SYN: no modifier present");
+						numRowsModified += jt.update(updateSynonymsSql,today, modifyChildType.getSelf().getModifier().getVisualattributes(), modifyChildType.getSelf().getModifier().getTooltip(),
+								modifyChildType.getSelf().getModifier().getBasecode(), "", 
+								modifyChildType.getSelf().getModifier().getTablename(), modifyChildType.getSelf().getModifier().getColumnname(),  modifyChildType.getSelf().getModifier().getFacttablecolumn(),  modifyChildType.getSelf().getModifier().getOperator(),  
+								modifyChildType.getSelf().getModifier().getColumndatatype(), "", StringUtil.getPath(modifyChildType.getSelf().getModifier().getKey()));
+
+					}
+					//		log.debug("2. Number of rows modified " + numRowsModified);
 				}
-				
+
 				else{  // else we are not including synonyms ; 
 					// this is the case where we modified the synonyms list so we dont include them
 					//  in the general modify case; we delete them; the client then sends addChild for
 					//   each of them
 					String deleteSynonymsSql = "delete from "+ metadataSchema+tableName  + " where c_fullname = ? and c_synonym_cd = 'Y'";
-				//	log.info(deleteSynonymsSql);
-					
-					int numRowsDeleted = jt.update(deleteSynonymsSql, StringUtil.getPath(modifyChildType.getSelf().getKey()));
-					
-			//		log.debug("Number of rows deleted " + numRowsDeleted);
+					//	log.info(deleteSynonymsSql);
+					int numRowsDeleted = -1;
+					if((modifyChildType.getSelf().getModifier() == null)||(modifyChildType.getSelf().getModifier().getName() == null))
+						numRowsDeleted = jt.update(deleteSynonymsSql, StringUtil.getPath(modifyChildType.getSelf().getKey()));
+
+					else
+						numRowsDeleted = jt.update(deleteSynonymsSql, StringUtil.getPath(modifyChildType.getSelf().getModifier().getKey()));
+					//		log.debug("Number of rows deleted " + numRowsDeleted);
 				}
-				
+
 			} catch (DataAccessException e) {
 				log.error("Dao modifyChild failed");
 				log.error(e.getMessage());
 				throw e;
 			}
-			
+
 			log.debug("Number of rows modified " + numRowsModified);
 			return numRowsModified;
 
@@ -379,7 +424,12 @@ public class ConceptPersistDao extends JdbcDaoSupport {
 		        }
 			};
 			//extract table code
-			String tableCd = StringUtil.getTableCd(modifyChildType.getSelf().getKey());
+			String tableCd = null;
+			if((modifyChildType.getSelf().getModifier() == null)||(modifyChildType.getSelf().getModifier().getName() == null))	
+				tableCd = StringUtil.getTableCd(modifyChildType.getSelf().getKey());
+			
+			else
+				tableCd = StringUtil.getTableCd(modifyChildType.getSelf().getModifier().getKey());	
 			// table code to table name conversion
 			String tableName=null;
 			if (!protectedAccess){
@@ -406,10 +456,12 @@ public class ConceptPersistDao extends JdbcDaoSupport {
 			
 		int count= -1;
 			try {
-				
-				count = jt.queryForInt(countSql,modifyChildType.getSelf().getName(), modifyChildType.getSelf().getBasecode(),
+				if((modifyChildType.getSelf().getModifier() == null)||(modifyChildType.getSelf().getModifier().getName() == null))
+					count = jt.queryForInt(countSql,modifyChildType.getSelf().getName(), modifyChildType.getSelf().getBasecode(),
 						StringUtil.getPath(modifyChildType.getSelf().getKey()), modifyChildType.getSelf().getVisualattributes());
-			
+				else
+					count = jt.queryForInt(countSql,modifyChildType.getSelf().getModifier().getName(), modifyChildType.getSelf().getModifier().getBasecode(),
+							StringUtil.getPath(modifyChildType.getSelf().getModifier().getKey()), modifyChildType.getSelf().getModifier().getVisualattributes());
 				
 			} catch (DataAccessException e) {
 				log.error("Dao modifyChild failed");
@@ -420,4 +472,194 @@ public class ConceptPersistDao extends JdbcDaoSupport {
 			log.debug("Dirty candidate check yielded " + count + " entries");
 			return count;
 		}
+		
+		public int addNode(final ModifierType addChildType, ProjectType projectInfo, DBInfoType dbInfo) throws I2B2DAOException, I2B2Exception{
+
+			String metadataSchema = dbInfo.getDb_fullSchema();
+			setDataSource(dbInfo.getDb_dataSource());
+			
+			if (projectInfo.getRole().size() == 0)
+			{
+				log.error("no role found for this user in project: " + projectInfo.getName());
+				I2B2Exception e = new I2B2Exception("No role found for user");
+				throw e;
+			}
+			
+			Boolean protectedAccess = false;
+			Iterator it = projectInfo.getRole().iterator();
+			while (it.hasNext()){
+				 String role = (String) it.next();
+				 if(role.toUpperCase().equals("DATA_PROT")) {
+					 protectedAccess = true;
+					 break;
+				 }
+			}
+			
+			ParameterizedRowMapper<String> map = new ParameterizedRowMapper<String>() {
+		        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+		            String name = (rs.getString("c_table_name"));
+		            return name;
+		        }
+			};
+			
+			//extract table code
+			String tableCd = StringUtil.getTableCd(addChildType.getKey());
+			// table code to table name conversion
+			String tableName=null;
+			if (!protectedAccess){
+				String tableSql = "select distinct(c_table_name) from " + metadataSchema + "table_access where c_table_cd = ? and c_protected_access = ? ";
+				try {
+					tableName = jt.queryForObject(tableSql, map, tableCd, "N");	    
+				} catch (DataAccessException e) {
+					log.error(tableSql + tableCd);
+					log.error(e.getMessage());
+					throw new I2B2DAOException("Database Error");
+				}
+			}else {
+				String tableSql = "select distinct(c_table_name) from " + metadataSchema + "table_access where c_table_cd = ?";
+				try {
+					tableName = jt.queryForObject(tableSql, map, tableCd);	    
+				} catch (DataAccessException e) {
+					log.error(e.getMessage());
+					throw new I2B2DAOException("Database Error");
+				}
+			}
+			
+		int numRowsAdded = -1;
+		try {
+			Date today = Calendar.getInstance().getTime();
+			String xml = null;
+			XmlValueType metadataXml=addChildType.getMetadataxml();
+			if (metadataXml != null) {
+				String addSql = "insert into " + metadataSchema+tableName  + 
+				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_metadataxml, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date, sourcesystem_cd, m_applied_path) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				log.info(addSql);
+
+				Element element = metadataXml.getAny().get(0);
+				if(element != null)
+					xml = XMLUtil.convertDOMElementToString(element);
+				numRowsAdded = jt.update(addSql, 
+						addChildType.getLevel(), StringUtil.getPath(addChildType.getKey()),addChildType.getName(), addChildType.getSynonymCd(), 
+						addChildType.getVisualattributes(), addChildType.getBasecode(), xml, addChildType.getFacttablecolumn() ,addChildType.getTablename() ,
+						addChildType.getColumnname() , addChildType.getColumndatatype() ,addChildType.getOperator() ,addChildType.getDimcode() ,addChildType.getComment() ,
+						addChildType.getTooltip(),today,  today,today, addChildType.getSourcesystemCd() ,addChildType.getAppliedPath());
+			}		
+			else {
+				String addSql = "insert into " + metadataSchema+tableName  + 
+				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date,sourcesystem_cd, m_applied_path) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				log.info(addSql);
+				numRowsAdded = jt.update(addSql, 
+						addChildType.getLevel(), StringUtil.getPath(addChildType.getKey()),addChildType.getName(), addChildType.getSynonymCd(), 
+						addChildType.getVisualattributes(), addChildType.getBasecode(), addChildType.getFacttablecolumn() ,addChildType.getTablename() ,
+						addChildType.getColumnname() , addChildType.getColumndatatype() ,addChildType.getOperator() ,addChildType.getDimcode() ,addChildType.getComment() ,
+						addChildType.getTooltip(), today, today,today, addChildType.getSourcesystemCd() ,addChildType.getAppliedPath());
+			}
+		} catch (DataAccessException e) {
+			log.error("Dao addNode failed");
+			log.error(e.getMessage());
+			throw new I2B2DAOException("Data access error " , e);
+		}
+
+		log.debug("Number of rows added: " + numRowsAdded);
+
+		return numRowsAdded;
+
+		}
+		
+		public int excludeNode(final ModifierType addChildType, ProjectType projectInfo, DBInfoType dbInfo) throws I2B2DAOException, I2B2Exception{
+
+			String metadataSchema = dbInfo.getDb_fullSchema();
+			setDataSource(dbInfo.getDb_dataSource());
+			
+			if (projectInfo.getRole().size() == 0)
+			{
+				log.error("no role found for this user in project: " + projectInfo.getName());
+				I2B2Exception e = new I2B2Exception("No role found for user");
+				throw e;
+			}
+			
+			Boolean protectedAccess = false;
+			Iterator it = projectInfo.getRole().iterator();
+			while (it.hasNext()){
+				 String role = (String) it.next();
+				 if(role.toUpperCase().equals("DATA_PROT")) {
+					 protectedAccess = true;
+					 break;
+				 }
+			}
+			
+			ParameterizedRowMapper<String> map = new ParameterizedRowMapper<String>() {
+		        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+		            String name = (rs.getString("c_table_name"));
+		            return name;
+		        }
+			};
+			
+			//extract table code
+			String tableCd = StringUtil.getTableCd(addChildType.getKey());
+			// table code to table name conversion
+			String tableName=null;
+			if (!protectedAccess){
+				String tableSql = "select distinct(c_table_name) from " + metadataSchema + "table_access where c_table_cd = ? and c_protected_access = ? ";
+				try {
+					tableName = jt.queryForObject(tableSql, map, tableCd, "N");	    
+				} catch (DataAccessException e) {
+					log.error(tableSql + tableCd);
+					log.error(e.getMessage());
+					throw new I2B2DAOException("Database Error");
+				}
+			}else {
+				String tableSql = "select distinct(c_table_name) from " + metadataSchema + "table_access where c_table_cd = ?";
+				try {
+					tableName = jt.queryForObject(tableSql, map, tableCd);	    
+				} catch (DataAccessException e) {
+					log.error(e.getMessage());
+					throw new I2B2DAOException("Database Error");
+				}
+			}
+			
+		int numRowsAdded = -1;
+		try {
+			Date today = Calendar.getInstance().getTime();
+			if(addChildType.getComment() == null)
+				addChildType.setComment("");
+			String xml = null;
+			XmlValueType metadataXml=addChildType.getMetadataxml();
+			if (metadataXml != null) {
+				String addSql = "insert into " + metadataSchema+tableName  + 
+				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_metadataxml, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date, sourcesystem_cd, m_applied_path, m_exclusion_cd) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				log.info(addSql);
+
+				Element element = metadataXml.getAny().get(0);
+				if(element != null)
+					xml = XMLUtil.convertDOMElementToString(element);
+				numRowsAdded = jt.update(addSql, 
+						addChildType.getLevel(), StringUtil.getPath(addChildType.getKey()),addChildType.getName(), addChildType.getSynonymCd(), 
+						addChildType.getVisualattributes(), addChildType.getBasecode(), xml, addChildType.getFacttablecolumn() ,addChildType.getTablename() ,
+						addChildType.getColumnname() , addChildType.getColumndatatype() ,addChildType.getOperator() ,addChildType.getDimcode() ,addChildType.getComment() ,
+						addChildType.getTooltip(),today,  today,today, addChildType.getSourcesystemCd() ,addChildType.getAppliedPath(), "X");
+			}		
+			else {
+				String addSql = "insert into " + metadataSchema+tableName  + 
+				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date,sourcesystem_cd, m_applied_path, m_exclusion_cd) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				log.info(addSql);
+				numRowsAdded = jt.update(addSql, 
+						addChildType.getLevel(), StringUtil.getPath(addChildType.getKey()),addChildType.getName(), addChildType.getSynonymCd(), 
+						addChildType.getVisualattributes(), addChildType.getBasecode(), addChildType.getFacttablecolumn() ,addChildType.getTablename() ,
+						addChildType.getColumnname() , addChildType.getColumndatatype() ,addChildType.getOperator() ,addChildType.getDimcode() ,addChildType.getComment() ,
+						addChildType.getTooltip(), today, today,today, addChildType.getSourcesystemCd() ,addChildType.getAppliedPath(), "X");
+			}
+		} catch (DataAccessException e) {
+			log.error("Dao excludeNode failed");
+			log.error(e.getMessage());
+			throw new I2B2DAOException("Data access error " , e);
+		}
+
+		log.debug("Number of exclusion rows added: " + numRowsAdded);
+
+		return numRowsAdded;
+
+		}
+		
+		
 }

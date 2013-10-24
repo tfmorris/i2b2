@@ -112,7 +112,7 @@ i2b2.CRC.view.history.Resize = function(e) {
 			case "Patients":
 				if (i2b2.WORK && i2b2.WORK.isLoaded) {
 					// make room for the workspace window
-					ve.width = w-578;
+					ve.width = Math.max(initBrowserViewPortDim.width-rightSideWidth, 0);
 					ve.top = h-196+44;
 					$('crcHistoryData').style.height = '100px';
 				} else {
@@ -145,8 +145,63 @@ i2b2.CRC.view.history.Resize = function(e) {
 		ve.hide();
 	}
 }
-YAHOO.util.Event.addListener(window, "resize", i2b2.CRC.view.history.Resize, i2b2.CRC.view.history);
+
+//YAHOO.util.Event.addListener(window, "resize", i2b2.CRC.view.history.Resize, i2b2.CRC.view.history); // tdw9
 i2b2.CRC.view.history.Resize();
+
+
+//================================================================================================== //
+i2b2.CRC.view.history.splitterDragged = function()
+{
+	var splitter = $( i2b2.hive.mySplitter.name );
+	var CRCHist = $("crcHistoryBox");
+	CRCHist.style.width	= Math.max((parseInt(splitter.style.left) - CRCHist.offsetLeft - 3), 0) + "px";
+	$$('DIV#crcHistoryBox DIV#crcHistoryData')[0].style.width = Math.max((parseInt(CRCHist.style.width)-24), 0) + 'px';
+}
+
+//================================================================================================== //
+i2b2.CRC.view.history.ResizeHeight = function() {
+	// this function provides the resize functionality needed for this screen
+	var viewObj = i2b2.CRC.view.history;
+	var ve = $('crcHistoryBox');
+	if (viewObj.visible) {
+		ve.show();
+		var ds = document.viewport.getDimensions();
+		var h = ds.height;
+		if (h < 517) {h = 517;}
+		ve = ve.style;
+		// resize our visual components
+		switch(i2b2.hive.MasterView.getViewMode()) {
+			case "Patients":
+				if (i2b2.WORK && i2b2.WORK.isLoaded) {
+					// make room for the workspace window
+					ve.top = h-196+44;
+					$('crcHistoryData').style.height = '100px';
+				} else {
+					ve.top = h-196;
+					$('crcHistoryData').style.height = '144px';
+				}
+				break;
+			case "Analysis":
+				if (i2b2.WORK && i2b2.WORK.isLoaded) {
+					// make room for the workspace window
+					ve.top = h-196+44;
+					$('crcHistoryData').style.height = '100px';
+				} else {
+					ve.top = h-196;
+					$('crcHistoryData').style.height = '144px';
+				}
+				break;
+		}
+		if (viewObj.isZoomed) {
+			ve.top = '';
+			$('crcHistoryData').style.height = h-97; 
+		}
+	} else {
+		ve.hide();
+	}
+}
+
 
 // ================================================================================================== //
 i2b2.CRC.view.history.PopulateQueryMasters = function(dm_ptr, dm_name, options) {
@@ -282,6 +337,7 @@ i2b2.events.afterCellInit.subscribe(
 				// register the treeview with the SDX subsystem to be a container for QM, QI, PRS, PRC objects
 				i2b2.sdx.Master.AttachType("crcHistoryData","QM");
 				i2b2.sdx.Master.AttachType("crcHistoryData","QI");
+				i2b2.sdx.Master.AttachType("crcHistoryData","ENS");
 				i2b2.sdx.Master.AttachType("crcHistoryData","PRC");
 				i2b2.sdx.Master.AttachType("crcHistoryData","PRS");
 				i2b2.sdx.Master.AttachType("crcHistoryData","PR");
@@ -375,6 +431,20 @@ i2b2.events.afterCellInit.subscribe(
 );
 
 
+//================================================================================================== //
+i2b2.events.initView.subscribe((function(eventTypeName, newMode) {
+// -------------------------------------------------------
+	this.visible = true;
+	if (i2b2.WORK && i2b2.WORK.isLoaded) {
+		$('crcHistoryData').style.height = '100px';
+	} else {
+		$('crcHistoryData').style.height = '144px';
+	}
+	$('crcHistoryBox').show();
+	this.Resize();
+// -------------------------------------------------------
+}),'',i2b2.CRC.view.history);
+
 
 // ================================================================================================== //
 i2b2.events.changedViewMode.subscribe((function(eventTypeName, newMode) {
@@ -392,7 +462,9 @@ i2b2.events.changedViewMode.subscribe((function(eventTypeName, newMode) {
 					$('crcHistoryData').style.height = '144px';
 				}
 				$('crcHistoryBox').show();
-				this.Resize();
+				//this.Resize(); // tdw9
+				this.splitterDragged();
+				this.ResizeHeight();
 				break;
 			default:
 				this.visible = false;
@@ -427,7 +499,8 @@ i2b2.events.changedZoomWindows.subscribe((function(eventTypeName, zoomMsg) {
 				this.visible = true;
 		}
 	}
-	this.Resize();
+	this.ResizeHeight();
+	this.splitterDragged();
 }),'',i2b2.CRC.view.history);
 
 

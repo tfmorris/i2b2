@@ -15,6 +15,7 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
+import edu.harvard.i2b2.ontology.datavo.vdo.ModifierType;
 
 
 
@@ -40,6 +41,24 @@ public class AddChildDataMessage extends RequestDataMessage{
 			JAXBUnWrapHelper helper = new JAXBUnWrapHelper();
 			addChildType = (ConceptType) helper.getObjectByClass(bodyType.getAny(),
 					ConceptType.class);
+		} catch (JAXBUtilException e) {
+			throw new I2B2Exception("Unwrap error: " + e.getMessage(), e);
+		}        
+        return addChildType;
+    }
+    
+    /**
+     * Function to get ModifierType object from i2b2 request message type
+     * @return
+     * @throws I2B2Exception
+     */
+    public ModifierType getModifier() throws I2B2Exception {
+    	ModifierType addChildType;
+		try {
+			BodyType bodyType = reqMessageType.getMessageBody();
+			JAXBUnWrapHelper helper = new JAXBUnWrapHelper();
+			addChildType = (ModifierType) helper.getObjectByClass(bodyType.getAny(),
+					ModifierType.class);
 		} catch (JAXBUtilException e) {
 			throw new I2B2Exception("Unwrap error: " + e.getMessage(), e);
 		}        

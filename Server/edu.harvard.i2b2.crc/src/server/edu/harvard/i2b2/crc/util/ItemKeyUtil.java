@@ -3,7 +3,14 @@ package edu.harvard.i2b2.crc.util;
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 
+
+
 public class ItemKeyUtil {
+	
+	public static final String ITEM_KEY_PATIENT_SET = "patient_set_coll_id:";
+	public static final String ITEM_KEY_PATIENT_ENCOUNTER_SET = "patient_set_enc_id:";
+	public static final String ITEM_KEY_MASTERID = "masterid:";
+	
 	public static String getItemTabel(String itemKey) throws I2B2Exception { 
 	  String itemTableFromKey = null;
       if (itemKey == null) { 
@@ -28,6 +35,21 @@ public class ItemKeyUtil {
         int end = itemKey.indexOf("\\", 3);
         return itemKey.substring(end).trim();
     }
+	 
+	 public static boolean isConceptKey(String itemKey) { 
+		 if (itemKey != null) {
+			 if (itemKey.trim().toLowerCase().startsWith(ITEM_KEY_PATIENT_SET) || 
+					 itemKey.trim().toLowerCase().startsWith(ITEM_KEY_PATIENT_ENCOUNTER_SET) ||
+					 itemKey.trim().toLowerCase().startsWith(ITEM_KEY_MASTERID)) {
+				 return false;
+			 } else { 
+				 return true;
+			 }
+			 
+		 } else { 
+			 return false;
+		 }
+	 }
 	
 	
 }

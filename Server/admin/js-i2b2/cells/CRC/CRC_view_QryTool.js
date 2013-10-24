@@ -10,9 +10,11 @@
 console.group('Load & Execute component file: CRC > view > Main');
 console.time('execute time');
 
-
+ 
 // create and save the screen objects
-i2b2.CRC.view['QT'] = new i2b2Base_cellViewController(i2b2.CRC, 'QT');;
+i2b2.CRC.view['QT'] = new i2b2Base_cellViewController(i2b2.CRC, 'QT');
+
+var queryTimingButton;
 // define the option functions
 // ================================================================================================== //
 i2b2.CRC.view.QT.showOptions = function(subScreen) {
@@ -109,10 +111,44 @@ i2b2.CRC.view.QT.ContextMenuPreprocess = function(p_oEvent) {
 					var op = i2b2.CRC.view.QT;
 					// all nodes can be deleted
 					mil.push( { text: "Delete", onclick: { fn: op.ContextMenuRouter, obj: 'delete' }} );
-					// For lab tests...
-					var lvMetaDatas = i2b2.h.XPath(i2b2.CRC.view.QT.contextRecord.origData.xmlOrig, 'metadataxml/ValueMetadata[string-length(Loinc)>0]');
-					if (lvMetaDatas.length > 0) {
-						mil.push( { text: "Set Value...", onclick: { fn: op.ContextMenuRouter, obj: 'labvalues' }} );
+					if (i2b2.CRC.view.QT.contextRecord.origData.isModifier) {
+						
+						//Get the blob for this now.
+					//	if (i2b2.CRC.view.QT.contextRecord.origData.xmlOrig != null) {
+							var cdetails = i2b2.ONT.ajax.GetModifierInfo("CRC:QueryTool", {modifier_applied_path:i2b2.CRC.view.QT.contextRecord.origData.applied_path, modifier_key_value:i2b2.CRC.view.QT.contextRecord.origData.key, ont_synonym_records: true, ont_hidden_records: true} );
+							// this is what comes out of the old AJAX call
+							var c = i2b2.h.XPath(cdetails.refXML, 'descendant::modifier');
+							if (c.length > 0) {
+									i2b2.CRC.view.QT.contextRecord.origData.xmlOrig = c[0];
+							}
+					//	}
+										
+						
+						var lvMetaDatas1 = i2b2.h.XPath(i2b2.CRC.view.QT.contextRecord.origData.xmlOrig, 'metadataxml/ValueMetadata[string-length(Version)>0]');
+						if (lvMetaDatas1.length > 0) {
+						
+							mil.push( { text: "Set Modifier Value", onclick: { fn: op.ContextMenuRouter, obj: 'setmodifier' }} );					
+						}
+						var lvMetaDatas2 = i2b2.h.XPath(i2b2.CRC.view.QT.contextRecord.origData.parent.xmlOrig, 'metadataxml/ValueMetadata[string-length(Version)>0]');
+						if (lvMetaDatas2.length > 0) {
+							mil.push( { text: "Set Value...", onclick: { fn: op.ContextMenuRouter, obj: 'labvalues' }} );
+						}
+						
+					} else {
+						// For lab tests...
+						
+						if (!Object.isUndefined(i2b2.CRC.view.QT.contextRecord.origData.key)) {
+							var cdetails = i2b2.ONT.ajax.GetTermInfo("CRC:QueryTool", {concept_key_value:i2b2.CRC.view.QT.contextRecord.origData.key, ont_synonym_records: true, ont_hidden_records: true} );
+											var c = i2b2.h.XPath(cdetails.refXML, 'descendant::concept');
+							if (c.length > 0) {
+									i2b2.CRC.view.QT.contextRecord.origData.xmlOrig = c[0];
+							}
+						}
+
+						var lvMetaDatas = i2b2.h.XPath(i2b2.CRC.view.QT.contextRecord.origData.xmlOrig, 'metadataxml/ValueMetadata[string-length(Version)>0]');
+						if (lvMetaDatas.length > 0) {
+							mil.push( { text: "Set Value...", onclick: { fn: op.ContextMenuRouter, obj: 'labvalues' }} );
+						}
 					}
 					i2b2.CRC.view.QT.ContextMenu.clearContent();
 					i2b2.CRC.view.QT.ContextMenu.addItems(mil);
@@ -153,11 +189,98 @@ i2b2.CRC.view.QT.ContextMenuRouter = function(a, b, actionName) {
 		case "labvalues":
 			cdat.ctrlr.showLabValues(cdat.data.sdxInfo.sdxKeyValue, cdat.data);
 			break;
+		case "setmodifier":
+			cdat.ctrlr.showModValues(cdat.data.sdxInfo.sdxKeyValue, cdat.data);
+			break;
 		default:
 			alert('context event was not found for event "'+actionName+'"');
 	}
  }
 
+//================================================================================================== //
+i2b2.CRC.view.QT.enableSameTiming = function() {
+
+		if (YAHOO.util.Dom.inDocument(queryTimingButton.getMenu().element)) {
+
+		var t = queryTimingButton.getMenu().getItems();
+		if (t.length == 2) {
+				//	queryTimingButton.getMenu().clearContent();
+				//	queryTimingButton.getMenu().addItems([ 	 
+				//						{ text: "Treat Independently", value: "ANY"}]);	
+				//	queryTimingButton.getMenu().addItems([ 	 
+				//						{ text: "Selected groups occur in the same financial encounter", value: "SAMEVISIT" }]);	 
+					queryTimingButton.getMenu().addItems([ 	 
+										{ text: "Items Instance will be the samer", value: "SAMEINSTANCENUM" }]);	 
+					queryTimingButton.getMenu().render();
+		}
+		} else {
+			queryTimingButton.itemData =[{ text: "Treat Independently", value: "ANY"},
+										{ text: "Selected groups occur in the same financial encounter", value: "SAMEVISIT"},
+										{text: "Items Instance will be the same", value: "SAMEINSTANCENUM" }];
+				}
+}
+
+// ================================================================================================== //
+i2b2.CRC.view.QT.setQueryTiming = function(sText) {
+	
+	//TODO cleanup
+	
+		if (YAHOO.util.Dom.inDocument(queryTimingButton.getMenu().element)) {
+
+					queryTimingButton.getMenu().clearContent();
+					queryTimingButton.getMenu().addItems([ 	 
+										{ text: "Treat Independently", value: "ANY"}]);	
+					queryTimingButton.getMenu().addItems([ 	 
+										{ text: "Selected groups occur in the same financial encounter", value: "SAMEVISIT" }]);
+					if (sText == "SAMEINSTANCENUM") {
+										queryTimingButton.getMenu().addItems([ 	 
+										{ text: "Items Instance will be the same", value: "SAMEINSTANCENUM" }]);	 
+	
+						
+					}
+					queryTimingButton.getMenu().render();
+		}
+		queryTimingButton.getMenu().render();
+	if (sText == "SAMEINSTANCENUM" )
+	{
+		
+			var menu = queryTimingButton.getMenu();
+			var item = menu.getItem(2);
+			queryTimingButton.set("selectedMenuItem", item);
+		//queryTimingButton.set("selectedMenuItem", 2);	
+	} else if (sText == "SAMEVISIT" )
+	{
+	
+				// else {
+				//	i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.itemData ={ text: "Treat Independently", value: "ANY",
+				//						text: "Occurs in Same Encounter", value: "SAME" };
+				//}		
+		
+		queryTimingButton.set("selectedMenuItem", 1);	
+	} else
+	{
+		queryTimingButton.set("selectedMenuItem", 0);	
+		
+	}
+}
+
+//================================================================================================== //
+i2b2.CRC.view.QT.setPanelTiming = function(panelNum, sText) {
+	if (panelNum > 3) {return}
+	if (sText == "SAMEVISIT" )
+	{
+		$("queryPanelTimingB" + (panelNum) +  "-button").innerHTML = "Occurs in Same Encounter";	
+		i2b2.CRC.ctrlr.QT.panelControllers[panelNum - 1].doTiming(sText);
+		i2b2.CRC.ctrlr.QT.panelControllers[panelNum - 1].refTiming.set('disabled', false);	
+	} else if (sText == "SAMEINSTANCENUM") {
+		$("queryPanelTimingB" + (panelNum) +  "-button").innerHTML = "Items Instance will be the same";	
+		i2b2.CRC.ctrlr.QT.panelControllers[panelNum - 1].doTiming(sText);
+		i2b2.CRC.ctrlr.QT.panelControllers[panelNum - 1].refTiming.set('disabled', false);	
+	} else {
+		$("queryPanelTimingB" + (panelNum) +  "-button").innerHTML = "Treat Independently";	
+		i2b2.CRC.ctrlr.QT.panelControllers[panelNum - 1].doTiming(sText);
+	}
+}
 
 // ================================================================================================== //
 i2b2.CRC.view.QT.ZoomView = function() {
@@ -171,13 +294,18 @@ i2b2.CRC.view.QT.Resize = function(e) {
 	var h = ds.height;
 	if (w < 840) {w = 840;}
 	if (h < 517) {h = 517;}
+	
 	// resize our visual components
+	//var queryToolWidth = ds.width * 0.6;
+	//$('crcQueryToolBox').style.left = w-queryToolWidth;
+	//debugOnScreen("crcQueryToolBox.width = " + queryToolWidth );
+	
 	$('crcQueryToolBox').style.left = w-550;
 	if (i2b2.WORK && i2b2.WORK.isLoaded) {
-		var z = h - 392 + 44;
+		var z = h - 400; //392 + 44 - 17 - 25;
 		if (i2b2.CRC.view.QT.isZoomed) { z += 196 - 44; }	
 	} else {
-		var z = h - 392;
+		var z = h - 392 - 17 - 25;
 		if (i2b2.CRC.view.QT.isZoomed) { z += 196; }
 	}
 	// display the topic selector bar if we are in SHRINE-mode
@@ -190,8 +318,146 @@ i2b2.CRC.view.QT.Resize = function(e) {
 	$('QPD2').style.height = z;
 	$('QPD3').style.height = z;	
 }
-YAHOO.util.Event.addListener(window, "resize", i2b2.CRC.view.QT.Resize, i2b2.CRC.view.QT);
+//YAHOO.util.Event.addListener(window, "resize", i2b2.CRC.view.QT.Resize, i2b2.CRC.view.QT); // tdw9
 
+
+//================================================================================================== //
+i2b2.CRC.view.QT.splitterDragged = function()
+{
+	var viewPortDim = document.viewport.getDimensions();
+	var splitter = $( i2b2.hive.mySplitter.name );	
+	var CRCQT = $("crcQueryToolBox");
+	var CRCQTBodyBox = $("crcQueryToolBox.bodyBox");
+	
+	var CRCQueryName 			= $("queryName");
+	var CRCQueryNameBar 		= $("queryNameBar");
+	var temporalConstraintBar 	= $("temporalConstraintBar");
+	var temporalConstraintLabel = $("temporalConstraintLabel");
+	var temporalConstraintDiv	= $("temporalConstraintDiv");
+	var queryTiming				= $("queryTiming");
+	var queryTimingButton		= $("queryTiming-button");
+	
+	var CRCQueryPanels 			= $("crcQryToolPanels");
+	var CRCinnerQueryPanel		= $("crc.innerQueryPanel");
+	
+	var basicWidth					= parseInt(viewPortDim.width) - parseInt(splitter.style.left) - parseInt(splitter.offsetWidth);
+
+	/* Title, buttons, and panels */		
+	CRCQT.style.left				= parseInt(splitter.offsetWidth) + parseInt(splitter.style.left) + 3 + "px";
+	CRCQT.style.width				= Math.max(basicWidth - 24, 0) + "px";
+	CRCQTBodyBox.style.width 		= Math.max(basicWidth - 41, 0) + "px";
+	
+	CRCQueryNameBar.style.width 		= Math.max(basicWidth - 38, 0) + "px";
+	temporalConstraintBar.style.width 	= Math.max(basicWidth - 38, 0) + "px";
+	temporalConstraintDiv.style.width 	= Math.max( parseInt(temporalConstraintBar.style.width) - parseInt(temporalConstraintLabel.style.width)-2, 0) + "px";
+	queryTimingButton.style.width 		= Math.max( parseInt(temporalConstraintBar.style.width) - parseInt(temporalConstraintLabel.style.width)-23, 0) + "px";
+	
+	CRCQueryName.style.width			= Math.max(basicWidth - 128, 0) + "px"; // use max to avoid negative width
+	
+	CRCQueryPanels.style.width		= Math.max(basicWidth - 30, 0) + "px";
+	CRCinnerQueryPanel.style.width	= Math.max(basicWidth - 36, 0) + "px";
+	
+	
+	var panelWidth = (basicWidth - 36)/3 - 4;
+	
+	var panels = CRCinnerQueryPanel.childNodes;
+	var panelArray = new Array(3);
+	var panelCount = 0;
+	for ( var i = 0; i < panels.length; i++ )
+	{
+		if ( panels[i].className === "qryPanel")
+		{
+			panels[i].style.width = Math.max(panelWidth, 0) + "px";
+			var nodes = panels[i].childNodes;
+			for ( var j = 0; j < nodes.length; j++ )
+			{
+				if (nodes[j].className === "qryPanelTitle")
+					nodes[j].style.width = Math.max(panelWidth - 2, 0) + "px";
+				else if ( nodes[j].className === "qryPanelButtonBar" )
+				{
+					nodes[j].style.width = Math.max(panelWidth, 0) + "px";
+					var buttons = nodes[j].childNodes;
+					for ( var k = 0; k < buttons.length; k++)
+					{
+						if ( buttons[k].className === "qryButtonOccurs")
+							buttons[k].style.width = Math.max(panelWidth - 88, 0) + "px";	
+					}
+				}
+				else if ( nodes[j].className === "qryPanelTiming" )
+				{
+					nodes[j].style.width = Math.max(panelWidth, 0) + "px";
+					var queryPanelTimingChildren = nodes[j].childNodes;
+					for ( var k = 0; k < queryPanelTimingChildren.length; k++)
+					{
+						if ( queryPanelTimingChildren[k].style == null )
+							continue;
+						queryPanelTimingChildren[k].style.width = Math.max(panelWidth - 4, 0) + "px";
+					}
+					//handle the special "queryPanelTimingB1"
+					var queryPanelTimingB1 = $("queryPanelTimingB1");
+					queryPanelTimingB1.style.width = Math.max(panelWidth - 4, 0) + "px";
+					}
+				else if ( nodes[j].className === "queryPanel" || nodes[j].className === "queryPanel queryPanelDisabled" ) // QueryPanel or disabled QueryPanel
+					nodes[j].style.width =  Math.max(panelWidth - 8, 0) + "px";
+			}
+			panelArray[panelCount] = panels[i];
+			panelCount++;
+		}
+		else
+			continue;
+	}
+	
+	/* Deal with Footer and its components */	
+	var footer = $("qryToolFooter");	// footer
+	var printBox = $('printQueryBox');	// print query
+	var groupCount = $("groupCount");	// # of groups
+	var scrollBox = $("scrollBox");		// scroll control
+	
+	footer.style.width = Math.max(basicWidth - 40, 0) + "px"; // adjust footer width	
+	groupCount.style.width =  Math.max(parseInt(footer.style.width) - (printBox.offsetLeft + printBox.offsetWidth) - scrollBox.offsetWidth - 5, 0) + "px"; // adjust groupCount width
+	
+	/* Deal with Baloons */
+	var baloonBox	= $("queryBalloonBox");
+	var baloons = baloonBox.getElementsByTagName("div");
+	
+	for ( var i = 0; i < baloons.length; i++ )
+	{
+		if ( i%2 === 0) // even baloons 
+		{
+			var index = i/2;
+			if ( index < baloons.length)
+				baloons[i].style.left	= panelArray[index].offsetLeft + parseInt(panelArray[index].style.width)/2 - 35 + "px";			
+		}
+		else
+		{
+			var index = Math.floor(i/2);
+			baloons[i].style.left	= panelArray[index].offsetLeft + parseInt(panelArray[index].style.width) - 22.5 + "px";
+		}
+	}
+}
+
+//================================================================================================== //
+i2b2.CRC.view.QT.ResizeHeight = function() {
+	var ds = document.viewport.getDimensions();
+	var h = ds.height;
+	if (h < 517) {h = 517;}
+	// resize our visual components
+	if (i2b2.WORK && i2b2.WORK.isLoaded) {
+		var z = h - 400;
+		if (i2b2.CRC.view.QT.isZoomed) { z += 196 - 44; }	
+	} else {
+		var z = h - 434;
+		if (i2b2.CRC.view.QT.isZoomed) { z += 196; }
+	}
+	// display the topic selector bar if we are in SHRINE-mode
+ 	if (i2b2.h.isSHRINE()) {
+		$('queryTopicPanel').show();
+		z = z - 28;
+	}
+	$('QPD1').style.height = z;
+	$('QPD2').style.height = z;
+	$('QPD3').style.height = z;	
+}
 
 // This is done once the entire cell has been loaded
 console.info("SUBSCRIBED TO i2b2.events.afterCellInit");
@@ -200,11 +466,83 @@ i2b2.events.afterCellInit.subscribe(
 		if (co[0].cellCode=='CRC') {
 // ================================================================================================== //
 			console.debug('[EVENT CAPTURED i2b2.events.afterCellInit]');
+			//Update the result types from ajax call
+	var scopedCallback = new i2b2_scopedCallback();
+		scopedCallback.callback = function(results) {
+		//var cl_onCompleteCB = onCompleteCallback;
+		// THIS function is used to process the AJAX results of the getChild call
+		//		results data object contains the following attributes:
+		//			refXML: xmlDomObject <--- for data processing
+		//			msgRequest: xml (string)
+		//			msgResponse: xml (string)
+		//			error: boolean
+		//			errorStatus: string [only with error=true]
+		//			errorMsg: string [only with error=true]
+	
+		var retMsg = {
+			error: results.error,
+			msgRequest: results.msgRequest,
+			msgResponse: results.msgResponse,
+			msgUrl: results.msgUrl,
+			results: null
+		};
+		var retChildren = [];
+
+		// extract records from XML msg
+		var newHTML = "";
+		var ps = results.refXML.getElementsByTagName('query_result_type');
+		for(var i1=0; i1<ps.length; i1++) {
+			var o = new Object;
+			o.result_type_id = i2b2.h.getXNodeVal(ps[i1],'result_type_id');
+			o.name = i2b2.h.getXNodeVal(ps[i1],'name');
+
+			var checked = "";
+			switch(o.name) {
+				case "PATIENT_COUNT_XML":
+				//	o.name = "PRS";
+					checked = "checked=\"checked\"";
+					break;
+				//case "PATIENT_ENCOUNTER_SET":
+				//	o.name = "ENS";
+				//	checked = "checked=\"checked\"";
+				//	break;
+				//case "PATIENT_COUNT_XML":
+				//	o.name = "PRC";
+				//	checked = "checked=\"checked\"";
+				//	break;
+			}
+
+			o.display_type = i2b2.h.getXNodeVal(ps[i1],'display_type');
+			o.visual_attribute_type = i2b2.h.getXNodeVal(ps[i1],'visual_attribute_type');
+			o.description = i2b2.h.getXNodeVal(ps[i1],'description');
+			// need to process param columns 
+			//o. = i2b2.h.getXNodeVal(ps[i1],'');
+			//this.model.events.push(o);
+			if (o.visual_attribute_type == "LA") {
+				newHTML += 	"			<div id=\"crcDlgResultOutput" + o.name + "\"><input type=\"checkbox\" class=\"chkQueryType\" name=\"queryType\" value=\"" + o.name + "\" " + checked + "/> " + o.description + "</div>";
+			}
+		}		
+		
+		$('dialogQryRunResultType').innerHTML = newHTML;
+	}
+	
+		i2b2.CRC.ajax.getQRY_getResultType("CRC:SDX:PatientRecordSet", null, scopedCallback);
+
+			
+			
+			
+			
 			// register the query panels as valid DragDrop targets for Ontology Concepts (CONCPT) and query master (QM) objects
 			var op_trgt = {dropTarget:true};
 			i2b2.sdx.Master.AttachType('QPD1', 'CONCPT', op_trgt);
 			i2b2.sdx.Master.AttachType('QPD2', 'CONCPT', op_trgt);
 			i2b2.sdx.Master.AttachType('QPD3', 'CONCPT', op_trgt);
+			i2b2.sdx.Master.AttachType('QPD1', 'ENS', op_trgt);
+			i2b2.sdx.Master.AttachType('QPD2', 'ENS', op_trgt);
+			i2b2.sdx.Master.AttachType('QPD3', 'ENS', op_trgt);
+			i2b2.sdx.Master.AttachType('QPD1', 'PRS', op_trgt);
+			i2b2.sdx.Master.AttachType('QPD2', 'PRS', op_trgt);
+			i2b2.sdx.Master.AttachType('QPD3', 'PRS', op_trgt);
 			i2b2.sdx.Master.AttachType('QPD1', 'QM', op_trgt);
 			i2b2.sdx.Master.AttachType('QPD2', 'QM', op_trgt);
 			i2b2.sdx.Master.AttachType('QPD3', 'QM', op_trgt);
@@ -245,13 +583,13 @@ i2b2.events.afterCellInit.subscribe(
 					Element.removeClassName(panelController.refDispContents,'ddCONCPTTarget');
 				}
 			}
-			i2b2.sdx.Master.setHandlerCustom('QPD1', 'QM', 'onHoverOut', funcHovOutQM);
-			i2b2.sdx.Master.setHandlerCustom('QPD2', 'QM', 'onHoverOut', funcHovOutQM);
-			i2b2.sdx.Master.setHandlerCustom('QPD3', 'QM', 'onHoverOut', funcHovOutQM);
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'QM', 'onHoverOut', funcHovOutCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'QM', 'onHoverOut', funcHovOutCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'QM', 'onHoverOut', funcHovOutCONCPT);
 			i2b2.sdx.Master.setHandlerCustom('queryName', 'QM', 'onHoverOut', funcHovOutQM);
-			i2b2.sdx.Master.setHandlerCustom('QPD1', 'QM', 'onHoverOver', funcHovOverQM);
-			i2b2.sdx.Master.setHandlerCustom('QPD2', 'QM', 'onHoverOver', funcHovOverQM);
-			i2b2.sdx.Master.setHandlerCustom('QPD3', 'QM', 'onHoverOver', funcHovOverQM);
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'QM', 'onHoverOver', funcHovOverCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'QM', 'onHoverOver', funcHovOverCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'QM', 'onHoverOver', funcHovOverCONCPT);
 			i2b2.sdx.Master.setHandlerCustom('queryName', 'QM', 'onHoverOver', funcHovOverQM);
 			i2b2.sdx.Master.setHandlerCustom('QPD1', 'CONCPT', 'onHoverOut', funcHovOutCONCPT);
 			i2b2.sdx.Master.setHandlerCustom('QPD2', 'CONCPT', 'onHoverOut', funcHovOutCONCPT);
@@ -259,6 +597,18 @@ i2b2.events.afterCellInit.subscribe(
 			i2b2.sdx.Master.setHandlerCustom('QPD1', 'CONCPT', 'onHoverOver', funcHovOverCONCPT);
 			i2b2.sdx.Master.setHandlerCustom('QPD2', 'CONCPT', 'onHoverOver', funcHovOverCONCPT);
 			i2b2.sdx.Master.setHandlerCustom('QPD3', 'CONCPT', 'onHoverOver', funcHovOverCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'ENS', 'onHoverOut', funcHovOutCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'ENS', 'onHoverOut', funcHovOutCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'ENS', 'onHoverOut', funcHovOutCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'ENS', 'onHoverOver', funcHovOverCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'ENS', 'onHoverOver', funcHovOverCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'ENS', 'onHoverOver', funcHovOverCONCPT);			
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'PRS', 'onHoverOut', funcHovOutCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'PRS', 'onHoverOut', funcHovOutCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'PRS', 'onHoverOut', funcHovOutCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'PRS', 'onHoverOver', funcHovOverCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'PRS', 'onHoverOver', funcHovOverCONCPT);
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'PRS', 'onHoverOver', funcHovOverCONCPT);			
 			//======================= <Define Drop Handlers> =======================
 
 			//======================= <Define Drop Handlers> =======================
@@ -277,7 +627,56 @@ i2b2.events.afterCellInit.subscribe(
 				var t = i2b2.CRC.ctrlr.QT.panelControllers[2];
 				if (t.isActive=="Y") { t.doDrop(sdxData); }
 			}));
-						
+					
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'ENS', 'DropHandler', (function(sdxData) { 
+				sdxData = sdxData[0];	// only interested in first record
+				var t = i2b2.CRC.ctrlr.QT.panelControllers[0];
+				if (t.isActive=="Y") { t.doDrop(sdxData); }
+			}));
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'ENS', 'DropHandler', (function(sdxData) { 
+				sdxData = sdxData[0];	// only interested in first record
+				var t = i2b2.CRC.ctrlr.QT.panelControllers[1];
+				if (t.isActive=="Y") { t.doDrop(sdxData); }
+			}));
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'ENS', 'DropHandler', (function(sdxData) { 
+				sdxData = sdxData[0];	// only interested in first record
+				var t = i2b2.CRC.ctrlr.QT.panelControllers[2];
+				if (t.isActive=="Y") { t.doDrop(sdxData); }
+			}));
+
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'PRS', 'DropHandler', (function(sdxData) { 
+				sdxData = sdxData[0];	// only interested in first record
+				var t = i2b2.CRC.ctrlr.QT.panelControllers[0];
+				if (t.isActive=="Y") { t.doDrop(sdxData); }
+			}));
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'PRS', 'DropHandler', (function(sdxData) { 
+				sdxData = sdxData[0];	// only interested in first record
+				var t = i2b2.CRC.ctrlr.QT.panelControllers[1];
+				if (t.isActive=="Y") { t.doDrop(sdxData); }
+			}));
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'PRS', 'DropHandler', (function(sdxData) { 
+				sdxData = sdxData[0];	// only interested in first record
+				var t = i2b2.CRC.ctrlr.QT.panelControllers[2];
+				if (t.isActive=="Y") { t.doDrop(sdxData); }
+			}));
+			
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'QM', 'DropHandler', (function(sdxData) { 
+				sdxData = sdxData[0];	// only interested in first record
+				var t = i2b2.CRC.ctrlr.QT.panelControllers[0];
+				if (t.isActive=="Y") { t.doDrop(sdxData); }
+			}));
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'QM', 'DropHandler', (function(sdxData) { 
+				sdxData = sdxData[0];	// only interested in first record
+				var t = i2b2.CRC.ctrlr.QT.panelControllers[1];
+				if (t.isActive=="Y") { t.doDrop(sdxData); }
+			}));
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'QM', 'DropHandler', (function(sdxData) { 
+				sdxData = sdxData[0];	// only interested in first record
+				var t = i2b2.CRC.ctrlr.QT.panelControllers[2];
+				if (t.isActive=="Y") { t.doDrop(sdxData); }
+			}))			
+
+
 			var funcATN = function(yuiTree, yuiParentNode, sdxDataPack, callbackLoader) { 
 				var myobj = { html: sdxDataPack.renderData.html, nodeid: sdxDataPack.renderData.htmlID}
 				// if the treenode we are appending to is the root node then do not show the [+] infront
@@ -311,15 +710,23 @@ i2b2.events.afterCellInit.subscribe(
 			i2b2.sdx.Master.setHandlerCustom('QPD2', 'CONCPT', 'AppendTreeNode', funcATN);
 			i2b2.sdx.Master.setHandlerCustom('QPD3', 'CONCPT', 'AppendTreeNode', funcATN);
 
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'ENS', 'AppendTreeNode', funcATN);
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'ENS', 'AppendTreeNode', funcATN);
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'ENS', 'AppendTreeNode', funcATN);
+
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'PRS', 'AppendTreeNode', funcATN);
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'PRS', 'AppendTreeNode', funcATN);
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'PRS', 'AppendTreeNode', funcATN);
+
 			var funcQMDH = function(sdxData) {
 				sdxData = sdxData[0];	// only interested in first record
 				// pass the QM ID to be loaded
 				var qm_id = sdxData.sdxInfo.sdxKeyValue;
 				i2b2.CRC.ctrlr.QT.doQueryLoad(qm_id)
 			};
-			i2b2.sdx.Master.setHandlerCustom('QPD1', 'QM', 'DropHandler', funcQMDH);
-			i2b2.sdx.Master.setHandlerCustom('QPD2', 'QM', 'DropHandler', funcQMDH);
-			i2b2.sdx.Master.setHandlerCustom('QPD3', 'QM', 'DropHandler', funcQMDH);
+			i2b2.sdx.Master.setHandlerCustom('QPD1', 'QM', 'AppendTreeNode', funcATN);
+			i2b2.sdx.Master.setHandlerCustom('QPD2', 'QM', 'AppendTreeNode', funcATN);
+			i2b2.sdx.Master.setHandlerCustom('QPD3', 'QM', 'AppendTreeNode', funcATN);
 			i2b2.sdx.Master.setHandlerCustom('queryName', 'QM', 'DropHandler', funcQMDH);
 			//======================= </Define Drop Handlers> =======================
 			
@@ -433,6 +840,7 @@ i2b2.events.afterCellInit.subscribe(
 				options.ont_hidden_records = i2b2.ONT.cfg.params.hiddens;
 				// parent key
 				options.concept_key_value = node.data.i2b2_SDX.sdxInfo.sdxKeyValue;
+				options.version = i2b2.ClientVersion;
 				i2b2.ONT.ajax.GetChildConcepts("CRC:QueryTool", options, scopedCallback);
 			}
 			i2b2.sdx.Master.setHandlerCustom('QPD1', 'CONCPT', 'LoadChildrenFromTreeview', funcLCFT);
@@ -442,13 +850,163 @@ i2b2.events.afterCellInit.subscribe(
 
 			
 
-			
-			
-
 			//======================= <Initialization> =======================
 			// Connect the panel controllers to the DOM nodes in the document
 			var t = i2b2.CRC.ctrlr.QT;
+			
+			queryTimingButton =  new YAHOO.widget.Button("queryTiming", 
+					{ lazyLoad: "false", type: "menu", menu: "menubutton1select", name:"querytiming" });
+
+	
+			queryTimingButton.on("mousedown", function (event) {
+				//i2b2.CRC.ctrlr.QT.panelControllers[0].doTiming(p_oItem.value);
+				if ((i2b2.CRC.ctrlr.QT.hasModifier) && (queryTimingButton.getMenu().getItems().length == 2))  {
+					queryTimingButton.getMenu().addItems([ 	 
+										{ text: "Items Instance will be the same", value: "SAMEINSTANCENUM" }]);	 
+					queryTimingButton.getMenu().render();
+				}
+			});
+	
+			
+			queryTimingButton.on("selectedMenuItemChange", function (event) {
+				//i2b2.CRC.ctrlr.QT.panelControllers[0].doTiming(p_oItem.value);
+				var oMenuItem = event.newValue; 
+				
+				if (oMenuItem == 0)
+				{
+					var sValue = "ANY";
+					var sText = "Treat all groups independently";
+				} else if (oMenuItem == 1)
+				{
+					var sValue = "SAME";
+					var sText = "Selected groups occur in the same financial encounter";
+				} else {
+					var sValue = oMenuItem.value;
+					var sText = oMenuItem.cfg.getProperty("text");
+				}
+				
+				
+				//var sText = oMenuItem.cfg.getProperty("text");
+				
+				var length = i2b2.CRC.ctrlr.QT.panelControllers.length;
+			
+				queryTimingButton.set("label", sText);		
+				
+				if (sValue == "SAMEVISIT") {
+					i2b2.CRC.ctrlr.QT.queryTiming = "SAMEVISIT";
+					for (var i=0; i<length; i++) {
+						//$("queryPanelTimingB" + (i+1) +  "-button").disabled = false;					
+						//$("queryPanelTimingB" + (i+1) +  "-button").innerHTML = "Occurs in Same Encounter";	
+						i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.set('disabled', false);					
+						i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.set("label",  "Occurs in Same Encounter");	
+						if (YAHOO.util.Dom.inDocument(i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().element)) {
+		
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().clearContent();
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().addItems([ 	 
+												{ text: "Treat Independently", value: "ANY"}]);	
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().addItems([ 	 
+												{ text: "Occurs in Same Encounter", value: "SAMEVISIT" }]);	 
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().addItems([ 												
+												{ text: "Items Instance will be the same", value: "SAMEINSTANCENUM" }]);	 
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().render();
+						} else {
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.itemData ={ text: "Treat Independently", value: "ANY",
+												text: "Occurs in Same Encounter", value: "SAMEVISIT",
+											    text: "Items Instance will be the same", value: "SAMEINSTANCENUM"  };
+						}
+								i2b2.CRC.ctrlr.QT.panelControllers[i].doTiming(sValue);
+					}
+	
+				} else if (sValue == "ANY") {
+					i2b2.CRC.ctrlr.QT.queryTiming = "ANY";
+					
+					for (var i=0; i<length; i++) {
+						i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.set("label", "Treat Independently");		
+						i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.set('disabled', true);				
+						i2b2.CRC.ctrlr.QT.panelControllers[i].doTiming(sValue);
+					}
+				} else if (sValue == "ENCOUNTER") {
+					i2b2.CRC.ctrlr.QT.queryTiming = "ENCOUNTER";
+					for (var i=0; i<length; i++) {
+						//$("queryPanelTimingB" + (i+1) +  "-button").disabled = false;					
+						//$("queryPanelTimingB" + (i+1) +  "-button").innerHTML = "Occurs in Same Encounter";	
+						i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.set('disabled', false);					
+						i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.set("label",  "Treat Independently");	
+						if (YAHOO.util.Dom.inDocument(i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().element)) {
+		
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().clearContent();
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().addItems([ 	 
+												{ text: "Treat Independently", value: "ANY"}]);	
+							for (var j=0; j<length; j++) {
+								i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().addItems([ 	 
+												{ text: "Occurs (" + (j+1) + ")", value: "OCCUR"+j }]);	 
+							}
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().render();
+						} else {
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.itemData ={ text: "Treat Independently", value: "ANY",
+												text: "Occurs", value: "OCCUR0" };
+						}
+						i2b2.CRC.ctrlr.QT.panelControllers[i].doTiming(sValue);
+					}					
+								
+				} else {
+					i2b2.CRC.ctrlr.QT.queryTiming = "SAMEINSTANCENUM";
+					for (var i=0; i<length; i++) {
+
+						i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.set('disabled', false);					
+						i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.set("label", sText);
+						
+						if (YAHOO.util.Dom.inDocument(i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().element)) {
+		
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().clearContent();
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().addItems([ 	 
+												{ text: "Treat Independently", value: "ANY"}]);	
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().addItems([ 	 
+												{ text: "Occurs in Same Encounter", value: "SAMEVISIT" }]);	 
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().addItems([ 												
+												{ text: "Items Instance will be the same", value: "SAMEINSTANCENUM" }]);	 
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.getMenu().render();
+						} else {
+							i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.itemData =[{ text: "Treat Independently", value: "ANY"},
+												{ text: "Occurs in Same Encounter", value: "SAMEVISIT"} ,
+											    { text: "Items Instance will be the same", value: "SAMEINSTANCENUM"  }];
+						}				
+					
+					
+						i2b2.CRC.ctrlr.QT.panelControllers[i].doTiming(sValue);
+					}
+					
+				}
+			}); 
+			
+			//var qryButtonTiming = {};
 			for (var i=0; i<3; i++) {
+				
+				var onSelectedMenuItemChange = function (event) { 
+			    	var oMenuItem = event.newValue; 
+	 
+	    			this.set("label", ("<em class=\"yui-button-label\">" +  
+	        	        oMenuItem.cfg.getProperty("text") + "</em>")); 
+	 
+	 				if (event.newvalue != event.prevValue) {		
+						var panelNumber = this.toString();
+						panelNumber = panelNumber.substring( panelNumber.length-1, panelNumber.length-0);
+				 			i2b2.CRC.ctrlr.QT.panelControllers[panelNumber-1].doTiming(oMenuItem.value);	
+					}
+					if (oMenuItem.value.substring(0,5) == "OCCUR") {
+						this.setStyle('width', 130);
+						$("qryButtonLimitB1").show();
+						//$('qryPanelTiming Button').style.width = 120;
+					} else {
+						this.setStyle('width', 160);
+						$("qryButtonLimitB1").hide();
+						//$('qryPanelTiming Button').style.width = 160;
+						//$(this._button.id).clientWidth = 160;
+					}
+				}; 
+				
+				//var panelControl = t.panelControllers[i];
+				
 				t.panelControllers[i].ctrlIndex = i;
 				t.panelControllers[i].refTitle = $("queryPanelTitle"+(i+1));
 				t.panelControllers[i].refButtonExclude = $("queryPanelExcludeB"+(i+1));
@@ -457,6 +1015,19 @@ i2b2.events.afterCellInit.subscribe(
 				t.panelControllers[i].refButtonOccursNum = $("QP"+(i+1)+"Occurs");
 				t.panelControllers[i].refBalloon = $("queryBalloon"+(i+1));
 				t.panelControllers[i].refDispContents = $("QPD"+(i+1));
+				
+				
+				//t.panelControllers[i].refTiming = $("queryPanelTimingB"+(i+1));
+				//t.panelControllers[i].refTiming = $("queryPanelTimingB"+(i+1));
+				var qryButtonTiming =  new YAHOO.widget.Button("queryPanelTimingB"+(i+1), 
+							{ type: "menu", menu: "menubutton1select", name:"querytiming" });
+				//qryButtonTiming.set('disabled', true);
+				 qryButtonTiming.on("selectedMenuItemChange", onSelectedMenuItemChange); 
+				 qryButtonTiming.setStyle('width', 160);
+
+				t.panelControllers[i].refTiming = qryButtonTiming;
+				t.panelControllers[i].refTiming.set('disabled', true);				
+
 				// create a instance of YUI Treeview
 				if (!t.panelControllers[i].yuiTree) {
 					t.panelControllers[i].yuiTree = new YAHOO.widget.TreeView("QPD"+(i+1));
@@ -475,6 +1046,29 @@ i2b2.events.afterCellInit.subscribe(
 			//======================= </Initialization> =======================
 
 
+			 function qryPanelTimingClick(p_sType, p_aArgs) {
+		
+					var oEvent = p_aArgs[0],	//	DOM event
+
+				oMenuItem = p_aArgs[1];	//	MenuItem instance that was the 
+										//	target of the event
+
+			if (oMenuItem) {
+				YAHOO.log("[MenuItem Properties] text: " + 
+							oMenuItem.cfg.getProperty("text") + ", value: " + 
+							oMenuItem.value);
+			}
+			
+			qryButtonTiming.set("label", qryButtonTiming.getMenu().activeItem.srcElement.text );
+
+
+	//		i2b2.CRC.ctrlr.QT.panelControllers[0].doTiming(p_oItem.value);
+	//		var sText = p_oItem.cfg.getProperty("text");
+    //		oMenuPanelTiming1.set("label", sText);		
+			
+		}
+
+
 			// attach the context controller to all panel controllers objects
 			var op = i2b2.CRC.view.QT; // object path 
 			i2b2.CRC.view.QT.ContextMenu = new YAHOO.widget.ContextMenu( 
@@ -486,8 +1080,11 @@ i2b2.events.afterCellInit.subscribe(
 						{ text: "Lab Values", 	onclick: { fn: op.ContextMenuRouter, obj: 'labvalues' } }
 					] }  
 			); 
+			
 			i2b2.CRC.view.QT.ContextMenu.subscribe("triggerContextMenu", i2b2.CRC.view.QT.ContextMenuPreprocess); 
-			i2b2.CRC.view.QT.ContextMenu.subscribe("beforeShow", i2b2.CRC.view.QT.ContextMenuPreprocess); 
+			i2b2.CRC.view.QT.ContextMenu.subscribe("beforeShow", i2b2.CRC.view.QT.ContextMenuPreprocess);
+			
+			i2b2.CRC.view.QT.splitterDragged();					// initialize query tool's elements
 // ================================================================================================== //
 		}
 	})
@@ -535,6 +1132,23 @@ i2b2.CRC.view.QT.hballoon = {
 	}
 };
 
+//================================================================================================== //
+i2b2.events.initView.subscribe((function(eventTypeName, newMode) {
+// -------------------------------------------------------
+	this.visible = true;
+	$('crcQueryToolBox').show();
+	this.Resize();
+	
+	// initialize the dropdown menu for query timing
+	var temporalConstraintBar 	= $("temporalConstraintBar");
+	var temporalConstraintLabel = $("temporalConstraintLabel");
+	var queryTimingButton		= $("queryTiming-button");
+	temporalConstraintDiv.style.width 	= Math.max( parseInt(temporalConstraintBar.style.width) - parseInt(temporalConstraintLabel.style.width)-2, 0) + "px";
+	queryTimingButton.style.width 		= Math.max( parseInt(temporalConstraintBar.style.width) - parseInt(temporalConstraintLabel.style.width)-6, 0) + "px";
+	
+	// -------------------------------------------------------
+}),'',i2b2.CRC.view.QT);
+
 
 // ================================================================================================== //
 i2b2.events.changedViewMode.subscribe((function(eventTypeName, newMode) {
@@ -545,7 +1159,8 @@ i2b2.events.changedViewMode.subscribe((function(eventTypeName, newMode) {
 		case "Patients":
 			this.visible = true;
 			$('crcQueryToolBox').show();
-			this.Resize();
+			i2b2.CRC.view.QT.splitterDragged();
+			//this.Resize();
 			break;
 		default:
 			this.visible = false;
@@ -574,10 +1189,8 @@ i2b2.events.changedZoomWindows.subscribe((function(eventTypeName, zoomMsg) {
 				this.visible = true;
 		}
 	}
-	this.Resize();
+	this.ResizeHeight();
 }),'',i2b2.CRC.view.QT);
-
-
 
 
 console.timeEnd('execute time');

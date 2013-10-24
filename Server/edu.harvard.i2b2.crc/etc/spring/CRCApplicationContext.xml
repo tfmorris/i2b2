@@ -28,8 +28,8 @@
   </bean>
   
   <bean id="appType" class="edu.harvard.i2b2.crc.datavo.i2b2message.ApplicationType">
-    <property name="applicationName" value="edu.harvard.i2b2.crc"/>
-    <property name="applicationVersion" value="1.5"/>
+    <property name="applicationName" value="CRC Cell"/>
+    <property name="applicationVersion" value="1.608"/>
   </bean>
   
  
@@ -48,7 +48,7 @@
 		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
 		<property name="url" value="jdbc:oracle:thin:@localhost:1521:XE"/>
 		<property name="username" value="i2b2demodata"/>
-		<property name="password" value="i2b2demodata"/>
+		<property name="password" value="demouser"/>
 	</bean>
 
 
@@ -57,7 +57,7 @@
                 <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
                 <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE"/>
                 <property name="username" value="i2b2hive"/>
-                <property name="password" value="i2b2hive"/>
+                <property name="password" value="demouser"/>
         </bean>
 
 

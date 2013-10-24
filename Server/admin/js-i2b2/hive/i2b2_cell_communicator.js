@@ -153,6 +153,14 @@ i2b2.hive.communicatorFactory = function(cellCode){
 			sMessageNoPWD = sMessageNoPWD.replace(/<password>.*<\/password>/gi,"<password></password>");
 		}		
 		execBubble.msgSent = sMessageNoPWD;
+		var verify = i2b2.h.parseXml(sMessage);
+		var verify_status = verify.getElementsByTagName('proxy')[0];
+
+		if (!verify_status) {
+			sMessage = sMessage.replace(/\&amp;/g,'&');
+			sMessage = sMessage.replace(/\&/g, '\&amp;');	
+		}
+
 		commOptions.postBody = sMessage;
 		if (commOptions.asynchronous) {
 			commOptions.onSuccess = this._defaultCallbackOK;
@@ -250,6 +258,9 @@ i2b2.hive.communicatorFactory = function(cellCode){
 		var execBubble = transport.request.options.i2b2_execBubble;
 		execBubble.timeRecv = new Date();
 		var origCallback = execBubble.callback;
+
+       //update timeout
+	   i2b2.PM.model.IdleTimer.updateTimer();   
 
 		// debug messages
 		if (i2b2.PM.login_debugging === undefined || (i2b2.PM.login_debugging && !i2b2.PM.login_debugging_suspend)) {

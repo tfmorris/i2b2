@@ -8,6 +8,8 @@ public interface IUploaderDAOFactory {
 	public DataSourceLookup getDataSourceLookup();
 
 	public IConceptDAO getConceptDAO();
+	
+	public IModifierDAO getModifierDAO();
 
 	public IPatientDAO getPatientDAO();
 
@@ -22,6 +24,8 @@ public interface IUploaderDAOFactory {
 	public IProviderDAO getProviderDAO();
 
 	public IVisitDAO getVisitDAO();
+	
+	public IMissingTermDAO getMissingTermDAO();
 
 	public DataSource getDataSource();
 

@@ -10,6 +10,11 @@ public class UploadDAOFactory implements IUploaderDAOFactory {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public ModifierDAO getModifierDAO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	public ObservationFactDAO getObservationDAO() {
 		// TODO Auto-generated method stub
@@ -57,6 +62,11 @@ public class UploadDAOFactory implements IUploaderDAOFactory {
 	}
 
 	public IEidDAO getEidDAO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public IMissingTermDAO getMissingTermDAO() {
 		// TODO Auto-generated method stub
 		return null;
 	}

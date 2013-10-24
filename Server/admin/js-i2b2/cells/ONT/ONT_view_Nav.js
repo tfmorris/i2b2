@@ -24,6 +24,8 @@ i2b2.ONT.view.nav.showOptions = function(subScreen) {
 				i2b2.ONT.view['nav'].params.max = parseInt($('ONTNAVMaxQryDisp').value,10);
 				i2b2.ONT.view['nav'].params.synonyms = $('ONTNAVshowSynonyms').checked;
 				i2b2.ONT.view['nav'].params.hiddens = $('ONTNAVshowHiddens').checked;
+				i2b2.ONT.view['nav'].params.modifiers = $('ONTNAVdisableModifiers').checked;
+				i2b2.ONT.view.nav.doRefreshAll();
 			}
 		}
 		var handleCancel = function() {
@@ -52,12 +54,12 @@ i2b2.ONT.view.nav.showOptions = function(subScreen) {
 	// load settings
 	$('ONTNAVMaxQryDisp').value = this.params.max;
 	$('ONTNAVshowSynonyms').checked = parseBoolean(this.params.synonyms);
-	$('ONTNAVshowHiddens').checked = parseBoolean(this.params.hiddens);			
+	$('ONTNAVshowHiddens').checked = parseBoolean(this.params.hiddens);		
 }
 
 // ================================================================================================== //
 i2b2.ONT.view.nav.showView = function() {
-	$('tabNavigate').addClassName('active');
+	$('tabNavigate').addClassName('active'); 
 	$('ontNavDisp').style.display = 'block';
 }
 
@@ -98,6 +100,7 @@ i2b2.ONT.view.nav.PopulateCategories = function() {
 		}
 		var renderOptions = {
 			title: catData.name,
+			dragdrop: "i2b2.sdx.TypeControllers.CONCPT.AttachDrag2Data",			
 			dblclick: "i2b2.ONT.view.nav.ToggleNode(this,'"+this.yuiTree.id+"')",
 			icon: {
 				root: "sdx_ONT_CONCPT_root.gif",
@@ -148,7 +151,39 @@ i2b2.ONT.view.nav.Resize = function(e) {
 	if (i2b2.ONT.view.main.isZoomed) { ve.height = h-101; }
 
 }
-YAHOO.util.Event.addListener(window, "resize", i2b2.ONT.view.nav.Resize, i2b2);
+//YAHOO.util.Event.addListener(window, "resize", i2b2.ONT.view.nav.Resize, i2b2); //tdw9
+
+//================================================================================================== //
+i2b2.ONT.view.nav.ResizeHeight = function() {
+	// this function provides the resize functionality needed for this screen
+	var viewObj = i2b2.ONT.view.nav;
+	var ds = document.viewport.getDimensions();
+	var h = ds.height;
+	if (h < 517) {h = 517;}
+	switch(i2b2.hive.MasterView.getViewMode()) {
+		case "Patients":
+			var ve = $('ontNavDisp').style;
+			if (i2b2.WORK && i2b2.WORK.isLoaded) {
+				var z = parseInt((h - 321)/2) + 8;
+				ve.height = z;
+			} else {
+				ve.height = h-297;
+			}
+			break;
+		case "Analysis":
+			var ve = $('ontNavDisp').style;
+			if (i2b2.WORK && i2b2.WORK.isLoaded) {
+				var z = parseInt((h - 321)/2) + 8;
+				ve.height = z;
+			} else {
+				ve.height = h-297;
+			}
+			break;
+		default:
+			break;
+	}
+	if (i2b2.ONT.view.main.isZoomed) { ve.height = h-101; }
+}
 
 
 // This is done once the entire cell has been loaded
@@ -182,12 +217,78 @@ i2b2.events.afterCellInit.subscribe(
 					console.groupEnd();
 				})
 			);
+
+			i2b2.ONT.view.nav.ContextMenu = new YAHOO.widget.ContextMenu( 
+					"divContextMenu-Nav",  
+						{ lazyload: true,
+						trigger: $('ontNavDisp'), 
+						itemdata: [
+							{ text: "Refresh All",	onclick: { fn: i2b2.ONT.view.nav.doRefreshAll } }
+					] }  
+			); 
+			i2b2.ONT.view.nav.ContextMenu.subscribe("triggerContextMenu",i2b2.ONT.view.nav.ContextMenuValidate);			
 // ===================================================================
 		}
 	})
 );
 
+//================================================================================================== //
+i2b2.ONT.view.nav.setChecked = function(here) {
+	//var oCheckedItem = here.parent.checkedItem;
+    if (here.cfg.getProperty("checked")) {//(oCheckedItem != here) {
+          here.cfg.setProperty("checked", false);
+         // here.parent.checkedItem = here;
+    } else {
+		   here.cfg.setProperty("checked", true);
+	}
+}
 
+//================================================================================================== //
+i2b2.ONT.view.nav.doRefreshAll = function() { 
+	i2b2.ONT.ctrlr.gen.loadCategories();
+	i2b2.ONT.view.nav.PopulateCategories();
+}
+
+//================================================================================================== //
+i2b2.ONT.view.nav.ContextMenuValidate = function(p_oEvent) {
+	var clickId = null;
+	var currentNode = this.contextEventTarget;
+	while (!currentNode.id) {
+		if (currentNode.parentNode) {
+			currentNode = currentNode.parentNode;
+		} else {
+			// we have recursed up the tree to the window/document DOM... it's a bad click
+			this.cancel();
+			return;
+		}
+	}
+	clickId = currentNode.id;
+	// see if the ID maps back to a treenode with SDX data
+	var tvNode = i2b2.ONT.view.nav.yuiTree.getNodeByProperty('nodeid', clickId);
+	if (tvNode) {
+		if (tvNode.data.i2b2_SDX) {
+			if (tvNode.data.i2b2_SDX.sdxInfo.sdxType == "CONCPT") {
+				i2b2.ONT.view.nav.contextRecord = tvNode.data.i2b2_SDX;
+			} else {
+				this.cancel();
+				return;
+			}
+		}
+	}
+};
+
+
+//================================================================================================== //
+i2b2.events.initView.subscribe((function(eventTypeName, newMode) 
+{
+// -------------------------------------------------------
+	this.visible = true;
+	this.Resize();
+// -------------------------------------------------------
+}),'',i2b2.ONT.view.nav);
+
+
+//================================================================================================== //
 i2b2.events.changedViewMode.subscribe((function(eventTypeName, newMode) {
 // -------------------------------------------------------
 	newMode = newMode[0];
@@ -215,7 +316,8 @@ i2b2.events.changedZoomWindows.subscribe((function(eventTypeName, zoomMsg) {
 		case "ONT":
 		case "HISTORY":
 		case "WORK":
-			this.Resize();
+			this.ResizeHeight();
+			//this.Resize();	// tdw9
 	}
 // -------------------------------------------------------
 }),'',i2b2.ONT.view.nav);

@@ -53,6 +53,10 @@ public class OracleUploaderDAOFactory implements IUploaderDAOFactory {
 	public IConceptDAO getConceptDAO() {
 		return new ConceptDAO(dataSourceLookup, dataSource);
 	}
+	
+	public IModifierDAO getModifierDAO() {
+		return new ModifierDAO(dataSourceLookup, dataSource);
+	}
 
 	public IObservationFactDAO getObservationDAO() {
 		return new ObservationFactDAO(dataSourceLookup, dataSource);
@@ -81,6 +85,12 @@ public class OracleUploaderDAOFactory implements IUploaderDAOFactory {
 	public IVisitDAO getVisitDAO() {
 		return new VisitDAO(dataSourceLookup, dataSource);
 	}
+
+
+	public IMissingTermDAO getMissingTermDAO() {
+		return new MissingTermDAO(dataSourceLookup, dataSource);
+	}
+
 
 	public DataSourceLookup getDataSourceLookup() {
 		// TODO Auto-generated method stub

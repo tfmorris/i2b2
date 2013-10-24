@@ -8,18 +8,23 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.ServiceLocator;
+import edu.harvard.i2b2.crc.dao.pdo.IMetadataDao;
 import edu.harvard.i2b2.crc.dao.pdo.IPageDao;
 import edu.harvard.i2b2.crc.dao.pdo.IPdoQueryEidDao;
+import edu.harvard.i2b2.crc.dao.pdo.IPdoQueryModifierDao;
 import edu.harvard.i2b2.crc.dao.pdo.IPdoQueryPidDao;
+import edu.harvard.i2b2.crc.dao.pdo.MetadataDao;
 import edu.harvard.i2b2.crc.dao.pdo.ObservationFactDao;
 import edu.harvard.i2b2.crc.dao.pdo.PageTotalDao;
 import edu.harvard.i2b2.crc.dao.pdo.PdoQueryConceptDao;
 import edu.harvard.i2b2.crc.dao.pdo.PdoQueryEidDao;
+import edu.harvard.i2b2.crc.dao.pdo.PdoQueryModifierDao;
 import edu.harvard.i2b2.crc.dao.pdo.PdoQueryPatientDao;
 import edu.harvard.i2b2.crc.dao.pdo.PdoQueryPidDao;
 import edu.harvard.i2b2.crc.dao.pdo.PdoQueryProviderDao;
 import edu.harvard.i2b2.crc.dao.pdo.PdoQueryVisitDao;
 import edu.harvard.i2b2.crc.dao.pdo.TablePdoQueryConceptDao;
+import edu.harvard.i2b2.crc.dao.pdo.TablePdoQueryModifierDao;
 import edu.harvard.i2b2.crc.dao.pdo.TablePdoQueryPatientDao;
 import edu.harvard.i2b2.crc.dao.pdo.TablePdoQueryProviderDao;
 import edu.harvard.i2b2.crc.dao.pdo.TablePdoQueryVisitDao;
@@ -113,6 +118,12 @@ public class SQLServerDAOFactory implements IDAOFactory {
 			return new PdoQueryConceptDao(dataSourceLookup, dataSource);
 			// return null;
 		}
+		
+		public PdoQueryModifierDao getPdoQueryModifierDAO() {
+			// TODO Auto-generated method stub
+			return new PdoQueryModifierDao(dataSourceLookup, dataSource);
+			// return null;
+		}
 
 		public PdoQueryPatientDao getPdoQueryPatientDAO() {
 			// TODO Auto-generated method stub
@@ -133,6 +144,11 @@ public class SQLServerDAOFactory implements IDAOFactory {
 		public TablePdoQueryConceptDao getTablePdoQueryConceptDAO() {
 			// TODO Auto-generated method stub
 			return new TablePdoQueryConceptDao(dataSourceLookup, dataSource);
+		}
+		
+		public TablePdoQueryModifierDao getTablePdoQueryModifierDAO() {
+			// TODO Auto-generated method stub
+			return new TablePdoQueryModifierDao(dataSourceLookup, dataSource);
 		}
 
 		public TablePdoQueryPatientDao getTablePdoQueryPatientDAO() {
@@ -157,7 +173,11 @@ public class SQLServerDAOFactory implements IDAOFactory {
 		public DataSourceLookup getOriginalDataSourceLookup() {
 			return originalDataSourceLookup;
 		}
-
+		
+		public DataSource getDataSource() {
+			return dataSource;
+		}
+		
 		public IPageDao getPageDAO() {
 			// TODO Auto-generated method stub
 			return new PageTotalDao(dataSourceLookup, dataSource);
@@ -169,6 +189,10 @@ public class SQLServerDAOFactory implements IDAOFactory {
 
 		public IPdoQueryEidDao getPdoQueryEidDAO() {
 			return new PdoQueryEidDao(dataSourceLookup, dataSource);
+		}
+
+		public IMetadataDao getMetadataDAO() {
+			return new MetadataDao(dataSourceLookup, dataSource);
 		}
 
 	}
@@ -237,6 +261,11 @@ public class SQLServerDAOFactory implements IDAOFactory {
 		public DataSourceLookup getOriginalDataSourceLookup() {
 			return originalDataSourceLookup;
 		}
+		
+		public DataSource getDataSource() {
+			return dataSource;
+		}
+		
 
 		public IQueryResultTypeDao getQueryResultTypeDao() {
 

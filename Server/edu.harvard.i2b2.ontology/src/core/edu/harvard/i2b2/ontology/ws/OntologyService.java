@@ -17,18 +17,26 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.ontology.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.ontology.delegate.AddChildHandler;
+import edu.harvard.i2b2.ontology.delegate.AddModifierHandler;
 import edu.harvard.i2b2.ontology.delegate.CRCConceptUpdateHandler;
 import edu.harvard.i2b2.ontology.delegate.DeleteChildHandler;
+import edu.harvard.i2b2.ontology.delegate.ExcludeModifierHandler;
 import edu.harvard.i2b2.ontology.delegate.GetCategoriesHandler;
 import edu.harvard.i2b2.ontology.delegate.GetChildrenHandler;
 import edu.harvard.i2b2.ontology.delegate.GetCodeInfoHandler;
 import edu.harvard.i2b2.ontology.delegate.GetDirtyStateHandler;
+import edu.harvard.i2b2.ontology.delegate.GetModifierChildrenHandler;
+import edu.harvard.i2b2.ontology.delegate.GetModifierCodeInfoHandler;
+import edu.harvard.i2b2.ontology.delegate.GetModifierInfoHandler;
+import edu.harvard.i2b2.ontology.delegate.GetModifierNameInfoHandler;
+import edu.harvard.i2b2.ontology.delegate.GetModifiersHandler;
 import edu.harvard.i2b2.ontology.delegate.GetNameInfoHandler;
 import edu.harvard.i2b2.ontology.delegate.GetOntProcessStatusHandler;
 import edu.harvard.i2b2.ontology.delegate.GetSchemesHandler;
 import edu.harvard.i2b2.ontology.delegate.GetTermInfoHandler;
 import edu.harvard.i2b2.ontology.delegate.ModifyChildHandler;
 import edu.harvard.i2b2.ontology.delegate.RequestHandler;
+import edu.harvard.i2b2.ontology.delegate.UpdateTotalNumHandler;
 
 /**
  * This is webservice skeleton class. It parses incoming Ontology service
@@ -487,6 +495,7 @@ public class OntologyService {
 					.createResponseOMElementFromString(ontologyDataResponse);
 		}
 		String requestElementString = modifyChildElement.toString();
+		log.debug(requestElementString);
 		ModifyChildDataMessage childDataMsg = new ModifyChildDataMessage(
 				requestElementString);
 		long waitTime = 0;
@@ -576,6 +585,41 @@ public class OntologyService {
 		return execute(new CRCConceptUpdateHandler(childDataMsg), waitTime);
 
 	}
+	
+	public OMElement updateConceptTotalNum(OMElement updateConceptTotalNumElement)
+	throws I2B2Exception {
+
+			OMElement returnElement = null;
+			String ontologyDataResponse = null;
+			String unknownErrorMessage = "Error message delivered from the remote server \n"
+					+ "You may wish to retry your last action";
+			
+			if (updateConceptTotalNumElement == null) {
+				log.error("Incoming Ontology request is null");
+				ResponseMessageType responseMsgType = MessageFactory
+						.doBuildErrorResponse(null, unknownErrorMessage);
+				ontologyDataResponse = MessageFactory
+						.convertToXMLString(responseMsgType);
+				return MessageFactory
+						.createResponseOMElementFromString(ontologyDataResponse);
+			}
+			String requestElementString = updateConceptTotalNumElement.toString();
+			UpdateTotalNumMessage childDataMsg = new UpdateTotalNumMessage(
+					requestElementString);
+			long waitTime = 0;
+			if (childDataMsg.getRequestMessageType() != null) {
+				if (childDataMsg.getRequestMessageType().getRequestHeader() != null) {
+					waitTime = childDataMsg.getRequestMessageType()
+							.getRequestHeader().getResultWaittimeMs();
+				}
+			}
+			
+			// do Ontology query processing inside thread, so that
+			// service could sends back message with timeout error.
+			// ExecutorRunnable er = new ExecutorRunnable();
+			return execute(new UpdateTotalNumHandler(childDataMsg), waitTime);
+
+}
 
 	public OMElement getProcessStatus(OMElement getOntProcessStatus)
 			throws I2B2Exception {
@@ -660,5 +704,321 @@ public class OntologyService {
 		// service could sends back message with timeout error.
 		// ExecutorRunnable er = new ExecutorRunnable();
 		return execute(new GetDirtyStateHandler(dirtyStateDataMsg), waitTime);
+	}
+	
+	/**
+	 * This function is main webservice interface to get modifier data for a query.
+	 * It uses AXIOM elements(OMElement) to conveniently parse xml messages.
+	 * 
+	 * It excepts incoming request in i2b2 message format, which wraps an
+	 * Ontology query inside a modifier query request object. The response is also
+	 * will be in i2b2 message format, which will wrap modifier data object. Modifier
+	 * data object will have all the results returned by the query.
+	 * 
+	 * 
+	 * @param getModifiers
+	 * @return OMElement in i2b2message format
+	 * @throws Exception
+	 */
+	public OMElement getModifiers(OMElement getModifiersElement)
+			throws I2B2Exception {
+
+		OMElement returnElement = null;
+		String ontologyDataResponse = null;
+		String unknownErrorMessage = "Error message delivered from the remote server \n"
+				+ "You may wish to retry your last action";
+
+		if (getModifiersElement == null) {
+			log.error("Incoming Ontology request is null");
+			ResponseMessageType responseMsgType = MessageFactory
+					.doBuildErrorResponse(null, unknownErrorMessage);
+			ontologyDataResponse = MessageFactory
+					.convertToXMLString(responseMsgType);
+			return MessageFactory
+					.createResponseOMElementFromString(ontologyDataResponse);
+		}
+		String requestElementString = getModifiersElement.toString();
+		GetModifiersDataMessage modifiersDataMsg = new GetModifiersDataMessage(
+				requestElementString);
+		long waitTime = 0;
+		if (modifiersDataMsg.getRequestMessageType() != null) {
+			if (modifiersDataMsg.getRequestMessageType().getRequestHeader() != null) {
+				waitTime = modifiersDataMsg.getRequestMessageType()
+						.getRequestHeader().getResultWaittimeMs();
+			}
+		}
+
+		// do Ontology query processing inside thread, so that
+		// service could sends back message with timeout error.
+		// ExecutorRunnable er = new ExecutorRunnable();
+		return execute(new GetModifiersHandler(modifiersDataMsg), waitTime);
+
+	}
+	/**
+	 * This function is main webservice interface to get modifier data for a query.
+	 * It uses AXIOM elements(OMElement) to conveniently parse xml messages.
+	 * 
+	 * It excepts incoming request in i2b2 message format, which wraps an
+	 * Ontology query inside a modifier query request object. The response is also
+	 * will be in i2b2 message format, which will wrap modifier data object. Modifier
+	 * data object will have all the results returned by the query.
+	 * 
+	 * 
+	 * @param getModifierInfo
+	 * @return OMElement in i2b2message format
+	 * @throws Exception
+	 */
+	public OMElement getModifierInfo(OMElement getModifierInfoElement)
+			throws I2B2Exception {
+
+		OMElement returnElement = null;
+		String ontologyDataResponse = null;
+		String unknownErrorMessage = "Error message delivered from the remote server \n"
+				+ "You may wish to retry your last action";
+
+		if (getModifierInfoElement == null) {
+			log.error("Incoming Ontology request is null");
+			ResponseMessageType responseMsgType = MessageFactory
+					.doBuildErrorResponse(null, unknownErrorMessage);
+			ontologyDataResponse = MessageFactory
+					.convertToXMLString(responseMsgType);
+			return MessageFactory
+					.createResponseOMElementFromString(ontologyDataResponse);
+		}
+		String requestElementString = getModifierInfoElement.toString();
+		GetModifierInfoDataMessage modifierInfoDataMsg = new GetModifierInfoDataMessage(
+				requestElementString);
+		long waitTime = 0;
+		if (modifierInfoDataMsg.getRequestMessageType() != null) {
+			if (modifierInfoDataMsg.getRequestMessageType().getRequestHeader() != null) {
+				waitTime = modifierInfoDataMsg.getRequestMessageType()
+						.getRequestHeader().getResultWaittimeMs();
+			}
+		}
+
+		// do Ontology query processing inside thread, so that
+		// service could sends back message with timeout error.
+		// ExecutorRunnable er = new ExecutorRunnable();
+		return execute(new GetModifierInfoHandler(modifierInfoDataMsg), waitTime);
+
+	}
+	
+	/**
+	 * This function is main webservice interface to get modifier data for a query.
+	 * It uses AXIOM elements(OMElement) to conveniently parse xml messages.
+	 * 
+	 * It excepts incoming request in i2b2 message format, which wraps an
+	 * Ontology query inside a modifier query request object. The response is also
+	 * will be in i2b2 message format, which will wrap modifier data object. Modifier
+	 * data object will have all the results returned by the query.
+	 * 
+	 * 
+	 * @param getModifierInfo
+	 * @return OMElement in i2b2message format
+	 * @throws Exception
+	 */
+	public OMElement getModifierChildren(OMElement getModifierChildrenElement)
+			throws I2B2Exception {
+
+		OMElement returnElement = null;
+		String ontologyDataResponse = null;
+		String unknownErrorMessage = "Error message delivered from the remote server \n"
+				+ "You may wish to retry your last action";
+
+		if (getModifierChildrenElement == null) {
+			log.error("Incoming Ontology request is null");
+			ResponseMessageType responseMsgType = MessageFactory
+					.doBuildErrorResponse(null, unknownErrorMessage);
+			ontologyDataResponse = MessageFactory
+					.convertToXMLString(responseMsgType);
+			return MessageFactory
+					.createResponseOMElementFromString(ontologyDataResponse);
+		}
+		String requestElementString = getModifierChildrenElement.toString();
+		GetModifierChildrenDataMessage modifierChildrenDataMsg = new GetModifierChildrenDataMessage(
+				requestElementString);
+		long waitTime = 0;
+		if (modifierChildrenDataMsg.getRequestMessageType() != null) {
+			if (modifierChildrenDataMsg.getRequestMessageType().getRequestHeader() != null) {
+				waitTime = modifierChildrenDataMsg.getRequestMessageType()
+						.getRequestHeader().getResultWaittimeMs();
+			}
+		}
+
+		// do Ontology query processing inside thread, so that
+		// service could sends back message with timeout error.
+		// ExecutorRunnable er = new ExecutorRunnable();
+		return execute(new GetModifierChildrenHandler(modifierChildrenDataMsg), waitTime);
+
+	}
+	
+	public OMElement addModifier(OMElement addChildElement) throws I2B2Exception {
+
+		OMElement returnElement = null;
+		String ontologyDataResponse = null;
+		String unknownErrorMessage = "Error message delivered from the remote server \n"
+				+ "You may wish to retry your last action";
+
+		if (addChildElement == null) {
+			log.error("Incoming Ontology request is null");
+			ResponseMessageType responseMsgType = MessageFactory
+					.doBuildErrorResponse(null, unknownErrorMessage);
+			ontologyDataResponse = MessageFactory
+					.convertToXMLString(responseMsgType);
+			return MessageFactory
+					.createResponseOMElementFromString(ontologyDataResponse);
+		}
+		String requestElementString = addChildElement.toString();
+		AddChildDataMessage childDataMsg = new AddChildDataMessage(
+				requestElementString);
+		long waitTime = 0;
+		if (childDataMsg.getRequestMessageType() != null) {
+			if (childDataMsg.getRequestMessageType().getRequestHeader() != null) {
+				waitTime = childDataMsg.getRequestMessageType()
+						.getRequestHeader().getResultWaittimeMs();
+			}
+		}
+
+		// do Ontology query processing inside thread, so that
+		// service could sends back message with timeout error.
+		// ExecutorRunnable er = new ExecutorRunnable();
+		return execute(new AddModifierHandler(childDataMsg), waitTime);
+
+	}
+	
+	public OMElement excludeModifier(OMElement addChildElement) throws I2B2Exception {
+
+		OMElement returnElement = null;
+		String ontologyDataResponse = null;
+		String unknownErrorMessage = "Error message delivered from the remote server \n"
+				+ "You may wish to retry your last action";
+
+		if (addChildElement == null) {
+			log.error("Incoming Ontology request is null");
+			ResponseMessageType responseMsgType = MessageFactory
+					.doBuildErrorResponse(null, unknownErrorMessage);
+			ontologyDataResponse = MessageFactory
+					.convertToXMLString(responseMsgType);
+			return MessageFactory
+					.createResponseOMElementFromString(ontologyDataResponse);
+		}
+		String requestElementString = addChildElement.toString();
+		AddChildDataMessage childDataMsg = new AddChildDataMessage(
+				requestElementString);
+		long waitTime = 0;
+		if (childDataMsg.getRequestMessageType() != null) {
+			if (childDataMsg.getRequestMessageType().getRequestHeader() != null) {
+				waitTime = childDataMsg.getRequestMessageType()
+						.getRequestHeader().getResultWaittimeMs();
+			}
+		}
+
+		// do Ontology query processing inside thread, so that
+		// service could sends back message with timeout error.
+		// ExecutorRunnable er = new ExecutorRunnable();
+		return execute(new ExcludeModifierHandler(childDataMsg), waitTime);
+
+	}
+	
+	/**
+	 * This function is main webservice interface to get vocab data for a query.
+	 * It uses AXIOM elements(OMElement) to conveniently parse xml messages.
+	 * 
+	 * It excepts incoming request in i2b2 message format, which wraps an
+	 * Ontology query inside a vocab query request object. The response is also
+	 * will be in i2b2 message format, which will wrap vocab data object. Vocab
+	 * data object will have all the results returned by the query.
+	 * 
+	 * 
+	 * @param OMElement
+	 *            getModifierNameInfoElement
+	 * @return OMElement in i2b2message format
+	 * @throws Exception
+	 */
+	public OMElement getModifierNameInfo(OMElement getNameInfoElement)
+			throws I2B2Exception {
+		OMElement returnElement = null;
+		String ontologyDataResponse = null;
+		String unknownErrorMessage = "Error message delivered from the remote server \n"
+				+ "You may wish to retry your last action";
+
+		if (getNameInfoElement == null) {
+			log.error("Incoming Ontology request is null");
+			ResponseMessageType responseMsgType = MessageFactory
+					.doBuildErrorResponse(null, unknownErrorMessage);
+			ontologyDataResponse = MessageFactory
+					.convertToXMLString(responseMsgType);
+			return MessageFactory
+					.createResponseOMElementFromString(ontologyDataResponse);
+		}
+
+		String requestElementString = getNameInfoElement.toString();
+		GetNameInfoDataMessage nameInfoDataMsg = new GetNameInfoDataMessage(
+				requestElementString);
+
+		long waitTime = 0;
+		if (nameInfoDataMsg.getRequestMessageType() != null) {
+			if (nameInfoDataMsg.getRequestMessageType().getRequestHeader() != null) {
+				waitTime = nameInfoDataMsg.getRequestMessageType()
+						.getRequestHeader().getResultWaittimeMs();
+			}
+		}
+
+		// do Ontology query processing inside thread, so that
+		// service could sends back message with timeout error.
+
+		// ExecutorRunnable er = new ExecutorRunnable();
+		return execute(new GetModifierNameInfoHandler(nameInfoDataMsg), waitTime);
+	}
+	
+	/**
+	 * This function is main webservice interface to get vocab data for a query.
+	 * It uses AXIOM elements(OMElement) to conveniently parse xml messages.
+	 * 
+	 * It excepts incoming request in i2b2 message format, which wraps an
+	 * Ontology query inside a vocab query request object. The response is also
+	 * will be in i2b2 message format, which will wrap vocab data object. Vocab
+	 * data object will have all the results returned by the query.
+	 * 
+	 * 
+	 * @param OMElement
+	 *            getModifierCodeInfoElement
+	 * @return OMElement in i2b2message format
+	 * @throws Exception
+	 */
+	public OMElement getModifierCodeInfo(OMElement getCodeInfoElement)
+			throws I2B2Exception {
+		OMElement returnElement = null;
+		String ontologyDataResponse = null;
+		String unknownErrorMessage = "Error message delivered from the remote server \n"
+				+ "You may wish to retry your last action";
+
+		if (getCodeInfoElement == null) {
+			log.error("Incoming Ontology request is null");
+			ResponseMessageType responseMsgType = MessageFactory
+					.doBuildErrorResponse(null, unknownErrorMessage);
+			ontologyDataResponse = MessageFactory
+					.convertToXMLString(responseMsgType);
+			return MessageFactory
+					.createResponseOMElementFromString(ontologyDataResponse);
+		}
+
+		String requestElementString = getCodeInfoElement.toString();
+		GetCodeInfoDataMessage codeInfoDataMsg = new GetCodeInfoDataMessage(
+				requestElementString);
+
+		long waitTime = 0;
+		if (codeInfoDataMsg.getRequestMessageType() != null) {
+			if (codeInfoDataMsg.getRequestMessageType().getRequestHeader() != null) {
+				waitTime = codeInfoDataMsg.getRequestMessageType()
+						.getRequestHeader().getResultWaittimeMs();
+			}
+		}
+
+		// do Ontology query processing inside thread, so that
+		// service could sends back message with timeout error.
+
+		// ExecutorRunnable er = new ExecutorRunnable();
+		return execute(new GetModifierCodeInfoHandler(codeInfoDataMsg), waitTime);
 	}
 }

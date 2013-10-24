@@ -19,7 +19,6 @@
 		},
 		category: ["core","cell"],
 		authRoles: [
-			{code:"ADMIN", name:"Hive Administrator"},
 			{code:"MANAGER", name:"Hive Manager"},
 			{code:"EDITOR", name:"Hive Editor"},
 			{code:"USER", name:"Hive User"},

@@ -34,7 +34,7 @@ public class QueryResultPatientRaceCdCountGenerator extends CRCDAO implements
 				.setDbSchemaName(sfDAOFactory.getDataSourceLookup()
 						.getFullSchema());
 
-		String demographics_count_sql = "select count(dx.patient_num) as race_count, case when cl.name_char IS NULL then pd.race_cd else cl.name_char end as pd_race_cd from "
+		String demographics_count_sql = "select count(distinct dx.patient_num) as race_count, case when cl.name_char IS NULL then pd.race_cd else cl.name_char end as pd_race_cd from "
 				+ this.getDbSchemaName()
 				+ "patient_dimension pd left join code_lookup  cl on pd.race_cd = cl.code_cd"
 				+ " and lower(cl.table_cd) = 'patient_dimension' and upper(cl.column_cd) = 'RACE_CD', "

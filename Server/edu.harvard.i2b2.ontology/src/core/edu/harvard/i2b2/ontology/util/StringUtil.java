@@ -65,4 +65,34 @@ public class StringUtil {
     	
     }
     
+    public static String getLiteralPath(String fullPath) {
+    	int end = fullPath.indexOf("\\", 3);
+
+    	fullPath = fullPath.substring(end).trim();
+    	
+    	return fullPath;
+    	
+    	
+    }
+    
+    public static String escapeSQLSERVER(String sql){
+    
+    	sql=sql.replaceAll("\\?", "??");
+    	sql=sql.replaceAll("_", "?_");    
+    	sql=sql.replaceAll("%", "?%");
+    	sql=sql.replaceAll("\\[", "?["); 
+    //	sql += "%";
+ 
+    	return sql;
+	}
+    
+    public static String escapeORACLE(String sql){
+        
+    	sql=sql.replaceAll("\\?", "??");
+    	sql=sql.replaceAll("_", "?_");
+    	sql=sql.replaceAll("%", "?%");
+  //  	sql += "%";
+    	return sql;
+	}
+    
 }

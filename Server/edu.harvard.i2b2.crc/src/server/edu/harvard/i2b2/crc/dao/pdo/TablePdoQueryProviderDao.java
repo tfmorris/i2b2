@@ -119,7 +119,7 @@ public class TablePdoQueryProviderDao extends CRCDAO implements
 					+ "provider_dimension provider where provider_id in (select distinct char_param1 from "
 					+ factTempTable + ") order by provider_path";
 			log.debug("Executing SQL [" + finalSql + "]");
-			System.out.println("Final Sql " + finalSql);
+			
 
 			query = conn.prepareStatement(finalSql);
 
@@ -137,10 +137,9 @@ public class TablePdoQueryProviderDao extends CRCDAO implements
 			log.error("", ioEx);
 			throw new I2B2DAOException("IO exception", ioEx);
 		} finally {
-			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn, factTempTable);
-			}
+			PdoTempTableUtil tempUtil = new PdoTempTableUtil();
+			tempUtil.clearTempTable(dataSourceLookup.getServerType(), conn, factTempTable);
+			
 			if (inputOptionListHandler != null
 					&& inputOptionListHandler.isEnumerationSet()) {
 				try {
@@ -165,7 +164,7 @@ public class TablePdoQueryProviderDao extends CRCDAO implements
 
 		PreparedStatement stmt = conn.prepareStatement(totalSql);
 
-		System.out.println(totalSql + " [ " + sqlParamCount + " ]");
+		log.debug(totalSql + " [ " + sqlParamCount + " ]");
 		if (inputOptionListHandler.isCollectionId()) {
 			for (int i = 1; i <= sqlParamCount; i++) {
 				stmt.setInt(i, Integer.parseInt(inputOptionListHandler
@@ -261,7 +260,8 @@ public class TablePdoQueryProviderDao extends CRCDAO implements
 		} finally {
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn, tempTable);
+				PdoTempTableUtil tempTableUtil = new PdoTempTableUtil(); 
+				tempTableUtil.deleteTempTableSqlServer(conn, tempTable);
 			}
 			try {
 				JDBCUtil.closeJdbcResource(null, query, conn);
@@ -328,22 +328,5 @@ public class TablePdoQueryProviderDao extends CRCDAO implements
 		tempStmt.executeBatch();
 	}
 
-	private void deleteTempTable(Connection conn, String tempTable) {
-
-		Statement deleteStmt = null;
-		try {
-			deleteStmt = conn.createStatement();
-			conn.createStatement().executeUpdate("drop table " + tempTable);
-		} catch (SQLException sqle) {
-			;
-		} finally {
-			try {
-				deleteStmt.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-	}
+	
 }

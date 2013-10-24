@@ -160,7 +160,7 @@ i2b2.PLUGINMGR.ctrlr.main =
 					alert('An error has occurred while trying to initialize the Plugin.');
 				}
 				// fire the plugin's Resize() function
-				i2b2.PLUGINMGR.view.PlugView.Resize();
+				i2b2.PLUGINMGR.view.PlugView.ResizeHeight();
 				// Reconnect any drag drop handlers that have been dropped, if this plugin has been previously loaded (a YUI issue)
 				YAHOO.util.DDM.reattachHandlers();
 			} else {

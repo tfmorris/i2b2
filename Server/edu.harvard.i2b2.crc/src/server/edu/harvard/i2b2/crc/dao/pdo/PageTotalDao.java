@@ -65,8 +65,7 @@ public class PageTotalDao extends CRCDAO implements IPageDao {
 			}
 			long endTime = System.currentTimeMillis();
 			long totalTime = endTime - startTime;
-			System.out
-					.println("********* Time for the  Total Sql ************ "
+			log.debug("********* Time for the  Total Sql ************ "
 							+ totalTime);
 		} catch (SQLException sqlEx) {
 			throw new I2B2DAOException("", sqlEx);

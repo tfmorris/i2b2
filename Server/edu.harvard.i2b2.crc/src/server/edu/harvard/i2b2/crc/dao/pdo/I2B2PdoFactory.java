@@ -14,6 +14,7 @@ import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
@@ -21,6 +22,7 @@ import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.crc.datavo.pdo.BlobType;
 import edu.harvard.i2b2.crc.datavo.pdo.ConceptType;
 import edu.harvard.i2b2.crc.datavo.pdo.EventType;
+import edu.harvard.i2b2.crc.datavo.pdo.ModifierType;
 import edu.harvard.i2b2.crc.datavo.pdo.ObservationType;
 import edu.harvard.i2b2.crc.datavo.pdo.ObserverType;
 import edu.harvard.i2b2.crc.datavo.pdo.ParamType;
@@ -91,6 +93,10 @@ public class I2B2PdoFactory {
 			modifierCd.setValue(rowSet.getString("obs_modifier_cd"));
 			observationFactType.setModifierCd(modifierCd);
 
+			ObservationType.InstanceNum instanceNum = new ObservationType.InstanceNum();
+			instanceNum.setValue(rowSet.getString("obs_instance_num"));
+			observationFactType.setInstanceNum(instanceNum);
+
 			Date startDate = rowSet.getTimestamp("obs_start_date");
 
 			if (startDate != null) {
@@ -148,7 +154,7 @@ public class I2B2PdoFactory {
 				if (observationClob != null) {
 					BlobType blobType = new BlobType();
 					blobType.getContent().add(
-							JDBCUtil.getClobString(observationClob));
+							JDBCUtil.getClobStringWithLinebreak(observationClob));
 					observationFactType.setObservationBlob(blobType);
 				}
 			}
@@ -213,7 +219,7 @@ public class I2B2PdoFactory {
 		 * @throws SQLException
 		 * @throws IOException
 		 */
-		public PatientType buildPatientSet(ResultSet rowSet)
+		public PatientType buildPatientSet(ResultSet rowSet, List<ParamType> metaDataParamList)
 				throws SQLException, IOException {
 			PatientType patientDimensionType = new PatientType();
 			PatientIdType patientIdType = new PatientIdType();
@@ -223,84 +229,18 @@ public class I2B2PdoFactory {
 			List<ParamType> paramTypeList = patientDimensionType.getParam();
 			ParamType paramType = null;
 			if (patientDetailFlag) {
-				String vitalStatusCd = rowSet
-						.getString("patient_vital_status_cd");
-				paramType = new ParamType();
-				paramType.setName("vital_status_cd");
-				paramType.setColumn("vital_status_cd");
-				paramType.setValue(vitalStatusCd);
-				paramTypeList.add(paramType);
+				
 
-				Date birthDate = rowSet.getTimestamp("patient_birth_date");
-				if (birthDate != null) {
-					paramType = new ParamType();
-					paramType.setName("birth_date");
-					paramType.setColumn("birth_date");
-					paramType.setValue(dtoFactory.getXMLGregorianCalendar(
-							birthDate.getTime()).toString());
-					paramTypeList.add(paramType);
+				
+				for (Iterator<ParamType> metaParamIterator = metaDataParamList.iterator(); metaParamIterator.hasNext();) { 
+					ParamType metaParamType = metaParamIterator.next();
+					ParamTypeValueBuilder paramValBuilder = new ParamTypeValueBuilder();
+					paramTypeList.add(paramValBuilder.buildParamType(metaParamType,"patient_",null,rowSet));
 				}
-				Date deathDate = rowSet.getTimestamp("patient_death_date");
-				if (deathDate != null) {
-					paramType = new ParamType();
-					paramType.setName("death_date");
-					paramType.setColumn("death_date");
-					paramType.setValue(dtoFactory.getXMLGregorianCalendar(
-							deathDate.getTime()).toString());
-					paramTypeList.add(paramType);
-				}
-				paramType = new ParamType();
-				paramType.setName("sex_cd");
-				paramType.setColumn("sex_cd");
-				paramType.setValue(rowSet.getString("patient_sex_cd"));
-				paramTypeList.add(paramType);
-
-				paramType = new ParamType();
-				paramType.setName("age_in_years_num");
-				paramType.setColumn("age_in_years_num");
-				paramType
-						.setValue(rowSet.getString("patient_age_in_years_num"));
-				paramTypeList.add(paramType);
-
-				paramType = new ParamType();
-				paramType.setName("language_cd");
-				paramType.setColumn("language_cd");
-				paramType.setValue(rowSet.getString("patient_language_cd"));
-				paramTypeList.add(paramType);
-
-				paramType = new ParamType();
-				paramType.setName("race_cd");
-				paramType.setColumn("race_cd");
-				paramType.setValue(rowSet.getString("patient_race_cd"));
-				paramTypeList.add(paramType);
-
-				paramType = new ParamType();
-				paramType.setName("religion_cd");
-				paramType.setColumn("religion_cd");
-				paramType.setValue(rowSet.getString("patient_religion_cd"));
-				paramTypeList.add(paramType);
-
-				paramType = new ParamType();
-				paramType.setName("marital_status_cd");
-				paramType.setColumn("marital_status_cd");
-				paramType.setValue(rowSet
-						.getString("patient_marital_status_cd"));
-				paramTypeList.add(paramType);
-
-				paramType = new ParamType();
-				paramType.setName("zipcode_char");
-				paramType.setColumn("zipcode_char");
-				paramType.setValue(rowSet.getString("patient_zip_cd"));
-				paramTypeList.add(paramType);
-
-				paramType = new ParamType();
-				paramType.setName("statecityzip_path_char");
-				paramType.setColumn("statecityzip_path_char");
-				paramType.setValue(rowSet
-						.getString("patient_statecityzip_path"));
-				paramTypeList.add(paramType);
-
 			}
+			
+			
+			
 
 			if (patientBlobFlag) {
 				Clob patientClob = rowSet.getClob("patient_patient_blob");
@@ -308,7 +248,7 @@ public class I2B2PdoFactory {
 				if (patientClob != null) {
 					BlobType patientBlobType = new BlobType();
 					patientBlobType.getContent().add(
-							JDBCUtil.getClobString(patientClob));
+							JDBCUtil.getClobStringWithLinebreak(patientClob));
 					patientDimensionType.setPatientBlob(patientBlobType);
 				}
 			}
@@ -391,7 +331,7 @@ public class I2B2PdoFactory {
 				if (providerClob != null) {
 					BlobType providerBlobType = new BlobType();
 					providerBlobType.getContent().add(
-							JDBCUtil.getClobString(providerClob));
+							JDBCUtil.getClobStringWithLinebreak(providerClob));
 					providerDimensionType.setObserverBlob(providerBlobType);
 				}
 			}
@@ -477,7 +417,7 @@ public class I2B2PdoFactory {
 				if (conceptClob != null) {
 					BlobType conceptBlobType = new BlobType();
 					conceptBlobType.getContent().add(
-							JDBCUtil.getClobString(conceptClob));
+							JDBCUtil.getClobStringWithLinebreak(conceptClob));
 					conceptDimensionType.setConceptBlob(conceptBlobType);
 				}
 			}
@@ -511,6 +451,93 @@ public class I2B2PdoFactory {
 		}
 	}
 
+
+	/**
+	 * Inner class to build concept dimension in plain pdo format
+	 */
+	public class ModifierBuilder {
+		boolean modifierDetailFlag = false;
+		boolean modifierBlobFlag = false;
+		boolean modifierStatusFlag = false;
+
+		/**
+		 * Parameter Constuctor
+		 * 
+		 * @param detailFlag
+		 * @param blobFlag
+		 * @param statusFlag
+		 */
+		public ModifierBuilder(boolean detailFlag, boolean blobFlag,
+				boolean statusFlag) {
+			this.modifierDetailFlag = detailFlag;
+			this.modifierBlobFlag = blobFlag;
+			this.modifierStatusFlag = statusFlag;
+		}
+
+		/**
+		 * Reads one row from result set and builds concept dimension
+		 * 
+		 * @param rowSet
+		 * @return
+		 * @throws SQLException
+		 * @throws IOException
+		 */
+		public ModifierType buildModifierSet(ResultSet rowSet)
+				throws SQLException, IOException {
+			ModifierType modifierDimensionType = new ModifierType();
+
+			modifierDimensionType.setModifierCd(rowSet
+					.getString("modifier_modifier_cd"));
+
+			if (modifierDetailFlag) {
+				modifierDimensionType.setModifierCd(rowSet
+						.getString("modifier_modifier_cd"));
+				modifierDimensionType.setModifierPath(rowSet
+						.getString("modifier_modifier_path"));
+				modifierDimensionType.setNameChar(rowSet
+						.getString("modifier_name_char"));
+			}
+
+			if (modifierBlobFlag) {
+				Clob modifierClob = rowSet.getClob("modifier_modifier_blob");
+
+				if (modifierClob != null) {
+					BlobType modifierBlobType = new BlobType();
+					modifierBlobType.getContent().add(
+							JDBCUtil.getClobStringWithLinebreak(modifierClob));
+					modifierDimensionType.setModifierBlob(modifierBlobType);
+				}
+			}
+
+			if (modifierStatusFlag) {
+				if (rowSet.getTimestamp("modifier_update_date") != null) {
+					modifierDimensionType.setUpdateDate(dtoFactory
+							.getXMLGregorianCalendar(rowSet.getTimestamp(
+									"modifier_update_date").getTime()));
+				}
+
+				if (rowSet.getTimestamp("modifier_download_date") != null) {
+					modifierDimensionType.setDownloadDate(dtoFactory
+							.getXMLGregorianCalendar(rowSet.getTimestamp(
+									"modifier_download_date").getTime()));
+				}
+
+				if (rowSet.getTimestamp("modifier_import_date") != null) {
+					modifierDimensionType.setImportDate(dtoFactory
+							.getXMLGregorianCalendar(rowSet.getTimestamp(
+									"modifier_import_date").getTime()));
+				}
+
+				modifierDimensionType.setSourcesystemCd(rowSet
+						.getString("modifier_sourcesystem_cd"));
+				modifierDimensionType.setUploadId(rowSet
+						.getString("modifier_upload_id"));
+			}
+
+			return modifierDimensionType;
+		}
+	}
+	
 	/**
 	 * Inner class to build visit dimension in plain pdo format
 	 */
@@ -534,7 +561,7 @@ public class I2B2PdoFactory {
 		 * @throws SQLException
 		 * @throws IOException
 		 */
-		public EventType buildEventSet(ResultSet rowSet) throws SQLException,
+		public EventType buildEventSet(ResultSet rowSet,List<ParamType> metaDataParamList) throws SQLException,
 				IOException {
 			EventType visitDimensionType = new EventType();
 
@@ -547,28 +574,7 @@ public class I2B2PdoFactory {
 
 			if (eventDetailFlag) {
 
-				ParamType inoutParamType = new ParamType();
-				inoutParamType.setValue(rowSet.getString("visit_inout_cd"));
-				inoutParamType.setColumn("inout_cd");
-				visitDimensionType.getParam().add(inoutParamType);
-
-				ParamType locationParamType = new ParamType();
-				locationParamType.setValue(rowSet
-						.getString("visit_location_cd"));
-				locationParamType.setColumn("location_cd");
-				visitDimensionType.getParam().add(locationParamType);
-
-				ParamType siteParamType = new ParamType();
-				siteParamType.setColumn("location_path");
-				siteParamType.setValue(rowSet.getString("visit_location_path"));
-				visitDimensionType.getParam().add(siteParamType);
-
-				ParamType activeStatusParamType = new ParamType();
-				siteParamType.setColumn("active_status_cd");
-				siteParamType.setValue(rowSet
-						.getString("visit_active_status_cd"));
-				visitDimensionType.getParam().add(activeStatusParamType);
-
+				
 				Date startDate = rowSet.getTimestamp("visit_start_date");
 
 				if (startDate != null) {
@@ -582,6 +588,12 @@ public class I2B2PdoFactory {
 					visitDimensionType.setEndDate(dtoFactory
 							.getXMLGregorianCalendar(endDate.getTime()));
 				}
+				for (Iterator<ParamType> metaParamIterator = metaDataParamList.iterator(); metaParamIterator.hasNext();) { 
+					ParamType metaParamType = metaParamIterator.next();
+					ParamTypeValueBuilder paramValBuilder = new ParamTypeValueBuilder();
+					visitDimensionType.getParam().add(paramValBuilder.buildParamType(metaParamType,"visit_",null,rowSet));
+				}
+				
 			}
 
 			if (eventBlobFlag) {
@@ -590,10 +602,13 @@ public class I2B2PdoFactory {
 				if (visitClob != null) {
 					BlobType visitBlobType = new BlobType();
 					visitBlobType.getContent().add(
-							JDBCUtil.getClobString(visitClob));
+							JDBCUtil.getClobStringWithLinebreak(visitClob));
 					visitDimensionType.setEventBlob(visitBlobType);
 				}
 			}
+			
+			
+			
 
 			if (eventStatusFlag) {
 				if (rowSet.getTimestamp("visit_update_date") != null) {

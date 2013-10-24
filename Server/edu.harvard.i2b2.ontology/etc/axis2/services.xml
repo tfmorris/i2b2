@@ -21,5 +21,14 @@
     <operation name="getTermInfo">
         <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
     </operation>
+    <operation name="getModifiers">
+        <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+    </operation>
+    <operation name="getModifierChildren">
+        <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+    </operation>
+    <operation name="getModifierInfo">
+        <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+    </operation>
     <parameter name="ServiceClass">edu.harvard.i2b2.ontology.ws.OntologyService</parameter>
 </service>

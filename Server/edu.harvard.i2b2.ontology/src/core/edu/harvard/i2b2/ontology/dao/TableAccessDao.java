@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
 import edu.harvard.i2b2.ontology.ejb.DBInfoType;
+import edu.harvard.i2b2.ontology.ejb.TableAccessType;
 import edu.harvard.i2b2.ontology.util.OntologyUtil;
 
 /**
@@ -53,12 +54,14 @@ public class TableAccessDao extends JdbcDaoSupport {
 		}
 		boolean protectedAccess = isProtectedAccess(projectInfo);
 		String sql = "select distinct(c_table_name) from " + metadataSchema
-				+ "table_access where ";
+				+ "table_access ";
 		if (synchronizeAllFlag == false) {
-			sql += " c_visualattributes like '%E' and ";
+			sql += " where c_visualattributes like '%E' ";
+			if(!protectedAccess)
+				sql += " and c_protected_access = ? ";
 		}
-		if (!protectedAccess) {
-			sql += "  c_protected_access = ? ";
+		else if (!protectedAccess) {
+			sql += " where c_protected_access = ? ";
 		}
 		ParameterizedRowMapper<String> map = new ParameterizedRowMapper<String>() {
 			public String mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -106,6 +109,42 @@ public class TableAccessDao extends JdbcDaoSupport {
 		return tableNameList;
 	}
 
+	
+	public List<TableAccessType> getAllTableAccess(ProjectType projectInfo,
+			DBInfoType dbInfo) throws I2B2Exception {
+		String metadataSchema = dbInfo.getDb_fullSchema();
+		if (jt == null) {
+			setDataSource(dbInfo.getDb_dataSource());
+		}
+		boolean protectedAccess = isProtectedAccess(projectInfo);
+		String sql = "select * from " + metadataSchema
+				+ "table_access ";
+		if (!protectedAccess) {
+			sql += " where c_protected_access = ? ";
+		}
+		ParameterizedRowMapper<TableAccessType> map = new ParameterizedRowMapper<TableAccessType>() {
+			
+			public TableAccessType mapRow(ResultSet rs, int rowNum) throws SQLException {
+				TableAccessType tableAccessType = new TableAccessType();
+				tableAccessType.setTableName(rs.getString("c_table_name"));
+				tableAccessType.setTableCd(rs.getString("c_table_cd"));
+				tableAccessType.setFullName(rs.getString("c_fullname"));
+				tableAccessType.setSynonymCd(rs.getString("c_synonym_cd"));
+				tableAccessType.setVisualAttributes(rs.getString("c_visualattributes"));
+				tableAccessType.setDimCode(rs.getString("c_dimcode"));
+				return tableAccessType;
+			}
+		};
+
+		List<TableAccessType> tableAccessList = null;
+		log.debug("Executing sql [" + sql + "]");
+		if (!protectedAccess) {
+			tableAccessList = jt.query(sql, map, "N");
+		} else {
+			tableAccessList = jt.query(sql, map);
+		}
+		return tableAccessList;
+	}
 	private boolean isProtectedAccess(ProjectType projectInfo)
 			throws I2B2Exception {
 		boolean protectedAccess = false;

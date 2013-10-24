@@ -1,4 +1,4 @@
-
+ 
 /**
  * @projectDescription	PM Administration Module
  * @inherits			i2b2
@@ -6,7 +6,6 @@
  * @author			Nick Benik, Mike Mendis, Griffin Weber MD PhD
  * @version			1.0
  */
-
 i2b2.PM.model.helpMSGS = {};
 i2b2.PM.model.helpMSGS.LOADED = "<div><img width=152 height=152 style=\"padding: 10px; vertical-align: middle;\" src=js-i2b2/cells/PM/assets/i2b2_hive.png><span style=\"font-size: 36pt; color: rgb(54, 95, 145);\">i2b2 Administration</span></div><br/>" 
     +"Welcome to the <b>i2b2 Administration module</b> of the <i>project management interface</i>.<br><br>"
@@ -14,46 +13,65 @@ i2b2.PM.model.helpMSGS.LOADED = "<div><img width=152 height=152 style=\"padding:
 	+ "<tr><td><b>Manage Hive</b></td>"
 	+ "<td>View domain information and capture cell data and global parameters.</td></tr>"
 	+ "<tr><td><b>Manage Project</b></td>"
-	
-
 	+ "<td>General information about the project as well as project specific cell data, parameters, and user access and roles.</td></tr>"
-
- 
-	
-
- 
-
 	+ "<tr><td><b>Manage Users</b></td>"
-	
-
 	+ "<td>General information about a user.</td></tr>"
-
- 
-	
-
- 
-
 	+ "<tr><td><b>Manage Approvals</b></td>"
-	
-
 	+ "<td>Captures general information used to authorize projects.</td></tr>"
-
- 
-	
-
- 
-
 	+ "<tr><td><b>Project Requests</b></td>"
-	
-
 	+ "<td>View information about submitted project requests.</td></tr></table>"
-
- 
-
 	+"<br>The <b>navigation bar</b> on the left side of the page can be used to access individual pages.";
 i2b2.PM.model.helpMSGS.HIVE = "Hive Configuration<br />Describe what these functions are for.";
+i2b2.PM.model.helpMSGS.HIVEDOMAIN = "<form><p>Please update hive infomation.</p>"+
+	'<div>'+
+	'<table border="0"><tbody><tr><td valign="middle"><b>Domain Id:</b></td><td><input type="TEXT" id="pmAdmin-hiveID" maxlength="50" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Help URL:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-hiveHelpURL" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Domain Name:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-hiveName" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Environment:</b></td><td><SELECT style="width:250px" id="pmAdmin-hiveEnvironment"><OPTION value="DEVELOPMENT">Development</option><OPTION value="PRODUCTION">Production</option><OPTION value="TEST">Test</option></select></td></tr>'+	
+	'<tr><td></td><td align="right"><input type="HIDDEN" value="" id="pmAdmin-projOrigKey"/> <input type="BUTTON" value="Save" onclick="i2b2.PM.admin.saveDomain();"/> <input type="BUTTON" value="Cancel" onclick="i2b2.PM.view.admin.refreshScreen();"/></td></tr>'+
+	'</table></div></form>';
+i2b2.PM.model.helpMSGS.PROJECTREQUEST = "<form><p>Click on \"Project Request\" in the navigation bar to refresh the list of project requests.<br />Please select a project request on the left to see it's properties</p>";	
+i2b2.PM.model.helpMSGS.PROJECTREQUESTREC = '<div id="project-request-viewer-body">empty</project-request-viewer-body>';
+i2b2.PM.model.helpMSGS.APPROVAL = "<form><p>Click on \"Approval\" in the navigation bar to refresh the list of approval.<br />Please select a approval on the left to edit it's properties</p>"+
+	'<div id="AddNewApprovalBtnDIV"><input type="BUTTON" value="Add New Approval" onclick="$(\'AddNewApprovalBtnDIV\').hide(); $(\'pmAdminMainTableview\').hide(); $(\'AddNewApprovalDIV\').show();"></div>'+
+	'<div id="AddNewApprovalDIV" style="display:none">'+
+	'<table border="0"><tbody><tr><td valign="middle"><b>Approval Id:</b></td><td><input type="TEXT" id="pmAdmin-approvalID" maxlength="50" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Approval Name:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-approvalName" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Approval Description:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-approvalDescription" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Activation Date:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-approvalActivation" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Expiration Date:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-approvalExpiration" style="width:250px"/></td></tr>'+
+	'<tr><td></td><td align="right"><input type="HIDDEN" value="" id="pmAdmin-projOrigKey"/><input type="BUTTON" value="Save" onclick="i2b2.PM.admin.saveApproval();"/> <input type="BUTTON" value="Cancel" onclick="$(\'AddNewApprovalBtnDIV\').show(); $(\'AddNewApprovalDIV\').hide();"/></td></tr>'+
+	'</table></div></form><div id="cal1Container"></div> ';	
+i2b2.PM.model.helpMSGS.APPROVALREC = "<form><p>Please select which approval screen you want to access.</p>"+
+	'<div>'+
+	'<table border="0"><tbody><tr><td valign="middle"><b>Approval Id:</b></td><td><input type="TEXT" id="pmAdmin-approvalID" maxlength="50" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Approval Name:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-approvalName" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Approval Description:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-approvalDescription" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Activation Date:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-approvalActivation" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Expiration Date:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-approvalExpiration" style="width:250px"/></td></tr>'+
+	'<tr><td></td><td align="right"><input type="BUTTON" value="Delete" onclick="i2b2.PM.admin.deleteApproval();"/><input type="BUTTON" value="Save" onclick="i2b2.PM.admin.saveApproval();"/> <input type="BUTTON" value="Cancel" onclick="$(\'AddNewApprovalBtnDIV\').show(); $(\'AddNewApprovalDIV\').hide();"/></td></tr>'+
+	'</table></div></form><div id="cal1Container"></div> ';	
+i2b2.PM.model.helpMSGS.CELL = "<form><p>Click on \"Cell\" in the navigation bar to refresh the list of cell.<br />Please select a cell on the left to edit it's properties</p>"+
+	'<div id="AddNewCellBtnDIV"><input type="BUTTON" value="Add New Cell" onclick="$(\'AddNewCellBtnDIV\').hide();$(\'pmAdminMainTableview\').hide(); $(\'AddNewCellDIV\').show();"></div>'+
+	'<div id="AddNewCellDIV" style="display:none">'+
+	'<table border="0"><tbody><tr><td valign="middle"><b>Cell Id:</b></td><td><input type="TEXT" id="pmAdmin-cellID" maxlength="50" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Cell Name:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-cellName" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Cell URL:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-cellURL" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Project Path:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-cellProjPath" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Method:</b></td><td><SELECT style="width:250px" id="pmAdmin-cellMethod"><OPTION value="REST">REST</option><OPTION value="SOAP">SOAP</option><OPTION value="OTHER">OTHER</option></select></td></tr>'+		
+	'<tr><td></td><td align="right"><input type="HIDDEN" value="" id="pmAdmin-projOrigKey"/><input type="BUTTON" value="Save" onclick="i2b2.PM.admin.saveCell();"/> <input type="BUTTON" value="Cancel" onclick="$(\'AddNewCellBtnDIV\').show(); $(\'AddNewCellDIV\').hide();"/></td></tr>'+
+	'</table></div></form>';	
+i2b2.PM.model.helpMSGS.CELLREC = "<form><p>Please select which cell configuration screen you want to access.</p>"+
+	'<div>'+
+	'<table border="0"><tbody><tr><td valign="middle"><b>Cell Id:</b></td><td><input type="TEXT" id="pmAdmin-cellID" maxlength="50" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Cell Name:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-cellName" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Cell URL:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-cellURL" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Project Path:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-cellProjPath" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Method:</b></td><td><SELECT style="width:250px" id="pmAdmin-cellMethod"><OPTION value="REST">REST</option><OPTION value="SOAP">SOAP</option><OPTION value="OTHER">OTHER</option></select></td></tr>'+		
+	'<tr><td></td><td align="right"><input type="HIDDEN" value="" id="pmAdmin-projOrigKey"/><input type="BUTTON" value="Delete" onclick="i2b2.PM.admin.deleteCell();"/> <input type="BUTTON" value="Save" onclick="i2b2.PM.admin.saveCell();"/> <input type="BUTTON" value="Cancel" onclick="$(\'AddNewCellBtnDIV\').show(); $(\'AddNewCellDIV\').hide();"/></td></tr>'+
+	'</table></div></form>';
 i2b2.PM.model.helpMSGS.PROJECT = "<form><p>Click on \"Project\" in the navigation bar to refresh the list of projects.<br />Please select a project on the left to edit it's properties</p>"+
-	'<div id="AddNewProjBtnDIV"><input type="BUTTON" value="Add New Project" onclick="$(\'AddNewProjBtnDIV\').hide(); $(\'AddNewProjDIV\').show();"></div>'+
+	'<div id="AddNewProjBtnDIV"><input type="BUTTON" value="Add New Project" onclick="$(\'AddNewProjBtnDIV\').hide(); $(\'pmAdminMainTableview\').hide();$(\'AddNewProjDIV\').show();"></div>'+
 	'<div id="AddNewProjDIV" style="display:none">'+
 	'<table border="0"><tbody><tr><td valign="middle"><b>Project Id:</b></td><td><input type="TEXT" id="pmAdmin-projID" maxlength="50" style="width:250px"/></td></tr>'+
 	'<tr><td valign="middle"><b>Project Name:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-projName" style="width:250px"/></td></tr>'+
@@ -73,8 +91,52 @@ i2b2.PM.model.helpMSGS.PROJECTREC = "<form><p>Please select which project config
 	'<tr><td valign="middle"><b>Project Path:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-projPath" style="width:250px"/></td></tr>'+
 	'<tr><td></td><td align="right"><input type="HIDDEN" value="" id="pmAdmin-projOrigKey"/><input type="BUTTON" value="Delete" onclick="i2b2.PM.admin.deleteProject();"/> <input type="BUTTON" value="Save Updates" onclick="i2b2.PM.admin.saveProject();"/> <input type="BUTTON" value="Cancel" onclick="i2b2.PM.view.admin.refreshScreen();"/></td></tr>'+
 	'</table></div></form>';
-
-
+i2b2.PM.model.helpMSGS.USER =  "<form><p>Click on \"User\" in the navigation bar to refresh the list of users.<br />Please select a user on the left to edit it's properties</p>"+
+	'<div id="AddNewUserBtnDIV"><input type="BUTTON" value="Add New User" onclick="$(\'AddNewUserBtnDIV\').hide(); $(\'pmAdminMainTableview\').hide(); $(\'AddNewUserDIV\').show();"></div>'+
+	'<div id="AddNewUserDIV" style="display:none">'+
+	'<table border="0"><tbody><tr><td valign="middle"><b>User Name:</b></td><td><input type="TEXT" id="pmAdmin-userName" maxlength="50" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>User Full Name:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-userFullname" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>User Email:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-userEmail" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>User Password:</b></td><td><input type="password" maxlength="255" id="pmAdmin-userPasswd1" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>User Password (verify):</b></td><td><input type="password" maxlength="255" id="pmAdmin-userPasswd2" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Is Admin:</b></td><td><SELECT style="width:250px" id="pmAdmin-userIsAdmin"><OPTION value="false">No</option><OPTION value="true">Yes</option></select></td></tr>'+
+	'<tr><td></td><td align="right"><input type="hidden" id="pmAdmin-newUser" value="true"><input type="BUTTON" value="Save" onclick="i2b2.PM.admin.saveUser();"/> <input type="BUTTON" value="Cancel" onclick="i2b2.PM.view.admin.refreshScreen();"/></td></tr>'+
+	'</table></div></form>';
+i2b2.PM.model.helpMSGS.USERREC = "<form><p>Please select which user configuration screen you want to access.</p>"+
+	'<div>'+
+	'<table border="0"><tbody><tr><td valign="middle"><b>User Name:</b></td><td><input type="TEXT" id="pmAdmin-userName" maxlength="50" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>User Full Name:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-userFullname" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>User Email:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-userEmail" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>User Password:</b></td><td><input type="password" maxlength="255" id="pmAdmin-userPasswd1" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>User Password (verify):</b></td><td><input type="password" maxlength="255" id="pmAdmin-userPasswd2" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Is Admin:</b></td><td><SELECT style="width:250px" id="pmAdmin-userIsAdmin"><OPTION value="false">No</option><OPTION value="true">Yes</option></select></td></tr>'+
+	'<tr><td></td><td align="right"><input type="hidden" id="pmAdmin-newUser" value="false"><input type="BUTTON" value="Delete" onclick="i2b2.PM.admin.deleteUser();"/> <input type="BUTTON" value="Save" onclick="i2b2.PM.admin.saveUser();"/> <input type="BUTTON" value="Cancel" onclick="i2b2.PM.view.admin.refreshScreen();"/></td></tr>'+
+	'</table></div></form>';
+i2b2.PM.model.helpMSGS.PARAM =  "<form><p>Click on \"Parameter\" in the navigation bar to refresh the list of parameters.<br />Please select a parameter on the left to edit it's properties</p>"+
+	'<div id="AddNewParameterBtnDIV"><input type="BUTTON" value="Add New Parameter" onclick="$(\'AddNewParameterBtnDIV\').hide(); $(\'AddNewParameterDIV\').show();"></div>'+
+	'<div id="AddNewParameterDIV" style="display:none">'+
+	'<table border="0"><tbody><tr><td valign="middle"><b>Parameter Name:</b></td><td><input type="TEXT" id="pmAdmin-paramName" maxlength="50" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Parameter Value:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-paramValue" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Parameter Data Type:</b></td><td><SELECT style="width:250px" id="pmAdmin-paramDatatype"><OPTION value="T">Text</option><OPTION value="C">Reference Binary</option><OPTION value="N">Numeric</option><OPTION value="D">Date</option><OPTION value="I">Integer</option><OPTION value="B">Boolean</option><OPTION value="RTF">RTF</option><OPTION value="XLS">Excel</option><OPTION value="XML">XML</option><OPTION value="DOC">Word</option></select></td></tr>'+
+	'<tr><td></td><td align="right"><input type="HIDDEN" value="" id="pmAdmin-paramId"/><input type="HIDDEN" value="" id="pmAdmin-paramTable"/><input type="BUTTON" value="Delete" onclick="i2b2.PM.admin.deleteParameter();"/> <input type="BUTTON" value="Save" onclick="i2b2.PM.admin.saveParameter();"/> <input type="BUTTON" value="Cancel" onclick="i2b2.PM.view.admin.refreshScreen();"/></td></tr>'+
+	'</table></div></form>';
+i2b2.PM.model.helpMSGS.PARAMREC = "<form><p>Please select which parameter screen you want to access.</p>"+
+	'<div>'+
+	'<table border="0"><tbody><tr><td valign="middle"><b>Parameter Name:</b></td><td><input type="TEXT" id="pmAdmin-paramName" maxlength="50" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Parameter Value:</b></td><td><input type="TEXT" maxlength="255" id="pmAdmin-paramValue" style="width:250px"/></td></tr>'+
+	'<tr><td valign="middle"><b>Parameter Data Type:</b></td><td><SELECT style="width:250px" id="pmAdmin-paramDatatype"><OPTION value="T">Text</option><OPTION value="C">Reference Binary</option><OPTION value="N">Numeric</option><OPTION value="D">Date</option><OPTION value="I">Integer</option><OPTION value="B">Boolean</option><OPTION value="RTF">RTF</option><OPTION value="XLS">Excel</option><OPTION value="XML">XML</option><OPTION value="DOC">Word</option></select></td></tr>'+
+	'<tr><td></td><td align="right"><input type="HIDDEN" value="" id="pmAdmin-paramId"/><input type="HIDDEN" value="" id="pmAdmin-paramTable"/><input type="BUTTON" value="Delete" onclick="i2b2.PM.admin.deleteParameter();"/> <input type="BUTTON" value="Save" onclick="i2b2.PM.admin.saveParameter();"/> <input type="BUTTON" value="Cancel" onclick="i2b2.PM.view.admin.refreshScreen();"/></td></tr>'+
+	'</table></div></form>';	
+i2b2.PM.model.helpMSGS.PROJECTUSER  = '<form> <fieldset id="checkboxbuttonsfrommarkup"><table valign="top"><tbody><!-- Header --><tr valign="top"><th width="150px">Admin Path</th><th width="150px">Data Path</th><th width="150px">Custom Path</th></tr><tr valign="top"><td><input type="checkbox" id="RoleMANAGER" onClick="i2b2.PM.view.admin.onCheckedChange(\'MANAGER\');" name="MANAGER">Manager<br><input type="checkbox" id="RoleUSER" onClick="i2b2.PM.view.admin.onCheckedChange(\'USER\');" name="USER">User<br>' +
+'</td><td><input type="checkbox" id="RoleDATA_PROT" onClick="i2b2.PM.view.admin.onCheckedChange(\'DATA_PROT\');" name="DATA_PROT">Protected<br><input type="checkbox" id="RoleDATA_DEID" onClick="i2b2.PM.view.admin.onCheckedChange(\'DATA_DEID\');" name="DATA_DEID">De-identified Data<br><input type="checkbox" id="RoleDATA_LDS" onClick="i2b2.PM.view.admin.onCheckedChange(\'DATA_LDS\');" name="DATA_LDS">Limited Data Set<br><input type="checkbox" id="RoleDATA_AGG" onClick="i2b2.PM.view.admin.onCheckedChange(\'DATA_AGG\');"  name="DATA_AGG">Aggregated<br><input type="checkbox" id="RoleDATA_OBFSC"onClick="i2b2.PM.view.admin.onCheckedChange(\'DATA_OBFSC\');"   name="DATA_OBFSC">Obfuscated<br></td><td><input type="checkbox" id="RoleEDITOR" name="EDITOR">Editor</td></tr>' +
+	'<tr><td></td><td colspan="2" align="right"><input type="HIDDEN" value="" id="pmAdmin-projOrigKey"/><input type="BUTTON" value="Delete" onclick="i2b2.PM.admin.deleteProjectUser();"/> <input type="BUTTON" value="Save" onclick="i2b2.PM.admin.saveProjectUser();"/> <input type="BUTTON" value="Cancel" onclick="i2b2.PM.view.admin.refreshScreen();"/></td></tr>'+
+	'</table></div></fieldset></form>';
+i2b2.PM.model.helpMSGS.PROJECTUSERS = "<form><p>Click on \"User\" in the navigation bar to refresh the list of users.<br />Please select a user on the left to edit it's properties</p>"+
+	'<div id="AddNewUserBtnDIV"><input type="BUTTON" value="Add User to Project" onclick="$(\'AddNewUserBtnDIV\').hide();  $(\'AddNewUserDIV\').show();"></div>'+
+	'<div id="AddNewUserDIV" style="display:none">'+
+	'<table border="0"><tbody><tr><td valign="middle"><b>User Name:</b></td><td><input type="TEXT" id="pmAdmin-userName" maxlength="50" style="width:250px"/></td></tr>'+
+	'<tr><td></td><td align="right"> <input type="BUTTON" value="Add User to Project" onclick="i2b2.PM.admin.addUserProject();"/> <input type="BUTTON" value="Cancel" onclick="i2b2.PM.view.admin.refreshScreen();"/></td></tr>'+
+	'</table></div></form>';
 i2b2.PM.model.adminButtonsPrimary = {};
 i2b2.PM.model.adminButtonsPrimary["HIVEDOMAINS"] = "<form><input type='button' value='Save Updates' onclick=\"i2b2.PM.admin.clickActionBtn(1, 'UPDATE');\"/></form>";
 i2b2.PM.model.adminButtonsPrimary["HIVECELLS"] = "<form><input type='button' value='Save Updates' onclick=\"i2b2.PM.admin.clickActionBtn(1, 'UPDATE');\"/><input type='button' value='Delete' onclick=\"i2b2.PM.admin.clickActionBtn(1, 'DELETE');\"/><input type='button' value='Add New' onclick=\"i2b2.PM.admin.clickActionBtn(1,'NEW');\"/></form>";
@@ -98,7 +160,8 @@ i2b2.PM.model.adminColumnDef["HIVECELLS"] = [
 	{key:"id", sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
 	{key:"name", sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
 	{key:"method",sortable:true, resizeable:true, editor: new YAHOO.widget.RadioCellEditor({radioOptions:["SOAP","REST","OTHER"],disableBtns:true})}, 
-	{key:"url",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}
+	{key:"url",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})},
+	{key:"project_path",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}	
 ];
 i2b2.PM.model.adminColumnDef["HIVEGLOBALS"] = [
 	{key:"name", sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
@@ -131,6 +194,15 @@ i2b2.PM.model.adminColumnDef["PROJECTREQUESTS"] = [
 
 ];
 
+i2b2.PM.model.adminColumnDef["PROJECTS"] = [
+	{key:"id", sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
+	{key:"name",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
+	{key:"description",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
+	{key:"key",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
+	{key:"wiki",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
+	{key:"path",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}
+]; 
+
 i2b2.PM.model.adminColumnDef["APPROVALS"] = [
 	{key:"id", sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
 	{key:"name",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
@@ -143,13 +215,15 @@ i2b2.PM.model.adminColumnDef["USERS"] = [
 	{key:"full_name", sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
 	{key:"user_name",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
 	{key:"email",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}, 
-	{key:"password",resizeable:true, editor: new YAHOO.widget.PasswordCellEditor({disableBtns:false}), formatter: DataTableUtils.PasswordFormatter}
+	{key:"is_admin",sortable:true, resizeable:true, editor: new YAHOO.widget.TextboxCellEditor({disableBtns:true})}	
 ];
 
+		
 // build the columndef for project-user dynamically
 var t = i2b2.PM.cfg.config.authRoles;
 var l = t.length;
 var codes = [];
+
 for (var i=0; i<l; i++) {
 	codes.push(t[i].code);
 }
@@ -158,35 +232,12 @@ i2b2.PM.model.adminColumnDef["PROJECTREC-USERS"] = [
 	{key:"roles", sortable:false, resizeable:true, editor: new YAHOO.widget.CheckboxCellEditor({checkboxOptions:codes, disableBtns:false})}
 ];
 
-i2b2.PM.view.admin.formatDateInDataTable = function(elCell, oRecord, oColumn, oData)
-{
-	var oDate = oData;
-	var o = typeof(oData);
-	if ( o == 'string'){
-		oData = oData.substring(0,10);
-		elCell.innerHTML = YAHOO.util.Date.format(oData, { format: "%F"}); //oData; //.toString('MM/dd/yyyy');
-	} else if ( o == 'object'  && oDate != 'Invalid Date') {
-		elCell.innerHTML = YAHOO.util.Date.format(oDate); //'here';// oDate.toString('MM/dd/yyyy');
-	} else {
-		elCell.innerHTML = "";
-	}
-};
-
-
-// Add the custom formatter to the shortcuts
-YAHOO.widget.DataTable.Formatter.myDate = i2b2.PM.view.admin.formatDateInDataTable;
-
 i2b2.PM.model.adminButtonsSecondary = {};
 i2b2.PM.model.adminButtonsSecondary["USERS"] = "<form><input type='button' value='Save Updates' onclick=\"i2b2.PM.admin.clickActionBtn(2, 'UPDATE');\"/><input type='button' value='Delete' onclick=\"i2b2.PM.admin.clickActionBtn(2, 'DELETE');\"/><input type='button' value='Add New' onclick=\"i2b2.PM.admin.clickActionBtn(2,'NEW');\"/></form>";
 i2b2.PM.model.adminButtonsSecondary["HIVECELLS"] = "<form><input type='button' value='Save Updates' onclick=\"i2b2.PM.admin.clickActionBtn(2, 'UPDATE');\"/><input type='button' value='Delete' onclick=\"i2b2.PM.admin.clickActionBtn(2, 'DELETE');\"/><input type='button' value='Add New' onclick=\"i2b2.PM.admin.clickActionBtn(2,'NEW');\"/></form>";
 i2b2.PM.model.adminButtonsSecondary["HIVEDOMAINS"] = "<form><input type='button' value='Save Updates' onclick=\"i2b2.PM.admin.clickActionBtn(2, 'UPDATE');\"/><input type='button' value='Delete' onclick=\"i2b2.PM.admin.clickActionBtn(2, 'DELETE');\"/><input type='button' value='Add New' onclick=\"i2b2.PM.admin.clickActionBtn(2,'NEW');\"/></form>";
 i2b2.PM.model.adminButtonsSecondary["PROJECTREC-CELLS"] = "<form><input type='button' value='Save Updates' onclick=\"i2b2.PM.admin.clickActionBtn(2, 'UPDATE');\"/><input type='button' value='Delete' onclick=\"i2b2.PM.admin.clickActionBtn(2, 'DELETE');\"/><input type='button' value='Add New' onclick=\"i2b2.PM.admin.clickActionBtn(2,'NEW');\"/></form>";
 i2b2.PM.model.adminButtonsSecondary["PROJECTREC-USERS"] = "<form><input type='button' value='Save Updates' onclick=\"i2b2.PM.admin.clickActionBtn(2, 'UPDATE');\"/><input type='button' value='Delete' onclick=\"i2b2.PM.admin.clickActionBtn(2, 'DELETE');\"/><input type='button' value='Add New' onclick=\"i2b2.PM.admin.clickActionBtn(2,'NEW');\"/></form>";
-
-
-
-
-
 
 
 
@@ -205,6 +256,54 @@ i2b2.PM.view.admin.showInfoPanel = function(infoID) {
 	}
 };
 
+i2b2.PM.view.admin.onCheckedChange = function(items) {
+	var items = items;
+			if (items == "MANAGER")
+			{
+				document.getElementById("RoleMANAGER").checked = true;
+				document.getElementById("RoleUSER").checked = true;
+			} else 			if (items == "USER")
+			{
+				document.getElementById("RoleMANAGER").checked = false;
+				document.getElementById("RoleUSER").checked = true;
+			} else 			if (items == "DATA_PROT")
+			{
+				document.getElementById("RoleDATA_PROT").checked = true;
+				document.getElementById("RoleDATA_DEID").checked = true;
+				document.getElementById("RoleDATA_LDS").checked = true;
+				document.getElementById("RoleDATA_AGG").checked = true;			
+				document.getElementById("RoleDATA_OBFSC").checked = true;
+			} else 			if (items == "DATA_DEID")
+			{
+				document.getElementById("RoleDATA_PROT").checked = false;
+				document.getElementById("RoleDATA_DEID").checked = true;
+				document.getElementById("RoleDATA_LDS").checked = true;
+				document.getElementById("RoleDATA_AGG").checked = true;			
+				document.getElementById("RoleDATA_OBFSC").checked = true;
+			} else 			if (items == "DATA_LDS")
+			{
+				document.getElementById("RoleDATA_PROT").checked = false;
+				document.getElementById("RoleDATA_DEID").checked = false;
+				document.getElementById("RoleDATA_LDS").checked = true;
+				document.getElementById("RoleDATA_AGG").checked = true;			
+				document.getElementById("RoleDATA_OBFSC").checked = true;
+			} else 			if (items == "DATA_AGG")
+			{
+				document.getElementById("RoleDATA_PROT").checked = false;
+				document.getElementById("RoleDATA_DEID").checked = false;
+				document.getElementById("RoleDATA_LDS").checked = false;
+				document.getElementById("RoleDATA_AGG").checked = true;			
+				document.getElementById("RoleDATA_OBFSC").checked = true;
+			} else 			if (items == "DATA_OBFSC")
+			{
+				document.getElementById("RoleDATA_PROT").checked = false;
+				document.getElementById("RoleDATA_DEID").checked = false;
+				document.getElementById("RoleDATA_LDS").checked = false;
+				document.getElementById("RoleDATA_AGG").checked = false;			
+				document.getElementById("RoleDATA_OBFSC").checked = true;
+			}
+};
+
 i2b2.PM.view.admin.configScreenDispay = function(dispLevel) {
 	var configScreen = i2b2.PM.view.admin.configScreen;
 	switch(dispLevel) {
@@ -219,12 +318,14 @@ i2b2.PM.view.admin.configScreenDispay = function(dispLevel) {
 			// only the main grid
 			$('pmAdminMainTableview').show();
 			// display action buttons for main grid
+			/*
 			if (i2b2.PM.model.adminButtonsPrimary[configScreen]) {
 				$('pmAdminTableviewButtons').innerHTML = i2b2.PM.model.adminButtonsPrimary[configScreen];
 				Element.show('pmAdminTableviewButtons');
 			} else {
 				Element.hide('pmAdminTableviewButtons');
 			}
+			*/
 			Element.hide('pmAdminParamTableview');
 			Element.hide('pmAdminParamTableviewButtons');
 			break;
@@ -232,12 +333,14 @@ i2b2.PM.view.admin.configScreenDispay = function(dispLevel) {
 			// main grid and parameters grid
 			Element.show('pmAdminMainTableview');
 			// display action buttons for main grid
+			/*
 			if (i2b2.PM.model.adminButtonsPrimary[configScreen]) {
 				$('pmAdminTableviewButtons').innerHTML = i2b2.PM.model.adminButtonsPrimary[configScreen];
 				Element.show('pmAdminTableviewButtons');
 			} else {
 				Element.hide('pmAdminTableviewButtons');
 			}
+			*/
 			Element.show('pmAdminParamTableview');
 			if (i2b2.PM.model.adminButtonsSecondary[configScreen]) {
 				$('pmAdminParamTableviewButtons').innerHTML = i2b2.PM.model.adminButtonsSecondary[configScreen];
@@ -251,55 +354,9 @@ i2b2.PM.view.admin.configScreenDispay = function(dispLevel) {
 
 
 
-i2b2.PM.view.admin.ProjectRequestViewer = {
-	show: function(request_xml) {
-		if (!i2b2.PM.view.admin.ProjectRequestViewer.yuiPanel) {
-			// show non-modal dialog with help documentation		
-			var panel = new YAHOO.widget.Panel("project-request-viewer-panel", { 
-				draggable: true,
-				zindex:10000,
-				width: "650px", 
-				height: "450px", 
-				autofillheight: "body", 
-				constraintoviewport: true, 
-				context: ["showbtn", "tl", "bl"]
-			}); 
-			$("project-request-viewer-panel").show();
-			panel.render(document.body); 
-			panel.show(); 
-			i2b2.PM.view.admin.ProjectRequestViewer.yuiPanel = panel;
-			
-			// resizer object and event handlers
-			i2b2.PM.view.admin.ProjectRequestViewer.resizer = new YAHOO.util.Resize("project-request-viewer-panel", { 
-				handles: ['br'], 
-				autoRatio: false, 
-				minWidth: 300, 
-				minHeight: 200, 
-				status: false 
-			}); 
-			
-			i2b2.PM.view.admin.ProjectRequestViewer.resizer.on('resize', function(args) { 
-				var panelHeight = args.height; 
-				this.cfg.setProperty("height", panelHeight + "px"); 
-			}, i2b2.PM.view.admin.ProjectRequestViewer.yuiPanel, true); 
-			
-			i2b2.PM.view.admin.ProjectRequestViewer.resizer.on('startResize', function(args) { 	 
-				if (this.cfg.getProperty("constraintoviewport")) { 
-					var D = YAHOO.util.Dom; 
-					var clientRegion = D.getClientRegion(); 
-					var elRegion = D.getRegion(this.element); 
-					resize.set("maxWidth", clientRegion.right - elRegion.left - YAHOO.widget.Overlay.VIEWPORT_OFFSET); 
-					resize.set("maxHeight", clientRegion.bottom - elRegion.top - YAHOO.widget.Overlay.VIEWPORT_OFFSET); 
-				} else { 
-					resize.set("maxWidth", null); 
-					resize.set("maxHeight", null); 
-				} 
-			}, i2b2.PM.view.admin.ProjectRequestViewer.yuiPanel, true); 			
-		} else {
-			i2b2.PM.view.admin.ProjectRequestViewer.yuiPanel.show();
-		}
-		//request_xml
-
+//i2b2.PM.view.admin.ProjectRequestViewer = {
+//	show: function(request_xml) {
+i2b2.PM.view.admin.ProjectRequestViewer =  function(request_xml) {
 		var docXML = i2b2.h.parseXml(request_xml);
 
 		var c = docXML.getElementsByTagName('project_request'); // YAHOO.DataType.XML.parse(request_xml); //loadXMLString(request_xml); 
@@ -443,18 +500,19 @@ i2b2.PM.view.admin.ProjectRequestViewer = {
 
 		}
 		
-		document.getElementById("project-request-viewer-body").innerHTML = s;
+		$('pmAdminHelp').innerHTML = s;
 
 		
 		//"<pre>" + request_xml + "</pre>";
 		// load the help page
 		//new Ajax.Updater('help-viewer-body', 'help/default.htm', {method: 'get', parameters: { cell: 'CORE', page:'ROOT' }});
-	},
-	hide: function() {
-		try {
-			i2b2.PM.view.admin.ProjectRequestViewer.yuiPanel.hide();
-		} catch (e) {}
-	}
+//	}
+	//,
+	//hide: function() {
+//	try {
+//			i2b2.PM.view.admin.ProjectRequestViewer.yuiPanel.hide();
+	//	} catch (e) {}
+//	}
 };
 
 
@@ -463,47 +521,30 @@ i2b2.PM.view.admin.ProjectRequestViewer = {
 
 i2b2.PM.view.admin.showProjectUsers = function() {
 	var proj_data = i2b2.PM.view.admin.currentProject;
-	$('pmMainTitle').innerHTML = 'Project &gt; "'+proj_data.label+'" &gt; Users';
+	$('pmMainTitle').innerHTML = 'Project &gt; "'+proj_data.label+'" &gt; Users &gt; "' + proj_data.i2b2NodeUsername +'" &gt; Roles';
 	i2b2.PM.view.admin.showInfoPanel(false);
-	i2b2.PM.view.admin.configScreenDispay(1);
+	//i2b2.PM.view.admin.configScreenDispay(1);
 	// get data
-	var recList = i2b2.PM.ajax.getAllRole("PM:Admin", {id: proj_data.i2b2NodeKey, proj_path:"/"+proj_data.i2b2NodeKey});
+	var recList = i2b2.PM.ajax.getAllRoleUser("PM:Admin", {id: proj_data.i2b2NodeKey, proj_path:"/"+proj_data.i2b2NodeKey, username:proj_data.i2b2NodeUsername});
+		
+	i2b2.PM.view.admin.showInfoPanel("PROJECTUSER");
+	i2b2.PM.view.admin.configScreenDispay(0);
+
 	// custom parse functionality
-	var tmpRoles = {};
+	//var tmpRoles = {};
 	var c = i2b2.h.XPath(recList.refXML, "//role[user_name and role]");
 	var l = c.length;
 	for (var i=0; i<l; i++) {
 		try {
-			var name = i2b2.h.XPath(c[i], "descendant-or-self::role/user_name/text()")[0].nodeValue;
-			if (!tmpRoles[name]) { tmpRoles[name] = []; }
-			tmpRoles[name].push(i2b2.h.XPath(c[i], "descendant-or-self::role/role/text()")[0].nodeValue);
+			
+			document.getElementById("Role" + i2b2.h.XPath(c[i], "descendant-or-self::role/role/text()")[0].nodeValue).checked = true; 
+			//var name = i2b2.h.XPath(c[i], "descendant-or-self::role/user_name/text()")[0].nodeValue;
+			//if (!tmpRoles[name]) { tmpRoles[name] = []; }
+			//tmpRoles[name].push(i2b2.h.XPath(c[i], "descendant-or-self::role/role/text()")[0].nodeValue);
 		} catch(e) {}
 	}
-	var dSrc = [];
-	for (var un in tmpRoles) {
-		dSrc.push({user_name: un, roles: tmpRoles[un]});
-	}
-	// create datasource
-	i2b2.PM.admin.dsPrimary = new YAHOO.util.DataSource(dSrc);
-	i2b2.PM.admin.dsPrimary.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
-	i2b2.PM.admin.dsPrimary.responseType.responseSchema = { fields: ["user_name","roles"] };
+	
 	delete recList;
-	// create grid 
-	i2b2.PM.admin.grdPrimaryColumnDefs = i2b2.PM.model.adminColumnDef["PROJECTREC-USERS"];
-	if (l > 10)
-    var oConfigs = { 
-	                paginator: new YAHOO.widget.Paginator({ 
-	                    rowsPerPage: 10 
-	                }), 
-	                initialRequest: "results=" + l 
-	        }; 	
-	var t = new YAHOO.widget.DataTable("pmAdminMainTableview", i2b2.PM.admin.grdPrimaryColumnDefs, i2b2.PM.admin.dsPrimary, oConfigs);
-	i2b2.PM.view.admin.yuiControls.primaryGrid = t;
-	t.isDirty = false;
-	t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
-	t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
-	t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
-	t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
 };
 
 
@@ -658,10 +699,10 @@ i2b2.PM.view.admin.showProjectCells = function() {
 	var t = new YAHOO.widget.DataTable("pmAdminMainTableview", i2b2.PM.admin.grdPrimaryColumnDefs, i2b2.PM.admin.dsPrimary, oConfigs);
 	i2b2.PM.view.admin.yuiControls.primaryGrid = t;
 	t.isDirty = false;
-	t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
-	t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
-	t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
-	t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
+	//t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
+	//t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
+	//t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
+	//t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
 };
 
 
@@ -725,7 +766,7 @@ i2b2.PM.view.admin.showProjectRequests = function() {
 	delete usrList;		
 	i2b2.PM.admin.dsPrimary = new YAHOO.util.DataSource(tmp);
 	i2b2.PM.admin.dsPrimary.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
-	i2b2.PM.admin.dsPrimary.responseSchema = {fields: ["id","project_id","submit_char","title",{key:"entry_date",parser:myDateParser},"request_xml"]};
+	i2b2.PM.admin.dsPrimary.responseType.responseSchema = {fields: ["id","project_id","submit_char","title",{key:"entry_date",parser:myDateParser},"request_xml"]};
 	//i2b2.PM.admin.dsPrimary.hideColumn("request_xml"); 
 	// create the grid
 	i2b2.PM.admin.grdPrimaryColumnDefs = i2b2.PM.model.adminColumnDef.PROJECTREQUESTS;
@@ -740,10 +781,10 @@ i2b2.PM.view.admin.showProjectRequests = function() {
 	t.hideColumn("request_xml"); 
 	i2b2.PM.view.admin.yuiControls.primaryGrid = t;
 	t.isDirty = false;
-	t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
-	t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
-	t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
-	t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
+	//t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
+	//t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
+	//t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
+	//t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
 };
 
 
@@ -786,7 +827,7 @@ i2b2.PM.view.admin.showApprovals = function() {
 	delete usrList;		
 	i2b2.PM.admin.dsPrimary = new YAHOO.util.DataSource(tmp);
 	i2b2.PM.admin.dsPrimary.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
-	i2b2.PM.admin.dsPrimary.responseSchema = {fields: ["id","name","description", {key:"activation_date",parser:myDateParser}, {key:"expiration_date",parser:myDateParser}, "object"]};
+	i2b2.PM.admin.dsPrimary.responseType.responseSchema = {fields: ["id","name","description", {key:"activation_date",parser:myDateParser}, {key:"expiration_date",parser:myDateParser}, "object"]};
 	// create the grid
 	i2b2.PM.admin.grdPrimaryColumnDefs = i2b2.PM.model.adminColumnDef.APPROVALS;
 	if (l > 10)	
@@ -799,11 +840,49 @@ i2b2.PM.view.admin.showApprovals = function() {
 	var t = new YAHOO.widget.DataTable("pmAdminMainTableview", i2b2.PM.admin.grdPrimaryColumnDefs, i2b2.PM.admin.dsPrimary, oConfigs);
 	i2b2.PM.view.admin.yuiControls.primaryGrid = t;
 	t.isDirty = false;
-	t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
-	t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
-	t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
-	t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
+	//t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
+	//t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
+	//t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
+	//t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
 };
+
+
+
+i2b2.PM.view.admin.showProjects = function() {
+	$('pmMainTitle').innerHTML = "Manage Projects";
+	i2b2.PM.view.admin.showInfoPanel(false);
+	i2b2.PM.view.admin.configScreenDispay(1);
+	// get a list of user info
+	var usrList = i2b2.PM.ajax.getAllProject("PM:Admin", {});
+	usrList.parse();
+	var tmp = [];
+	var l = usrList.model.length;
+	for (var i=0; i<l; i++) {
+		tmp.push(usrList.model[i]);
+	}
+	delete usrList.model;
+	delete usrList;		
+	i2b2.PM.admin.dsPrimary = new YAHOO.util.DataSource(tmp);
+	i2b2.PM.admin.dsPrimary.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
+	i2b2.PM.admin.dsPrimary.responseType.responseSchema = {fields: ["id","name","key", "wiki", "path", "description"]};
+	// create the grid
+	i2b2.PM.admin.grdPrimaryColumnDefs = i2b2.PM.model.adminColumnDef.PROJECTS;
+	if (l > 10)	 
+	        var oConfigs = { 
+	                paginator: new YAHOO.widget.Paginator({ 
+	                    rowsPerPage: 10 
+	                }), 
+	                initialRequest: "results=" + l 
+	        }; 
+	var t = new YAHOO.widget.DataTable("pmAdminMainTableview", i2b2.PM.admin.grdPrimaryColumnDefs, i2b2.PM.admin.dsPrimary, oConfigs);
+	i2b2.PM.view.admin.yuiControls.primaryGrid = t;
+	t.isDirty = false;
+	//t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
+	//t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
+	//t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
+	//t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
+};
+
 
 i2b2.PM.view.admin.showUsers = function() {
 	$('pmMainTitle').innerHTML = "Manage Users";
@@ -821,7 +900,7 @@ i2b2.PM.view.admin.showUsers = function() {
 	delete usrList;		
 	i2b2.PM.admin.dsPrimary = new YAHOO.util.DataSource(tmp);
 	i2b2.PM.admin.dsPrimary.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
-	i2b2.PM.admin.dsPrimary.responseType.responseSchema = {fields: ["user_name","full_name","password", "email"]};
+	i2b2.PM.admin.dsPrimary.responseType.responseSchema = {fields: ["user_name","full_name","password", "email", "is_admin"]};
 	// create the grid
 	i2b2.PM.admin.grdPrimaryColumnDefs = i2b2.PM.model.adminColumnDef.USERS;
 	if (l > 10)	 
@@ -834,11 +913,13 @@ i2b2.PM.view.admin.showUsers = function() {
 	var t = new YAHOO.widget.DataTable("pmAdminMainTableview", i2b2.PM.admin.grdPrimaryColumnDefs, i2b2.PM.admin.dsPrimary, oConfigs);
 	i2b2.PM.view.admin.yuiControls.primaryGrid = t;
 	t.isDirty = false;
-	t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
-	t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
-	t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
-	t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
+	//t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
+	//t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
+	//t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
+	//t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
 };
+
+
 
 i2b2.PM.view.admin.showHiveDomains = function() {
 	$('pmMainTitle').innerHTML = "Hive &gt; Domains";
@@ -884,22 +965,24 @@ i2b2.PM.view.admin.showHiveDomains = function() {
 };
 
 i2b2.PM.view.admin.showHiveCells = function() {
-	$('pmMainTitle').innerHTML = "Hive &gt; Cells";
+	$('pmMainTitle').innerHTML = "Cells";
 	i2b2.PM.view.admin.showInfoPanel(false);
 	i2b2.PM.view.admin.configScreenDispay(1);
 	// refresh data
 	i2b2.PM.admin.refreshCellListData();
+	var l = 0;
 	// create the filtered DataSource
 	var tmp = [];
 	for (var idx in i2b2.PM.model.admin.CellList) {
-		if (i2b2.PM.model.admin.CellList[idx].project_path == "/") {
+		//if (i2b2.PM.model.admin.CellList[idx].project_path == "/") {
 			tmp.push(i2b2.PM.model.admin.CellList[idx]);
-		}
+			l++;
+		//}
 	}
 	i2b2.PM.admin.dsPrimary = new YAHOO.util.DataSource(tmp);
 	i2b2.PM.admin.dsPrimary.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
 	i2b2.PM.admin.dsPrimary.responseType.responseSchema = {
-		fields: ["id","method","name","url"]
+		fields: ["id","method","name","url","project_path"]
 	};
 	// create the grid
 	i2b2.PM.admin.grdPrimaryColumnDefs = i2b2.PM.model.adminColumnDef.HIVECELLS;
@@ -913,10 +996,10 @@ i2b2.PM.view.admin.showHiveCells = function() {
 	var t = new YAHOO.widget.DataTable("pmAdminMainTableview", i2b2.PM.admin.grdPrimaryColumnDefs, i2b2.PM.admin.dsPrimary, oConfigs);
 	i2b2.PM.view.admin.yuiControls.primaryGrid = t;
 	t.isDirty = false;
-	t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
-	t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
-	t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
-	t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
+	//t.subscribe("rowMouseoverEvent", t.onEventHighlightCell);
+	//t.subscribe("rowMouseoutEvent", t.onEventUnhighlightCell);
+	//t.subscribe("cellClickEvent", i2b2.PM.view.admin.gridClickHandler);
+	//t.subscribe("editorSaveEvent", i2b2.PM.view.admin.editorSaved);
 };
 
 i2b2.PM.view.admin.showGlobals = function() {

@@ -21,6 +21,7 @@ import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
 import edu.harvard.i2b2.ontology.ejb.DBInfoType;
 import edu.harvard.i2b2.ontology.util.ConceptXMLWriterUtil;
+import edu.harvard.i2b2.ontology.util.ModifierXMLWriterUtil;
 import edu.harvard.i2b2.ontology.util.ObserverXMLWriterUtil;
 import edu.harvard.i2b2.ontology.util.OntologyUtil;
 import edu.harvard.i2b2.ontology.util.PatientDataXMLWriterUtil;
@@ -47,7 +48,8 @@ public class CreateConceptXmlDao extends JdbcDaoSupport {
 	}
 
 	public void buildConceptUpdateXml(ProjectType projectInfo,
-			DBInfoType dbInfo, String pdoFileName, boolean synchronizeAllFlag)
+			DBInfoType dbInfo, String pdoFileName, boolean synchronizeAllFlag,
+			boolean hiddenConceptFlag)
 			throws I2B2Exception {
 		File tempFile = createTempFile(pdoFileName);
 
@@ -62,13 +64,19 @@ public class CreateConceptXmlDao extends JdbcDaoSupport {
 
 			conceptWriter.startDocument();
 			buildDimensionUpdateXml(projectInfo, dbInfo, pdoFileName,
-					synchronizeAllFlag, "concept_dimension", conceptWriter);
+					synchronizeAllFlag, hiddenConceptFlag,"concept_dimension", conceptWriter);
 			ObserverXMLWriterUtil observerWriter = new ObserverXMLWriterUtil(
 					xmlWriter);
 
 			buildDimensionUpdateXml(projectInfo, dbInfo, pdoFileName,
-					synchronizeAllFlag, "provider_dimension", observerWriter);
-			observerWriter.endDocument();
+					synchronizeAllFlag, hiddenConceptFlag,"provider_dimension", observerWriter);
+			ModifierXMLWriterUtil modifierWriter = new ModifierXMLWriterUtil(
+					xmlWriter);
+
+			buildDimensionUpdateXml(projectInfo, dbInfo, pdoFileName,
+					synchronizeAllFlag, hiddenConceptFlag,"modifier_dimension", modifierWriter);
+			modifierWriter.endDocument();
+			
 		} catch (XMLStreamException e) {
 			e.printStackTrace();
 			throw new I2B2Exception("Error while writing concept xml", e);
@@ -81,7 +89,7 @@ public class CreateConceptXmlDao extends JdbcDaoSupport {
 
 	private void buildDimensionUpdateXml(ProjectType projectInfo,
 			DBInfoType dbInfo, String pdoFileName, boolean synchronizeAllFlag,
-			String dimensionTableName, PatientDataXMLWriterUtil xmlWriterUtil)
+			boolean hiddenConceptFlag,String dimensionTableName, PatientDataXMLWriterUtil xmlWriterUtil)
 			throws I2B2Exception {
 		String metadataSchema = dbInfo.getDb_fullSchema();
 		TableAccessDao tableAccessDao = new TableAccessDao();
@@ -96,11 +104,16 @@ public class CreateConceptXmlDao extends JdbcDaoSupport {
 		} else {
 			emptyStringClause = "rtrim(ltrim(c_basecode)) <> ''";
 		}
+		String hiddenConceptSql = " ";
+		if (hiddenConceptFlag) { 
+			hiddenConceptSql = " and c_visualattributes not like '_H%' ";
+		}
+		
 		String updateOnlyClause = " ";
 		if (synchronizeAllFlag == false) {
-			updateOnlyClause = " and c_visualattributes like '%E' and c_visualattributes not like '_H%' and c_synonym_cd = 'N'";
+			updateOnlyClause = " and c_visualattributes like '%E' "+ hiddenConceptSql + " and c_synonym_cd = 'N' and m_exclusion_cd is null";
 		} else {
-			updateOnlyClause = " and c_visualattributes not like '_H%' and c_synonym_cd = 'N'";
+			updateOnlyClause = "  and c_synonym_cd = 'N' " + hiddenConceptSql + " and m_exclusion_cd is null";
 		}
 		// call table access
 		List<String> tableNameList = tableAccessDao.getEditorTableName(
@@ -123,7 +136,7 @@ public class CreateConceptXmlDao extends JdbcDaoSupport {
 						+ singleTableName
 						+ " where c_basecode is not null and "
 						+ emptyStringClause + updateOnlyClause
-						+ "   and c_tablename = '" + dimensionTableName + "'";
+						+ "   and lower(c_tablename) = '" + dimensionTableName.toLowerCase() + "'";
 				log.debug("Executing sql [" + selectSql + "]");
 				query = conn.prepareStatement(selectSql);
 

@@ -8,6 +8,10 @@ body {
 	background-color:#D9ECF0;
 }
 
+.yui-skin-sam .yui-dialog .ft span.default button {
+    color: #000000;
+}
+
 /* this overrides the background color for the ContextMenu */
 DIV.yuimenu DIV.bd {
 	background: #EFEFFF !important;

@@ -33,10 +33,12 @@ import org.w3c.dom.Element;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
+import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
 import edu.harvard.i2b2.ontology.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontology.datavo.vdo.GetTermInfoType;
 import edu.harvard.i2b2.ontology.datavo.vdo.XmlValueType;
 import edu.harvard.i2b2.ontology.util.OntologyUtil;
+import edu.harvard.i2b2.ontology.util.Roles;
 import edu.harvard.i2b2.ontology.util.StringUtil;
 
 public class GetTermInfoDao extends JdbcDaoSupport {
@@ -46,7 +48,7 @@ public class GetTermInfoDao extends JdbcDaoSupport {
 		final static String CORE = DEFAULT;
 		final static String BLOB = ", c_metadataxml, c_comment ";
 		
-		public List findByFullname(final GetTermInfoType termInfoType, List categories) throws DataAccessException{
+		public List findByFullname(final GetTermInfoType termInfoType, List categories,  ProjectType projectInfo) throws DataAccessException{
 			DataSource ds = null;
 			try {
 				ds = OntologyUtil.getInstance().getDataSource("java:OntologyLocalDS");
@@ -109,6 +111,7 @@ public class GetTermInfoDao extends JdbcDaoSupport {
 			sql = sql + hidden + synonym + " order by c_name ";
 	 
 		//	log.info(sql + path + level);
+			final  boolean obfuscatedUserFlag = Roles.getInstance().isRoleOfuscated( projectInfo );
 			
 			ParameterizedRowMapper<ConceptType> mapper = new ParameterizedRowMapper<ConceptType>() {
 		        public ConceptType mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -119,7 +122,11 @@ public class GetTermInfoDao extends JdbcDaoSupport {
 		            self.setKey(rs.getString("c_fullname")); 
 		            self.setSynonymCd(rs.getString("c_synonym_cd"));
 		            self.setVisualattributes(rs.getString("c_visualattributes"));
-		            self.setTotalnum(rs.getInt("c_totalnum"));
+		            
+		            Integer totalNum = rs.getInt("c_totalnum");
+	            	if ( obfuscatedUserFlag == false) { 
+	            		self.setTotalnum(totalNum);
+	            	}
 		            self.setFacttablecolumn(rs.getString("c_facttablecolumn" ));
 		            self.setTablename(rs.getString("c_tablename")); 
 		            self.setColumnname(rs.getString("c_columnname")); 

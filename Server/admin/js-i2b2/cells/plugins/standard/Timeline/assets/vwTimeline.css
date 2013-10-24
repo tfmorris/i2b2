@@ -5,6 +5,18 @@ DIV#Timeline-mainDiv {
 }
 
 
+#Timeline-InfoPanel .bd { 
+	    overflow:auto; 
+} 
+
+#Timeline-InfoPanel pre {
+white-space: pre-wrap; /* css-3 */
+white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+white-space: -pre-wrap; /* Opera 4-6 */
+white-space: -o-pre-wrap; /* Opera 7 */
+word-wrap: break-word; /* Internet Explorer 5.5+ */
+font:11px arial, tahoma, helvetica, sans-serif; /* font style was lost when the column text was surrounded by pre tag- so overriding */
+}
 
 /*** CSS for tab background ***/
 
@@ -241,6 +253,7 @@ DIV#Timeline-TABS DIV.results-finished TD.ptObsTD DIV.spacer {
 DIV#Timeline-TABS DIV.results-finished TD.ptObsTD DIV.ptObsDIV {
 	position:relative;
 	top:-1px;
+	left:5px;
 	height:13px;
 	overflow:hidden;
 	width:100%;

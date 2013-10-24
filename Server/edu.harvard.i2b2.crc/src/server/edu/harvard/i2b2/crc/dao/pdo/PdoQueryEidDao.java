@@ -552,10 +552,10 @@ public class PdoQueryEidDao extends CRCDAO implements IPdoQueryEidDao {
 			log.error("", ioEx);
 			throw new I2B2DAOException("IO exception", ioEx);
 		} finally {
-			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn);
-			}
+			
+				PdoTempTableUtil tempUtil = new PdoTempTableUtil(); 
+				tempUtil.clearTempTable(dataSourceLookup.getServerType(), conn, tempTable);
+			
 			if (inputOptionListHandler != null
 					&& inputOptionListHandler.isEnumerationSet()) {
 				try {
@@ -576,28 +576,7 @@ public class PdoQueryEidDao extends CRCDAO implements IPdoQueryEidDao {
 
 	}
 
-	private void deleteTempTable(Connection conn) {
-
-		Statement deleteStmt = null;
-		try {
-			deleteStmt = conn.createStatement();
-			conn
-					.createStatement()
-					.executeUpdate(
-							"drop table "
-									+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE);
-		} catch (SQLException sqle) {
-			;
-		} finally {
-			try {
-				deleteStmt.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-	}
+	
 
 	private void executeUpdateSql(String totalSql, Connection conn,
 			int sqlParamCount, IInputOptionListHandler inputOptionListHandler)

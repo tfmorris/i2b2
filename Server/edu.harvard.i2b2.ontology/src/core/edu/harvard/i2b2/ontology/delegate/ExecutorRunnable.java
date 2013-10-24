@@ -14,11 +14,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.harvard.i2b2.ontology.dao.CRCConceptUpdateDao;
-import edu.harvard.i2b2.ontology.datavo.i2b2message.MessageHeaderType;
-import edu.harvard.i2b2.ontology.datavo.pm.ProjectType;
-import edu.harvard.i2b2.ontology.ejb.DBInfoType;
-
 /**
  * Implements thread runnable interface, to do Ontology processing using thread.
  */
@@ -77,20 +72,12 @@ public class ExecutorRunnable implements Runnable {
 
 	public void run() {
 		try {
-			CRCConceptUpdateDao crcConceptUpdateDao = new CRCConceptUpdateDao();
-			ProjectType projectInfo = (ProjectType) parameterMap
-					.get("ProjectType");
-			DBInfoType dbInfoType = (DBInfoType) parameterMap.get("DBInfoType");
-			MessageHeaderType messageHeaderType = (MessageHeaderType) parameterMap
-					.get("MessageHeaderType");
-			int processId = (Integer) parameterMap.get("ProcessId");
-			boolean synchronizeAllFlag = (Boolean) parameterMap
-					.get("SynchronizeAllFlag");
-			crcConceptUpdateDao.addUpdateConcept(projectInfo, dbInfoType,
-					processId, messageHeaderType, synchronizeAllFlag);
+			RequestRunnable handler = (RequestRunnable)this.parameterMap.get("RequestRunnable");
+			handler.runnable(this.parameterMap);
 
 			setJobCompleteFlag(true);
 		} catch (Exception e) {
+			e.printStackTrace();
 			setJobException(e);
 		}
 

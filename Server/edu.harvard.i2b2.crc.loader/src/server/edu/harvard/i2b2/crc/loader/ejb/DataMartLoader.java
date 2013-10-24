@@ -122,6 +122,11 @@ public class DataMartLoader implements IDataMartLoaderHelper {
 			boolean conceptDeleteExistingDataFlag = (publishType.getLoadList()
 					.getLoadConceptSet() != null) ? publishType.getLoadList()
 					.getLoadConceptSet().isDeleteExistingData() : false;
+			boolean modifierLoadFlag = (publishType.getLoadList()
+					.getLoadModifierSet() != null) ? true : false;
+			boolean modifierDeleteExistingDataFlag = (publishType.getLoadList()
+					.getLoadModifierSet() != null) ? publishType.getLoadList()
+					.getLoadModifierSet().isDeleteExistingData() : false;
 			boolean observerLoadFlag = (publishType.getLoadList()
 					.getLoadObserverSet() != null) ? true : false;
 			boolean observerDeleteExistingDataFlag = (publishType.getLoadList()
@@ -231,6 +236,27 @@ public class DataMartLoader implements IDataMartLoaderHelper {
 					log.info("Droping temp table ["
 							+ conceptLoader.getStagingTableName() + "]");
 					uploadStatusDAO.dropTempTable(conceptLoader
+							.getStagingTableName());
+
+				}
+			}
+			
+			// check if modifier set need to be loaded
+			if (modifierLoadFlag) {
+				log.info("Modifier load started " + uploadFileName + " uploadId"
+						+ uploadId);
+
+				ModifierLoader modifierLoader = new ModifierLoader(
+						uploaderDaoFactory, uploadFileName,
+						inputLoadFileFormat, encounterSource, sourceSystemCd,
+						modifierDeleteExistingDataFlag, uploadId);
+				performLoad(modifierLoader, UploadStatusDAO.MODIFIER_SET);
+				log.info("Modifier load complete " + uploadFileName
+						+ " uploadId" + uploadId);
+				if (stagingCleanUpFlag) {
+					log.info("Droping temp table ["
+							+ modifierLoader.getStagingTableName() + "]");
+					uploadStatusDAO.dropTempTable(modifierLoader
 							.getStagingTableName());
 
 				}

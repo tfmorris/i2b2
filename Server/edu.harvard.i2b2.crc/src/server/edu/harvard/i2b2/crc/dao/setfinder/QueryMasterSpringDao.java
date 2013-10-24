@@ -179,7 +179,15 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 		}
 		return queryMaster;
 	}
-
+	
+	
+	public List<QtQueryMaster> getQueryByName(String queryName) {
+		String sql = "select * from " + getDbSchemaName() + "qt_query_master "
+				+ " where name = ? and delete_flag = ? ";
+		List<QtQueryMaster> queryMasterList = jdbcTemplate.query(sql,
+				new Object[] { queryName, DELETE_NO_FLAG }, queryMasterMapper);
+		return queryMasterList;
+	}
 	/**
 	 * Function to rename query master
 	 * 
@@ -214,7 +222,7 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 	 */
 	@SuppressWarnings("unchecked")
 	public void deleteQuery(String masterId) throws I2B2DAOException {
-		log.error("Delete query for master id=" + masterId);
+		log.debug("Delete query for master id=" + masterId);
 		String resultInstanceSql = "update " + getDbSchemaName()
 				+ "qt_query_result_instance set "
 				+ " delete_flag=? where query_instance_id in (select "
@@ -340,7 +348,7 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 			}
 
 			queryMaster.setQueryMasterId(String.valueOf(queryMasterIdentityId));
-			System.out.println(queryMasterIdentityId);
+			
 		}
 	}
 
@@ -362,5 +370,7 @@ public class QueryMasterSpringDao extends CRCDAO implements IQueryMasterDao {
 			return queryMaster;
 		}
 	}
+
+	
 
 }

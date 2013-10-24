@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.crc.loader.delegate.GetLoadStatusRequestHandler;
+import edu.harvard.i2b2.crc.loader.delegate.GetMissingTermRequestHandler;
 import edu.harvard.i2b2.crc.loader.delegate.LoaderQueryRequestDelegate;
 import edu.harvard.i2b2.crc.loader.delegate.PublishDataRequestHandler;
 
@@ -88,6 +89,29 @@ public class ProviderRestService {
 		return responseElement;
 	}
 
+	
+	public OMElement getMissingTermRequest(OMElement request) {
+		LoaderQueryRequestDelegate queryDelegate = new LoaderQueryRequestDelegate();
+		OMElement responseElement = null;
+		try {
+			String requestXml = request.toString();
+			
+			
+			GetMissingTermRequestHandler handler = new GetMissingTermRequestHandler(
+					requestXml);
+			String response = queryDelegate.handleRequest(requestXml, handler);
+			responseElement = buildOMElementFromString(response);
+
+		} catch (XMLStreamException e) {
+			log.error("xml stream exception", e);
+		} catch (I2B2Exception e) {
+			log.error("i2b2 exception", e);
+		} catch (Throwable e) {
+			log.error("Throwable", e);
+		}
+		return responseElement;
+	}
+	
 	public OMElement mtomSample(OMElement element) throws Exception {
 		OMElement _fileNameEle = null;
 		OMElement _imageElement = null;

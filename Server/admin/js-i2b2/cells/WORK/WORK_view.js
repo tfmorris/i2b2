@@ -24,7 +24,7 @@ i2b2.WORK.view.main.Resize = function(e){
 		// resize our visual components
 		switch(i2b2.hive.MasterView.getViewMode()) {
 			case "Patients":
-				w = w - 578;
+				w = Math.max(initBrowserViewPortDim.width-rightSideWidth, 0);
 				break;
 			case "Analysis":
 				w = parseInt(w/3)-10;
@@ -48,13 +48,55 @@ i2b2.WORK.view.main.Resize = function(e){
     }
 }
 // attach resize events
-YAHOO.util.Event.addListener(window, "resize", i2b2.WORK.view.main.Resize, i2b2.WORK.view.main);
+// YAHOO.util.Event.addListener(window, "resize", i2b2.WORK.view.main.Resize, i2b2.WORK.view.main); // tdw9
+
+//================================================================================================== //
+i2b2.WORK.view.main.splitterDragged = function()
+{
+	var splitter = $( i2b2.hive.mySplitter.name );
+	var work = $("wrkWorkplace");
+	work.style.width	= Math.max((parseInt(splitter.style.left) - work.offsetLeft - 3), 0) + "px";	
+}
+
+//================================================================================================== //
+i2b2.WORK.view.main.ResizeHeight = function(){
+    // this function provides the resize functionality needed for this screen
+    var viewObj = i2b2.WORK.view.main;
+	var t = $('wrkWorkplace');
+    if (viewObj.visible) {
+		$('wrkWorkplace').show();
+        var ds = document.viewport.getDimensions();
+        var h = ds.height;
+		if (h < 517) { h = 517; }
+		// resize our visual components
+		if (viewObj.isZoomed) {
+			t.style.top = '';
+			$('wrkTreeview').style.height = h - 97;
+		} else {
+			var hz = parseInt((h - 321) / 2);
+			t.style.top = hz + 108;
+			$('wrkTreeview').style.height = hz + 8;
+        }
+        t.show();
+	} else {
+		t.hide();
+    }
+}
+
 
 
 // ================================================================================================== //
 i2b2.WORK.view.main.ZoomView = function() {
 	i2b2.hive.MasterView.toggleZoomWindow("WORK");
 }
+
+//================================================================================================== //
+i2b2.events.initView.subscribe((function(eventTypeName, newMode) {
+// -------------------------------------------------------
+	this.visible = true;
+	this.Resize();
+// -------------------------------------------------------
+}),'',i2b2.WORK.view.main);
 
 
 // process view mode changes (via EVENT CAPTURE)
@@ -73,11 +115,19 @@ i2b2.events.changedViewMode.subscribe((function(eventTypeName, newMode){
 				this.visible = true;
 			}
 			break;
+		case "AnalysisZoomed":
+			this.visible = false;
+			break;
 		default:
 			this.visible = false;
 			break;
 	}
-	this.Resize();
+	if ( this.visible )
+		$('wrkWorkplace').show();
+	else
+		$('wrkWorkplace').hide();
+	i2b2.WORK.view.main.splitterDragged();
+	//this.Resize(); // tdw9
 }),'',i2b2.WORK.view.main);
 
 
@@ -105,7 +155,8 @@ i2b2.events.changedZoomWindows.subscribe((function(eventTypeName, zoomMsg) {
 				this.visible = true;
 		}
 	}
-	this.Resize();
+	this.ResizeHeight();
+	this.splitterDragged();
 }),'',i2b2.WORK.view.main);
 
 
@@ -174,6 +225,7 @@ i2b2.WORK.view.main._generateTvNode = function(title, nodeData, parentNode){
 			i2b2.sdx.Master.AttachType(id, "QM", optDD);
 			i2b2.sdx.Master.AttachType(id, "PRC", optDD);
 			i2b2.sdx.Master.AttachType(id, "PRS", optDD);
+			i2b2.sdx.Master.AttachType(id, "ENS", optDD);
 			i2b2.sdx.Master.AttachType(id, "PR", optDD);
 			i2b2.sdx.Master.AttachType(id, "CONCPT", optDD);
 			i2b2.sdx.Master.AttachType(id, "QDEF", optDD);
@@ -184,6 +236,7 @@ i2b2.WORK.view.main._generateTvNode = function(title, nodeData, parentNode){
 			i2b2.sdx.Master.setHandlerCustom(id, "QM", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRC", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRS", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
+			i2b2.sdx.Master.setHandlerCustom(id, "ENS", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
 			i2b2.sdx.Master.setHandlerCustom(id, "PR", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
 			i2b2.sdx.Master.setHandlerCustom(id, "CONCPT", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
 			i2b2.sdx.Master.setHandlerCustom(id, "QDEF", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
@@ -194,6 +247,7 @@ i2b2.WORK.view.main._generateTvNode = function(title, nodeData, parentNode){
 			i2b2.sdx.Master.setHandlerCustom(id, "QM", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRC", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRS", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
+			i2b2.sdx.Master.setHandlerCustom(id, "ENS", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
 			i2b2.sdx.Master.setHandlerCustom(id, "PR", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
 			i2b2.sdx.Master.setHandlerCustom(id, "CONCPT", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
 			i2b2.sdx.Master.setHandlerCustom(id, "QDEF", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
@@ -204,6 +258,7 @@ i2b2.WORK.view.main._generateTvNode = function(title, nodeData, parentNode){
 			i2b2.sdx.Master.setHandlerCustom(id, "QM", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRC", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRS", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
+			i2b2.sdx.Master.setHandlerCustom(id, "ENS", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
 			i2b2.sdx.Master.setHandlerCustom(id, "PR", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
 			i2b2.sdx.Master.setHandlerCustom(id, "CONCPT", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
 			i2b2.sdx.Master.setHandlerCustom(id, "QDEF", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
@@ -228,6 +283,7 @@ i2b2.WORK.view.main._generateTvNode = function(title, nodeData, parentNode){
 			i2b2.sdx.Master.AttachType(id, "QM", optDD);
 			i2b2.sdx.Master.AttachType(id, "PRC", optDD);
 			i2b2.sdx.Master.AttachType(id, "PRS", optDD);
+			i2b2.sdx.Master.AttachType(id, "ENS", optDD);
 			i2b2.sdx.Master.AttachType(id, "PR", optDD);
 			i2b2.sdx.Master.AttachType(id, "CONCPT", optDD);
 			i2b2.sdx.Master.AttachType(id, "QDEF", optDD);
@@ -238,6 +294,7 @@ i2b2.WORK.view.main._generateTvNode = function(title, nodeData, parentNode){
 			i2b2.sdx.Master.setHandlerCustom(id, "QM", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRC", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRS", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
+			i2b2.sdx.Master.setHandlerCustom(id, "ENS", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
 			i2b2.sdx.Master.setHandlerCustom(id, "PR", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
 			i2b2.sdx.Master.setHandlerCustom(id, "CONCPT", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
 			i2b2.sdx.Master.setHandlerCustom(id, "QDEF", "DropHandler", i2b2.WORK.ctrlr.main.HandleDrop);
@@ -248,6 +305,7 @@ i2b2.WORK.view.main._generateTvNode = function(title, nodeData, parentNode){
 			i2b2.sdx.Master.setHandlerCustom(id, "QM", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRC", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRS", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
+			i2b2.sdx.Master.setHandlerCustom(id, "ENS", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
 			i2b2.sdx.Master.setHandlerCustom(id, "PR", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
 			i2b2.sdx.Master.setHandlerCustom(id, "CONCPT", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
 			i2b2.sdx.Master.setHandlerCustom(id, "QDEF", "onHoverOver", i2b2.WORK.view.main.ddHoverOver);
@@ -258,6 +316,7 @@ i2b2.WORK.view.main._generateTvNode = function(title, nodeData, parentNode){
 			i2b2.sdx.Master.setHandlerCustom(id, "QM", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRC", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
 			i2b2.sdx.Master.setHandlerCustom(id, "PRS", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
+			i2b2.sdx.Master.setHandlerCustom(id, "ENS", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
 			i2b2.sdx.Master.setHandlerCustom(id, "PR", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
 			i2b2.sdx.Master.setHandlerCustom(id, "CONCPT", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
 			i2b2.sdx.Master.setHandlerCustom(id, "QDEF", "onHoverOut", i2b2.WORK.view.main.ddHoverOut);
@@ -286,9 +345,6 @@ i2b2.WORK.view.main._generateTvNode = function(title, nodeData, parentNode){
                 ddProxy.isTarget = false;
             } 
             catch (e) {
-                var x = new XMLSerializer();
-                x = x.serializeToString(o.xmlOrig);
-                console.warn(x);
             }
     }
     return renderObj;
@@ -414,7 +470,7 @@ i2b2.WORK.view.main.TreeviewLoader = function(tv_node, onCompleteCallback){
             nodeData.xmlOrig = s;
             nodeData.index = i2b2.h.getXNodeVal(s, "index");
             nodeData.key = nodeData.index;
-            nodeData.name = i2b2.h.getXNodeVal(s, "name");
+            nodeData.name = i2b2.h.getXNodeVal(s, "name", false);
             nodeData.annotation = i2b2.h.getXNodeVal(s, "tooltip");
             nodeData.share_id = i2b2.h.getXNodeVal(s, "share_id");
             nodeData.visual = String(i2b2.h.getXNodeVal(s, "visual_attributes")).strip();
@@ -472,6 +528,7 @@ i2b2.events.afterLogin.subscribe((function(en, co){
         i2b2.sdx.Master.AttachType("wrkTreeview", "QI");
         i2b2.sdx.Master.AttachType("wrkTreeview", "PRC", optDD);
         i2b2.sdx.Master.AttachType("wrkTreeview", "PRS", optDD);
+        i2b2.sdx.Master.AttachType("wrkTreeview", "ENS", optDD);
         i2b2.sdx.Master.AttachType("wrkTreeview", "PR", optDD);
         i2b2.sdx.Master.AttachType("wrkTreeview", "CONCPT", optDD);
         i2b2.sdx.Master.AttachType("wrkTreeview", "QDEF", optDD);
@@ -485,6 +542,7 @@ i2b2.events.afterLogin.subscribe((function(en, co){
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "QM", "LoadChildrenFromTreeview", funcNull);
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PRC", "LoadChildrenFromTreeview", funcNull);
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PRS", "LoadChildrenFromTreeview", funcNull);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "ENS", "LoadChildrenFromTreeview", funcNull);
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PR", "LoadChildrenFromTreeview", funcNull);
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "CONCPT", "LoadChildrenFromTreeview", funcNull);
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "QDEF", "LoadChildrenFromTreeview", funcNull);
@@ -495,6 +553,7 @@ i2b2.events.afterLogin.subscribe((function(en, co){
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "QM", "DropHandler", i2b2.WORK.view.main.DropHandler);
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PRC", "DropHandler", i2b2.WORK.view.main.DropHandler);
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PRS", "DropHandler", i2b2.WORK.view.main.DropHandler);
+        i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "ENS", "DropHandler", i2b2.WORK.view.main.DropHandler);
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "PR", "DropHandler", i2b2.WORK.view.main.DropHandler);
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "CONCPT", "DropHandler", i2b2.WORK.view.main.DropHandler);
         i2b2.sdx.Master.setHandlerCustom("wrkTreeview", "QDEF", "DropHandler", i2b2.WORK.view.main.DropHandler);
@@ -529,7 +588,11 @@ i2b2.events.afterLogin.subscribe((function(en, co){
             i2b2.WORK.view.main.yuiTree.draw();
         };
         // ajax communicator call
-        i2b2.WORK.ajax.getFoldersByUserId("WORK:Workplace", {}, scopedCallback);
+		if (i2b2.PM.model.userRoles.indexOf("MANAGER") == -1) {		
+			i2b2.WORK.ajax.getFoldersByUserId("WORK:Workplace", {}, scopedCallback);
+		} else {
+	        i2b2.WORK.ajax.getFoldersByProject("WORK:Workplace", {}, scopedCallback);
+		}
     }
     // -------------------------------------------------------
     i2b2.WORK.view.main.ContextMenu = new YAHOO.widget.ContextMenu("divContextMenu-Workplace", {

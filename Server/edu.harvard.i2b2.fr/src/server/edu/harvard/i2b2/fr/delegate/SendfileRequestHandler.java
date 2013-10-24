@@ -86,8 +86,7 @@ public class SendfileRequestHandler extends RequestHandler {
 		log.debug("My dataHandler :" + dataHandler);
 		File file = new File(destDir+ java.io.File.separatorChar + projectId + java.io.File.separatorChar + filename.getName());
 		try {
-
-			if (file.exists() && (Boolean.valueOf(filename.getOverwrite()) ==false ))
+			 if (file.exists() && (Boolean.valueOf(filename.getOverwrite()) ==false ))
 				throw new I2B2Exception("File already exists");
 				
 			createFolder(file.getParent());

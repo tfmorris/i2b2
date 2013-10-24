@@ -1,31 +1,5 @@
-DIV.modLabValues DIV.mlvBody{
+DIV.modLabValues DIV.mlvBody {
 	width:auto;
-}
-
-DIV.modLabValues DIV.barContainer {
-	color:#FF0000;
-	display:block;
-	float:left;
-	width:100%;
-	margin: 15px 0px 0px 0px;
-	line-height:16px
-}
-
-DIV.modLabValues TABLE.bar {
-	border-collapse: separate;
-	padding:0px;
-}
-DIV.modLabValues TD.barfrag {	
-	border-top:1px solid #000;
-	border-bottom:1px solid #000;
-	border-right:1px solid #000;
-}
-
-DIV.modLabValues DIV.barlabel {
-	left:15px; 
-	position:relative;
-	float:right;
-	color: #000;
 }
 
 DIV.modLabValues DIV#mlvfrmNUMERIC P {

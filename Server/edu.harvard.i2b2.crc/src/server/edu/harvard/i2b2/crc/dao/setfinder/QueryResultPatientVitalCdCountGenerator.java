@@ -34,7 +34,7 @@ public class QueryResultPatientVitalCdCountGenerator extends CRCDAO implements
 				.setDbSchemaName(sfDAOFactory.getDataSourceLookup()
 						.getFullSchema());
 
-		String demographics_count_sql = "select count(dx.patient_num) as vital_status_count, case when cl.name_char IS NULL then pd.vital_status_cd else cl.name_char end as pd_vital_status_cd from "
+		String demographics_count_sql = "select count(distinct dx.patient_num) as vital_status_count, case when cl.name_char IS NULL then pd.vital_status_cd else cl.name_char end as pd_vital_status_cd from "
 				+ this.getDbSchemaName()
 				+ "patient_dimension pd left join code_lookup  cl on pd.vital_status_cd = cl.code_cd "
 				+ "and lower(cl.table_cd) = 'patient_dimension' and upper(cl.column_cd) = 'VITAL_STATUS_CD' ,"

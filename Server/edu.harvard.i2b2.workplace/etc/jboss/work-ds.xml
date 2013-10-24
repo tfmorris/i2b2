@@ -9,25 +9,25 @@
 <!-- $Id: work-ds.xml,v 1.8 2010/01/27 18:55:29 lcp5 Exp $ -->
 
 <datasources>
-  <!-- sample sqlserver WorkplaceBootStrapDS  -->
+  <!-- sample sqlserver WorkplaceBootStrapDS 
     <local-tx-datasource>
       <jndi-name>WorkplaceBootStrapDS_SQLSERVER</jndi-name>      
       <driver-class>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver-class>
       <connection-url>jdbc:sqlserver://localhost:1433</connection-url>
-      <user-name>i2b2hive_uname</user-name>
-      <password>i2b2hive_pswd</password>
+      <user-name>i2b2hive</user-name>
+      <password>demouser</password>
       <metadata>
         <type-mapping>MS SQLSERVER2000</type-mapping>
       </metadata>
-    </local-tx-datasource>
+    </local-tx-datasource>   -->
     
-  <!-- sample oracle WorkplaceBootStrapDS  -->
+  <!-- sample oracle WorkplaceBootStrapDS -->
   <local-tx-datasource>
-    <jndi-name>WorkplaceBootStrapDS_ORACLE</jndi-name>
+    <jndi-name>WorkplaceBootStrapDS</jndi-name>
       <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>      
       <connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
       <user-name>i2b2hive</user-name>
-      <password>i2b2hive_pswd</password>
+      <password>demouser</password>
     </local-tx-datasource>
     
       <!-- sample oracle project data source  -->
@@ -36,6 +36,6 @@
       <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>      
       <connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
       <user-name>i2b2workdata</user-name>
-      <password>i2b2workdata_pswd</password>
+      <password>demouser</password>
     </local-tx-datasource>
 </datasources>

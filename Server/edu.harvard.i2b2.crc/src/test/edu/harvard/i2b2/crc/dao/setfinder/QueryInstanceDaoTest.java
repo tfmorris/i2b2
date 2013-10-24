@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
 import edu.harvard.i2b2.crc.dao.IDAOFactory;
 import edu.harvard.i2b2.crc.dao.SetFinderDAOFactory;
@@ -65,7 +66,7 @@ public class QueryInstanceDaoTest {
 	}
 
 	@Test
-	public void update() {
+	public void update() throws I2B2DAOException {
 		IQueryInstanceDao qiDAO = sfDaoFactory.getQueryInstanceDAO();
 		QtQueryInstance queryInstance = qiDAO
 				.getQueryInstanceByInstanceId(queryInstanceId);

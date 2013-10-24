@@ -40,6 +40,7 @@ import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
+import edu.harvard.i2b2.crc.datavo.i2b2message.PasswordType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.RequestMessageType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.InstanceResultResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterInstanceResultResponseType;
@@ -124,13 +125,15 @@ public class QueryManagerBean implements SessionBean {
 			sfDAOFactory = daoFactory.getSetFinderDAOFactory();
 
 			String generatedSql = null;
-			String queryMasterId = saveQuery(sfDAOFactory, xmlRequest,
+			RequestMessageType requestMsgType = this.getI2B2RequestType(xmlRequest);
+			String queryMasterId = saveQuery(sfDAOFactory, requestMsgType,
 					generatedSql);
 
 			// create query instance
 			IQueryInstanceDao queryInstanceDao = sfDAOFactory
 					.getQueryInstanceDAO();
-			UserType userType = getUserTypeFromSetfinderHeader(xmlRequest);
+			
+			UserType userType = getUserTypeFromSetfinderHeader(requestMsgType);
 			String userId = userType.getLogin();
 			String groupId = userType.getGroup();
 			String queryInstanceId = queryInstanceDao.createQueryInstance(
@@ -141,7 +144,7 @@ public class QueryManagerBean implements SessionBean {
 			IQueryResultInstanceDao patientSetResultDao = sfDAOFactory
 					.getPatientSetResultDAO();
 			String patientSetId = null;
-			QueryDefinitionRequestType queryDefRequestType = getQueryDefinitionRequestType(xmlRequest);
+			QueryDefinitionRequestType queryDefRequestType = getQueryDefinitionRequestType(requestMsgType);
 			ResultOutputOptionListType resultOptionList = queryDefRequestType
 					.getResultOutputList();
 
@@ -170,11 +173,11 @@ public class QueryManagerBean implements SessionBean {
 			// tm.commit();
 			transaction.commit();
 
-			ResultResponseType responseType = executeSqlInQueue(dsLookupInput
-					.getDomainId(), dsLookupInput.getProjectPath(),
-					dsLookupInput.getOwnerId(), userId, generatedSql,
-					sessionId, queryInstanceId, patientSetId, xmlRequest,
-					timeout);
+			ResultResponseType responseType = executeSqlInQueue(
+					dsLookupInput.getDomainId(),
+					dsLookupInput.getProjectPath(), dsLookupInput.getOwnerId(),
+					userId, generatedSql, sessionId, queryInstanceId,
+					patientSetId, xmlRequest, timeout);
 
 			transaction.begin();
 			// responseXML = qmBeanUtil.buildQueryRequestResponse(xmlRequest,
@@ -289,13 +292,13 @@ public class QueryManagerBean implements SessionBean {
 	}
 
 	private String saveQuery(SetFinderDAOFactory sfDAOFactory,
-			String requestXml, String generatedSql) throws Exception {
+			RequestMessageType i2b2RequestMsgType, String generatedSql) throws Exception {
 		IQueryMasterDao queryMasterDao = sfDAOFactory.getQueryMasterDAO();
 		QtQueryMaster queryMaster = new QtQueryMaster();
-		UserType userType = getUserTypeFromSetfinderHeader(requestXml);
+		UserType userType = getUserTypeFromSetfinderHeader(i2b2RequestMsgType);
 		String userId = userType.getLogin();
 		String groupId = userType.getGroup();
-		QueryDefinitionType queryDefType = getQueryDefinition(requestXml);
+		QueryDefinitionType queryDefType = getQueryDefinition(i2b2RequestMsgType);
 		edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
 
 		queryMaster.setUserId(userId);
@@ -309,14 +312,33 @@ public class QueryManagerBean implements SessionBean {
 		queryMaster.setDeleteFlag(QtQueryMaster.DELETE_OFF_FLAG);
 		queryMaster.setGeneratedSql(generatedSql);
 		queryMaster.setName(queryDefType.getQueryName());
-
+		
+		//remove user password form the request
+		PasswordType passType = i2b2RequestMsgType.getMessageHeader().getSecurity().getPassword();
+		passType.setValue("password not stored"); 
+		passType.setIsToken(false);
+		
+		JAXBUtil util = CRCJAXBUtil.getJAXBUtil();
+		StringWriter strWriter = new StringWriter();
+		edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory i2b2ObjFactory = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
+		util.marshaller(i2b2ObjFactory.createRequest(i2b2RequestMsgType), strWriter);
 		String queryMasterId = queryMasterDao.createQueryMaster(queryMaster,
-				requestXml);
+				strWriter.toString());
 
 		return queryMasterId;
 	}
 
-	private UserType getUserTypeFromSetfinderHeader(String xmlRequest)
+	private UserType getUserTypeFromSetfinderHeader(RequestMessageType requestMessageType)
+			throws Exception {
+		UserType userType = new UserType();
+		userType.setLogin(requestMessageType.getMessageHeader().getSecurity()
+				.getUsername());
+		userType.setGroup(requestMessageType.getMessageHeader().getProjectId());
+
+		return userType;
+	}
+
+	private RequestMessageType getI2B2RequestType(String xmlRequest)
 			throws Exception {
 
 		JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
@@ -330,28 +352,14 @@ public class QueryManagerBean implements SessionBean {
 		RequestMessageType requestMessageType = (RequestMessageType) jaxbElement
 				.getValue();
 
-		UserType userType = new UserType();
-		userType.setLogin(requestMessageType.getMessageHeader().getSecurity()
-				.getUsername());
-		userType.setGroup(requestMessageType.getMessageHeader().getProjectId());
-
-		return userType;
+		return requestMessageType;
 	}
 
 	private QueryDefinitionRequestType getQueryDefinitionRequestType(
-			String xmlRequest) throws Exception {
+			RequestMessageType requestMessageType) throws Exception {
 		String queryName = null;
 		QueryDefinitionType queryDef = null;
-		JAXBUtil jaxbUtil = CRCJAXBUtil.getJAXBUtil();
-		JAXBElement jaxbElement = jaxbUtil.unMashallFromString(xmlRequest);
-
-		if (jaxbElement == null) {
-			throw new Exception(
-					"null value in after unmarshalling request string ");
-		}
-
-		RequestMessageType requestMessageType = (RequestMessageType) jaxbElement
-				.getValue();
+		
 		BodyType bodyType = requestMessageType.getMessageBody();
 		JAXBUnWrapHelper unWrapHelper = new JAXBUnWrapHelper();
 		QueryDefinitionRequestType queryDefReqType = (QueryDefinitionRequestType) unWrapHelper
@@ -361,9 +369,9 @@ public class QueryManagerBean implements SessionBean {
 
 	}
 
-	public QueryDefinitionType getQueryDefinition(String xmlRequest)
+	public QueryDefinitionType getQueryDefinition(RequestMessageType requestMessageType)
 			throws Exception {
-		QueryDefinitionRequestType queryDefReqType = getQueryDefinitionRequestType(xmlRequest);
+		QueryDefinitionRequestType queryDefReqType = getQueryDefinitionRequestType(requestMessageType);
 		QueryDefinitionType queryDef = null;
 		if (queryDefReqType != null) {
 			queryDef = queryDefReqType.getQueryDefinition();

@@ -44,6 +44,7 @@ public class UploadStatusDAO extends CRCLoaderDAO implements UploadStatusDAOI {
 	public static final int OBSERVATION_SET = 5;
 	public static final int PID_SET = 6;
 	public static final int EID_SET = 7;
+	public static final int MODIFIER_SET = 8;
 
 	private DataSourceLookup dataSourceLookup = null;
 	private JdbcTemplate jdbcTemplate = null;

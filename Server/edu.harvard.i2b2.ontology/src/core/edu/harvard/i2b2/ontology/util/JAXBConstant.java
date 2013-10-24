@@ -22,5 +22,6 @@ public class JAXBConstant {
 			"edu.harvard.i2b2.ontology.datavo.vdo",
 			"edu.harvard.i2b2.ontology.datavo.fr",
 			"edu.harvard.i2b2.ontology.datavo.crcloader.query",
+			"edu.harvard.i2b2.ontology.datavo.crc.setfinder.query",
 			"edu.harvard.i2b2.ontology.datavo.pm" };
 }

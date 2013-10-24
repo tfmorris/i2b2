@@ -133,7 +133,8 @@ public class PdoQueryProviderDao extends CRCDAO implements IPdoQueryProviderDao 
 		} finally {
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn, tempTableName);
+				PdoTempTableUtil tempUtil = new PdoTempTableUtil(); 
+				tempUtil.deleteTempTableSqlServer(conn, tempTableName);
 			}
 			try {
 				JDBCUtil.closeJdbcResource(null, query, conn);
@@ -172,24 +173,7 @@ public class PdoQueryProviderDao extends CRCDAO implements IPdoQueryProviderDao 
 		preparedStmt.executeBatch();
 	}
 
-	private void deleteTempTable(Connection conn, String tempTable) {
-
-		Statement deleteStmt = null;
-		try {
-			deleteStmt = conn.createStatement();
-			conn.createStatement().executeUpdate("drop table " + tempTable);
-		} catch (SQLException sqle) {
-			;
-		} finally {
-			try {
-				deleteStmt.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-	}
+	
 
 	public ObserverSet getProviderByFact(List<String> panelSqlList,
 			List<Integer> sqlParamCountList,
@@ -276,10 +260,9 @@ public class PdoQueryProviderDao extends CRCDAO implements IPdoQueryProviderDao 
 			log.error("", ioEx);
 			throw new I2B2DAOException("IO exception", ioEx);
 		} finally {
-			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
-				deleteTempTable(conn, factTempTable);
-			}
+			PdoTempTableUtil tempUtil = new PdoTempTableUtil(); 
+			tempUtil.clearTempTable(dataSourceLookup.getServerType(),conn, factTempTable);
+			
 			if (inputOptionListHandler != null
 					&& inputOptionListHandler.isEnumerationSet()) {
 				try {

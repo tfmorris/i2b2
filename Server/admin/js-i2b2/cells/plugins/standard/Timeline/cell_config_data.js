@@ -2,7 +2,8 @@
 // every file in this list will be loaded after the cell's Init function is called
 {
 	files:[
-		"Timeline_ctrlr.js"
+		"Timeline_ctrlr.js",
+		"Timeline_modLabRange.js"
 	],
 	css:[ 
 		"vwTimeline.css"
