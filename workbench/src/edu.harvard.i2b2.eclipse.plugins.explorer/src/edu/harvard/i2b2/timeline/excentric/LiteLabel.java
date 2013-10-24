@@ -5,6 +5,8 @@
  *  
  *  Contributors:
  *  
+ *  	Wensong Pan (MGH)
+ *  
  *
  */
 /*
@@ -29,197 +31,234 @@
  * THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF LIABILITY, ARISING OUT
  * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-  
+
 package edu.harvard.i2b2.timeline.excentric;
 
 import java.awt.*;
 
 /**
- * A <code>LiteLabel</code> is a liteweight label with a foreground,
- * a background color and a border (one pixel or 0 pixel).
- *
- * @version 	0.1, 08/04/98
- * @author 	Jean-Daniel Fekete
- * @since       JDK1.1.5
+ * A <code>LiteLabel</code> is a liteweight label with a foreground, a
+ * background color and a border (one pixel or 0 pixel).
+ * 
+ * @version 0.1, 08/04/98
+ * @author Jean-Daniel Fekete
+ * @since JDK1.1.5
  */
 
 public class LiteLabel extends Lite {
-  private String text;
-  private Point position;
-  private Font font;
-  private Color foreground;
-  private Color background;
-  private int border;
-  private int alignment = CENTER;
-  private Rectangle r;
+	private String text;
 
-  /**
-   * Default font used when the font parameter is null.
-   */
-  public static final Font DEFAULT_FONT = new Font("Helvetica", Font.PLAIN, 9);
+	private Point position;
 
-  /**
-   * Indicates that the label should be left justified. 
-   */
-  public static final int LEFT 	= 0;
+	private Font font;
 
-  /** 
-   * Indicates that the label should be centered. 
-   */
-  public static final int CENTER 	= 1;
+	private Color foreground;
 
-  /**
-   * Indicates that the label should be right justified. 
-   */
-  public static final int RIGHT 	= 2;
+	private Color background;
 
-  /**
-   * Constructor of a <code>LiteLabel</code>.
-   *
-   * @param	s	Text of the label.
-   * @param	p	Position of the label (the label is center
-   around by default)
-   * @param	border	0 if no border is required, 1 otherwise.
-   * @param	fg	The color of the border. Note that the text is
-   * always painted in black for the moment (this is arguable).
-   * @param	bg	The color of the background, or
-   <code>null</code> is no color is required.
-   */
-  public LiteLabel(String s, Point p, int border, Font f, Color fg, Color bg) {
-    this.text = s;
-    this.position = p;
-    this.border = border;
-    if (f == null) {
-      f = DEFAULT_FONT;
-    }
-    this.font = f;
-    this.foreground = fg;
-    this.background = bg;
-  }
-  /**
-   * Simple constructor for black and white label.
-   */
-  public LiteLabel(String s, Point p, int border) {
-    this(s, p, border, null, Color.black, Color.white);
-  }
+	private int border;
 
-  /**
-   * Change the position of the label.
-   *
-   * @param	p	The new position.
-   */
-  public void setPosition(Point p) {
-    position = new Point(p);
-    invalidate();
-  }
+	private int alignment = CENTER;
 
-  /**
-   * @return the position of the label.
-   */
-  public Point getPosition() { 
-	  return new Point(position); 
-  }
+	private Rectangle r;
 
-  /**
-   * @return the bounds of the label.  It is actually cached for
-   * faster computation.
-   */
-  public Rectangle getBounds() {
-    if (r == null) {
-      FontMetrics fm = Toolkit.getDefaultToolkit().getFontMetrics(font);
-      int width = fm.stringWidth(text) + 2 * border + 2;
-      int height = 2 * border + fm.getMaxDescent() + fm.getMaxAscent();
-      int x;
-      switch(alignment) {
-      case LEFT:
-      default:
-    	  x = position.x;
-      	  break;
-      case CENTER:
-    	  x = position.x - width/2;
-    	  break;
-      case RIGHT:
-    	  x = position.x - width - 10;
-    	  break;
-      }
-      
-      r = new Rectangle(x, position.y - height/2, width, height);
-    }
-    return r;
-  }
+	/**
+	 * Default font used when the font parameter is null.
+	 */
+	public static final Font DEFAULT_FONT = new Font("Helvetica", Font.PLAIN, 9);
 
-  /**
-   * Paint the label.
-   */
-  public void paint(Graphics g) {
-    Rectangle r = getBounds();
-    g.setFont(font);
-    if (background != null) {
-      g.setColor(background);
-      g.fillRect(r.x, r.y, r.width, r.height);
-    }
-    //g.setColor(Color.black);   Julia: change this to reflect the border color
-    g.setColor(foreground);
-    FontMetrics fm = g.getFontMetrics();
-    g.drawString(text,
-		 r.x + border + 1,
-		 r.y + fm.getMaxAscent() + border + 1);
-    g.setColor(foreground);
-    if (border > 0) {
-      g.drawRect(r.x, r.y, r.width-1, r.height-1);
-    }
-  }
+	/**
+	 * Indicates that the label should be left justified.
+	 */
+	public static final int LEFT = 0;
 
-  /**
-   * Invalide the cache of the label bounding box.
-   */
-  public void invalidate() { r = null; }
+	/**
+	 * Indicates that the label should be centered.
+	 */
+	public static final int CENTER = 1;
 
-  /**
-   * @return the text associated with this label.
-   */
-  public String getText() { return text; }
+	/**
+	 * Indicates that the label should be right justified.
+	 */
+	public static final int RIGHT = 2;
 
-  /**
-   * Modifies the text associated with this label.
-   *
-   * @param	s	New text of the label.
-   */
-  public void setText(String s) { 
-	  invalidate(); 
-	  text = s; 
-  }
+	/**
+	 * Constructor of a <code>LiteLabel</code>.
+	 * 
+	 * @param s
+	 *            Text of the label.
+	 * @param p
+	 *            Position of the label (the label is center around by default)
+	 * @param border
+	 *            0 if no border is required, 1 otherwise.
+	 * @param fg
+	 *            The color of the border. Note that the text is always painted
+	 *            in black for the moment (this is arguable).
+	 * @param bg
+	 *            The color of the background, or <code>null</code> is no
+	 *            color is required.
+	 */
+	public LiteLabel(String s, Point p, int border, Font f, Color fg, Color bg) {
+		this.text = s;
+		this.position = p;
+		this.border = border;
+		if (f == null) {
+			f = DEFAULT_FONT;
+		}
+		this.font = f;
+		this.foreground = fg;
+		this.background = bg;
+	}
 
-  /**
-   * @return the font of this label.
-   */
-  public Font getFont() { return font; }
+	/**
+	 * Simple constructor for black and white label.
+	 */
+	public LiteLabel(String s, Point p, int border) {
+		this(s, p, border, null, Color.black, Color.white);
+	}
 
-  /**
-   * @return the background color of this label.
-   */
-  public Color getBackground() { return background; }
+	/**
+	 * Change the position of the label.
+	 * 
+	 * @param p
+	 *            The new position.
+	 */
+	@Override
+	public void setPosition(Point p) {
+		position = new Point(p);
+		invalidate();
+	}
 
-  /**
-   * @return the foreground color of this label.
-   */
-  public Color getForeground() { return foreground; }
+	/**
+	 * @return the position of the label.
+	 */
+	@Override
+	public Point getPosition() {
+		return new Point(position);
+	}
 
-  /**
-   * @return the alignment of this label, which can be
-   * <code>LiteLabel.LEFT</code>, <code>LiteLabel.CENTER</code> and
-   * <code>LiteLabel.RIGHT</code>.
-  public int getAlignment() { return alignment; }
+	/**
+	 * @return the bounds of the label. It is actually cached for faster
+	 *         computation.
+	 */
+	@Override
+	public Rectangle getBounds() {
+		if (r == null) {
+			FontMetrics fm = Toolkit.getDefaultToolkit().getFontMetrics(font);
+			int width = fm.stringWidth(text) + 2 * border + 2;
+			int height = 2 * border + fm.getMaxDescent() + fm.getMaxAscent();
+			int x;
+			switch (alignment) {
+			case LEFT:
+			default: {
+				x = position.x;
+				break;
+			}
+			case CENTER: {
+				x = position.x - width / 2;
+				if (x < 0) {
+					x = 1;
+				}
+				break;
+			}
+			case RIGHT: {
+				x = position.x - width - 10;
+				if (x < 0) {
+					x = 1;
+				}
+				break;
+			}
+			}
 
-  /**
-   * Modifies the alignment of this label.
-   *
-   * @param	a	New alignment value, which can be
-   * <code>LiteLabel.LEFT</code>, <code>LiteLabel.CENTER</code> and
-   * <code>LiteLabel.RIGHT</code>.
-   */
-  public void setAlignment(int a) { 
-	  invalidate(); 
-	  alignment = a; 
-  }
+			r = new Rectangle(x, position.y - height / 2, width, height);
+		}
+		return r;
+	}
+
+	/**
+	 * Paint the label.
+	 */
+	@Override
+	public void paint(Graphics g) {
+		Rectangle r = getBounds();
+		g.setFont(font);
+		if (background != null) {
+			g.setColor(background);
+			g.fillRect(r.x, r.y, r.width, r.height);
+		}
+		// g.setColor(Color.black); Julia: change this to reflect the border
+		// color
+		g.setColor(foreground);
+		FontMetrics fm = g.getFontMetrics();
+		g.drawString(text, r.x + border + 1, r.y + fm.getMaxAscent() + border
+				+ 1);
+		g.setColor(foreground);
+		if (border > 0) {
+			g.drawRect(r.x, r.y, r.width - 1, r.height - 1);
+		}
+	}
+
+	/**
+	 * Invalide the cache of the label bounding box.
+	 */
+	public void invalidate() {
+		r = null;
+	}
+
+	/**
+	 * @return the text associated with this label.
+	 */
+	public String getText() {
+		return text;
+	}
+
+	/**
+	 * Modifies the text associated with this label.
+	 * 
+	 * @param s
+	 *            New text of the label.
+	 */
+	public void setText(String s) {
+		invalidate();
+		text = s;
+	}
+
+	/**
+	 * @return the font of this label.
+	 */
+	public Font getFont() {
+		return font;
+	}
+
+	/**
+	 * @return the background color of this label.
+	 */
+	public Color getBackground() {
+		return background;
+	}
+
+	/**
+	 * @return the foreground color of this label.
+	 */
+	public Color getForeground() {
+		return foreground;
+	}
+
+	/**
+	 * @return the alignment of this label, which can be
+	 *         <code>LiteLabel.LEFT</code>, <code>LiteLabel.CENTER</code>
+	 *         and <code>LiteLabel.RIGHT</code>. public int getAlignment() {
+	 *         return alignment; }
+	 * 
+	 * /** Modifies the alignment of this label.
+	 * 
+	 * @param a
+	 *            New alignment value, which can be <code>LiteLabel.LEFT</code>,
+	 *            <code>LiteLabel.CENTER</code> and
+	 *            <code>LiteLabel.RIGHT</code>.
+	 */
+	public void setAlignment(int a) {
+		invalidate();
+		alignment = a;
+	}
 }

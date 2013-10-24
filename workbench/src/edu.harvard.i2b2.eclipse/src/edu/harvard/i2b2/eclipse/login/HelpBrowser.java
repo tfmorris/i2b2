@@ -9,10 +9,6 @@
  */
 package edu.harvard.i2b2.eclipse.login;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.CloseWindowListener;
@@ -32,12 +28,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import edu.harvard.i2b2.eclipse.util.Messages;
+
 /**
  * This class implements a web browser
  */
 public class HelpBrowser {
   // The "at rest" text of the throbber
-  private static final String AT_REST = "Ready";
+  private static final String AT_REST = Messages.getString("HelpBrowser.Ready"); //$NON-NLS-1$
 
   /**
    * Runs the application
@@ -47,7 +45,7 @@ public class HelpBrowser {
   public void run(String location, Shell parent) {
     //Display display = new Display();
     Shell shell = new Shell(parent);
-    shell.setText("i2b2 Browser");
+    shell.setText(Messages.getString("HelpBrowser.Title")); //$NON-NLS-1$
     createContents(shell, location);
     shell.open();
   }
@@ -143,7 +141,7 @@ public class HelpBrowser {
      */
     public void changing(LocationEvent event) {
       // Show the location that's loading
-      location.setText("Loading " + event.location + "...");
+      location.setText(Messages.getString("HelpBrowser.Loading") + event.location + "..."); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     /**
@@ -184,10 +182,10 @@ public class HelpBrowser {
       if (event.total != 0) {
         // Calculate a percentage and display it
         int percent = (event.current / event.total);
-        progress.setText(percent + "%");
+        progress.setText(percent + "%"); //$NON-NLS-1$
       } else {
         // Since we can't calculate a percent, show confusion :-)
-        progress.setText("    ");
+        progress.setText("    "); //$NON-NLS-1$
       }
     }
 
@@ -232,23 +230,5 @@ public class HelpBrowser {
     }
   }
 
-  /**
-   * The application entry point
-   * 
-   * @param args the command line arguments
-   */
-  public static void main(String[] args) {
-	  String myurl=System.getProperty("user.dir");
-	  // Create a file object
-	    File file = new File("i2b2log.html");
-	     // Convert the file object to a URL
-	    URL url = null;
-	    try {
-	        // The file need not exist. It is made into an absolute path
-	        // by prefixing the current working directory
-	        url = file.toURL();          // file:/d:/almanac1.4/java.io/filename
-	    } catch (MalformedURLException e) {
-	    }
-  }
 }
 

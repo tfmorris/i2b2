@@ -15,49 +15,49 @@ import java.awt.*;
 
 public class enterField extends TextField {
 
-  private record theApplet;
+    private record theApplet;
 
-  public void setApplet(record theApplet) {
+    public void setApplet(record theApplet) {
 
-    this.theApplet = theApplet;
- 
-  }
+	this.theApplet = theApplet;
 
-  public void update(Graphics g) {
+    }
 
-        paint(g);
+    @Override
+    public void update(Graphics g) {
 
-  }
+	paint(g);
 
-  public boolean keyUp(Event evt, int key) {
+    }
 
-    if(key == 10) {
+    @Override
+    public boolean keyUp(Event evt, int key) {
 
-           	record.theData = new loadRecord(theApplet.getCodeBase() + 
-                getText(),"none");
+	if (key == 10) {
 
-        theApplet.resetTabPanel();
+	    record.theData = new loadRecord(
+		    theApplet.getCodeBase() + getText(), "none");
 
-        theApplet.resetPicPanel();
+	    theApplet.resetTabPanel();
 
-        theApplet.resetInfoPanel();
+	    theApplet.resetPicPanel();
 
-        theApplet.setWidthHeight(400,350);     /*else if(key > 32 && key < 126) {
-        setText(char(key) + getText());
-    }*/
+	    theApplet.resetInfoPanel();
 
-        // 3/28/98
-        if (theApplet.theCurrPanel.ctrlpanel != null)  {
-                theApplet.theCurrPanel.ctrlpanel.hide();
-                theApplet.theCurrPanel.ctrlpanel = null;
-        }
-    }        
-    return true;
+	    theApplet.setWidthHeight(400, 350); /*
+						 * else if(key > 32 && key <
+						 * 126) { setText(char(key) +
+						 * getText()); }
+						 */
+
+	    // 3/28/98
+	    if (theApplet.theCurrPanel.ctrlpanel != null) {
+		theApplet.theCurrPanel.ctrlpanel.hide();
+		theApplet.theCurrPanel.ctrlpanel = null;
+	    }
+	}
+	return true;
+
+    }
 
 }
-
-
-}
-
-
-

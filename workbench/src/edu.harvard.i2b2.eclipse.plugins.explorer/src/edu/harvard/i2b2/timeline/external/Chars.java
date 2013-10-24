@@ -74,7 +74,8 @@ class Chars {
 		    (begin <= cs.end() && cs.end() <= end);
     }
 
-    public boolean equals(Object obj) {
+    @Override
+	public boolean equals(Object obj) {
 	if (obj != null && obj instanceof Chars) {
 	    Chars cs = (Chars)obj;
 	    if (type == CHARACTER) {
@@ -113,7 +114,8 @@ class Chars {
 	return result;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
 	String result = "";
 	
 	switch (type) {

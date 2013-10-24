@@ -37,6 +37,16 @@ public class UserInfoBean {
 
 	private static String helpURL;
 
+	private static String pmResponse;
+	public static void pmResponse(String str) {pmResponse = new String(str);}
+	public static String pmResponse() {return pmResponse;}
+
+	private static ProjectType selectedProject;
+	public static void selectedProject(ProjectType p) {selectedProject=p;}
+	public static ProjectType selectedProject() {return selectedProject;}
+
+	public static String selectedProjectID() {return selectedProject.getId();}
+
 	private static List<String> projectList;
 	private static List<String> cellList;
 	private static List<ProjectType> projects;
@@ -51,6 +61,10 @@ public class UserInfoBean {
 		return instance;
 	}
 
+	public String getProjectId() {
+		return selectedProject.getId();
+	}
+
 	public String getUserName() {
 		return userName;
 	}
@@ -60,6 +74,8 @@ public class UserInfoBean {
 	}
 
 	public CellDataType getCellData(String id) {
+		if (cellDatas == null)
+			return null;
 		for (CellDataType cellData :cellDatas.getCellData())
 		{
 			if (cellData.getId().toLowerCase().equals(id.toLowerCase()))
@@ -70,12 +86,14 @@ public class UserInfoBean {
 
 	public List<String> getCellList()
 	{
-		if (cellList == null)
-			new ArrayList<String>();
+		//if (cellList == null)
+		//	cellList = new ArrayList<String>();
 		return cellList; 
 	}
 
 	public String getCellDataSpecial(String id) {
+		if (cellDatas == null)
+			return null;
 		for (CellDataType cellData :cellDatas.getCellData())
 		{
 			if (cellData.getId().toLowerCase().equals(id.toLowerCase()))
@@ -84,7 +102,18 @@ public class UserInfoBean {
 		return null;
 	}
 
+	public String getSelectedProjectParam(String name){
+		List<ParamType> params = selectedProject.getParam();
+		for(int i=0; i<params.size(); i++) {
+			ParamType param = params.get(i);
+			if (param.getName().toLowerCase().equals(name.toLowerCase()))
+				return param.getValue();
+		}
+		return null;
+	}
 	public String getCellDataParam(String id, String name) {
+		if (cellDatas == null)
+			return null;
 		for (CellDataType cellData :cellDatas.getCellData())
 			if (cellData.getId().toLowerCase().equals(id.toLowerCase()))
 			{
@@ -98,6 +127,8 @@ public class UserInfoBean {
 	}
 
 	public String getCellName(String id) {
+		if (cellDatas == null)
+			return null;
 		for (CellDataType cellData :cellDatas.getCellData())
 		{
 			if (cellData.getId().toLowerCase().equals(id.toLowerCase()))
@@ -106,12 +137,34 @@ public class UserInfoBean {
 		return null;
 	}
 
-	
+	public boolean isCoreCell(String id)
+	{
+		if ((id.equalsIgnoreCase("ONT")) ||
+				(id.equalsIgnoreCase("FR")) ||
+				(id.equalsIgnoreCase("CRC")) ||
+				(id.equalsIgnoreCase("WORK")) )
+			return true;
+		else
+			return false;
+	}
 	public String getCellDataUrl(String id) {
+		if (cellDatas == null)
+			return null;
 		for (CellDataType cellData :cellDatas.getCellData())
 		{
 			if (cellData.getId().toLowerCase().equals(id.toLowerCase()))
 				return cellData.getUrl();
+		}
+		return null;
+	}
+
+	public String getCellDataMethod(String id) {
+		if (cellDatas == null)
+			return null;
+		for (CellDataType cellData :cellDatas.getCellData())
+		{
+			if (cellData.getId().toLowerCase().equals(id.toLowerCase()))
+				return cellData.getMethod();
 		}
 		return null;
 	}
@@ -122,16 +175,29 @@ public class UserInfoBean {
 		{
 			cellList.add(cellData.getId());
 		}
-		
+
 		UserInfoBean.cellDatas = cellDatas;
 	}
-	
+
 	public List<String> getProjectRoles(String project) {
 		for (ProjectType param :projects)
 			if (param.getId().toLowerCase().equals(project.toLowerCase()))
 				return param.getRole();
 		return null;
-		
+
+	}
+
+	public boolean isRoleInProject(String project)
+	{
+		if (
+				selectedProject().getRole().contains(project.toUpperCase())
+		)
+			return true;
+		else
+			return false;
+	}
+	public List<String> getProjectRoles() {
+		return selectedProject().getRole();
 	}
 
 	public List<String> getProjectList() {
@@ -209,7 +275,6 @@ public class UserInfoBean {
 		ParamType pt = new ParamType();
 		pt.setName(name);
 		pt.setValue(value);
-
 
 		globals.add(pt);
 	}

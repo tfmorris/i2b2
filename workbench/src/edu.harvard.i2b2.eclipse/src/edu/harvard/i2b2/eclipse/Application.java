@@ -12,18 +12,28 @@
 
 package edu.harvard.i2b2.eclipse;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.core.runtime.IPlatformRunnable;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.sun.management.OperatingSystemMXBean;
+
 import edu.harvard.i2b2.eclipse.login.LoginDialog;
+import edu.harvard.i2b2.eclipse.login.PasswordDialog;
+import edu.harvard.i2b2.eclipse.login.ProjectDialog;
+import edu.harvard.i2b2.eclipse.util.Messages;
 
 /**
  * This class controls all aspects of the application's execution
@@ -31,16 +41,40 @@ import edu.harvard.i2b2.eclipse.login.LoginDialog;
 public class Application implements IPlatformRunnable {
 
 	private static Log log = LogFactory.getLog(Application.class.getName());
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.core.runtime.IPlatformRunnable#run(java.lang.Object)
 	 */
 	public Object run(Object args) throws Exception {
 		Display display = PlatformUI.createDisplay();
 
-		log.debug("STARTING APP");
+		log.debug("STARTING APP"); //$NON-NLS-1$
+		
 		try {
+			if(!checkMemorySetting()) {
+				return IPlatformRunnable.EXIT_OK;
+			}
+			
 			if(loginAction(true) == false) {
 				return IPlatformRunnable.EXIT_OK;
+			}
+			
+			if(UserInfoBean.getInstance().getUserPassword().equalsIgnoreCase("***")) { //$NON-NLS-1$
+				System.out.println("Password: ***"); //$NON-NLS-1$
+				PasswordDialog passwordDialog = new PasswordDialog(new Shell());
+				passwordDialog.open();
+			}
+			
+			if(UserInfoBean.getInstance().getProjects().size() == 1) {
+				UserInfoBean.selectedProject(UserInfoBean.getInstance().getProjects().get(0));
+			}
+			else{
+				ProjectDialog projectDialog =  new ProjectDialog();
+				projectDialog.open(display);
+				if (projectDialog.getCancelSelected())
+				{
+					System.exit(0);
+				}
 			}
 
 			int returnCode = PlatformUI.createAndRunWorkbench(display, 
@@ -54,6 +88,48 @@ public class Application implements IPlatformRunnable {
 			display.dispose();
 		}
 	}
+	
+	
+	
+	/**
+	 * Method to check the maximum heap size and the physical memory size
+	 * 
+	 * @return  true/false
+	 * 
+	 * 
+	 */
+	private boolean checkMemorySetting() {
+		boolean status = true;
+				
+		OperatingSystemMXBean mxbean =  (com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
+		long memory = mxbean.getTotalPhysicalMemorySize()/1000000;
+		
+		//RuntimeMXBean mxbean1 = ManagementFactory.getRuntimeMXBean();
+		
+		long vmSize = Runtime.getRuntime().maxMemory() / 1000000;//getXmxFromi2b2Properties();
+		
+		if(memory < vmSize) {
+			status = false;
+			
+			Shell activeShell = new Shell();
+			
+			//java.lang.management.OperatingSystemMXBean mxbean =  ManagementFactory.getOperatingSystemMXBean();
+			//System.out.println("In Application total physical memory: "+(mxbean.getTotalPhysicalMemorySize()/1000000));
+	
+			MessageBox mBox = new MessageBox(activeShell, SWT.ICON_INFORMATION | SWT.OK);
+	    	mBox.setText(Messages.getString("Application.MemoryPopup")); //$NON-NLS-1$
+	    	mBox.setMessage(Messages.getString("Application.MemoryPopupText1")+memory+Messages.getString("Application.MemoryPopupText2") //$NON-NLS-1$ //$NON-NLS-2$
+	    			+Messages.getString("Application.MemoryPopupText3")+vmSize+Messages.getString("Application.MemoryPopupText4") //$NON-NLS-1$ //$NON-NLS-2$
+	    			+Messages.getString("Application.MemoryPopupText5") //$NON-NLS-1$
+	    			+Messages.getString("Application.MemoryPopupText6")); //$NON-NLS-1$
+	    	mBox.open();
+		}
+		
+		return status;
+	}
+	
+	
+	
 	/**
 	 * Method to read in crcnavigator properties file
 	 * 
@@ -62,18 +138,22 @@ public class Application implements IPlatformRunnable {
 	 */
 	private String getCRCNavigatorProperties() {
 		Properties properties = new Properties();
-		String webServiceName="";
-		String filename="i2b2workbench.properties";
+		String webServiceName=""; //$NON-NLS-1$
+		//String communicationProtocol="";
+		String filename=Messages.getString("Application.PropertiesFile"); //$NON-NLS-1$
 		try {
 			properties.load(new FileInputStream(filename));
-			webServiceName=properties.getProperty("webservicename");
-			System.setProperty("applicationName", properties.getProperty("applicationName"));
-
+			webServiceName=properties.getProperty("applicationName"); //$NON-NLS-1$
+			System.setProperty("applicationName", properties.getProperty("applicationName")); //$NON-NLS-1$ //$NON-NLS-2$
+			//webServiceMethod=properties.getProperty("webservicemethod");
+			//System.setProperty("webServiceMethod", webServiceMethod);
+			//communicationProtocol=properties.getProperty("communicationProtocol");
+			//System.setProperty("communicationProtocol", communicationProtocol);
 		} catch (IOException e) {
 			log.error(e.getMessage());
-			webServiceName="";
+			webServiceName=""; //$NON-NLS-1$
 		}
-		log.debug("webservicename="+webServiceName);
+		log.debug("webservicename="+webServiceName); //$NON-NLS-1$
 		return webServiceName;
 	}
 
@@ -92,21 +172,21 @@ public class Application implements IPlatformRunnable {
 
 		if (login) {
 			getCRCNavigatorProperties();
+			
+			
+			
 			LoginDialog loginDialog = new LoginDialog(activeShell);	
 			userInfoBean = loginDialog.open();			
 		}	
 
 		// userInfoBean null means user pressed cancel- logout and close pages
 		if (userInfoBean == null) {
-			log.debug( " Login cancel");
+			log.debug( " Login cancel"); //$NON-NLS-1$
 			return false;
 		} else {
 			// login successful
-			log.debug("Login Successful");
+			log.debug("Login Successful"); //$NON-NLS-1$
 			return true;
 		}
 	}
-
-
-
 }

@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+ @(#) $RCSfile: package.html,v $ $Revision: 1.1 $ $Date: 2008/07/31 14:41:04 $ $Name: RELEASE_1_3_1_0001b $
+ Center for Computational Genomics and Bioinformatics
+ Academic Health Center, University of Minnesota
+ Copyright (c) 2000-2003. The Regents of the University of Minnesota
+-->
+</head>
+<body bgcolor="white">
+
+Provides a java interface to the <b>CLUTO</b> clustering toolkit library.
+
+      <p ALIGN="LEFT"><b>CLUTO </b>is a software package for clustering
+      low- and high-dimensional datasets and for analyzing the characteristics of the various clusters. 
+      <b>CLUTO</b> is well-suited for
+      clustering data sets arising in many diverse application areas including
+      information retrieval, customer purchasing transactions, web, GIS, science, and
+      biology.&nbsp;</p>
+      <p ALIGN="LEFT"><b>CLUTO</b> provides three different classes of clustering 
+      algorithms that operate either directly in the object's feature space or 
+      in the object's similarity space. These algorithms are based on the <b><i>
+      partitional</i></b>,&nbsp; <b><i>agglomerative</i></b>, and<b><i> 
+      graph-partitioning </i></b>paradigms. A key feature in most of <b>CLUTO</b>'s 
+      clustering algorithms is that they treat the clustering problem as an 
+      optimization process which seeks to maximize or minimize a particular&nbsp;
+      <i><b>clustering criterion function</b></i> defined either globally or 
+      locally over the entire clustering solution space. <b>CLUTO</b> provides a total 
+      of seven different criterion functions that can be used to drive both 
+      partitional and agglomerative clustering algorithms, that are described&nbsp; 
+      and analyzed in [<a href="http://www-users.cs.umn.edu/~karypis/publications/Papers/PDF/vscluster.pdf" target="main">ZK01</a>,
+      <a href="http://www-users.cs.umn.edu/~karypis/publications/Papers/PDF/vacluster.pdf" target="main">ZK02b</a>]. 
+      Most of these criterion functions have been shown to produce high quality 
+      clustering solutions in high dimensional datasets, especially those 
+      arising in document clustering. In addition, <b>CLUTO</b> provides some of the 
+      more traditional local criteria <i>(</i>e.g.<i>,</i> single-link, 
+      complete-link, and UPGMA) that can be used in the context of agglomerative 
+      clustering. Furthermore, <b>CLUTO</b> provides graph-partitioning-based 
+      clustering algorithms that are well-suited for finding clusters that form 
+      contiguous regions that span different dimensions of the underlying 
+      feature space</p>
+
+
+      <p ALIGN="LEFT"><b>JCluto</b></p>
+
+      <p ALIGN="LEFT">The jcluto package is written to use java interfaces 
+      as method parameters and return values so that alternate implementations 
+      of specific classes are accommodated.
+      </p>
+      <p>
+      Access to the <b>CLUTO</b> library functions is through methods in JClutoWrapper.java.
+      The Java Native Interface code in JClutoWrapper.c maps the java methods to C functions.
+      </p>
+      <p>
+      The graph-based cluto functions have not been tested yet, and the jcluto package
+      does not yet offer parameter settings to call those functions.
+      </p>
+      <p>
+
+      The <b>CLUTO</b> library was intended to be used in command line applications, and it will
+      perform a system exit whenever it encounters parameters that it cannot handle.
+      </p>
+      <p>
+
+      JCluto encpsulates the matrix format (rowptr, rowind, rowval in Section 5.2 of manual.pdf)
+      in the ClutoMatrix interface.  The ClutoMatrix is implemented in the ClutoTableMatrix
+      such that it also supports the javax.swing.table.TableModel interface, making it easy to
+      display a cluto matrix in a javax.swing.JTable.
+      </p>
+      <p>
+
+      The TransMatrixPanel provides a GUI interface to routines that can transform the
+      ClutoMatrix.  These include missing value estimation to generate a dense matrix
+      from a sparse one.  It can also perform a log transform on the matrix values.
+      </p>
+      <p>
+
+      The ClutoOptionsPanel provides a GUI interface for setting the paramters for
+      invoking a CLUTO clustering solution. This interface attempts to set parameters
+      that are consistent with the chosen clustering method.
+      </p>
+      <p>
+
+      The ClutoCluster class executes the CLUTO clustering method.  The method getParts()
+      returns an int array that give the cluster/part  number the each row in the matrix
+      was assigned to in the clustering solution.  The edu.umn.genomics.table.cluster.cluto
+      package provides examples of displaying and visualizing the results of clustering.
+      </p>
+
+<h2>Related Documentation</h2>
+<ul>
+  <li><a href="http://www-users.cs.umn.edu/~karypis/cluto/">
+         http://www-users.cs.umn.edu/~karypis/cluto/ </a>
+  <li><a href="http://www-users.cs.umn.edu/~karypis/cluto/files/manual.pdf">
+         http://www-users.cs.umn.edu/~karypis/cluto/files/manual.pdf </a>
+  <li><a href="http://www-users.cs.umn.edu/~karypis/publications/Papers/PDF/biocluster.pdf">
+         http://www-users.cs.umn.edu/~karypis/publications/Papers/PDF/biocluster.pdf </a>
+  <li><a href="http://www-users.cs.umn.edu/~karypis/publications/Papers/PDF/sclassify.pdf">
+         http://www-users.cs.umn.edu/~karypis/publications/Papers/PDF/sclassify.pdf </a>
+</ul>
+
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>
+

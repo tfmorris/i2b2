@@ -11,19 +11,14 @@
 
 package edu.harvard.i2b2.timeline.lifelines;
 
-import java.util.*;
-import java.lang.*;
-import java.awt.*;
-
 public class scale{
-    private int width, height;
+    private int width;
     private String mode;
     private MyDate dateMax, dateMin;
     public int n_ticks, theTicks[];
     public String theLabelString[];
     public static int TICK_RANGE = 45, MAX_TICKS;
 
-    private MyDate today;
     private int todayPosition;
 
     public scale(int width, MyDate dateMin, MyDate dateMax,MyDate today) {
@@ -35,8 +30,6 @@ public class scale{
         theLabelString = new String[MAX_TICKS+1];
         setScale(dateMin, dateMax,today);
 
-        this.today = today;
-
         todayPosition = (int)Math.round((double)dateMin.MinDiff(today)*width/
                                                dateMin.MinDiff(dateMax)); // some D's were capitalized when I copied?
                                                // dateMin and dateMax are current dateMin and dateMax
@@ -44,7 +37,6 @@ public class scale{
 
 
     public void setMode(MyDate dateMin, MyDate dateMax){
-        double d1, d2;
         long d;
 
         this.dateMin = dateMin;
@@ -63,12 +55,8 @@ public class scale{
     }
 
     public void setScale(MyDate DateMin, MyDate DateMax,MyDate today){ // really changescale
-        int start_decade, start_year, start_month, start_day;
-        double n_year;
-        int i, S;
+        int i;
         MyDate currDate = new MyDate(DateMin);
-
-        this.today = today;
 
         todayPosition = (int)Math.round((double)DateMin.MinDiff(today)*width/
                                                DateMin.MinDiff(DateMax)); // D's capitalized again

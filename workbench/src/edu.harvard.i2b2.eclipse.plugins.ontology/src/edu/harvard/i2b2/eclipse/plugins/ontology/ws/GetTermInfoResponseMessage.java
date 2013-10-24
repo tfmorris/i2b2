@@ -10,19 +10,11 @@
 
 package edu.harvard.i2b2.eclipse.plugins.ontology.ws;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.harvard.i2b2.ontclient.datavo.vdo.GetTermInfoType;
-
 public class GetTermInfoResponseMessage extends OntologyResponseData{
 	
 	public static final String THIS_CLASS_NAME = GetTermInfoResponseMessage.class.getName();
-    private Log log = LogFactory.getLog(THIS_CLASS_NAME);	
 
-    private GetTermInfoType termInfoType;
-
-	public GetTermInfoResponseMessage() {}
+    public GetTermInfoResponseMessage() {}
 	
 	
 	

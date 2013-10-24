@@ -9,6 +9,8 @@
  */
 package edu.harvard.i2b2.eclipse.plugins.ontology.views.find;
 
+import java.util.List;
+
 public class FindDisplayXmlMessageDialog extends javax.swing.JFrame {
 	
     /** Creates new form QueryDisplayXmlMessageDialog */
@@ -17,6 +19,20 @@ public class FindDisplayXmlMessageDialog extends javax.swing.JFrame {
         initComponents();
         setSize(800, 400);
         jMessageTextArea.setText(msg);
+    }
+    
+    /** Create new form for list of response messages **/
+    public FindDisplayXmlMessageDialog(List<String> msgs) {
+       	
+        initComponents();
+        setSize(800, 400);
+        int it = msgs.size();
+        String allMessages = "";
+        while (it > 0 ) {
+        	allMessages = allMessages + msgs.get(it-1) + "\n\n";
+        	it = it - 1;
+        }
+        jMessageTextArea.setText(allMessages);
     }
     
     /** This method is called from within the constructor to
@@ -70,7 +86,8 @@ public class FindDisplayXmlMessageDialog extends javax.swing.JFrame {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FindDisplayXmlMessageDialog(null).setVisible(true);
+            	String empty = null;
+                new FindDisplayXmlMessageDialog(empty).setVisible(true);
             }
         });
     }

@@ -164,7 +164,8 @@ public abstract class symSlider
     /**
      * Enables the slider control.
      */
-    public synchronized void enable()
+    @Override
+	public synchronized void enable()
     {
         super.enable();
     }
@@ -172,7 +173,8 @@ public abstract class symSlider
     /**
      * Disables the slider control.
      */
-    public synchronized void disable()
+    @Override
+	public synchronized void disable()
     {
         super.disable();
     }
@@ -180,7 +182,8 @@ public abstract class symSlider
     /**
      * Returns the current "preferred size" of the slider control.
      */
-    public Dimension preferredSize()
+    @Override
+	public Dimension preferredSize()
     {
         return new Dimension(width, height);
     }

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Concepts" link_to="toc.xml#concepts">
+  <topic label="Select Concepts" href="html/concepts/ed_concept/ed_concept_intro.htm">
+    <topic href="html/concepts/ed_concept/ed_concept_add.htm" label="Add concepts"></topic>
+    <topic href="html/concepts/ed_concept/ed_concept_delete.htm" label="Delete concepts"></topic>
+    <topic href="html/concepts/ed_concept/ed_concept_move.htm" label="Move concepts"></topic>
+    <topic label="Setting Constraints" href="html/concepts/ed_concept/ed_concept_constraints_intro.htm">
+      <topic href="html/concepts/ed_concept/ed_concept_constraints/ed_concept_constraints_date.htm" label="Date constraints"></topic>
+      <topic href="html/concepts/ed_concept/ed_concept_constraints/ed_concept_constraints_values.htm" label="Value constraints"></topic>
+    </topic>
+  </topic>
+  <topic href="html/concepts/ed_pt/ed_pt_intro.htm" label="Select Patients">
+     <topic href="html/concepts/ed_pt/ed_pt_add.htm" label="Add patients">
+     </topic>
+     <topic href="html/concepts/ed_pt/ed_pt_delete.htm" label="Delete patients">
+     </topic>
+     <topic href="html/concepts/ed_pt/ed_pt_move.htm" label="Move patients">
+     </topic>
+  </topic>
+  <topic href="html/concepts/ed_tables/ed_tbl_intro.htm" label="Render Tables">
+     <topic href="html/concepts/ed_tables/ed_tbl_create.htm" label="Creating tables">
+     </topic>
+     <topic href="html/concepts/ed_tables/ed_tbl_commonCharts.htm" label="Common charts">
+     </topic>
+     <topic href="html/concepts/ed_tables/ed_tbl_ctrl_intro.htm" label="Control Panel">
+        <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_menuBar.htm" label="Menu Bar">
+        </topic>
+        <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_file_menu.htm" label="File Menu">
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_file_menu/ed_tbl_ctrl_file_menu_loadTable.htm" label="Load table">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_file_menu/ed_tbl_ctrl_file_menu_saveTable.htm" label="Save table">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_file_menu/ed_tbl_ctrl_file_menu_saveSelection.htm" label="Save selection">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_file_menu/ed_tbl_ctrl_file_menu_outSelection.htm" label="Output selection">
+           </topic>
+        </topic>
+        <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_edit_menu.htm" label="Edit Menu">
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_edit_menu/ed_tbl_ctrl_edit_menu_editColumns.htm" label="Table columns">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_edit_menu/ed_tbl_ctrl_edit_menu_mapOrder.htm" label="Set default mapping order">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_edit_menu/ed_tbl_ctrl_edit_menu_selectRows.htm" label="Create table from selected rows">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_edit_menu/ed_tbl_ctrl_edit_menu_deleteItem.htm" label="Delete item">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_edit_menu/ed_tbl_ctrl_edit_menu_javaScript.htm" label="Java Script">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_edit_menu/ed_tbl_ctrl_edit_menu_beanShell.htm" label="BeanShell Window">
+           </topic>
+        </topic>
+        <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_view_menu.htm" label="Views Menu">
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_navigation.htm" label="Navigation in views">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_clusterRow.htm" label="Cluster Row">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_clutoCluster.htm" label="Cluto Cluster">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_compColumns.htm" label="Compare Columns">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_graphColumns.htm" label="Graph Columns">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_histogram3D.htm" label="Histogram 3D">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_histogram.htm" label="Histogram">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_histograms.htm" label="Histograms">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_java3D.htm" label="Java 3D">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_pieChart.htm" label="Pie Chart">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_plot3D.htm" label="Plot 3D">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_rowGraph.htm" label="Row Graph">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_scatPlot.htm" label="Scatter Plot">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_scatPlotIcons.htm" label="Scatter Plot Icons">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_spanPlot.htm" label="Span Plot">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_regExpMap.htm" label="Select by Regular Expression Mapping">
+           </topic>
+           <topic href="html/concepts/ed_tables/ed_tbl_ctrl/ed_tbl_ctrl_vws/ed_tbl_vws_tbl.htm" label="Table">
+           </topic>
+        </topic>
+     </topic>
+  </topic>
+</toc>
+

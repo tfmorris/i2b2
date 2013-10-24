@@ -57,15 +57,19 @@ public class LiteRect extends Lite {
   /**
    * setPosition modifies the origin of the rectangle.
    */
-  public void setPosition(Point p) { rect.setLocation(p); }
-  public Point getPosition() { return rect.getLocation(); }
-  public Rectangle getBounds() {
+  @Override
+public void setPosition(Point p) { rect.setLocation(p); }
+  @Override
+public Point getPosition() { return rect.getLocation(); }
+  @Override
+public Rectangle getBounds() {
     int margin = (border)/2;
     return new Rectangle(rect.x - margin, rect.y - margin,
 			 rect.width + border,
 			 rect.height + border);
   }
-  public void paint(Graphics g) {
+  @Override
+public void paint(Graphics g) {
     if (background != null) {
       g.setColor(background);
       g.fillRect(rect.x, rect.y, rect.width, rect.height);

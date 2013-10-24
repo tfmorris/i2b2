@@ -25,7 +25,8 @@ public class Rect
     /**
      * Paints the rectangle.
      */
-    public void paint(Graphics g)
+    @Override
+	public void paint(Graphics g)
     {
         g.clipRect(0, 0, width, height);
 

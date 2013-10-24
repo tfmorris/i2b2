@@ -45,11 +45,11 @@ public class XMLLib implements XmlHandler, Runnable {
 	  ready = false;
 	  // must initialize the static 'ready' property
 	  // it may not have been restored after the previous use
-      Thread theXMLLib_thread = new Thread ((Runnable)(new XMLLib()));
+      Thread theXMLLib_thread = new Thread ((new XMLLib()));
       theXMLLib_thread.start();
       while (!ready) {
         doneNothing = true;
-        Thread.currentThread().sleep(msecIncrement,0);
+        Thread.sleep(msecIncrement,0);
         if (doneNothing) {
           waitTime = waitTime+msecIncrement;
           if (parse_debug==true) {

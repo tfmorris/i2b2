@@ -147,8 +147,6 @@ abstract public class ProjectManagementRequestData {
 		return strWriter.toString();
 	}
 
-	
-	
 	/**
 	 * Function to build Request message type
 	 * 

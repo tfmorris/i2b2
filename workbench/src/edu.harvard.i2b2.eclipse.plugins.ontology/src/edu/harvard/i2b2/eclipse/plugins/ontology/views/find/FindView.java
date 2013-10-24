@@ -7,10 +7,15 @@
  * Contributors:
  * 		Lori Phillips
  * 		Mike Mendis
+ * 		Janice Donahoe (documentation for on-line help)
  */
 package edu.harvard.i2b2.eclipse.plugins.ontology.views.find;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.StatusLineManager;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -19,6 +24,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.help.IWorkbenchHelpSystem;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.harvard.i2b2.eclipse.plugins.ontology.views.TreeComposite;
@@ -28,8 +35,11 @@ public class FindView extends ViewPart {
 	public static final String ID = "edu.harvard.i2b2.eclipse.plugins.ontology.views.find.findView";
 	public static final String THIS_CLASS_NAME = FindView.class.getName();
 	
-	private Composite top;
+	//setup context help
+	public static final String PREFIX = "edu.harvard.i2b2.eclipse.plugins.ontology";
+	public static final String FIND_VIEW_CONTEXT_ID = PREFIX + ".find_terms_view_help_context";
 	
+	private Log log = LogFactory.getLog(THIS_CLASS_NAME);
 	public boolean bWantStatusLine = false;
 	private StatusLineManager slm = new StatusLineManager();
 
@@ -49,8 +59,9 @@ public class FindView extends ViewPart {
 	 * This is a callback that will allow us
 	 * to create the viewer and initialize it.
 	 */
+	@Override
 	public void createPartControl(Composite parent) {
-		
+		log.info("Find Terms plugin version 1.2.0");
 		GridLayout layout = new GridLayout(1, false);
 		layout.numColumns = 1;
 		layout.verticalSpacing = 2;
@@ -88,6 +99,9 @@ public class FindView extends ViewPart {
 	    // Select the first tab (index is zero-based)
 	    tabFolder.setSelection(0);
 
+		//setup context help
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, FIND_VIEW_CONTEXT_ID);
+		addHelpButtonToToolBar();
 	}
 
 	protected Control getFindTabControl(TabFolder tabFolder)
@@ -115,10 +129,21 @@ public class FindView extends ViewPart {
 		
 		return compositeQueryTree;
 	}
-	
+	//add help button
+	private void addHelpButtonToToolBar() {
+		final IWorkbenchHelpSystem helpSystem = PlatformUI.getWorkbench().getHelpSystem();
+		Action helpAction = new Action(){
+			public void run() {
+				helpSystem.displayHelpResource("/edu.harvard.i2b2.eclipse.plugins.ontology/html/i2b2_find_terms_index.htm");
+		}
+		};
+		helpAction.setImageDescriptor(ImageDescriptor.createFromFile(FindView.class, "/icons/help.png"));
+		getViewSite().getActionBars().getToolBarManager().add(helpAction);
+	}
 	/**
 	 * Passing the focus request
 	 */
+	@Override
 	public void setFocus() {
 		treeTab.getControl().setFocus();
 	}

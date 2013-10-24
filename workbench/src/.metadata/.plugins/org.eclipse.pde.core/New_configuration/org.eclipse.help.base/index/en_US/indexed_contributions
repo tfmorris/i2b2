@@ -1,0 +1,23 @@
+#This is a generated file; do not edit.
+#Thu Apr 30 16:43:42 EDT 2009
+edu.harvard.i2b2.eclipse.plugins.workplace=edu.harvard.i2b2.eclipse.plugins.workplace\n1.3.1
+edu.harvard.i2b2.eclipse.plugins.query=edu.harvard.i2b2.eclipse.plugins.query\n1.3.1
+org.eclipse.help.base=org.eclipse.help.base\n3.3.100.v20080617
+org.eclipse.jdt=org.eclipse.jdt\n3.4.0.v20080603-2000
+org.eclipse.jdt.doc.user=org.eclipse.jdt.doc.user\n3.4.0.v20080612-1340
+org.eclipse.jdt.doc.isv=org.eclipse.jdt.doc.isv\n3.4.0.v20080612-1340
+org.eclipse.ui.cheatsheets=org.eclipse.ui.cheatsheets\n3.3.100.v20080508
+edu.harvard.i2b2.eclipse.plugins.explorer=edu.harvard.i2b2.eclipse.plugins.explorer\n1.3.1
+edu.harvard.i2b2.eclipse.plugins.exportData=edu.harvard.i2b2.eclipse.plugins.exportData\n1.3.1
+org.eclipse.ui.intro=org.eclipse.ui.intro\n3.2.200.v20080610
+org.eclipse.help=org.eclipse.help\n3.3.100.v20080610
+org.eclipse.platform.doc.isv=org.eclipse.platform.doc.isv\n3.4.0.v20080613-1330
+edu.harvard.i2b2.eclipse=edu.harvard.i2b2.eclipse\n1.3.1
+org.eclipse.pde.doc.user=org.eclipse.pde.doc.user\n3.3.0.v20080611-1530
+edu.harvard.i2b2.eclipse.plugins.previousQuery=edu.harvard.i2b2.eclipse.plugins.previousQuery\n1.3.1
+org.eclipse.platform=org.eclipse.platform\n3.3.100.v200806172000
+net.nbirn.srbclient.plugin=net.nbirn.srbclient.plugin\n1.3.1
+org.eclipse.pde=org.eclipse.pde\n3.4.0.v20080603
+org.eclipse.platform.doc.user=org.eclipse.platform.doc.user\n3.4.0.v20080612-1340
+edu.harvard.i2b2.eclipse.plugins.ontology=edu.harvard.i2b2.eclipse.plugins.ontology\n1.3.1
+org.eclipse.ui.intro.universal=org.eclipse.ui.intro.universal\n3.2.200.v20080508

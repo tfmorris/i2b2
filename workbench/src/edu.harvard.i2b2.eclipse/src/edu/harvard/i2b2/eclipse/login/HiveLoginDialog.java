@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import edu.harvard.i2b2.eclipse.util.Messages;
+
 
 public class HiveLoginDialog {
 
@@ -81,29 +83,29 @@ public class HiveLoginDialog {
 	 */
 	private void createSShell() {
 		sShell = new Shell(SWT.DIALOG_TRIM | SWT.MODELESS);
-		sShell.setText("Login to i2b2 Hive");
+		sShell.setText(Messages.getString("HiveLoginDialog.LoginText")); //$NON-NLS-1$
 		sShell.setSize(new Point(295, 233));
 		sShell.setLayout(null);
 		label = new Label(sShell, SWT.NONE);
 		label.setBounds(new Rectangle(78, 10, 143, 18));
-		label.setText("Enter User ID and Passwod");
+		label.setText(Messages.getString("HiveLoginDialog.EnterCredential")); //$NON-NLS-1$
 		label1 = new Label(sShell, SWT.NONE);
 		label1.setBounds(new Rectangle(17, 34, 49, 18));
-		label1.setText("Project:");
+		label1.setText(Messages.getString("HiveLoginDialog.Project")); //$NON-NLS-1$
 		createCombo();
 		label2 = new Label(sShell, SWT.NONE);
 		label2.setBounds(new Rectangle(18, 62, 62, 13));
-		label2.setText("User Name:");
+		label2.setText(Messages.getString("HiveLoginDialog.UserName")); //$NON-NLS-1$
 		text = new Text(sShell, SWT.BORDER);
 		text.setBounds(new Rectangle(87, 59, 185, 19));
 		label3 = new Label(sShell, SWT.NONE);
 		label3.setBounds(new Rectangle(18, 87, 59, 16));
-		label3.setText("Password:");
+		label3.setText(Messages.getString("HiveLoginDialog.Password")); //$NON-NLS-1$
 		text1 = new Text(sShell, SWT.BORDER);
 		text1.setBounds(new Rectangle(87, 86, 185, 19));
 		checkBox = new Button(sShell, SWT.CHECK);
 		checkBox.setBounds(new Rectangle(18, 113, 156, 19));
-		checkBox.setText("Start as demonstration only");
+		checkBox.setText(Messages.getString("HiveLoginDialog.InDemo")); //$NON-NLS-1$
 		checkBox.addSelectionListener(new org.eclipse.swt.events.SelectionAdapter() {
 			@Override
 			public void widgetSelected(org.eclipse.swt.events.SelectionEvent e) {
@@ -111,8 +113,8 @@ public class HiveLoginDialog {
 		});
 		button = new Button(sShell, SWT.NONE);
 		button.setBounds(new Rectangle(180, 112, 21, 18));
-		button.setFont(new Font(Display.getDefault(), "Tahoma", 10, SWT.BOLD));
-		button.setText("?");
+		button.setFont(new Font(Display.getDefault(), "Tahoma", 10, SWT.BOLD)); //$NON-NLS-1$
+		button.setText("?"); //$NON-NLS-1$
 		button.addSelectionListener(new org.eclipse.swt.events.SelectionAdapter() {
 			@Override
 			public void widgetSelected(org.eclipse.swt.events.SelectionEvent e) {
@@ -120,12 +122,12 @@ public class HiveLoginDialog {
 		});
 		button1 = new Button(sShell, SWT.NONE);
 		button1.setBounds(new Rectangle(147, 139, 54, 23));
-		button1.setText("Login");
+		button1.setText(Messages.getString("HiveLoginDialog.ButtonLogin")); //$NON-NLS-1$
 		button2 = new Button(sShell, SWT.NONE);
 		button2.setBounds(new Rectangle(217, 139, 50, 23));
-		button2.setText("Cancel");
+		button2.setText(Messages.getString("HiveLoginDialog.ButtonCancel")); //$NON-NLS-1$
 		label4 = new Label(sShell, SWT.SHADOW_NONE | SWT.WRAP | SWT.BORDER);
 		label4.setBounds(new Rectangle(4, 177, 281, 27));
-		label4.setText("http://phsi2b2appdev.mgh.harvard.edu:8080/i2b2/services/select");
+		label4.setText("http://phsi2b2appdev.mgh.harvard.edu:8080/i2b2/services/select"); //$NON-NLS-1$
 	}
 }

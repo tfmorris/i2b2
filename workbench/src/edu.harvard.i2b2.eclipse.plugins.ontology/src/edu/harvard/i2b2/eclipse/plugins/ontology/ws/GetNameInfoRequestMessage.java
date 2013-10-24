@@ -25,9 +25,7 @@ public class GetNameInfoRequestMessage extends OntologyRequestData {
 	public static final String THIS_CLASS_NAME = GetNameInfoRequestMessage.class.getName();
     private Log log = LogFactory.getLog(THIS_CLASS_NAME);	
 
-    private VocabRequestType vocabType;
-
-	public GetNameInfoRequestMessage() {}
+    public GetNameInfoRequestMessage() {}
 	
 	/**
 	 * Function to build get return type for a given request

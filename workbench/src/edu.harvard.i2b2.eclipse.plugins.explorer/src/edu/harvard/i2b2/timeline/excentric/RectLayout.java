@@ -33,7 +33,6 @@
 package edu.harvard.i2b2.timeline.excentric;
 
 import java.awt.*;
-import java.util.*;
 
 /**
  * A RectLayout tries to layout a list of labels as two left-aligned
@@ -103,7 +102,8 @@ class RectLayout extends LabelLayout {
    * @return	<code>OVERLAP</code> in case too many labels are on
    * the circle or <code>DONT_OVERLAP</code> if the layout succeeded.
    */
-  public int do_layout() {
+  @Override
+public int do_layout() {
     int nlabel = v.size();
 
     if (nlabel == 0) return DONT_OVERLAP;
@@ -151,8 +151,6 @@ class RectLayout extends LabelLayout {
   // Julia: only one column on the right hand size
   protected int compute_right(double order[]) {
     int nlabel = v.size();
-    int i;
-
     int max_right_width = compute_max_width(0, nlabel);
     align_right(order, 0);
     return DONT_OVERLAP;

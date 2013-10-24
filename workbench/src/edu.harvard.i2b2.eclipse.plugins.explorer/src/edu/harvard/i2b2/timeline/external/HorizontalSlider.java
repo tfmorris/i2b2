@@ -84,12 +84,14 @@ public class HorizontalSlider
      * Returns the current slider tick mark style.
      * @see #setTickStyle
      */
-    public int getTickStyle()
+    @Override
+	public int getTickStyle()
     {
         return style;
     }
 
-    public boolean mouseDown(Event e, int x, int y)
+    @Override
+	public boolean mouseDown(Event e, int x, int y)
     {
 
         moveThumb(x, true);
@@ -98,7 +100,8 @@ public class HorizontalSlider
 
     }
 
-    public boolean mouseDrag(Event e, int x, int y)
+    @Override
+	public boolean mouseDrag(Event e, int x, int y)
     {
 
         moveThumb(x, false);
@@ -153,7 +156,8 @@ public class HorizontalSlider
     /**
      * Reshapes the slider control.
      */
-    public void reshape(int x, int y, int w, int h)
+    @Override
+	public void reshape(int x, int y, int w, int h)
     {
         width  = w;
         height = h;
@@ -166,7 +170,8 @@ public class HorizontalSlider
     /**
      * Paints the slider control.
      */
-    public void paint(Graphics g)
+    @Override
+	public void paint(Graphics g)
     {
 
         if (tick.length == 0)
@@ -233,7 +238,8 @@ public class HorizontalSlider
 
     }
 
-    protected void doMove(int pos, boolean forcePost)
+    @Override
+	protected void doMove(int pos, boolean forcePost)
     {
         if (tick == null)
         {
@@ -337,7 +343,8 @@ abstract class HorizontalSliderThumb
 
 class HorizontalSliderThumbBoth extends HorizontalSliderThumb
 {
-    void draw(Graphics g, HorizontalSliderTick t)
+    @Override
+	void draw(Graphics g, HorizontalSliderTick t)
     {
         super.initDraw(g, t);
 
@@ -357,7 +364,8 @@ class HorizontalSliderThumbBoth extends HorizontalSliderThumb
 
 class HorizontalSliderThumbTop extends HorizontalSliderThumb
 {
-    void draw(Graphics g, HorizontalSliderTick t)
+    @Override
+	void draw(Graphics g, HorizontalSliderTick t)
     {
         super.initDraw(g, t);
 
@@ -381,7 +389,8 @@ class HorizontalSliderThumbTop extends HorizontalSliderThumb
 
 class HorizontalSliderThumbBot extends HorizontalSliderThumb
 {
-    void draw(Graphics g, HorizontalSliderTick t)
+    @Override
+	void draw(Graphics g, HorizontalSliderTick t)
     {
         super.initDraw(g, t);
 

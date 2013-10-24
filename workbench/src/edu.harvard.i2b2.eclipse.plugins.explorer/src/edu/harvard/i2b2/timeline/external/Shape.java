@@ -88,7 +88,8 @@ public abstract class Shape
     /**
      * Reshapes the shape.
      */
-    public void reshape(int x, int y, int width, int height)
+    @Override
+	public void reshape(int x, int y, int width, int height)
     {
         this.width  = width;
         this.height = height;
@@ -99,7 +100,8 @@ public abstract class Shape
     /**
      * Returns the current "preferred size" of the shape.
      */
-    public Dimension preferredSize()
+    @Override
+	public Dimension preferredSize()
     {
         return new Dimension(50, 50);
     }

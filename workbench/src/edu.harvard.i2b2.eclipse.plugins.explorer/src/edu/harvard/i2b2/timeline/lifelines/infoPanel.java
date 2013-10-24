@@ -12,13 +12,11 @@
 package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
-import java.applet.*;
 
 public class infoPanel extends Panel{
 
     private int width, height;
-    private Button adminInf, famHis;
-    private String name, addr, city, phone, dob, race, sex, weight;
+    private String name, sex;
 
     private int age;
     private String moreinfo;   // 3/28/98
@@ -47,14 +45,15 @@ public class infoPanel extends Panel{
 
     }
 
- public void paint(Graphics g){
+ @Override
+public void paint(Graphics g){
 
         g.setColor(Color.white); // was lightGray, had no effect...
         g.draw3DRect(0,0,width-1,height-1,false);
         g.draw3DRect(1,1,width-3,height-3,false);
 
         g.setFont(font);
-        int currX1 = 15, currX2 = 180;
+        int currX1 = 15;
         int currH = 20;
 
         //name = new String("Simpson, Homer");

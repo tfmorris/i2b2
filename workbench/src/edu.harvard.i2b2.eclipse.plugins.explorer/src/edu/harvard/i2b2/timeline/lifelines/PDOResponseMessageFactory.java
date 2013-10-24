@@ -22,45 +22,49 @@ import edu.harvard.i2b2.explorer.datavo.ExplorerJAXBUtil;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ResponseMessageType;
 //import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.PatientDataJAXBUnWrapHelper;
-import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.PatientDataType;
+import edu.harvard.i2b2.common.datavo.pdo.EventSet;
+import edu.harvard.i2b2.common.datavo.pdo.ObservationSet;
+import edu.harvard.i2b2.common.datavo.pdo.PatientDataType;
+import edu.harvard.i2b2.common.datavo.pdo.PatientSet;
+import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.PatientDataResponseType;
 
 public class PDOResponseMessageFactory {
 	
-	public List<PatientDataType.ObservationFactSet> getFactSetsFromResponseXML(String responseXML) throws Exception {
+	public List<ObservationSet> getFactSetsFromResponseXML(String responseXML) throws Exception {
 		JAXBUtil jaxbUtil = ExplorerJAXBUtil.getJAXBUtil();
 		
         JAXBElement jaxbElement  = jaxbUtil.unMashallFromString(responseXML);
         ResponseMessageType messageType = (ResponseMessageType)jaxbElement.getValue();       
         BodyType bodyType = messageType.getMessageBody();
-        PatientDataType patientDataType = 
-			(PatientDataType) new JAXBUnWrapHelper().getObjectByClass(bodyType.getAny(),PatientDataType.class);
+        PatientDataResponseType responseType = (PatientDataResponseType) new JAXBUnWrapHelper().getObjectByClass(bodyType.getAny(),PatientDataResponseType.class);
+        PatientDataType patientDataType = responseType.getPatientData();
 		
-		return patientDataType.getObservationFactSet();
+		return patientDataType.getObservationSet();
 	}
 	
-	public PatientDataType.PatientDimensionSet getPatientSetFromResponseXML(String responseXML) throws Exception {
+	public PatientSet getPatientSetFromResponseXML(String responseXML) throws Exception {
 		JAXBUtil jaxbUtil = ExplorerJAXBUtil.getJAXBUtil();
 		
         JAXBElement jaxbElement  = jaxbUtil.unMashallFromString(responseXML);
         ResponseMessageType messageType = (ResponseMessageType)jaxbElement.getValue();       
         BodyType bodyType = messageType.getMessageBody();
-        PatientDataType patientDataType = 
-			(PatientDataType) new JAXBUnWrapHelper().getObjectByClass(bodyType.getAny(),PatientDataType.class);
-		PatientDataType.PatientDimensionSet patientFactSet =  patientDataType.getPatientDimensionSet();
+        PatientDataResponseType responseType = (PatientDataResponseType) new JAXBUnWrapHelper().getObjectByClass(bodyType.getAny(),PatientDataResponseType.class);
+        PatientDataType patientDataType = responseType.getPatientData();
+		PatientSet patientFactSet =  patientDataType.getPatientSet();
 		
 		return patientFactSet;
 	}
 	
-	public PatientDataType.VisitDimensionSet getVisitSetFromResponseXML(String responseXML) throws Exception {
+	public EventSet getVisitSetFromResponseXML(String responseXML) throws Exception {
 		JAXBUtil jaxbUtil = ExplorerJAXBUtil.getJAXBUtil();
 		
         JAXBElement jaxbElement  = jaxbUtil.unMashallFromString(responseXML);
         ResponseMessageType messageType = (ResponseMessageType)jaxbElement.getValue();       
         BodyType bodyType = messageType.getMessageBody();
-        PatientDataType patientDataType = 
-			(PatientDataType) new JAXBUnWrapHelper().getObjectByClass(bodyType.getAny(),PatientDataType.class);
-		PatientDataType.VisitDimensionSet visitSet =  patientDataType.getVisitDimensionSet();
-		
+        PatientDataResponseType responseType = (PatientDataResponseType) new JAXBUnWrapHelper().getObjectByClass(bodyType.getAny(),PatientDataResponseType.class);
+        PatientDataType patientDataType = responseType.getPatientData();
+        EventSet visitSet =  patientDataType.getEventSet();
+		//Event evt = visitSet.getEvent().get(0);
 		return visitSet;
 	}
 	

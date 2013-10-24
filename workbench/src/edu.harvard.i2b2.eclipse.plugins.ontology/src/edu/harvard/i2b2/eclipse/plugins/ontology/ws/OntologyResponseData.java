@@ -76,7 +76,7 @@ abstract public class OntologyResponseData {
 	public String getXMLString(ConceptType concept)throws Exception{ 
 		StringWriter strWriter =  new StringWriter();
 		try {
-			OntologyJAXBUtil.getJAXBUtil().marshaller((Object)concept, strWriter);
+			OntologyJAXBUtil.getJAXBUtil().marshaller(concept, strWriter);
 		} catch (JAXBUtilException e) {
 			log.error("Error marshalling Ont concept");
 			throw new JAXBUtilException(e.getMessage(), e);

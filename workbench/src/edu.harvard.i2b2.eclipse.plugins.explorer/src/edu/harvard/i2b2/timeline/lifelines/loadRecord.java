@@ -15,7 +15,6 @@ package edu.harvard.i2b2.timeline.lifelines;
 import java.net.*;
 import java.io.*;
 import java.util.*;
-import java.lang.*;
 import java.awt.*;
 
 /*
@@ -38,7 +37,6 @@ public class loadRecord{
     static private MyDate max_date = new MyDate(1,1,1,0,0);
 
     static private MyDate min_date = new MyDate(12,31,9999,0,0);
-    private int recID = 0;
     private Hashtable storyList; // old idea, not used?
     private static MyDate today;
     private String name;
@@ -51,7 +49,7 @@ public class loadRecord{
     private BufferedReader d;   
     private StringTokenizer line_tokens;
     private String token, cause;
-    private MyDate start_date, end_date, event_date;
+    private MyDate start_date, end_date;
     private int penWidth, tupleID;
 
     // the simple contructor, called from the applet
@@ -116,13 +114,7 @@ public class loadRecord{
         int recID = 0;
         tupleID = 0;
 
-        int storyID = 0;
-
-	    // tokenizer used to split key/value pairs
-        StringTokenizer period;
-        String dose;
-
-		try {
+        try {
 
 		    String line;
 
@@ -205,7 +197,6 @@ public class loadRecord{
 
 			        recordTable.put(new Integer(recID++),currentFacet);
 		            tupleID = 0;
-		            storyID = 0;
 
 			    }
 			    else if (token.equals("%c")) {
@@ -602,7 +593,7 @@ public class loadRecord{
 			   }   // end if %agg
             }   // for loop
             if (toplevel)   {
-                currentFacet.addEventObject((genRecord)agg);
+                currentFacet.addEventObject(agg);
         	    facetList.put(new Integer(tupleID++), agg);
         	}
         }

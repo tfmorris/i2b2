@@ -449,7 +449,7 @@ public class Lib {
 			long now = dateNow.getTime();
 			if ((now-then) >= milliseconds) break;
 			//Thread.currentThread().yield();
-			try {Thread.currentThread().sleep(100);} catch (Exception e) {}
+			try {Thread.sleep(100);} catch (Exception e) {}
 
 		}
 	}
@@ -466,7 +466,7 @@ public class Lib {
 			long now = dateNow.getTime();
 			if ((now-then) >= milliseconds) break;
 			//Thread.currentThread().yield();
-			try {Thread.currentThread().sleep(100);} catch (Exception e) {}
+			try {Thread.sleep(100);} catch (Exception e) {}
 		}
 	}
 
@@ -843,8 +843,6 @@ public class Lib {
 
 		FileOutputStream outFileStream = null;
 		byte[] buffer;
-		int bytes_write;
-
 		// Make sure the specified source exists and is readable.
 //		if (dest.exists()) 
 //			throw new IOException("destination already exists: " + dest);

@@ -9,13 +9,13 @@
  */
 
 package edu.harvard.i2b2.timeline.labeling;
-import java.awt.Color;
 
 public class Frotate extends ImgFilt {
     int degree=0;
     double radians;
 
-    public void setparameter(String str, int i) {
+    @Override
+	public void setparameter(String str, int i) {
         switch(i) {
         case 0:
             try {
@@ -29,14 +29,13 @@ public class Frotate extends ImgFilt {
         }
     }
 
-    public int[] filter(int[] p1, int w, int h) {
+    @Override
+	public int[] filter(int[] p1, int w, int h) {
         int x, y;
-        int srcindex, destindex;
         int newy;
         int newx;
         double sine, cosine;
         int imagesize = w*h;
-        int bigimagesize;
         int vert_shift, horiz_shift;
         int new_index;
     	int biggestx, biggesty, smallesty;
@@ -137,7 +136,7 @@ public class Frotate extends ImgFilt {
 	}
 	degree = -degree;
 
-    radians = Math.PI * (double)degree / 180.0;
+    radians = Math.PI * degree / 180.0;
     sine = Math.sin(radians);
     cosine = Math.cos(radians);
 
@@ -174,7 +173,7 @@ public class Frotate extends ImgFilt {
 
 	degree = -degree;
 
-    radians = Math.PI * (double)degree / 180.0;
+    radians = Math.PI * degree / 180.0;
     sine = Math.sin(radians);
     cosine = Math.cos(radians);
 
@@ -185,7 +184,6 @@ public class Frotate extends ImgFilt {
 	new_height = biggesty - smallesty;
 	horiz_shift = biggestx - w;
 	vert_shift = biggesty;
-    bigimagesize = new_width * new_height;
     newpixels = new int[(new_width) * (new_height)];
     for(y=0;y<new_height;y++) {
         for(x=0;x<new_width;x++) {

@@ -14,6 +14,7 @@ package edu.harvard.i2b2.eclipse;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ActionFactory;
@@ -33,10 +34,12 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	// them
 	// in the fill methods. This ensures that the actions aren't recreated
 	// when fillActionBars is called with FILL_PROXY.
+	private IWorkbenchAction introAction;
 	private IWorkbenchAction exitAction;
 	private IWorkbenchAction helpAction;
 	private IWorkbenchAction aboutAction;
 	private IWorkbenchAction propertiesAction;
+    private IWorkbenchAction preferencesAction;    // from SQL Explorer
 	private IContributionItem views;
 	private IContributionItem perspectives;
 	
@@ -54,6 +57,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// Registering also provides automatic disposal of the actions when
 		// the window is closed.
 
+		introAction = ActionFactory.INTRO.create(window);
+		register(introAction);
+		
 		exitAction = ActionFactory.QUIT.create(window);
 		register(exitAction);
 		
@@ -70,6 +76,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		
 		perspectives = ContributionItemFactory.PERSPECTIVES_SHORTLIST.create(window);
 		
+        preferencesAction = ActionFactory.PREFERENCES.create(window);
 	}
 
 	@Override
@@ -79,7 +86,22 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		MenuManager fileMenu = new MenuManager("&File",
 				IWorkbenchActionConstants.M_FILE);
 		menuBar.add(fileMenu);
+        fileMenu.add(preferencesAction);
+        fileMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 		fileMenu.add(exitAction);
+		
+        // editMenu imported from SQL explorer
+		MenuManager editMenu = new MenuManager("&Edit", IWorkbenchActionConstants.M_EDIT);
+        // create edit menu
+        menuBar.add(editMenu);
+        editMenu.setVisible(false);  
+        
+        // navigateMenu imported from SQL explorer
+        MenuManager navigateMenu = new MenuManager("&Navigate", IWorkbenchActionConstants.M_NAVIGATE);
+        // navigate menu is used by text editor        
+        menuBar.add(navigateMenu);
+        navigateMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+        navigateMenu.setVisible(false);   
 		
 		MenuManager perspectivesMenu = new MenuManager("Open Perspectives", "perspectives");
 		perspectivesMenu.add(perspectives);
@@ -96,6 +118,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		MenuManager helpMenu = new MenuManager("&Help", "help");
 		helpMenu.add(helpAction);	
 		helpMenu.add(aboutAction);	
+		helpMenu.add(introAction);
 		menuBar.add(helpMenu);
 	}
 

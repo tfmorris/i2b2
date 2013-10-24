@@ -17,15 +17,9 @@ import java.net.*;
 public class picPanel extends Panel{
     private int width, height;
     private Image image1;
-    private record theApplet;
-    private String pictureFile;
-
     public picPanel(int width, int height,record theApplet,String pictureFile) {
         this.width = width;
         this.height = height;
-        this.theApplet = theApplet;
-        this.pictureFile = pictureFile;
-
         Toolkit toolkit = Toolkit.getDefaultToolkit();
 
         try {
@@ -40,7 +34,8 @@ public class picPanel extends Panel{
 		}
     }
 
-    public void paint(Graphics g){
+    @Override
+	public void paint(Graphics g){
         g.setColor(Color.black);
         g.drawRect(0,0,width-1,height-1);
         g.drawImage(image1, 0, 0, width-1,height-1, this);

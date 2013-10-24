@@ -14,12 +14,12 @@
  */
 package edu.harvard.i2b2.eclipse.plugins.explorer.views;
 
+import javax.swing.JOptionPane;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
-
-import edu.harvard.i2b2.explorer.TimelineSearchFrame;
 
 /**
  * @author wp066
@@ -44,7 +44,12 @@ public class SearchViewActionDelegate implements IViewActionDelegate {
 		//System.out.println("Timeline View Search Action.");
 		java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TimelineSearchFrame(view_.getRecord()).setVisible(true);
+                //new TimelineSearchFrame(view_.getRecord()).setVisible(true);
+            	if(view_.getRecord() == null) {
+            		JOptionPane.showMessageDialog(null, "The search dialog shows only when the timeline tab is active.");
+            		return;
+            	}
+            	view_.getRecord().showSearchFrame();
             }
         });
 	}

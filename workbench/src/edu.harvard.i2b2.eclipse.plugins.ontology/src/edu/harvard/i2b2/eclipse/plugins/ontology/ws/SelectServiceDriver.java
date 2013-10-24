@@ -43,7 +43,7 @@ public class SelectServiceDriver {
 	public Document callSelects(Document selectParameters){
 		Document results = null;
 		try{
-			java.net.URL endpoint = new java.net.URL(System.getProperty("ontologywebservice"));
+			//java.net.URL endpoint = new java.net.URL(System.getProperty("ontologywebservice"));
 			// make web service call depending upon query type
 		//	SelectServiceLocator locator = new SelectServiceLocator();
 		//	Select facade = locator.getSelect(endpoint);
@@ -113,11 +113,9 @@ public class SelectServiceDriver {
 	 * 
 	 */
     private void printResultsAsXML(org.w3c.dom.Document resultDoc){
-    	String result = null;
     	try{
     	    org.jdom.input.DOMBuilder builder = new org.jdom.input.DOMBuilder();
     	    org.jdom.Document jresultDoc = builder.build(resultDoc);
-    	    org.jdom.Namespace ns = jresultDoc.getRootElement().getNamespace();
     	    System.out.println(new XMLOutputter().outputString(jresultDoc));
     	}catch(Exception e) {
 			Logger.getLogger(THIS_CLASS_NAME).severe(e.getMessage());
@@ -134,7 +132,6 @@ public class SelectServiceDriver {
 	 */
     public String getNameFromDocument (org.w3c.dom.Document resultDoc){	
     	String name = null;
-    	String code = null;
     	try {
     		org.jdom.input.DOMBuilder builder = new org.jdom.input.DOMBuilder();
     		org.jdom.Document doc = builder.build(resultDoc);
@@ -147,7 +144,6 @@ public class SelectServiceDriver {
     	    	org.jdom.Element patientData = (org.jdom.Element) iterator.next();
        	    	org.jdom.Element table = (org.jdom.Element)patientData.getChild("i2b2", ns).clone();
        	    	name = table.getChildTextTrim("c_name", ns);
-       	    	code = table.getChildTextTrim("c_basecode", ns);
     	    }
     	}catch(Exception e) {
 			Logger.getLogger(THIS_CLASS_NAME).severe(e.getMessage());

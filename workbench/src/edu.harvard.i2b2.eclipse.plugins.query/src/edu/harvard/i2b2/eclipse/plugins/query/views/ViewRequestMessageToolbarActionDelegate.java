@@ -16,7 +16,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
-import edu.harvard.i2b2.query.QueryDisplayXmlMessageDialog;
+import edu.harvard.i2b2.query.ui.QueryDisplayXmlMessageDialog;
 
 /**
  * @author wp066

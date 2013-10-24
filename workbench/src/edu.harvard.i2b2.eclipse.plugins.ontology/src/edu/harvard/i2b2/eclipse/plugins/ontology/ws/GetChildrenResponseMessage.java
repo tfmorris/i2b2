@@ -9,10 +9,6 @@
  */
 package edu.harvard.i2b2.eclipse.plugins.ontology.ws;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.harvard.i2b2.ontclient.datavo.vdo.GetChildrenType;
 
 
 /**
@@ -22,11 +18,8 @@ import edu.harvard.i2b2.ontclient.datavo.vdo.GetChildrenType;
 public class GetChildrenResponseMessage extends OntologyResponseData {
 	
 	public static final String THIS_CLASS_NAME = GetChildrenResponseMessage.class.getName();
-    private Log log = LogFactory.getLog(THIS_CLASS_NAME);	
 
-    private GetChildrenType childrenType;
-
-	public GetChildrenResponseMessage() {}
+    public GetChildrenResponseMessage() {}
 	
 }
 	

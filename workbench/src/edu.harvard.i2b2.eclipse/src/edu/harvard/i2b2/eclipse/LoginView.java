@@ -13,7 +13,6 @@
 package edu.harvard.i2b2.eclipse;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -21,7 +20,7 @@ import java.net.URLConnection;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Properties;
+import javax.swing.JFrame;
 
 
 import org.apache.commons.logging.Log;
@@ -29,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.*;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.*;
@@ -39,30 +40,31 @@ import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
 import edu.harvard.i2b2.eclipse.login.*;
+import edu.harvard.i2b2.eclipse.util.Messages;
 
 /**
  *
  */
 
 public class LoginView extends ViewPart  {
-	public static final String ID = "edu.harvard.i2b2.eclipse.loginView";
+	public static final String ID = "edu.harvard.i2b2.eclipse.loginView"; //$NON-NLS-1$
 	public static String noteKey = null;
 
-	public static final String PREFIX = "edu.harvard.i2b2.eclipse"; 
-	public static final String LOGIN_VIEW_CONTEXT_ID = PREFIX + ".login_view_help_context";
+	public static final String PREFIX = "edu.harvard.i2b2.eclipse";  //$NON-NLS-1$
+	public static final String LOGIN_VIEW_CONTEXT_ID = PREFIX + ".login_view_help_context"; //$NON-NLS-1$
 
 	private static Log log = LogFactory.getLog(LoginView.class.getName());
 
 	private Composite top;
-	public String msTitle = ""; //i2b2 Workbench for Asthma Project";
-	public String msUsername = "";
-	public String msPassword = "";
+	public String msTitle = ""; //i2b2 Workbench for Asthma Project"; //$NON-NLS-1$
+	public String msUsername = ""; //$NON-NLS-1$
+	public String msPassword = ""; //$NON-NLS-1$
 	public static LoginView APP;
-	private String APP_PROD = "PRODUCTION"; //Production";
-	private String APP_TEST = "TEST";
+	private String APP_PROD = "PRODUCTION"; //Production"; //$NON-NLS-1$
+	private String APP_TEST = "TEST"; //$NON-NLS-1$
 	private String APP_CURRENT = APP_PROD;
-	private String helpURL = ""; //http://www.i2b2.org";	
-	private String logFileName = "i2b2log.html";
+	private String helpURL = ""; //http://www.i2b2.org";	 //$NON-NLS-1$
+	private String logFileName = "i2b2log.html"; //$NON-NLS-1$
 	private Color goColor;
 	private Color backColor;
 	private Composite banner;
@@ -72,15 +74,15 @@ public class LoginView extends ViewPart  {
 	private Label statusOvalLabel;
 	private StatusLabelPaintListener statusLabelPaintListener;
 	private Label statusLabel;
-	private String OS = System.getProperty("os.name").toLowerCase();
+	private String OS = System.getProperty("os.name").toLowerCase(); //$NON-NLS-1$
 
-	public static String BUTTON_TEXT_LOGIN =  "  Log in  ";
+	public static String BUTTON_TEXT_LOGIN =  Messages.getString("LoginView.ButtonLogIn"); //$NON-NLS-1$
 
-	public static String BUTTON_TEXT_LOGOUT = " Log out ";
+	public static String BUTTON_TEXT_LOGOUT = Messages.getString("LoginView.ButtonLogout"); //$NON-NLS-1$
 
 	public Button loginButton;
 
-	public String userLoginMode = "Login Mode";
+	public String userLoginMode = Messages.getString("LoginView.LoginMode"); //$NON-NLS-1$
 
 	//host webservice for application stored in crcnavigator.properties file 
 	public String webServiceName;
@@ -150,23 +152,26 @@ public class LoginView extends ViewPart  {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
+		log.info(Messages.getString("LoginView.PluginVersion")); //$NON-NLS-1$
 
 		parent.getShell();
 		userInfoBean = UserInfoBean.getInstance();
 		if(userInfoBean == null){
-			log.debug("user info bean is null");
+			log.debug("user info bean is null"); //$NON-NLS-1$
 			return;
 		}
 
 		// local variable to get system fonts and colors
 		Display display = parent.getDisplay();
-		final Font headerFont = new Font(display, "Tahoma", 12, SWT.BOLD);
-		final Font normalFont = new Font(display, "Tahoma", 12, SWT.NORMAL);
-		final Font buttonFont = new Font(display, "Tahoma", 9, SWT.NORMAL);
+		final Font headerFont = new Font(display, "Tahoma", 12, SWT.BOLD); //$NON-NLS-1$
+		final Font normalFont = new Font(display, "Tahoma", 12, SWT.NORMAL); //$NON-NLS-1$
+		final Font buttonFont = new Font(display, "Tahoma", 9, SWT.NORMAL); //$NON-NLS-1$
 
 		String environment = userInfoBean.getEnvironment();
-		if (!userInfoBean.getHelpURL().equals(""))
-			helpURL=userInfoBean.getHelpURL();
+		if (UserInfoBean.selectedProject().getWiki() !=null && ! UserInfoBean.selectedProject().getWiki().equals("")) //$NON-NLS-1$
+			helpURL=UserInfoBean.selectedProject().getWiki();
+		//if (userInfoBean.getHelpURL()!=null && !userInfoBean.getHelpURL().equals(""))
+		//	helpURL=userInfoBean.getHelpURL();
 		// set banner color
 		// if environment not specified defaults to development (dark gray)
 		APP_CURRENT = environment.toUpperCase();
@@ -182,10 +187,10 @@ public class LoginView extends ViewPart  {
 					SWT.COLOR_DARK_GRAY);
 		}
 
-		log.info("Currently running in: " + APP_CURRENT);
+		log.info("Currently running in: " + APP_CURRENT); //$NON-NLS-1$
 		final Color foreColor = display.getSystemColor(SWT.COLOR_BLACK);
 		warningColor = display.getSystemColor(SWT.COLOR_YELLOW);
-		
+
 		goColor = display.getSystemColor(SWT.COLOR_GREEN);
 		badColor = display.getSystemColor(SWT.COLOR_RED);
 
@@ -206,7 +211,7 @@ public class LoginView extends ViewPart  {
 		// The Banner itself is configured and layout is set
 		FormLayout bannerLayout = new FormLayout();
 		bannerLayout.marginWidth = 2;
-		if (OS.startsWith("windows"))
+		if (OS.startsWith("windows")) //$NON-NLS-1$
 			bannerLayout.marginHeight = 8;
 		else
 			bannerLayout.marginHeight = 18;
@@ -222,11 +227,11 @@ public class LoginView extends ViewPart  {
 		// the label on the left is added
 		titleLabel = new CLabel(banner, SWT.NO_FOCUS);
 		titleLabel.setBackground(backColor);
-		msTitle = System.getProperty("applicationName") + " Workbench for "+ System.getProperty("projectName") + " Project";
+		msTitle = System.getProperty("applicationName") + Messages.getString("LoginView.StatusTitle")+ UserInfoBean.selectedProject().getName(); //$NON-NLS-1$ //$NON-NLS-2$
 		titleLabel.setText(msTitle);
 		titleLabel.setFont(headerFont);
 		titleLabel.setForeground(foreColor);
-		titleLabel.setImage(new Image(display, LoginView.class.getResourceAsStream("big-hive.gif")));
+		titleLabel.setImage(new Image(display, LoginView.class.getResourceAsStream("big-hive.gif"))); //$NON-NLS-1$
 
 		// the general application area toolbar is added
 		titleToolBar = new ToolBar(banner, SWT.FLAT);
@@ -242,13 +247,13 @@ public class LoginView extends ViewPart  {
 		authorizationLabel.setAlignment(SWT.RIGHT);
 		authorizationLabel.setFont(normalFont);
 		authorizationLabel.setForeground(foreColor);
-		ArrayList<String> roles = (ArrayList<String>) userInfoBean.getProjectRoles(System.getProperty("projectName"));
+		ArrayList<String> roles = (ArrayList<String>) UserInfoBean.selectedProject().getRole();
 
-		String rolesStr = "";
+		String rolesStr = ""; //$NON-NLS-1$
 		if (roles != null)
 		{
 			for (String param :roles)
-				rolesStr += param + "\n";
+				rolesStr += param + "\n"; //$NON-NLS-1$
 			if (rolesStr.length() > 1)
 				rolesStr = rolesStr.substring(0, rolesStr.length()-1);
 		}
@@ -257,7 +262,7 @@ public class LoginView extends ViewPart  {
 		// the staus indicator is shown
 		statusLabel = new Label(banner, SWT.NO_FOCUS);
 		statusLabel.setBackground(backColor);
-		statusLabel.setText("Status:");
+		statusLabel.setText(Messages.getString("LoginView.StatusStatus")); //$NON-NLS-1$
 		statusLabel.setAlignment(SWT.RIGHT);
 		statusLabel.setFont(normalFont);
 		statusLabel.setForeground(foreColor);
@@ -308,17 +313,18 @@ public class LoginView extends ViewPart  {
 		// add status label paint listener so that it changes color
 		statusLabelPaintListener = new StatusLabelPaintListener();
 		statusOvalLabel.addPaintListener(statusLabelPaintListener);
+		statusLabelPaintListener.setOvalColor(goColor);
 
-		String cellStatus = getCellStatus();
-		if (cellStatus == null)
-		{
-			statusLabelPaintListener.setOvalColor(goColor);
-		}
-		else
-		{
-			statusOvalLabel.setToolTipText("Cells Unavailable:\n" + cellStatus);
-			statusLabelPaintListener.setOvalColor(warningColor);
-		}
+		getCellStatus(statusLabelPaintListener, statusOvalLabel);
+		//if (cellStatus == null)
+		//	{
+		//	statusLabelPaintListener.setOvalColor(goColor);
+		//}
+		//else
+		//	{
+		//	statusOvalLabel.setToolTipText(Messages.getString("LoginView.TooltipCellUnavailable") + cellStatus); //$NON-NLS-1$
+		//	statusLabelPaintListener.setOvalColor(warningColor);
+		//	}
 
 		statusOvalLabel.setSize(20,20);
 		statusOvalLabel.redraw();
@@ -326,8 +332,10 @@ public class LoginView extends ViewPart  {
 		// Help button is made
 		final Button rightButton = new Button(banner, SWT.PUSH | SWT.LEFT);
 		rightButton.setFont(buttonFont);
-		rightButton.setText(" Wiki ");
-
+		rightButton.setText(Messages.getString("LoginView.StatusWiki")); //$NON-NLS-1$
+		if(helpURL.equals("")) { //$NON-NLS-1$
+			rightButton.setEnabled(false);
+		}
 		rightButton.addSelectionListener(new SelectionAdapter() {
 
 			@Override
@@ -390,31 +398,60 @@ public class LoginView extends ViewPart  {
 		rightButtonFormData.right = new FormAttachment(100, -10);
 		rightButtonFormData.top = new FormAttachment(titleToolBar, 0, SWT.CENTER);
 		rightButton.setLayoutData(rightButtonFormData);
+
+		//property action
+		IAction propertyAction = new Action("Property") { //$NON-NLS-1$
+			@Override
+			public void run() {
+				log.info("[Login view] PM response: "+UserInfoBean.pmResponse()); //$NON-NLS-1$
+				JFrame frame = new DisplayXmlMessageDialog(UserInfoBean.pmResponse());
+				frame.setTitle(Messages.getString("LoginView.PMXMLResponse")); //$NON-NLS-1$
+				frame.setVisible(true);  
+			}
+		};
+
+		getViewSite().getActionBars().setGlobalActionHandler("properties", propertyAction); //$NON-NLS-1$
 	}
 
-	private String getCellStatus()
+	private void getCellStatus(StatusLabelPaintListener statusLabelPaintListener2, Label statusLabel)
 	{
 		StringBuffer result = new StringBuffer();
+		boolean coreDown = false;
+		if (userInfoBean.getCellList() == null)
+		{
+			statusLabelPaintListener.setOvalColor(badColor);
+			return;
+		}
 		for (String cellID: userInfoBean.getCellList())
 		{
 			try {
-			    URL url = new URL(userInfoBean.getCellDataUrl(cellID));
-			    URLConnection connection = url.openConnection();
-			    connection.connect();
+				URL url = new URL(userInfoBean.getCellDataUrl(cellID));
+				URLConnection connection = url.openConnection();
+				connection.connect();
 			} catch (MalformedURLException e) {     // new URL() failed
-			    log.debug(e.getMessage());
-			    result.append(userInfoBean.getCellName(cellID));
-			    result.append("\n");
+				log.debug(e.getMessage());
+				if (userInfoBean.isCoreCell(cellID))
+					coreDown = true;
+				result.append(userInfoBean.getCellName(cellID));
+				result.append("\n"); //$NON-NLS-1$
 			} catch (IOException e) {               // openConnection() failed
-			    log.debug(e.getMessage());
-			    result.append(userInfoBean.getCellName(cellID));
-			    result.append("\n");
+				log.debug(e.getMessage());
+				if (userInfoBean.isCoreCell(cellID))
+					coreDown = true;
+				result.append(userInfoBean.getCellName(cellID));
+				result.append("\n"); //$NON-NLS-1$
 			}
 		}
-		if (result.length() == 0)
-			return null;
-		else
-			return result.toString();
+
+		if (result.length() > 0)
+		{
+			statusOvalLabel.setToolTipText(Messages.getString("LoginView.TooltipCellUnavailable") + result.toString()); //$NON-NLS-1$
+
+			if (coreDown)
+				statusLabelPaintListener.setOvalColor(badColor);
+			else
+				statusLabelPaintListener.setOvalColor(warningColor);
+		}
 	}
 	/**
 	 * Passing the focus request to the viewer's control.

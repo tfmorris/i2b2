@@ -4,7 +4,7 @@ Bundle-Name: Log4j Wrapper
 Bundle-SymbolicName: edu.harvard.i2b2.eclipse.plugins.log
 Bundle-Version: 1.2.8
 Bundle-ClassPath: log4j-1.2.8.jar
-Bundle-Vendor: i2b2.mgh.harvard.edu
+Bundle-Vendor: i2b2.harvard.edu
 Bundle-Localization: plugin
 Eclipse-BuddyPolicy: registered
 Export-Package: org.apache.log4j,

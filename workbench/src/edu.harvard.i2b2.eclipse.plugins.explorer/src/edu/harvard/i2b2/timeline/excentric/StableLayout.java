@@ -32,9 +32,6 @@
   
 package edu.harvard.i2b2.timeline.excentric;
 
-import java.awt.*;
-import java.util.*;
-
 /**
  * A StableLayout tries to layout a list of labels as two left-aligned
  * columns of labels where the vertical order of labels is maintained.
@@ -53,7 +50,8 @@ class StableLayout extends RectLayout {
     super(width, height, column, sx);
   }
 
-  public int do_layout() {
+  @Override
+public int do_layout() {
     int nlabel = v.size();
 
     if (nlabel == 0) return DONT_OVERLAP;

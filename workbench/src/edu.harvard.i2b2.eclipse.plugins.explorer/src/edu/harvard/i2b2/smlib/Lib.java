@@ -101,8 +101,6 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.FileDialog;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.io.DataInputStream;
 import java.io.File;
@@ -125,7 +123,6 @@ import java.io.InputStreamReader;
 public class Lib {
   // error handling
   private static String sModule = "snm.library.Lib";
-  private static boolean mbURLSet = false;
   /**
 	* This class shouldn't be instantiated.
 	*/
@@ -1175,7 +1172,6 @@ public class Lib {
   * funtion read for Java 1.16.
   */
 	public static String read(File theFile) throws IOException {
-    int BUFFSIZE = 2048;
     boolean eof = false;
 		// Make sure the specified source exists and is readable.
 		if (!theFile.exists()) 

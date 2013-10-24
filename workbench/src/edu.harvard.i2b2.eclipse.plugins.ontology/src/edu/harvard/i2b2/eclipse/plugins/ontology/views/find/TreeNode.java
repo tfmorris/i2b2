@@ -71,7 +71,8 @@ public class TreeNode
     }
     
 
-    public String toString()
+    @Override
+	public String toString()
     {
       return this.data.getName();
     }
@@ -117,11 +118,11 @@ public class TreeNode
     }
     
 	public Thread getXMLData(TreeViewer viewer, NodeBrowser browser) {
-		final NodeBrowser theBrowser = browser;
 		final TreeNode theNode = this;
 		final TreeViewer theViewer = viewer;
 		final Display theDisplay = Display.getCurrent();
 		return new Thread() {
+			@Override
 			public void run(){
 				try {
 					theNode.updateChildren(theDisplay, theViewer);

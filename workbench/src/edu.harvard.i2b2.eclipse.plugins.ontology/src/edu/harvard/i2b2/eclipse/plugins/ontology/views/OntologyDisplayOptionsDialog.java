@@ -34,7 +34,8 @@ public class OntologyDisplayOptionsDialog extends Dialog {
     	
     }
       	
-    protected Control createDialogArea(Composite parent){
+    @Override
+	protected Control createDialogArea(Composite parent){
     	Composite comp = (Composite)super.createDialogArea(parent);
     	comp.getShell().setText("Navigate Terms Options");
     	
@@ -65,12 +66,14 @@ public class OntologyDisplayOptionsDialog extends Dialog {
     	return parent;
     }
     
-    protected void createButtonsForButtonBar(Composite parent){
+    @Override
+	protected void createButtonsForButtonBar(Composite parent){
     	super.createButtonsForButtonBar(parent);
     	createButton(parent, 2, "Reset to Defaults", false);
     }
     
-    protected void buttonPressed(int buttonId){
+    @Override
+	protected void buttonPressed(int buttonId){
     	// reset
     	if(buttonId == 2){
     		maximum.setText("200");

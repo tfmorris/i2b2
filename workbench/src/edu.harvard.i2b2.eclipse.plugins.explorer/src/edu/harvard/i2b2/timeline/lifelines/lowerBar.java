@@ -10,9 +10,7 @@
  */
 package edu.harvard.i2b2.timeline.lifelines;
 
-import java.applet.*;
 import java.awt.*;
-import java.lang.*;
 
 public class lowerBar extends Panel{
 
@@ -33,10 +31,10 @@ public class lowerBar extends Panel{
     public lowerBar(int width, int height,MyDate today) {
         this.width = width;
         this.height = height;
-        dateMin = record.theData.getMinDate();
-        dateMax = record.theData.getMaxDate();
-        validDateMin = record.theData.getMinDate();
-        validDateMax = record.theData.getMaxDate();
+        dateMin = loadRecord.getMinDate();
+        dateMax = loadRecord.getMaxDate();
+        validDateMin = loadRecord.getMinDate();
+        validDateMax = loadRecord.getMaxDate();
         aScale = new scale(width, validDateMin, validDateMax,today);
 
         validMin = 0; validMax = width;
@@ -60,19 +58,21 @@ public class lowerBar extends Panel{
         else if(type == MAXTHUMB || type == INIT){
             validDateMax = CoordToDate(validMax);
         }
-        record.theTabPanel.upBar.listen(validDateMin, validDateMax);
-        record.theTabPanel.theTimeLinePanel.listen(validDateMin, validDateMax);
+        mainPanel.upBar.listen(validDateMin, validDateMax);
+        mainPanel.theTimeLinePanel.listen(validDateMin, validDateMax);
     }
 
     public MyDate CoordToDate(int start){
-        return(dateMin.DateAfterMins((long)Math.round((double)diff * start / width)));
+        return(dateMin.DateAfterMins(Math.round((double)diff * start / width)));
     }
 
-    public void paint(Graphics g){
+    @Override
+	public void paint(Graphics g){
         repaint();
     }
 
-    public void update(Graphics g){
+    @Override
+	public void update(Graphics g){
         int strWidth;
         int tickHeight = 1;
 
@@ -88,7 +88,7 @@ public class lowerBar extends Panel{
            if(i == 0) strWidth = 0;
            else if(i == aScale.n_ticks)
                 strWidth = fontMetrics.stringWidth(aScale.theLabelString[i]);
-           else strWidth = (int)(fontMetrics.stringWidth(aScale.theLabelString[i])/2);
+           else strWidth = (fontMetrics.stringWidth(aScale.theLabelString[i])/2);
            g.drawString(aScale.theLabelString[i], aScale.theTicks[i] - strWidth,
                  fontMetrics.getHeight() + 1);
         }

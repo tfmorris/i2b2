@@ -19,6 +19,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 
+import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.GetChildrenResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.OntServiceDriver;
 import edu.harvard.i2b2.ontclient.datavo.i2b2message.StatusType;
@@ -68,7 +69,8 @@ public class TreeNode
     }
     
 
-    public String toString()
+    @Override
+	public String toString()
     {
       return this.data.getName();
     }
@@ -116,11 +118,11 @@ public class TreeNode
     }
     
 	public Thread getXMLData(TreeViewer viewer, NodeBrowser browser) {
-		final NodeBrowser theBrowser = browser;
 		final TreeNode theNode = this;
 		final TreeViewer theViewer = viewer;
 		final Display theDisplay = Display.getCurrent();
 		return new Thread() {
+			@Override
 			public void run(){
 				try {
 					theNode.updateChildren(theDisplay, theViewer);
@@ -259,35 +261,8 @@ public class TreeNode
     	}
     }
     
-/*	public Thread getCategories(TreeViewer viewer, NodeBrowser browser) {
-		final NodeBrowser theBrowser = browser;
-		final TreeNode theRoot = this;
-		final TreeViewer theViewer = viewer;
-		final Display theDisplay = Display.getCurrent();
-		return new Thread() {
-			public void run(){
-				try {
-					log.info("calling updateCategories");
-					theRoot.updateCategories(theDisplay, theViewer);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					System.setProperty("statusMessage", e.getMessage());					
-				}
-				theDisplay.syncExec(new Runnable() {
-					public void run() {
-						theViewer.expandToLevel(theRoot, 1);
-						theViewer.refresh(theRoot);
-						Long time = System.currentTimeMillis();
-						log.info("Done refreshing " + time);
-				//		theBrowser.refresh();
-					}
-				});
-			}
-		};
-	}*/
- 
+
 	public void getCategories(TreeViewer viewer, NodeBrowser browser) {
-		final NodeBrowser theBrowser = browser;
 		final TreeNode theRoot = this;
 		final TreeViewer theViewer = viewer;
 		final Display theDisplay = Display.getCurrent();
@@ -326,14 +301,6 @@ public class TreeNode
 				if (procStatus.getType().equals("ERROR")){
 
 					System.setProperty("errorMessage",  procStatus.getValue());				
-//					theDisplay.syncExec(new Runnable() {
-//						public void run() {
-//							MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
-//							mBox.setText("Please Note ...");
-//							mBox.setMessage("Server reports: " +  System.getProperty("statusMessage"));
-//							int result = mBox.open();
-//						}
-//					});
 					return;
 				}	
 				procStatus.setType("DONE");
@@ -344,31 +311,12 @@ public class TreeNode
     	} catch (AxisFault e) {
     		log.error(e.getMessage());
     		System.setProperty("errorMessage",  "Ontology cell is unavailable");
-    		
-    	//	((TreeNode)(this.getChildren().get(0))).getData().setName("ONTOLOGY_SERVICE_DOWN");
-//    		theDisplay.syncExec(new Runnable() {
-//    			public void run() {
-//    				MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
-//    				mBox.setText("Please Note ...");
-//    				mBox.setMessage("Unable to make a connection to the remote server\n" +  
-//    				"This is often a network error, please try again");
-//    				int result = mBox.open();
-//    			}
-//    		});
+    	} catch (I2B2Exception e) {
+    		log.error(e.getMessage());
+    		System.setProperty("errorMessage", e.getMessage());
 		} catch (Exception e) {
     		log.error(e.getMessage());
     		System.setProperty("errorMessage",  "Remote server is unavailable");
-//    		((TreeNode)(this.getChildren().get(0))).getData().setName("REMOTE_SERVER_ERROR");
-//			theDisplay.syncExec(new Runnable() {
-//				public void run() {
-//					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
-//					MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
-//					mBox.setText("Please Note ...");
-//					mBox.setMessage("Error message delivered from the remote server\n" +  
-//					"You may wish to retry your last action");
-//					int result = mBox.open();
-//				}
-//			});	
 		}
     }
 

@@ -31,10 +31,7 @@ public class GetCategoriesRequestMessage extends OntologyRequestData {
 	public static final String THIS_CLASS_NAME = GetCategoriesRequestMessage.class.getName();
     private Log log = LogFactory.getLog(THIS_CLASS_NAME);	
 
-    private GetReturnType returnType;
-
-
-	public GetCategoriesRequestMessage() {}
+    public GetCategoriesRequestMessage() {}
 	
 	/**
 	 * Function to build get return type for a given request

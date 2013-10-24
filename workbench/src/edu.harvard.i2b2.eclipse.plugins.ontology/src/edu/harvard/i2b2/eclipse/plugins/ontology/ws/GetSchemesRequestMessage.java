@@ -26,9 +26,7 @@ public class GetSchemesRequestMessage extends OntologyRequestData {
 	public static final String THIS_CLASS_NAME = GetSchemesRequestMessage.class.getName();
     private Log log = LogFactory.getLog(THIS_CLASS_NAME);	
 
-    private GetReturnType returnType;
-
-	public GetSchemesRequestMessage() {}
+    public GetSchemesRequestMessage() {}
 	
 	/**
 	 * Function to build get return type for a given request

@@ -1,0 +1,2844 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 11 (filtered)">
+<title>i2b2 Import Data View</title>
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Helvetica;
+	panose-1:2 11 6 4 2 2 2 2 2 4;}
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Cambria;
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+h1
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:16.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+h2
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-weight:bold;
+	font-style:italic;}
+h3
+	{margin-right:0in;
+	margin-left:0in;
+	font-size:13.5pt;
+	font-family:"Times New Roman";
+	font-weight:bold;}
+h4
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Times New Roman";
+	font-weight:bold;}
+p.MsoIndex1, li.MsoIndex1, div.MsoIndex1
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:12.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex2, li.MsoIndex2, div.MsoIndex2
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:24.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex3, li.MsoIndex3, div.MsoIndex3
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex4, li.MsoIndex4, div.MsoIndex4
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:48.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex5, li.MsoIndex5, div.MsoIndex5
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:60.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex6, li.MsoIndex6, div.MsoIndex6
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex7, li.MsoIndex7, div.MsoIndex7
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:84.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex8, li.MsoIndex8, div.MsoIndex8
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:96.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex9, li.MsoIndex9, div.MsoIndex9
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.5in;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoToc1, li.MsoToc1, div.MsoToc1
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	text-transform:uppercase;
+	font-weight:bold;}
+p.MsoToc2, li.MsoToc2, div.MsoToc2
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:12.0pt;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	font-variant:small-caps;}
+p.MsoToc3, li.MsoToc3, div.MsoToc3
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:24.0pt;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	font-style:italic;}
+p.MsoToc4, li.MsoToc4, div.MsoToc4
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc5, li.MsoToc5, div.MsoToc5
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:48.0pt;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc6, li.MsoToc6, div.MsoToc6
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:60.0pt;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc7, li.MsoToc7, div.MsoToc7
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc8, li.MsoToc8, div.MsoToc8
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:84.0pt;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc9, li.MsoToc9, div.MsoToc9
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:96.0pt;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoFootnoteText, li.MsoFootnoteText, div.MsoFootnoteText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:Arial;}
+p.MsoCommentText, li.MsoCommentText, div.MsoCommentText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:Arial;}
+p.MsoIndexHeading, li.MsoIndexHeading, div.MsoIndexHeading
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.MsoCaption, li.MsoCaption, div.MsoCaption
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	font-size:10.0pt;
+	font-family:Calibri;
+	font-weight:bold;}
+p.MsoTof, li.MsoTof, div.MsoTof
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+span.MsoFootnoteReference
+	{vertical-align:super;}
+span.MsoEndnoteReference
+	{vertical-align:super;}
+p.MsoEndnoteText, li.MsoEndnoteText, div.MsoEndnoteText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:Arial;}
+p.MsoToa, li.MsoToa, div.MsoToa
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:12.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoMacroText, li.MsoMacroText, div.MsoMacroText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";}
+p.MsoToaHeading, li.MsoToaHeading, div.MsoToaHeading
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.MsoListBullet2, li.MsoListBullet2, div.MsoListBullet2
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.55in;
+	margin-bottom:.0001pt;
+	text-indent:-.1in;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoTitle, li.MsoTitle, div.MsoTitle
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	text-align:center;
+	font-size:16.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+	{margin:0in;
+	margin-bottom:.0001pt;
+	background:navy;
+	font-size:10.0pt;
+	font-family:Tahoma;}
+p
+	{margin-right:0in;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+tt
+	{font-family:"Courier New";}
+p.MsoCommentSubject, li.MsoCommentSubject, div.MsoCommentSubject
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.MsoAcetate, li.MsoAcetate, div.MsoAcetate
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:8.0pt;
+	font-family:Tahoma;}
+p.jdheading1, li.jdheading1, div.jdheading1
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:18.0pt;
+	font-family:Arial;
+	color:navy;
+	font-weight:bold;}
+p.jdnormal, li.jdnormal, div.jdnormal
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.jdchapternumber, li.jdchapternumber, div.jdchapternumber
+	{margin:0in;
+	margin-bottom:.0001pt;
+	text-align:right;
+	font-size:72.0pt;
+	font-family:Arial;
+	color:navy;
+	font-weight:bold;}
+p.jdchapterheading, li.jdchapterheading, div.jdchapterheading
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:12.0pt;
+	margin-left:0in;
+	text-align:right;
+	line-height:150%;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:18.0pt;
+	font-family:Arial;
+	color:navy;
+	font-weight:bold;}
+p.jdheading2, li.jdheading2, div.jdheading2
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.jdheading3, li.jdheading3, div.jdheading3
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.jdtable, li.jdtable, div.jdtable
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:Arial;}
+p.jdnormalindent1, li.jdnormalindent1, div.jdnormalindent1
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.jdlistnumbers1, li.jdlistnumbers1, div.jdlistnumbers1
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.5in;
+	text-indent:-.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.BulletedListJD, li.BulletedListJD, div.BulletedListJD
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.Normal2, li.Normal2, div.Normal2
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.NormalIndent1, li.NormalIndent1, div.NormalIndent1
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.StyleBulletedListJDArial11pt, li.StyleBulletedListJDArial11pt, div.StyleBulletedListJDArial11pt
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.StyleHeading1Right, li.StyleHeading1Right, div.StyleHeading1Right
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	text-align:right;
+	page-break-after:avoid;
+	font-size:18.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.StyleHeading412pt, li.StyleHeading412pt, div.StyleHeading412pt
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.Style1, li.Style1, div.Style1
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:18.0pt;
+	font-family:Arial;
+	color:navy;
+	font-weight:bold;}
+p.SuperTitle, li.SuperTitle, div.SuperTitle
+	{margin-top:48.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-align:right;
+	border:none;
+	padding:0in;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.jdwebheading1, li.jdwebheading1, div.jdwebheading1
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:Calibri;
+	font-weight:bold;}
+p.jdwebheading2, li.jdwebheading2, div.jdwebheading2
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:14.0pt;
+	font-family:Cambria;
+	color:#365F91;}
+p.jdwebheading3, li.jdwebheading3, div.jdwebheading3
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:Cambria;}
+p.jdwebnormal, li.jdwebnormal, div.jdwebnormal
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdwebheading4, li.jdwebheading4, div.jdwebheading4
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:10.0pt;
+	font-family:Cambria;
+	text-transform:uppercase;}
+p.jdwebfiguretitle, li.jdwebfiguretitle, div.jdwebfiguretitle
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:Calibri;
+	font-weight:bold;}
+p.jdwebheading5, li.jdwebheading5, div.jdwebheading5
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:10.0pt;
+	font-family:Cambria;
+	font-weight:bold;}
+p.jdwebtable, li.jdwebtable, div.jdwebtable
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:Calibri;}
+p.jdwebchapterheading, li.jdwebchapterheading, div.jdwebchapterheading
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:Helvetica;
+	font-weight:bold;}
+p.jdwebbullets, li.jdwebbullets, div.jdwebbullets
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdweblistnumbers, li.jdweblistnumbers, div.jdweblistnumbers
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdwebheading7, li.jdwebheading7, div.jdwebheading7
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:9.0pt;
+	font-family:Cambria;
+	text-transform:uppercase;}
+p.jdwebheading8, li.jdwebheading8, div.jdwebheading8
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:9.0pt;
+	font-family:Cambria;
+	text-transform:uppercase;
+	font-style:italic;
+	text-decoration:underline;}
+p.jdwebtablelistnumber, li.jdwebtablelistnumber, div.jdwebtablelistnumber
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.15in;
+	text-indent:-.15in;
+	font-size:10.0pt;
+	font-family:Calibri;}
+p.jdwebemphasis, li.jdwebemphasis, div.jdwebemphasis
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	font-size:11.0pt;
+	font-family:Calibri;
+	font-style:italic;}
+p.jdwebfiguredescription, li.jdwebfiguredescription, div.jdwebfiguredescription
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:Calibri;}
+p.StylejdwebfiguretitleNotBold, li.StylejdwebfiguretitleNotBold, div.StylejdwebfiguretitleNotBold
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:Calibri;}
+p.jdwebheading6, li.jdwebheading6, div.jdwebheading6
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:10.0pt;
+	font-family:Cambria;
+	text-decoration:underline;}
+p.jdwebnormalindent, li.jdwebnormalindent, div.jdwebnormalindent
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.5in;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.Stylejdlistnumbers1CalibriBefore0ptAfter0pt, li.Stylejdlistnumbers1CalibriBefore0ptAfter0pt, div.Stylejdlistnumbers1CalibriBefore0ptAfter0pt
+	{margin:0in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdweblistbullet, li.jdweblistbullet, div.jdweblistbullet
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.StylejdwebnormalLeft05, li.StylejdwebnormalLeft05, div.StylejdwebnormalLeft05
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.5in;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdtocheading, li.jdtocheading, div.jdtocheading
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:12.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:12.0pt;
+	font-family:Helvetica;
+	font-weight:bold;}
+p.Stylejdweblistnumbersindent, li.Stylejdweblistnumbersindent, div.Stylejdweblistnumbersindent
+	{margin:0in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdweblistletters, li.jdweblistletters, div.jdweblistletters
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	font-size:11.0pt;
+	font-family:Calibri;}
+span.jdwebnormalChar
+	{font-family:Calibri;}
+span.jdwebfiguretitleChar
+	{font-family:Calibri;
+	font-weight:bold;}
+span.StylejdwebfiguretitleNotBoldChar
+	{font-family:Calibri;
+	font-weight:bold;}
+span.Heading1Char
+	{font-family:Arial;
+	font-weight:bold;}
+span.Heading2Char
+	{font-family:Arial;
+	font-weight:bold;
+	font-style:italic;}
+p.paragraphstyle, li.paragraphstyle, div.paragraphstyle
+	{margin:0in;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	line-height:15.0pt;
+	font-size:11.5pt;
+	font-family:Arial;
+	color:white;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US link=blue vlink=purple>
+
+<div class=Section1>
+
+<p class=jdwebchapterheading><a name="_Toc228775932">i2b2 Import Data View</a></p>
+
+<p class=jdwebnormal>The Import Data view is designed to assist users in
+uploading data into the i2b2 database.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid windowtext 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdtocheading><a name="_Toc222025454">Table of Contents</a></p>
+
+</div>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc228775932">i2b2 Import
+Data View<span style='color:windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>1</span></a></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc228775933">Introduction<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc228775934">Layout of the Import Wizard
+Tab<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775935">Choose Data
+Section<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>3</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775936">Verify Data
+Section<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc228775937">Observation
+Tab<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc228775938">Patient
+Mapping Tab<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc228775939">Event
+Mapping Tab<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>5</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775940">Upload Data
+Section<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>6</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc228775941">Layout of the Import Status
+Tab<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>6</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775942">Refresh
+Button<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>8</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc228775943">Layout of the Options Tab<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>8</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775944">Encryption
+Fields<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>9</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc228775945">Encrypt
+Mapped Numbers<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>10</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc228775946">Encrypt Text
+Fields<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>10</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc228775947">Encrypt
+Files<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>10</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775948">Create
+Patient and Visit Number Fields<span style='color:windowtext;display:none;
+text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>10</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc228775949">When patient
+number not found, make a new one<span style='color:windowtext;display:none;
+text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>10</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc228775950">When visit
+number not found, make a new one<span style='color:windowtext;display:none;
+text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>10</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775951">Number of
+records per batch<span style='color:windowtext;display:none;text-decoration:
+none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>10</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc228775952">Access / Security<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>11</span></a></span></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc228775953">Import Files<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>11</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc228775954">File Types<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>11</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775955">CSV Files<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>11</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775956">XCEDE Files<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>12</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775957">Database
+Files<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>12</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc228775958">Delimiters<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>12</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775959">Field
+Delimiters<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>12</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc228775960">Text
+Qualifier<span style='color:windowtext;display:none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>12</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775961">End of Line
+Delimiters<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>13</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc228775962">Data Types<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>13</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775963">Observation<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>13</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775964">Patient
+Mapping<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>14</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775965">Event
+Mapping<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>15</span></a></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc228775966">Import
+Process<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>16</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc228775967">Import Data<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>16</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775968">Choose Data<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>16</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc228775969">Import
+Wizard<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>16</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775970">Verify Data<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>24</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775971">Upload Data<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>25</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc228775972">Import Status<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>26</span></a></span></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc228775973">Append Flag<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>26</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc228775974">Append Flag
+= True<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>26</span></a></span></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading1><a name="_Toc228775933">Introduction</a></p>
+
+<p class=jdwebnormal>The import data view is a tool for users to upload data
+into the i2b2 database. The type of data that can be uploaded includes;
+observations, patients and events.</p>
+
+<p class=jdwebnormal>The import data view is comprised of three different tabs,
+each of which has a unique function. The <b>Import Wizard tab</b> is used to
+map the data. The <b>Import Status tab</b> is used to view the status of the
+upload batches. The <b>Options tab</b> is used to set up the user preferences
+for the batch being uploaded. </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc228775934">Layout of the Import Wizard Tab</a></p>
+
+</div>
+
+<p class=jdwebnormal>The <b>Import Wizard tab</b> is where the data to be
+imported is mapped, the data is verified and the process of importing is
+started.  The view is comprised of three sections; (1) Choose data, (2) Verify
+Data and (3) Upload data.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=347 height=634
+src="i2b2_import_index_files/image001.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 1     Import Wizard Tab</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775935">Choose Data Section</a></p>
+
+<p class=jdwebnormal>The first step in the import process is to identify and
+map the data to be imported. Users can do this by either using the import
+wizard or by dragging a set of patient data from the <b>Pulmonary</b> <b>view</b>.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: At the
+time the only view that can be used to drag patient data from is the pulmonary
+view.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775936">Verify Data Section</a></p>
+
+<p class=jdwebnormal>The second step is to verify the data being imported is
+mapped correctly.  In this section there are three tabs; (1) Observation, (2)
+Patient Mapping, and (3) Event Mapping.  The type of data being uploaded will
+determine which tab will be used to verify the data.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc228775937">Observation Tab</a></p>
+
+<p class=jdwebnormal>The <b>Observation tab</b> displays the observations to be
+uploaded.  The columns that appear are dependent on the data that is being
+uploaded.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=290 height=374
+src="i2b2_import_index_files/image002.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 2     Verify Observations</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc228775938">Patient Mapping Tab</a></p>
+
+<p class=jdwebnormal>The <b>Patient Mapping tab</b> displays the patients to be
+uploaded.  The columns that appear are dependent on the data that is being
+uploaded.</p>
+
+<p class=jdwebnormal style='margin-left:0in'>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=298 height=376
+src="i2b2_import_index_files/image003.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 3     Verify Patients</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc228775939">Event Mapping Tab</a></p>
+
+<p class=jdwebnormal>The <b>Event Mapping</b> <b>tab</b> displays the events to
+be uploaded.  The columns that appear are dependent on the data that is being
+uploaded.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: Events
+are also known as encounters.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=295 height=376
+src="i2b2_import_index_files/image004.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 4     Verify Events</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775940">Upload Data Section</a></p>
+
+<p class=jdwebnormal>The third and final step in the upload process is to start
+it. This is done by clicking on the upload button in the Upload Data section. 
+A progress bar is displayed and will be activated once the upload process has
+begun.  </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=319 height=110
+src="i2b2_import_index_files/image005.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 5     Upload Data</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc228775941">Layout of the Import Status Tab</a></p>
+
+</div>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=600 height=409
+src="i2b2_import_index_files/image006.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 6     Import Status Tab</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='margin-left:17.4pt;border-collapse:collapse;border:none'>
+ <tr>
+  <td width=144 valign=top style='width:108.2pt;border:solid #999999 1.0pt;
+  background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Column
+  Name</span></b></p>
+  </td>
+  <td width=460 valign=top style='width:344.65pt;border:solid #999999 1.0pt;
+  border-left:none;background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Description
+  / Use</span></b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:108.2pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Upload
+  ID</span></b></p>
+  </td>
+  <td width=460 valign=top style='width:344.65pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  unique identifier assigned to the batch when the data was uploaded to the
+  table.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:108.2pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Start</span></b></p>
+  </td>
+  <td width=460 valign=top style='width:344.65pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the upload process started.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:108.2pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Status</span></b></p>
+  </td>
+  <td width=460 valign=top style='width:344.65pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Displays
+  where the batch is in the upload process.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:108.2pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Observation
+  Sent</span></b></p>
+  </td>
+  <td width=460 valign=top style='width:344.65pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Displays
+  the number of observation records included in the batch <i>to be</i> uploaded.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:108.2pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Observation
+  Loaded</span></b></p>
+  </td>
+  <td width=460 valign=top style='width:344.65pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Displays
+  the number of observation records in the batch that <i>were</i> loaded into
+  the table.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:108.2pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Event
+  ID Set Sent</span></b></p>
+  </td>
+  <td width=460 valign=top style='width:344.65pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Displays
+  the number of event records included in the batch <i>to be</i> uploaded.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:108.2pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Event
+  ID Set Loaded</span></b></p>
+  </td>
+  <td width=460 valign=top style='width:344.65pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Displays
+  the number of event records in the batch that <i>were</i> loaded into the
+  table.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:108.2pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Patient
+  ID Set Sent</span></b></p>
+  </td>
+  <td width=460 valign=top style='width:344.65pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Displays
+  the number of patient records included in the batch <i>to be</i> uploaded.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:108.2pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Patient
+  ID Set Loaded</span></b></p>
+  </td>
+  <td width=460 valign=top style='width:344.65pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Displays
+  the number of patient records in the batch that <i>were</i> loaded into the
+  table.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=144 valign=top style='width:108.2pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>End</span></b></p>
+  </td>
+  <td width=460 valign=top style='width:344.65pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the upload process ended.</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775942">Refresh Button</a></p>
+
+<p class=jdwebnormal>Clicking on the Refresh button will force the view to
+refresh and display the latest status of the upload batches.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc228775943">Layout of the Options Tab</a></p>
+
+</div>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=347 height=634
+src="i2b2_import_index_files/image007.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 7     Options Tab</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775944">Encryption Fields</a></p>
+
+<p class=jdwebnormal>In order to comply with confidentiality standards, patient
+identifying data must be encrypted. There are three areas that can be
+encrypted; (1) Mapped Numbers, (2) Text Fields and (3) Files.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc228775945">Encrypt Mapped Numbers</a></p>
+
+<p class=jdwebnormal><b>Mapped numbers</b> are the number fields that <i>link</i>
+information in one table to another table. Some examples are the <b>patient_num</b>
+field and the <b>encounter_num</b> field.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc228775946">Encrypt Text Fields</a></p>
+
+<p class=jdwebnormal><b>Text Fields</b> that are encrypted are the blob data
+type.  An example of what may be in a text field is a patient note or report
+for a radiology exam.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc228775947">Encrypt Files</a></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775948">Create Patient and Visit Number
+Fields</a></p>
+
+<p class=jdwebnormal>When the data being loaded does not have an existing
+patient and/or encounter number, users can choose to have the system randomly
+generate one. </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc228775949">When patient number not found,
+make a new one</a></p>
+
+<p class=jdwebnormal>A check mark at this field means the system will randomly
+generate an alphanumeric ID for the patient_id and assign the patient_source
+for the new ID. </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc228775950">When visit number not found,
+make a new one</a></p>
+
+<p class=jdwebnormal>A check mark at this field means the system will randomly
+generate an alphanumeric ID for the encounter_id and assign the
+encounter_source for the new ID.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775951">Number of records per batch</a></p>
+
+<p class=jdwebnormal>This field is used to specify the number of records to be
+uploaded in a single batch.  If the number of records in a file exceeds the
+number of records defined per batch, then the system will continue to generate
+additional batches until all the records are uploaded.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>Example: </p>
+
+<p class=jdwebnormalindent>Number of records per batch: 10000</p>
+
+<p class=jdwebnormalindent>Number of records in the import file: 35000</p>
+
+<p class=jdwebnormalindent>&nbsp;</p>
+
+<p class=jdwebnormalindent>In this example, the system will create a total of 4
+batches. The first three batches will contain 10000 records and the fourth one will
+contain the remaining 5000 records.</p>
+
+<p class=jdwebnormalindent style='margin-left:0in'>&nbsp;</p>
+
+<p class=jdwebnormalindent style='margin-left:0in'>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc228775952">Access / Security</a></p>
+
+</div>
+
+<p class=jdwebnormal>The import feature is only available to those users who have
+been set up with the role of manager.  </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: Roles
+are set up in the i2b2 project management module.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading1><a name="_Toc228775953">Import Files</a></p>
+
+<p class=jdwebnormal>This section contains information about the import files. 
+It describes the different types of files, delimiters and the data types.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc228775954">File Types</a></p>
+
+</div>
+
+<p class=jdwebnormal>In the import tool there are three different file types
+listed. At this time only one is available for use. Although only one is in use
+at this time, all three are defined below.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775955">CSV Files</a></p>
+
+<p class=jdwebnormal><b>Comma-separated values (CSV) file</b> is used when
+importing text files.  Each line in the file corresponds to a row in a table. 
+The fields in each line are separated by a comma or some other delimiter. Each
+field represents a column in the table.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><u>Example:</u></i></b> Simple CSV file containing
+patient information.</p>
+
+<p class=jdwebnormal><i>&nbsp;</i></p>
+
+<p class=jdwebnormal><i>File format:</i></p>
+
+<p class=jdwebnormal>patient_id,patient_id_source,patient_id_status,patient_num,sourcesystem_cd</p>
+
+<p class=jdwebnormal>123456,BWH,A,000123,BICS</p>
+
+<p class=jdwebnormal>987654,MGH,A,000004,PACS</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><i>Table format:</i></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='margin-left:.25in;border-collapse:collapse;border:none'>
+ <tr>
+  <td width=128 valign=top style='width:95.75pt;border:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>patient_id</p>
+  </td>
+  <td width=128 valign=top style='width:95.75pt;border:solid windowtext 1.0pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>patient_id_source</p>
+  </td>
+  <td width=128 valign=top style='width:95.75pt;border:solid windowtext 1.0pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>patient_id_status</p>
+  </td>
+  <td width=128 valign=top style='width:95.75pt;border:solid windowtext 1.0pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>patient_num</p>
+  </td>
+  <td width=128 valign=top style='width:95.8pt;border:solid windowtext 1.0pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>sourcesystem_cd</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=128 valign=top style='width:95.75pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>123456</p>
+  </td>
+  <td width=128 valign=top style='width:95.75pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>BWH</p>
+  </td>
+  <td width=128 valign=top style='width:95.75pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>A</p>
+  </td>
+  <td width=128 valign=top style='width:95.75pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>000123</p>
+  </td>
+  <td width=128 valign=top style='width:95.8pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>BICS</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=128 valign=top style='width:95.75pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>987654</p>
+  </td>
+  <td width=128 valign=top style='width:95.75pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>MGH</p>
+  </td>
+  <td width=128 valign=top style='width:95.75pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>A</p>
+  </td>
+  <td width=128 valign=top style='width:95.75pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>000004</p>
+  </td>
+  <td width=128 valign=top style='width:95.8pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>PACS</p>
+  </td>
+ </tr>
+</table>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775956">XCEDE Files</a></p>
+
+<p class=jdwebnormal><b>XML-Based Clinical Experiment Data Exchange Schema
+(XCEDE) files</b> are an extensive metadata hierarchy for describing and
+documenting research and clinical studies.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: At
+this time, the XCEDE file format is not available for uploading.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775957">Database Files</a></p>
+
+<p class=jdwebnormal><b>Database files</b> are a particular file format that is
+specific to the databases in use.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: At
+this time, the Database file format is not available for uploading.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc228775958">Delimiters</a></p>
+
+</div>
+
+<p class=jdwebnormal>In a CSV file, the <b>delimiter</b> is a sequence of one
+or more characters. These characters are used to identify the boundaries
+between different sections of a text file.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775959">Field Delimiters</a></p>
+
+<p class=jdwebnormal>The <b>field delimiters</b> are specific to a single line
+in a file. This type of delimiter is used to designate the columns for each
+row.  The following field delimiters are available in the i2b2 Import Data
+view.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Tab (      )</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Semicolon (;)</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Comma (,)</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Space ( )</p>
+
+<p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Pipe (|)</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc228775960">Text Qualifier</a></p>
+
+<p class=jdwebnormal>The Text Qualifier is a character used to indicate that
+everything in between it should be imported exactly as it appears. In the i2b2
+Import Data View there are two options currently available.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Double
+Quote (“)</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>2.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Single
+Quote (‘)</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: At the
+Text Qualifier field in the import wizard the drop down list will also contain
+{none}, which means the file does not contain any text qualifiers.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775961">End of Line Delimiters</a></p>
+
+<p class=jdwebnormal>The <b>end-of-line delimiters</b> are used to designate
+the end of a line of text. These delimiters are also known as a <b>line break</b>.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc228775962">Data Types</a></p>
+
+</div>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775963">Observation</a></p>
+
+<p class=jdwebnormal>Observations are collections of phenotypic data and may
+contain values associated with a concept, such as a value of the systolic blood
+pressure. Other observations may include lab results, notes, and reports.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: These
+fields are based on the i2b2 Harvard Demo database. Fields and their usage may differ
+for individual sites.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0 width=600
+ style='width:6.25in;margin-left:.25in;border-collapse:collapse;border:none'>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Column
+  Name</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border:solid silver 1.0pt;
+  border-left:none;background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal><span style='font-size:10.0pt'>Description / Use</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>concept_cd</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  id for the concept.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>confidence_num</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Currently
+  not used.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>destination_file</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Currently
+  not used.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>download_date</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the data was downloaded from the source system.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>encounter_num</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  id assigned by the source system.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>encounter_source</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  source system that assigned the encounter_num.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>end_date</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the observation ended.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=top style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>import_date</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the record was imported.</span></p>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt;
+  color:navy'>Note</span></b><span style='font-size:10.0pt'>: the date is
+  automatically assigned when the record is imported.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>location_cd</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Place
+  the observation was made.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>modifier_cd</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Modifier
+  assigned in the source system</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>nval_num</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Numerical
+  value (i.e. lab test result).</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>observation_blob</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Blob
+  of text (i.e. report)</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>original_file</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Name
+  of the file the data was imported from. Can be used for reference purposes.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>patient_num</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  number assigned to the patient.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>patient_source</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  source system that assigned the patient_num.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>provider_id</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  id for the provider associated to the observation.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>quantity_num</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Numerical
+  value representing the quantity.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>sourcesystem_cd</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  id for the system that is the source for the record.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>start_date</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the observation began.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>tval_char</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Text
+  value (i.e. Lab/Micro result)</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>units_cd</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Units
+  associated to the value (i.e. mil/cmm)</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>update_date</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the record was last updated.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>valtype_cd</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  type of value.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;border:solid silver 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>valueflag_cd</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border-top:none;border-left:
+  none;border-bottom:solid silver 1.0pt;border-right:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Value
+  flag (i.e. high, low, abnormal)</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading6>Required Fields: Observation</p>
+
+<p class=jdwebnormal>The following fields are required when importing an
+observation into the i2b2 database.</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>concept_cd</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>start_date</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>encounter_source</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>patient_source</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775964">Patient Mapping</a></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=600
+ style='width:6.25in;margin-left:.25in;border-collapse:collapse'>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;background:#D9D9D9;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Column
+  Name</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;background:#D9D9D9;padding:
+  0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal><span style='font-size:10.0pt'>Description / Use</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=top style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>download_date</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the data was downloaded from the source system.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=top style='width:113.55pt;border:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>import_date</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border:solid silver 1.0pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the record was imported.</span></p>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt;
+  color:navy'>Note</span></b><span style='font-size:10.0pt'>: the date is
+  automatically assigned when the record is imported.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=top style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>patient_id</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  id for the patient. This id is assigned by the source system.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=top style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>patient_id_source</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  source system that assigned the patient_id.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=top style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>patient_id_status</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  status of the patient_id (i.e. active, inactive, merged)</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=top style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>patient_num</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  number assigned to the patient.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=top style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>sourcesystem_cd</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  id for the system that is the source for the record.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>update_date</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the record was last updated.</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading6>Required Fields: Patient </p>
+
+<p class=jdwebnormal>The following fields are required when importing a patient
+record into the i2b2 database.</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>patient_id</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>patient_id_source</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775965">Event Mapping</a></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=600
+ style='width:6.25in;margin-left:.25in;border-collapse:collapse'>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;background:#D9D9D9;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Column
+  Name</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;background:#D9D9D9;padding:
+  0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal><span style='font-size:10.0pt'>Description / Use</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>download_date</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the data was downloaded from the source system.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>encounter_id</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  id for an encounter. This id is assigned by the source system.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>encounter_id_source</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  source system that assigned the encounter_id.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>encounter_id_status</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  status of the encounter_id (i.e. active)</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>encounter_num</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  id assigned by the source system.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=top style='width:113.55pt;border:solid silver 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>import_date</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;border:solid silver 1.0pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt;height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the record was imported.</span></p>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt;
+  color:navy'>Note</span></b><span style='font-size:10.0pt'>: the date is
+  automatically assigned when the record is imported.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>patient_id</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  id for the patient. This id is assigned by the source system.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>patient_id_source</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  source system that assigned the patient_id.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>sourcesystem_cd</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Unique
+  id for the system that is the source for the record.</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>update_date</span></b></p>
+  </td>
+  <td width=449 valign=top style='width:336.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Date
+  the record was last updated.</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading6>Required Fields: Event (encounter)</p>
+
+<p class=jdwebnormal>The following fields are required when importing an
+encounter into the i2b2 database.</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>encounter_id</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>encounter_id_source</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>patient_id</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>patient_id_source</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading1><a name="_Toc228775966">Import Process</a></p>
+
+<p class=jdwebnormal>This section contains information about the process of
+importing files.  It provides step by step documentation on using the import
+wizard, starting the upload and how to check the status of the file being
+uploaded. Documentation on the functionality of the Append Flag is also
+contained in this section.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc228775967">Import Data</a></p>
+
+</div>
+
+<p class=jdwebnormal>There are basically three steps to importing data into the
+i2b2 database. (1) Choose the data, (2) verify the data and (3) start the
+import.</p>
+
+<p class=jdwebnormal>The Import Data View provides a wizard to assist users in
+choosing and mapping the data to the correct fields in the i2b2 database.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775968">Choose Data</a></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc228775969">Import Wizard</a></p>
+
+<p class=jdwebnormal>The import wizard is designed to take you through each
+step of the import process. </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Click
+on the <b>Start File Import Wizard</b> button located in the Choose Data
+section.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=330 height=119
+src="i2b2_import_index_files/image008.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 8     Start File Import Wizard</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>2.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>The
+import wizard window will open to the first page.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=559 height=439
+src="i2b2_import_index_files/image009.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 9     Import Wizard Page 1</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>3.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Select
+the type of file you are importing.</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>4.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Click
+on the <b>Next</b> button located at the bottom of the window.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=76 height=23
+src="i2b2_import_index_files/image010.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 10  Next Button</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>5.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>A
+dialog box will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=563 height=419
+src="i2b2_import_index_files/image011.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 11  Select File Dialog Box</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>6.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Select
+the file to be imported.</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>7.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Click
+on the <b>Open</b> button.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=75 height=23
+src="i2b2_import_index_files/image012.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 12  Open Button</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>8.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>The
+second page of the wizard will now open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=559 height=439
+src="i2b2_import_index_files/image013.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 13  Import Wizard Page 2</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>9.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Select
+the type of file being imported.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=485 height=189
+src="i2b2_import_index_files/image014.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 14  File Type Selection</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>10.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>Enter the correct line
+number at the Header row is at line prompt.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=174 height=85
+src="i2b2_import_index_files/image015.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 15  Header Row Selection</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>11.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>Click on the <b>Next</b>
+button located at the bottom of the window.</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>12.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>The third page of the
+wizard will be displayed.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=559 height=439
+src="i2b2_import_index_files/image016.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 16  Import Wizard Page 3</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>13.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>Check off the
+appropriate delimiter.</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>14.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>If appropriate, enter
+a qualifier at the Text Qualifier field.</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>15.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>If appropriate, enter
+a qualifier at the End of Line Qualifier.</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>16.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>Click on the <b>Next</b>
+button.</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>17.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>The fourth page of the
+wizard will be displayed.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=559 height=439
+src="i2b2_import_index_files/image017.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 17  Import Wizard Page 4</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>18.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>Select the type of
+data associated with the file.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=112 height=79
+src="i2b2_import_index_files/image018.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 18  Type of Data Selection</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>19.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>Verify the data in the
+columns matches the column heading (row 1).</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>20.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>If the data does not
+match click on the column heading in row 2.</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>21.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>A drop down list will
+display.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=559 height=439
+src="i2b2_import_index_files/image019.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 19  Mapping Selections</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>22.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>Select the appropriate
+column heading.</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>23.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>Scroll down through
+the records and verify the data for each row is displayed in the appropriate
+columns.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=559 height=439
+src="i2b2_import_index_files/image020.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 20  Verify Data Columns</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>24.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>Click on the <b>Next</b>
+button.</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>25.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>The fifth page of the
+wizard will be displayed.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=559 height=439
+src="i2b2_import_index_files/image021.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 21  Import Wizard Page 5</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>26.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>Scroll through the
+records to verify the data for each row is displayed in the appropriate
+columns.</p>
+
+<p class=jdwebnormal style='margin-left:1.0in;text-indent:-.25in'>a.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>If
+the data is incorrect, click on the <b>Cancel button</b> and update the file
+with the appropriate delimiters.</p>
+
+<p class=jdwebnormal style='margin-left:1.0in;text-indent:-.25in'>b.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>If
+the data is correct, click on the <b>Finish button</b>.</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>27.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span>Once you have finished
+mapping the data with the import wizard the system will return you to the <b>Import
+Data view</b> where all the records in the file will appear in the Verify Data
+section.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775970">Verify Data</a></p>
+
+<p class=jdwebnormal>The second step in the import process is to verify the
+data being imported is correct. Once you have finished the wizard, the data in
+your file will now appear under the appropriate tab in the Verify Data Section. 
+Scroll through the data to verify everything appears correctly. </p>
+
+<p class=jdwebnormal>If an error is found you will need to click on the Clear
+All button, which will clear out all the records listed on the active tab. The
+next step will be to fix the error in the import file and then begin the import
+process again.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=566 height=374
+src="i2b2_import_index_files/image022.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 22  Verify Data Section</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775971">Upload Data</a></p>
+
+<p class=jdwebnormal>Click on the Upload button located in the bottom right
+corner of the Import Data view.  The progress bar will update to show the
+progress.  Once the import process has been completed, the status bar will
+remain green and say finished.</p>
+
+<p class=jdwebnormal style='margin-left:0in'>&nbsp;</p>
+
+<p class=jdwebnormal><img width=319 height=107
+src="i2b2_import_index_files/image023.jpg"></p>
+
+<p class=MsoCaption>Figure 4. 23  Upload Data Progress</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc228775972">Import Status</a></p>
+
+</div>
+
+<p class=jdwebnormal>Once the upload process has begun, a user can go to the
+Import Status tab to view the status of the batch.  This view will display the
+batch number, how many records were in the file and how many were imported.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc228775973">Append Flag</a></p>
+
+</div>
+
+<p class=jdwebnormal>Assumption: the record(s) in the update file (new record)
+has the same primary key as a record(s) in the associate table (existing record).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>Primary Key includes:</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Encounter number</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Patient number</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Concept code</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Start date</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Modifier code</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Observer code</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc228775974">Append Flag = True</a></p>
+
+<p class=jdwebnormal>Following conditions will result in the new record <b><u>replacing</u></b>
+the existing record:</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=600
+ style='width:6.25in;margin-left:.25in;border-collapse:collapse'>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>new
+  record update date</span></p>
+  </td>
+  <td width=105 valign=top style='width:78.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal align=center style='margin-left:0in;text-align:center'><span
+  style='font-size:10.0pt'>equal to (=)</span></p>
+  </td>
+  <td width=48 valign=top style='width:.5in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>&nbsp;</span></p>
+  </td>
+  <td width=224 valign=top style='width:168.0pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>update
+  date on the existing record</span></p>
+  </td>
+  <td width=72 valign=top style='width:.75in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>&nbsp;</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>new
+  record update date</span></p>
+  </td>
+  <td width=105 valign=top style='width:78.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal align=center style='margin-left:0in;text-align:center'><span
+  style='font-size:10.0pt'>greater than (&gt;)</span></p>
+  </td>
+  <td width=48 valign=top style='width:.5in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>&nbsp;</span></p>
+  </td>
+  <td width=224 valign=top style='width:168.0pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>update
+  date on the existing record</span></p>
+  </td>
+  <td width=72 valign=top style='width:.75in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>&nbsp;</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>new
+  record update date</span></p>
+  </td>
+  <td width=105 valign=top style='width:78.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal align=center style='margin-left:0in;text-align:center'><span
+  style='font-size:10.0pt'>is not null</span></p>
+  </td>
+  <td width=48 valign=top style='width:.5in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>AND</span></p>
+  </td>
+  <td width=224 valign=top style='width:168.0pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>update
+  date on the existing record</span></p>
+  </td>
+  <td width=72 valign=top style='width:.75in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>null</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>new
+  record update date</span></p>
+  </td>
+  <td width=105 valign=top style='width:78.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal align=center style='margin-left:0in;text-align:center'><span
+  style='font-size:10.0pt'>null</span></p>
+  </td>
+  <td width=48 valign=top style='width:.5in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>AND</span></p>
+  </td>
+  <td width=224 valign=top style='width:168.0pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>update
+  date on the existing record</span></p>
+  </td>
+  <td width=72 valign=top style='width:.75in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>null</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>Following conditions will result in <b><u>ignoring</u></b>
+new record and <b><u>not</u></b> updating the existing record:</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<table class=MsoNormalTable border=0 cellspacing=0 cellpadding=0 width=600
+ style='width:6.25in;margin-left:.25in;border-collapse:collapse'>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>new
+  record update date</span></p>
+  </td>
+  <td width=105 valign=top style='width:78.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal align=center style='margin-left:0in;text-align:center'><span
+  style='font-size:10.0pt'>less than (&gt;)</span></p>
+  </td>
+  <td width=48 valign=top style='width:.5in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>&nbsp;</span></p>
+  </td>
+  <td width=224 valign=top style='width:168.0pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>update
+  date on the existing record</span></p>
+  </td>
+  <td width=72 valign=top style='width:.75in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>&nbsp;</span></p>
+  </td>
+ </tr>
+ <tr style='height:12.75pt'>
+  <td width=151 nowrap valign=bottom style='width:113.55pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>new
+  record update date</span></p>
+  </td>
+  <td width=105 valign=top style='width:78.45pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal align=center style='margin-left:0in;text-align:center'><span
+  style='font-size:10.0pt'>null</span></p>
+  </td>
+  <td width=48 valign=top style='width:.5in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>AND</span></p>
+  </td>
+  <td width=224 valign=top style='width:168.0pt;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>update
+  date on the existing record</span></p>
+  </td>
+  <td width=72 valign=top style='width:.75in;padding:0in 5.4pt 0in 5.4pt;
+  height:12.75pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>is
+  not null</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=MsoCaption>&nbsp;</p>
+
+</div>
+
+</body>
+
+</html>

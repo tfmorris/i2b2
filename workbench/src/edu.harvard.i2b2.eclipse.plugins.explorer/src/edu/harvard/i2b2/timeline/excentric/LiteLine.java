@@ -50,9 +50,12 @@ public class LiteLine extends Lite {
     this.foreground = fg;
   }
 
-  public void setPosition(Point p) { start = p; }
-  public Point getPosition() { return start; }
-  public Rectangle getBounds() {
+  @Override
+public void setPosition(Point p) { start = p; }
+  @Override
+public Point getPosition() { return start; }
+  @Override
+public Rectangle getBounds() {
     int margin = (thickness+1)/2;
     Rectangle r = new Rectangle(start);
     r.add(end);
@@ -64,7 +67,8 @@ public class LiteLine extends Lite {
   public Color getColor() { return foreground; }
   public void setColor(Color c) { foreground = c; }
   
-  public void paint(Graphics g) {
+  @Override
+public void paint(Graphics g) {
     if (thickness > 0) {
       g.setColor(foreground);
       g.drawLine(start.x, start.y, end.x, end.y);

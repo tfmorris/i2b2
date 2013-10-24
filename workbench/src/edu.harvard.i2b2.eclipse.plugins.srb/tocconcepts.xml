@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Concepts" link_to="toc.xml#concepts">
+   <topic href="html/concepts/import_intro_layout_wizard.htm" label="Layout of import wizard tab">
+   </topic>
+   <topic href="html/concepts/import_intro_layout_status.htm" label="Layout of import status tab">
+   </topic>
+   <topic href="html/concepts/import_intro_layout_options.htm" label="Layout of options tab">
+   </topic>
+   <topic href="html/concepts/import_intro_access.htm" label="Access">
+   </topic>
+   <topic href="html/concepts/import_files/import_files_intro.htm" label="Import File">
+      <topic href="html/concepts/import_files/import_files_fileTypes.htm" label="File types">
+      </topic>
+      <topic href="html/concepts/import_files/import_files_delimiters.htm" label="Delimiters">
+      </topic>
+      <topic href="html/concepts/import_files/import_files_dataTypes.htm" label="Data types">
+      </topic>
+   </topic>
+    <topic href="html/concepts/import_process/import_process_intro.htm" label="Import process">
+       <topic href="html/concepts/import_process/import_process_importData.htm" label="Import data">
+       </topic>
+       <topic href="html/concepts/import_process/import_process_status.htm" label="Import status">
+       </topic>
+       <topic href="html/concepts/import_process/import_process_appendFlag.htm" label="Append flag">
+       </topic>
+    </topic>>
+</toc>

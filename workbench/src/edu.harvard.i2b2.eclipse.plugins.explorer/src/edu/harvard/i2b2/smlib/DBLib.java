@@ -41,7 +41,7 @@ import org.jdom.*;
 import org.jdom.contrib.input.ResultSetBuilder;
 import org.jdom.input.SAXBuilder;
 
-import edu.harvard.i2b2.explorer.PatientDemographics;
+import edu.harvard.i2b2.explorer.ui.PatientDemographics;
 
 public class DBLib {
 	

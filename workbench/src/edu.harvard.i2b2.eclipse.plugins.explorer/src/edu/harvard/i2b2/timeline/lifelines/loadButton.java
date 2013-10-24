@@ -24,14 +24,16 @@ public class loadButton extends Panel {
 
   }
 
-  public void update(Graphics g) {
+  @Override
+public void update(Graphics g) {
 
         paint(g);
 
   }
 
 
-  public void paint(Graphics g) {
+  @Override
+public void paint(Graphics g) {
 
         g.drawString("Load",3,10);
 

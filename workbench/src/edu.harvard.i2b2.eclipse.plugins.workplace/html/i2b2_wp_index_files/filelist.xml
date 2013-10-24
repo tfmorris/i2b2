@@ -1,0 +1,23 @@
+<xml xmlns:o="urn:schemas-microsoft-com:office:office">
+ <o:MainFile HRef="../i2b2_wp_index.htm"/>
+ <o:File HRef="themedata.thmx"/>
+ <o:File HRef="colorschememapping.xml"/>
+ <o:File HRef="concept001.png"/>
+ <o:File HRef="concept002.gif"/>
+ <o:File HRef="folder003.png"/>
+ <o:File HRef="folder004.gif"/>
+ <o:File HRef="groupTemplate005.png"/>
+ <o:File HRef="groupTemplate006.gif"/>
+ <o:File HRef="observation007.png"/>
+ <o:File HRef="observation008.gif"/>
+ <o:File HRef="patient009.png"/>
+ <o:File HRef="patient010.gif"/>
+ <o:File HRef="patientList011.gif"/>
+ <o:File HRef="patientCount012.png"/>
+ <o:File HRef="patientCount013.gif"/>
+ <o:File HRef="previousQuery014.png"/>
+ <o:File HRef="previousQuery015.gif"/>
+ <o:File HRef="queryDefinition016.png"/>
+ <o:File HRef="queryDefinition017.gif"/>
+ <o:File HRef="filelist.xml"/>
+</xml>

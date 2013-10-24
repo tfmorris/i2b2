@@ -11,9 +11,7 @@
 
 package edu.harvard.i2b2.timeline.lifelines;
 
-import java.applet.*;
 import java.awt.*;
-import java.util.*;
 
 public class yearSlider extends slider{
     public int getBarWidth()
@@ -28,10 +26,10 @@ private int yearRange; // minutes in year, appropriately scaled.
     public yearSlider(int width, int height,MyDate today){
         super(width, height,today);
 
-        dateMin = record.theData.getMinDate();
-        dateMax = record.theData.getMaxDate();
-        validDateMin = record.theData.getMinDate();
-        validDateMax = record.theData.getMaxDate();
+        dateMin = loadRecord.getMinDate();
+        dateMax = loadRecord.getMaxDate();
+        validDateMin = loadRecord.getMinDate();
+        validDateMax = loadRecord.getMaxDate();
         aScale = new scale(rangeWidth, validDateMin, validDateMax,today);
 
         validMin = 0; validMax = rangeWidth;
@@ -44,7 +42,8 @@ private int yearRange; // minutes in year, appropriately scaled.
         talk(INIT);
     }
 
-    public boolean mouseDrag(Event e, int x, int y){
+    @Override
+	public boolean mouseDrag(Event e, int x, int y){
         if(status.equals("disabled")) return true;
         switch(currentPos){
             case MINTHUMB:
@@ -88,10 +87,10 @@ private int yearRange; // minutes in year, appropriately scaled.
                     lowValue = minThumbPos;
                     adjust(MINTHUMB, lowValue);
                     if(rangeWidth == yearRange)
-                       record.theTabPanel.theMonthSlider.wakeup("enabled",validDateMin);
+                       mainPanel.theMonthSlider.wakeup("enabled",validDateMin);
                     else if(rangeWidth > yearRange &&
-                           record.theTabPanel.theMonthSlider.getStatus().equals("enabled"))
-                       record.theTabPanel.theMonthSlider.wakeup("disabled",null);
+                           mainPanel.theMonthSlider.getStatus().equals("enabled"))
+                       mainPanel.theMonthSlider.wakeup("disabled",null);
                  }
                  break;
 
@@ -115,10 +114,10 @@ private int yearRange; // minutes in year, appropriately scaled.
                     highValue = maxThumbPos - thumbWidth;
                     adjust(MAXTHUMB, highValue);
                     if(rangeWidth == yearRange)
-                       record.theTabPanel.theMonthSlider.wakeup("enabled", validDateMin);
+                       mainPanel.theMonthSlider.wakeup("enabled", validDateMin);
                     else if(rangeWidth > yearRange &&
-                           record.theTabPanel.theMonthSlider.getStatus().equals("enabled"))
-                       record.theTabPanel.theMonthSlider.wakeup("disabled",null);
+                           mainPanel.theMonthSlider.getStatus().equals("enabled"))
+                       mainPanel.theMonthSlider.wakeup("disabled",null);
                  }
                  break;
 
@@ -149,7 +148,7 @@ private int yearRange; // minutes in year, appropriately scaled.
                     highValue = maxThumbPos - thumbWidth;
                     adjust(MAXTHUMB, highValue);
                     if(rangeWidth == yearRange)
-                        record.theTabPanel.theMonthSlider.wakeup("enabled", validDateMin);
+                        mainPanel.theMonthSlider.wakeup("enabled", validDateMin);
                   //  repaint(); // this had been removed
                  }
                  break;

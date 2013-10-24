@@ -102,7 +102,8 @@ public class KeyPressManagerPanel
     // event methods
     //--------------------------------------------------
 
-    public synchronized boolean handleEvent(Event evt)
+    @Override
+	public synchronized boolean handleEvent(Event evt)
     {
     	switch (evt.id)
     	{
@@ -197,7 +198,7 @@ public class KeyPressManagerPanel
 		       		return doTab((Component)evt.target, evt.modifiers);
 		       	}
 
-    			return doTab((Component) this, evt.modifiers); // component not in list
+    			return doTab(this, evt.modifiers); // component not in list
             }
 			case 10: // ENTER:
 			{
@@ -280,6 +281,7 @@ public class KeyPressManagerPanel
      * @param component the Component
      * @return Component - returns added component
      */
+	@Override
 	public Component add(Component component)
 	{
         if(bAutoTab)

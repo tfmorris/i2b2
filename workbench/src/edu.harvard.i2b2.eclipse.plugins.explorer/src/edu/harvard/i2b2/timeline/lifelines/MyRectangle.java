@@ -11,7 +11,6 @@
 package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
-import java.awt.image.*;
 
 public class MyRectangle extends Rectangle {
 

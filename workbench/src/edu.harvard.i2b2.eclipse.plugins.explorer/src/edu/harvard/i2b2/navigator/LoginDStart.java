@@ -11,64 +11,52 @@
 
 package edu.harvard.i2b2.navigator;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
 /**
- * @author wwg0
- * This class is entry point for application
- * Creates a main shell and dialog which authenticates user configuration  
+ * @author wwg0 This class is entry point for application Creates a main shell
+ *         and dialog which authenticates user configuration
  */
 public class LoginDStart {
 
-	private static final String  WELCOME_MSG="Welcome ";
-	private static final String I2B2_MSG=" I2B2";
-	private static final String I2B2_APPLICATION_MSG="I2B2 Application";
-	//private BannerC bannerC;
+    public void run() {
+	Display display = new Display();
+	// create main shell
+	Shell mainShell = new Shell(display);
+	// create child shell (Dialog)
+	// inputDialog = createInputDialog(mainShell);
+	// open mainshell Shell
+	mainShell.open();
 
-	//private LoginDNew inputDialog;
-
-	public void run() {
-		Display display = new Display();
-		// create main shell 
-		Shell mainShell = new Shell(display);
-		// create child shell (Dialog)
-		//inputDialog = createInputDialog(mainShell);
-		// open mainshell Shell
-		mainShell.open();
-		
-		while (!mainShell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
-			}
-		}
-		display.dispose();
-
+	while (!mainShell.isDisposed()) {
+	    if (!display.readAndDispatch()) {
+		display.sleep();
+	    }
 	}
+	display.dispose();
 
-	//public Shell createMainShell(Display parent) {
+    }
 
-		// create main window and fill contents with bannerC
-		//Shell shell = new Shell(parent);
-		//shell.setLayout(new FillLayout(SWT.HORIZONTAL));
-		//shell.setText(I2B2_APPLICATION_MSG);
-		//shell.setSize(900,700);
-		//LoginContentFake loginContentFake = new LoginContentFake(shell);
-		//return shell;
-	//}
+    // public Shell createMainShell(Display parent) {
 
-	//public LoginDNew createInputDialog(Shell parent) {
-	//	LoginDNew inputDialog = new LoginDNew(parent);
-	//	return inputDialog;
-	//}
+    // create main window and fill contents with bannerC
+    // Shell shell = new Shell(parent);
+    // shell.setLayout(new FillLayout(SWT.HORIZONTAL));
+    // shell.setText(I2B2_APPLICATION_MSG);
+    // shell.setSize(900,700);
+    // LoginContentFake loginContentFake = new LoginContentFake(shell);
+    // return shell;
+    // }
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		new LoginDStart().run();
+    // public LoginDNew createInputDialog(Shell parent) {
+    // LoginDNew inputDialog = new LoginDNew(parent);
+    // return inputDialog;
+    // }
 
-	}
+    public static void main(String[] args) {
+	// TODO Auto-generated method stub
+	new LoginDStart().run();
+
+    }
 
 }
-

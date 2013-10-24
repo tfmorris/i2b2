@@ -11,9 +11,7 @@
 
 package edu.harvard.i2b2.timeline.lifelines;
 
-import java.applet.*;
 import java.awt.*;
-import java.util.*;
 
 public class weekSlider extends slider{
 
@@ -22,10 +20,10 @@ public class weekSlider extends slider{
     public weekSlider(int width, int height, MyDate today){
         super(width, height,today);
 
-        dateMin = record.theData.getMinDate();
-        dateMax = record.theData.getMinDate();
-        validDateMin = record.theData.getMinDate();
-        validDateMax = record.theData.getMinDate();
+        dateMin = loadRecord.getMinDate();
+        dateMax = loadRecord.getMinDate();
+        validDateMin = loadRecord.getMinDate();
+        validDateMax = loadRecord.getMinDate();
         aScale = new scale(rangeWidth, validDateMin, validDateMax,today);
 
         validMin = 0; validMax = rangeWidth;
@@ -64,7 +62,8 @@ public class weekSlider extends slider{
         repaint();
     }
 
-    public boolean mouseDrag(Event e, int x, int y){
+    @Override
+	public boolean mouseDrag(Event e, int x, int y){
         if(status.equals("disabled")) return true;
         switch(currentPos){
             case MINTHUMB:
@@ -100,7 +99,7 @@ public class weekSlider extends slider{
                     maxClipRect.reshape(maxClipPos, 0, maxClipWidth, thickness);
                     rangeRect.reshape(rangePos, 0, rangeWidth, thickness);
                     highValue = maxThumbPos - thumbWidth;
-                       record.theTabPanel.theMonthSlider.wakeup("enabled",validDateMin);
+                       mainPanel.theMonthSlider.wakeup("enabled",validDateMin);
                     adjust(MAXTHUMB, highValue);
                     repaint();
                  }

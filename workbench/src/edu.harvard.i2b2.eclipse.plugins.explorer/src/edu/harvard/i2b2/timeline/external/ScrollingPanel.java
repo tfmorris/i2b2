@@ -1,6 +1,5 @@
 package edu.harvard.i2b2.timeline.external;
 
-import java.awt.Panel;
 import java.awt.Component;
 import java.awt.Scrollbar;
 import java.awt.Dimension;
@@ -307,7 +306,8 @@ public class ScrollingPanel
         return this.spComponent;
     }
 
-    public boolean handleEvent(Event evt)
+    @Override
+	public boolean handleEvent(Event evt)
     {
         switch (evt.id)
         {
@@ -386,12 +386,14 @@ public class ScrollingPanel
     }
 
 
-    public void update(Graphics g)
+    @Override
+	public void update(Graphics g)
     {
         paint(g);
     }
 
-    public void paint(Graphics g)
+    @Override
+	public void paint(Graphics g)
     {
         if (spComponent == null)
         {
@@ -597,19 +599,22 @@ public class ScrollingPanel
         repaint();
     }
 
-    public Dimension preferredSize()
+    @Override
+	public Dimension preferredSize()
     {
         Dimension s = size();
         Dimension m = minimumSize();
         return new Dimension(Math.max(s.width, m.width), Math.max(s.height, m.height));
     }
 
-    public Dimension minimumSize()
+    @Override
+	public Dimension minimumSize()
     {
         return new Dimension(width, height);
     }
 
-    public Component add(Component comp)
+    @Override
+	public Component add(Component comp)
     {
 
         if (this.spComponent != null)
@@ -624,17 +629,20 @@ public class ScrollingPanel
         return comp;
     }
 
-    public synchronized Component add(Component comp, int pos)
+    @Override
+	public synchronized Component add(Component comp, int pos)
     {
         return add(comp);
     }
 
-    public synchronized Component add(String name, Component comp)
+    @Override
+	public synchronized Component add(String name, Component comp)
     {
         return add(comp);
     }
 
-    public synchronized void remove(Component comp)
+    @Override
+	public synchronized void remove(Component comp)
     {
         if (comp == VBar || comp == HBar)
         {
@@ -649,7 +657,8 @@ public class ScrollingPanel
         }
     }
 
-    public synchronized void removeAll()
+    @Override
+	public synchronized void removeAll()
     {
         super.removeAll();
         super.add(VBar, -1);
@@ -658,11 +667,13 @@ public class ScrollingPanel
         spComponent = null;
     }
 
-    public void setLayout(LayoutManager mgr)
+    @Override
+	public void setLayout(LayoutManager mgr)
     {
     }
 
-    public synchronized void reshape(int x, int y, int width, int height)
+    @Override
+	public synchronized void reshape(int x, int y, int width, int height)
     {
         repaint();
 

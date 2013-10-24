@@ -17,23 +17,22 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
+import edu.harvard.i2b2.eclipse.plugins.ontology.util.MessageUtil;
+
 
 public class ViewResponseMessageToolbarActionDelegate implements IViewActionDelegate {
 	
-	private FindView findView;
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IViewActionDelegate#init(org.eclipse.ui.IViewPart)
 	 */
 	public void init(IViewPart view) {
-		findView = (FindView) view;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
 	public void run(IAction action) {
-		JFrame frame = new FindDisplayXmlMessageDialog(System.getProperty("FIND_RESPONSE"));
+		JFrame frame = new FindDisplayXmlMessageDialog(MessageUtil.getInstance().getFindResponse());
 		frame.setTitle("Find Terms Last XML Response Message");
 		frame.setVisible(true);
 	}

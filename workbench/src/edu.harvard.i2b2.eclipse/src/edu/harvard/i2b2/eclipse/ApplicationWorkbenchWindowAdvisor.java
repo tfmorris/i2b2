@@ -12,10 +12,13 @@
 package edu.harvard.i2b2.eclipse;
 
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
+import org.eclipse.ui.intro.IIntroManager;
+import org.eclipse.ui.part.IntroPart;
 
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
@@ -37,5 +40,32 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setShowStatusLine(false);
 		configurer.setShowPerspectiveBar(false);
 		configurer.setTitle(System.getProperty("applicationName") + " Workbench");
+	}
+
+	@Override
+	public void postWindowOpen() {
+		super.postWindowOpen();
+		
+		if(!System.getProperty("os.name").toLowerCase().startsWith("mac")) {
+			return;
+		}
+		
+		IIntroManager manager = PlatformUI.getWorkbench().getIntroManager();
+		final IntroPart part = (IntroPart) manager.getIntro();
+		
+		if(part != null) { 
+			if(manager.isIntroStandby(part)) {
+				manager.closeIntro(part);
+				manager.showIntro(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), false);	
+				manager.closeIntro(part);
+				manager.showIntro(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), true);	
+			}
+			else {
+				manager.closeIntro(part);
+				manager.showIntro(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), true);	
+				manager.closeIntro(part);
+				manager.showIntro(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), false);	
+			}
+		}	
 	}
 }

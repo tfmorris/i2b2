@@ -19,12 +19,8 @@ package edu.harvard.i2b2.timeline.lifelines;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.Panel;
-import java.util.Vector;
-
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -60,7 +56,8 @@ public class PackSWT {
     /* Create and setting up frame */
     Frame frame = SWT_AWT.new_Frame(composite);
     Panel panel = new Panel(new BorderLayout()) {
-      public void update(java.awt.Graphics g) {
+      @Override
+	public void update(java.awt.Graphics g) {
         /* Do not erase the background */
         paint(g);
       }

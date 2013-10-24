@@ -172,17 +172,17 @@ public class slider extends Panel{ // implements newApplet?
     }
 
     private void makeThumbArrays() {
-        xArray[0] = 3;        yArray[0] = (int)(thickness/2);
-        xArray[1] = (int)(thumbWidth/3+2);        yArray[1] = 4;
-        xArray[2] = (int)(thumbWidth/3+2);        yArray[2] = (int)(thickness/3 + 2);
-        xArray[3] = (int)(thumbWidth*2/3-1);        yArray[3] = (int)(thickness/3 + 2);
-        xArray[4] = (int)(thumbWidth*2/3-1);        yArray[4] = 4;
-        xArray[5] = (int)(thumbWidth-3);        yArray[5] = (int)(thickness/2);
-        xArray[6] = (int)(thumbWidth*2/3-1);        yArray[6] = (int)(thickness-4);
-        xArray[7] = (int)(thumbWidth*2/3-1);        yArray[7] = (int)(thickness*2/3 - 1);
-        xArray[8] = (int)(thumbWidth/3+2);        yArray[8] = (int)(thickness*2/3 - 1);
-        xArray[9] = (int)(thumbWidth/3+2);        yArray[9] = (int)(thickness-4);
-        xArray[10] = 3;        yArray[10] = (int)(thickness/2);
+        xArray[0] = 3;        yArray[0] = (thickness/2);
+        xArray[1] = (thumbWidth/3+2);        yArray[1] = 4;
+        xArray[2] = (thumbWidth/3+2);        yArray[2] = (thickness/3 + 2);
+        xArray[3] = (thumbWidth*2/3-1);        yArray[3] = (thickness/3 + 2);
+        xArray[4] = (thumbWidth*2/3-1);        yArray[4] = 4;
+        xArray[5] = (thumbWidth-3);        yArray[5] = (thickness/2);
+        xArray[6] = (thumbWidth*2/3-1);        yArray[6] = (thickness-4);
+        xArray[7] = (thumbWidth*2/3-1);        yArray[7] = (thickness*2/3 - 1);
+        xArray[8] = (thumbWidth/3+2);        yArray[8] = (thickness*2/3 - 1);
+        xArray[9] = (thumbWidth/3+2);        yArray[9] = (thickness-4);
+        xArray[10] = 3;        yArray[10] = (thickness/2);
     }
 
     private boolean inMinThumb(int x, int y){
@@ -210,7 +210,8 @@ public class slider extends Panel{ // implements newApplet?
         else return false;
     }
 
-    public boolean mouseDown(Event e, int x, int y){
+    @Override
+	public boolean mouseDown(Event e, int x, int y){
 
         /*MyDate temp = new MyDate(CoordToDate(x).getMonth(),CoordToDate(x).getDay(),CoordToDate(x).getYear());
 
@@ -280,7 +281,8 @@ public class slider extends Panel{ // implements newApplet?
         return true;
     }
 
-    public boolean mouseUp(Event e, int x, int y){
+    @Override
+	public boolean mouseUp(Event e, int x, int y){
         if(minThumbState == DOWN){
            minThumbState = UP;
            repaint();
@@ -324,7 +326,8 @@ public class slider extends Panel{ // implements newApplet?
     }
 
 
-    public boolean mouseDrag(Event e, int x, int y){
+    @Override
+	public boolean mouseDrag(Event e, int x, int y){
         switch(currentPos){
             case MINTHUMB:
                  // for illustration purposes:
@@ -535,29 +538,28 @@ public class slider extends Panel{ // implements newApplet?
             //validDateMax = CoordToDate(validMax);
         }
 
-        record.theTabPanel.upBar.listen(validDateMin, validDateMax);
-        record.theTabPanel.theTimeLinePanel.listen(validDateMin, validDateMax);
+        mainPanel.upBar.listen(validDateMin, validDateMax);
+        mainPanel.theTimeLinePanel.listen(validDateMin, validDateMax);
         if (type == INIT)
-            record.theTabPanel.theTimeLinePanel.slide= false;
+            mainPanel.theTimeLinePanel.slide= false;
     }
 
     public MyDate CoordToDate(int start){
-        return(dateMin.DateAfterMins((long)Math.round((double)diff * start / barWidth)));
+        return(dateMin.DateAfterMins(Math.round((double)diff * start / barWidth)));
     }
 
     public String getStatus(){
         return status;
     }
 
-    public void paint(Graphics g){
+    @Override
+	public void paint(Graphics g){
         repaint();
     }
 
-    public void update(Graphics g){
+    @Override
+	public void update(Graphics g){
         int strWidth;
-        int tickHeight = 3;
-        int pos;
-
         drawThumbImage(true);
         drawThumbImage(false);
         drawRange(g, true);
@@ -578,7 +580,7 @@ public class slider extends Panel{ // implements newApplet?
                g.setColor(Color.black);
            else
                g.setColor(Color.gray);
-           strWidth = (int)(fontMetrics.stringWidth(aScale.theLabelString[i]));
+           strWidth = (fontMetrics.stringWidth(aScale.theLabelString[i]));
            g.drawString(aScale.theLabelString[i],
                 (aScale.theTicks[i]+aScale.theTicks[i+1])/2 + thumbWidth - strWidth/2,
                  fontMetrics.getHeight());

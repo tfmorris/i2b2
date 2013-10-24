@@ -81,7 +81,7 @@ public class NodeBrowser extends ApplicationWindow
     createTreeViewer(parent, SWT.MULTI | SWT.BORDER, inputFlag);
     Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
      
-   	this.viewer.addDragSupport(DND.DROP_COPY, types, new NodeDragListener(this.viewer));      
+   	this.viewer.addDragSupport(DND.DROP_COPY|DND.DROP_MOVE, types, new NodeDragListener(this.viewer));      
   }
 
   private void createImageRegistry()
@@ -108,7 +108,7 @@ public class NodeBrowser extends ApplicationWindow
 
   //  GridData gridData = new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL);
 	GridData gridData = new GridData(GridData.FILL_BOTH);
-    gridData.verticalSpan = 50;
+    gridData.verticalSpan = 25;
     gridData.horizontalSpan = 2;
     gridData.widthHint = 150;
     gridData.grabExcessHorizontalSpace = true;
@@ -255,8 +255,8 @@ public class NodeBrowser extends ApplicationWindow
 				node.getData().setVisualattributes("FHO");
 			else if (node.getData().getVisualattributes().equals("CH"))
 				node.getData().setVisualattributes("CHO");
-			viewer.expandToLevel(node, 1);
-			viewer.refresh(node);
+			//viewer.refresh(node);
+			//viewer.expandToLevel(node, 1);
 
 			// check to see if child is a placeholder ('working...')
 			//   if so, make Web Service call to update children of node
@@ -293,8 +293,10 @@ public class NodeBrowser extends ApplicationWindow
 						child.getData().setVisualattributes("CH");	
 					}
 				}
-				viewer.refresh(node);
+				//viewer.refresh(node);
 			}
+			viewer.refresh();
+			viewer.expandToLevel(node, 1);
 		}
 		public void treeCollapsed(TreeExpansionEvent event) {
 			final TreeNode node = (TreeNode) event.getElement();
@@ -553,9 +555,12 @@ public class NodeBrowser extends ApplicationWindow
 			operator = "left";
 		else if(operator.equals("Ending with"))
 			operator = "right";	
+		else if(operator.equals("Exact"))
+			operator = "exact";	
 		match.setStrategy(operator);
 		vocabData.setMatchStr(match);
 		vocabData.setType("core");
+		vocabData.setBlob(true);
 		vocabData.setMax(Integer.parseInt(System.getProperty("OntFindMax")));
 
 		if(categoryKey.equals("any"))
@@ -677,18 +682,19 @@ public class NodeBrowser extends ApplicationWindow
     	return concepts;
     }
 	
-	public Thread getSchemeData(final String schemeKey, List schemes, String phrase) {
+	public Thread getSchemeData(final String schemeKey, List schemes, String phrase, String match) {
 		final Display theDisplay = Display.getCurrent();
 		final NodeBrowser theBrowser = this;
 		final TreeViewer theViewer = this.viewer;
 		final String lookupPhrase = phrase;
 		final String lookupKey = schemeKey;
+		final String lookupStrategy = match;
 		final List lookupSchemes = schemes;
 		
 		return new Thread() {
 			public void run() {						
 				theBrowser.rootNode.getChildren().clear();			
-				theBrowser.findNodes(lookupKey, lookupSchemes, lookupPhrase,  theDisplay, theViewer);							
+				theBrowser.findSchemeNodes(lookupKey, lookupSchemes, lookupPhrase, lookupStrategy, theDisplay, theViewer);							
 				theDisplay.syncExec(new Runnable() {
 					public void run() {
 				 		if (theBrowser.rootNode.getChildren().size() == 0)
@@ -702,14 +708,25 @@ public class NodeBrowser extends ApplicationWindow
 			}
 		};
 	}
-	private void findNodes(String key, List schemes, String phrase, Display display, TreeViewer viewer) {
+	private void findSchemeNodes(String key, List schemes, String phrase, String operator, Display display, TreeViewer viewer) {
 		VocabRequestType vocabData = new VocabRequestType();
 
 		MatchStrType match = new MatchStrType();
 		match.setValue(phrase);
-		match.setStrategy("exact");
+		
+		if(operator.equals("Containing"))
+			operator = "contains";
+		else if(operator.equals("Starting with"))
+			operator = "left";
+		else if(operator.equals("Ending with"))
+			operator = "right";	
+		else if(operator.equals("Exact"))
+			operator = "exact";	
+		match.setStrategy(operator);
 		
 		vocabData.setType("core");
+	//	vocabData.setBlob(false);
+		vocabData.setBlob(true);
 		vocabData.setMax(Integer.parseInt(System.getProperty("OntFindMax")));
 		vocabData.setHiddens(Boolean.parseBoolean(System.getProperty("OntFindHiddens")));
 		vocabData.setSynonyms(Boolean.parseBoolean(System.getProperty("OntFindSynonyms")));
@@ -726,7 +743,7 @@ public class NodeBrowser extends ApplicationWindow
 					List concepts = getSchemeNodes(vocabData, display, viewer);
 					if((concepts != null) && (concepts.isEmpty()==false)) {
 						getNodesFromXMLString(concepts);
-						break;
+				//		break;   // cycle through all schemes; dont stop at first hit
 					}
 				}
 			}

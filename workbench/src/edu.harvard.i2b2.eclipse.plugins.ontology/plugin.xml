@@ -49,21 +49,13 @@
             id="edu.harvard.i2b2.eclipse.plugins.ontology.viewActions"
             targetID="edu.harvard.i2b2.eclipse.plugins.ontology.views.ontologyView">
         <action
-               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.ViewResponseMessageToolbarActionDelegate"
-               icon="icons/xmlreceive_2.gif"
-               id="edu.harvard.i2b2.eclipse.plugins.ontology.viewResponseMessage"
-               label="ResponseMessage"
+               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.ViewStackToolbarActionDelegate"
+               icon="icons/xmlstack.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.viewResponseMessageStack"
+               label="XMLMessageStack"
                style="push"
                toolbarPath="additions"
-               tooltip="Display the last response xml message"/>
-         <action
-               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.ViewRequestMessageToolbarActionDelegate"
-               icon="icons/xmlsend_2.gif"
-               id="edu.harvard.i2b2.eclipse.plugins.ontology.viewRequestMessage"
-               label="RequestMessage"
-               style="push"
-               toolbarPath="additions"
-               tooltip="Display the last request xml message"/>
+               tooltip="Display the XML message stack"/>
         <action
                class="edu.harvard.i2b2.eclipse.plugins.ontology.views.ViewOptionToolbarActionDelegate"
                icon="icons/options_1.gif"
@@ -78,21 +70,13 @@
             id="edu.harvard.i2b2.eclipse.plugins.ontology.viewActions"
             targetID="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.findView">
         <action
-               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.ViewResponseMessageToolbarActionDelegate"
-               icon="icons/xmlreceive_2.gif"
-               id="edu.harvard.i2b2.eclipse.plugins.ontology.find.viewResponseMessage"
-               label="ResponseMessage"
+               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.ViewStackToolbarActionDelegate"
+               icon="icons/xmlstack.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.find.viewResponseMessageStack"
+               label="XMLMessageStack"
                style="push"
                toolbarPath="additions"
-               tooltip="Display the last response xml message"/>
-         <action
-               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.ViewRequestMessageToolbarActionDelegate"
-               icon="icons/xmlsend_2.gif"
-               id="edu.harvard.i2b2.eclipse.plugins.ontology.find.viewRequestMessage"
-               label="RequestMessage"
-               style="push"
-               toolbarPath="additions"
-               tooltip="Display the last request xml message"/>
+               tooltip="Display the XML message stack"/>
         <action
                class="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.ViewOptionToolbarActionDelegate"
                icon="icons/options_1.gif"
@@ -104,4 +88,43 @@
                tooltip="Display the options dialog"/>
       </viewContribution>
       </extension>
+            <extension point="org.eclipse.ui.contexts">
+      	<context
+      		id="navigate_terms_view_help_context"
+      		name="Navigate Terms View"
+      		parentId="edu.harvard.i2b2.eclipse.plugins.ontology.views.ontologyView">
+      	</context>
+		<context
+      		id="find_terms_view_help_context"
+      		name="Find Terms View"
+      		parentId="edu.harvard.i2b2.eclipse.plugins.ontology.views.find.findView">
+      	</context>
+      </extension>
+      <extension point="org.eclipse.help.contexts">
+		<contexts
+			file="help_contexts_navigate.xml"
+			plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+		</contexts>
+		<contexts
+			file="help_contexts_find.xml"
+			plugin="edu.harvard.i2b2.eclipse.plugins.ontology">
+		</contexts>
+      </extension>
+      <extension point="org.eclipse.help.toc">
+      	<toc
+      		file="toc_navigate.xml"
+      		primary="true"/>
+ 		<toc
+      		file="toc_find.xml"
+      		primary="true"/>
+   <toc
+         file="tocconcepts_find.xml"
+         primary="false">
+   </toc>
+   <toc
+         file="tocconcepts_navigate.xml"
+         primary="false">
+   </toc>
+      </extension>
+      
 </plugin>

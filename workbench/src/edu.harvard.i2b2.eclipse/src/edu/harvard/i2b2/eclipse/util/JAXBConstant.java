@@ -20,7 +20,8 @@ package edu.harvard.i2b2.eclipse.util;
 public class JAXBConstant {
     public static final String[] DEFAULT_PACKAGE_NAME = new String[] {
             "edu.harvard.i2b2.pm.datavo.i2b2message",
-            "edu.harvard.i2b2.pm.datavo.pm"
+            "edu.harvard.i2b2.pm.datavo.pm",
+            "edu.harvard.i2b2.pm.datavo.pm.version"
         };
     
     public static final String[] DND_PACKAGE_NAME = new String[] {

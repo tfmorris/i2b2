@@ -24,37 +24,86 @@
 			         <include name="*.jar"/>
 	              </fileset>
 		</copy>
-	
+   	
+		<copy todir="../edu.harvard.i2b2.eclipse.plugins.workplace/${genlib}">
+	       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
+			         <include name="*.jar"/>
+	              </fileset>
+		</copy>
+
+	<copy todir="../edu.harvard.i2b2.eclipse.plugins.exportData/${genlib}">
+       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
+		         <include name="*.jar"/>
+              </fileset>
+	</copy>
+   	
+		<copy todir="../edu.harvard.i2b2.eclipse.plugins.srb/${genlib}">
+	       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
+			         <include name="*.jar"/>
+	              </fileset>
+		</copy>
+
+	<copy todir="../edu.harvard.i2b2.eclipse.plugins.query/${genlib}">
+       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
+		         <include name="*.jar"/>
+              </fileset>
+	</copy>
+
+   	
+	<copy todir="../edu.harvard.i2b2.eclipse.plugins.previousQuery/${genlib}">
+       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
+		         <include name="*.jar"/>
+              </fileset>
+	</copy>
+
+	<copy todir="../edu.harvard.i2b2.eclipse.plugins.explorer/${genlib}">
+       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
+		         <include name="*.jar"/>
+              </fileset>
+	</copy>
+   	
+   	
+   	<!--	
 		<copy todir="../edu.harvard.i2b2.eclipse.plugins.pft/${genlib}">
 		       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
 				         <include name="*.jar"/>
 		              </fileset>
 		</copy>
-	
+
 		<copy todir="../edu.harvard.i2b2.eclipse.plugins.crcxmljaxb/${genlib}">
 		       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
 				         <include name="*.jar"/>
 		              </fileset>
 		</copy>
-   	
-
+   -->		
     	<!-- ant call client's build.xml for jaxb_gen -->
+		<subant target="all">
+				<fileset dir="../edu.harvard.i2b2.common" includes="build.xml" />
+	    </subant>
     	<subant target="jaxb_gen">
     		<fileset dir="../edu.harvard.i2b2.eclipse/buildFiles" includes="build.xml" />
 			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.ontology/buildFiles" includes="build.xml" />
-			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.pft/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.workplace/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.explorer/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.exportData/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.srb/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.query/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.previousQuery/buildFiles" includes="build.xml" />
     	</subant>	
-		<subant target="all">
-				<fileset dir="../edu.harvard.i2b2.eclipse.plugins.crcxmljaxb/buildFiles" includes="build.xml" />
-	    </subant>
+
     </target>
 	
 	<target name="clean-all">
 		<subant target="clean">
+			<fileset dir="../edu.harvard.i2b2.common" includes="build.xml" />
 			<fileset dir="../edu.harvard.i2b2.eclipse/buildFiles" includes="build.xml" />
 			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.ontology/buildFiles" includes="build.xml" />
-		    <fileset dir="../edu.harvard.i2b2.eclipse.plugins.pft/buildFiles" includes="build.xml" />
-			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.crcxmljaxb/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.workplace/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.explorer/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.exportData/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.srb/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.query/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.previousQuery/buildFiles" includes="build.xml" />
 		</subant>	
 	</target> 
 	

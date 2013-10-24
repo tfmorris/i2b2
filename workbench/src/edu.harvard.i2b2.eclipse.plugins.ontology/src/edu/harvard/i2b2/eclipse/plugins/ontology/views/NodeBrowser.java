@@ -97,12 +97,13 @@ public class NodeBrowser extends ApplicationWindow
     
     this.viewer = new TreeViewer(tree);  
     this.viewer.setLabelProvider(new LabelProvider() {
-        public String getText(Object element) 
+        @Override
+		public String getText(Object element) 
         {
         	// Set the tooltip data
         	//  (cant be done in the lookup thread)
         	//   maps TreeViewer node to Tree item and sets item.data
-        	TreeItem item =  (TreeItem) (viewer.testFindItem((TreeNode) element));
+        	TreeItem item =  (TreeItem) (viewer.testFindItem(element));
         	String tooltip = ((TreeNode)element).getData().getTooltip();
         	if ((tooltip == null) || (tooltip.equals("")))
         	{
@@ -142,7 +143,8 @@ public class NodeBrowser extends ApplicationWindow
         	}	
         	return ((TreeNode)element).toString();
         }
-        public Image getImage(Object element)
+        @Override
+		public Image getImage(Object element)
         {
         	return imageRegistry.get(((TreeNode)element).getIconKey());
         }
@@ -180,7 +182,7 @@ public class NodeBrowser extends ApplicationWindow
     	browser.refresh();
     	System.setProperty("errorMessage", "");
     }
-    
+   
 	this.viewer.addTreeListener(new ITreeViewerListener() {
 		public void treeExpanded(TreeExpansionEvent event) {
 			final TreeNode node = (TreeNode) event.getElement();
@@ -192,8 +194,7 @@ public class NodeBrowser extends ApplicationWindow
 				node.getData().setVisualattributes("FHO");
 			else if (node.getData().getVisualattributes().equals("CH"))
 				node.getData().setVisualattributes("CHO");
-			viewer.expandToLevel(node, 1);
-			viewer.refresh(node);
+			//viewer.refresh();
 
 			// check to see if child is a placeholder ('working...')
 			//   if so, make Web Service call to update children of node
@@ -228,8 +229,9 @@ public class NodeBrowser extends ApplicationWindow
 						child.getData().setVisualattributes("CH");	
 					}
 				}
-				viewer.refresh(node);
 			}
+			viewer.refresh();
+			viewer.expandToLevel(node, 1);
 		}
 		public void treeCollapsed(TreeExpansionEvent event) {
 			final TreeNode node = (TreeNode) event.getElement();
@@ -242,9 +244,11 @@ public class NodeBrowser extends ApplicationWindow
 			else if (node.getData().getVisualattributes().equals("CHO"))
 				node.getData().setVisualattributes("CH");
 			viewer.collapseToLevel(node, 1);
-			viewer.refresh(node);
+		viewer.refresh();
 		}
 	});
+	
+	
 	this.viewer.addDoubleClickListener(new IDoubleClickListener() {
 		public void doubleClick(DoubleClickEvent event)
 		{	
@@ -321,7 +325,7 @@ public class NodeBrowser extends ApplicationWindow
  							child.getData().setVisualattributes("CH");	
  						}
  					}
- 					viewer.refresh(node);
+ 					viewer.refresh();
  				}
  				
  	       }
@@ -610,8 +614,8 @@ public class NodeBrowser extends ApplicationWindow
 		HttpClient client = new HttpClient();
 //		client.getHttpConnectionManager().getParams().setConnectionTimeout 
 //(30000);
-		//GetMethod get = new GetMethod("http://phsi2b2appdev.mgh.harvard.edu/queryToolConfig/contents.xml");
-		GetMethod get = new GetMethod("http://phsi2b2appprod1.mgh.harvard.edu/queryToolConfig/contents.xml");
+		//GetMethod get = new GetMethod("http://localhost/queryToolConfig/contents.xml");
+		GetMethod get = new GetMethod("http://localhost/queryToolConfig/contents.xml");
 //		get.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new  
 //									DefaultHttpMethodRetryHandler(3, false));
 		

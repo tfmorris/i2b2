@@ -6,9 +6,12 @@
  * 
  * Contributors:
  * 		Wensong Pan
+ * 		Lori Phillips
  */
 
 package edu.harvard.i2b2.eclipse.plugins.ontology.views;
+
+import java.util.List;
 
 /**
  *
@@ -23,6 +26,21 @@ public class OntologyDisplayXmlMessageDialog extends javax.swing.JFrame {
         setSize(800, 400);
         jMessageTextArea.setText(msg);
     }
+
+    /** Create new form for list of response messages **/
+    public OntologyDisplayXmlMessageDialog(List<String> msgs) {
+       	
+        initComponents();
+        setSize(800, 400);
+        int it = msgs.size();
+        String allMessages = "";
+        while (it > 0 ) {
+        	allMessages = allMessages + msgs.get(it-1) + "\n\n";
+        	it = it - 1;
+        }
+        jMessageTextArea.setText(allMessages);
+    }
+    
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -75,7 +93,8 @@ public class OntologyDisplayXmlMessageDialog extends javax.swing.JFrame {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new OntologyDisplayXmlMessageDialog(null).setVisible(true);
+            	String empty = null;
+                new OntologyDisplayXmlMessageDialog(empty).setVisible(true);
             }
         });
     }

@@ -1,0 +1,711 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 12 (filtered)">
+<title>Starting i2b2 Workbench</title>
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Helvetica;
+	panose-1:2 11 6 4 2 2 2 2 2 4;}
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Cambria;
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Arial","sans-serif";}
+h1
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:16.0pt;
+	font-family:"Arial","sans-serif";
+	font-weight:bold;}
+h2
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Arial","sans-serif";
+	font-weight:bold;
+	font-style:italic;}
+h3
+	{margin-right:0in;
+	margin-left:0in;
+	font-size:13.5pt;
+	font-family:"Times New Roman","serif";
+	font-weight:bold;}
+h4
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Times New Roman","serif";
+	font-weight:bold;}
+p.MsoCaption, li.MsoCaption, div.MsoCaption
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";
+	font-weight:bold;}
+p.MsoListBullet2, li.MsoListBullet2, div.MsoListBullet2
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.55in;
+	margin-bottom:.0001pt;
+	text-indent:-.1in;
+	font-size:12.0pt;
+	font-family:"Arial","sans-serif";}
+p.MsoTitle, li.MsoTitle, div.MsoTitle
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	text-align:center;
+	font-size:16.0pt;
+	font-family:"Arial","sans-serif";
+	font-weight:bold;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+p
+	{margin-right:0in;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+tt
+	{font-family:"Courier New";}
+p.jdheading1, li.jdheading1, div.jdheading1
+	{mso-style-name:"jd heading 1";
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:18.0pt;
+	font-family:"Arial","sans-serif";
+	color:navy;
+	font-weight:bold;}
+p.jdnormal, li.jdnormal, div.jdnormal
+	{mso-style-name:"jd normal";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:"Arial","sans-serif";}
+p.jdchapternumber, li.jdchapternumber, div.jdchapternumber
+	{mso-style-name:"jd chapter number";
+	margin:0in;
+	margin-bottom:.0001pt;
+	text-align:right;
+	font-size:72.0pt;
+	font-family:"Arial","sans-serif";
+	color:navy;
+	font-weight:bold;}
+p.jdchapterheading, li.jdchapterheading, div.jdchapterheading
+	{mso-style-name:"jd chapter heading";
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:12.0pt;
+	margin-left:0in;
+	text-align:right;
+	line-height:150%;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:18.0pt;
+	font-family:"Arial","sans-serif";
+	color:navy;
+	font-weight:bold;}
+p.jdheading2, li.jdheading2, div.jdheading2
+	{mso-style-name:"jd heading 2";
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Arial","sans-serif";
+	font-weight:bold;}
+p.jdheading3, li.jdheading3, div.jdheading3
+	{mso-style-name:"jd heading 3";
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:"Arial","sans-serif";
+	font-weight:bold;}
+p.jdtable, li.jdtable, div.jdtable
+	{mso-style-name:"jd table";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:"Arial","sans-serif";}
+p.jdnormalindent1, li.jdnormalindent1, div.jdnormalindent1
+	{mso-style-name:"jd normal indent 1";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:"Arial","sans-serif";}
+p.jdlistnumbers1, li.jdlistnumbers1, div.jdlistnumbers1
+	{mso-style-name:"jd list numbers 1";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.5in;
+	text-indent:-.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:"Arial","sans-serif";}
+p.BulletedListJD, li.BulletedListJD, div.BulletedListJD
+	{mso-style-name:"Bulleted List JD";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:11.0pt;
+	font-family:"Arial","sans-serif";}
+p.Normal2, li.Normal2, div.Normal2
+	{mso-style-name:"Normal 2";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:"Arial","sans-serif";}
+p.NormalIndent1, li.NormalIndent1, div.NormalIndent1
+	{mso-style-name:"Normal Indent 1";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:"Arial","sans-serif";}
+p.StyleBulletedListJDArial11pt, li.StyleBulletedListJDArial11pt, div.StyleBulletedListJDArial11pt
+	{mso-style-name:"Style Bulleted List JD + Arial 11 pt";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:11.0pt;
+	font-family:"Arial","sans-serif";}
+p.StyleHeading1Right, li.StyleHeading1Right, div.StyleHeading1Right
+	{mso-style-name:"Style Heading 1 + Right";
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	text-align:right;
+	page-break-after:avoid;
+	font-size:18.0pt;
+	font-family:"Arial","sans-serif";
+	font-weight:bold;}
+p.StyleHeading412pt, li.StyleHeading412pt, div.StyleHeading412pt
+	{mso-style-name:"Style Heading 4 + 12 pt";
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:"Arial","sans-serif";
+	font-weight:bold;}
+p.Style1, li.Style1, div.Style1
+	{mso-style-name:Style1;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:18.0pt;
+	font-family:"Arial","sans-serif";
+	color:navy;
+	font-weight:bold;}
+p.SuperTitle, li.SuperTitle, div.SuperTitle
+	{mso-style-name:SuperTitle;
+	margin-top:48.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-align:right;
+	border:none;
+	padding:0in;
+	font-size:14.0pt;
+	font-family:"Arial","sans-serif";
+	font-weight:bold;}
+p.jdwebheading1, li.jdwebheading1, div.jdwebheading1
+	{mso-style-name:"jd web heading 1";
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:14.0pt;
+	font-family:"Calibri","sans-serif";
+	color:#365F91;
+	font-weight:bold;}
+p.jdwebheading2, li.jdwebheading2, div.jdwebheading2
+	{mso-style-name:"jd web heading 2";
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:14.0pt;
+	font-family:"Cambria","serif";
+	color:#365F91;}
+p.jdwebheading3, li.jdwebheading3, div.jdwebheading3
+	{mso-style-name:"jd web heading 3";
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:"Cambria","serif";}
+p.jdwebnormal, li.jdwebnormal, div.jdwebnormal
+	{mso-style-name:"jd web normal";
+	mso-style-link:"jd web normal Char";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.jdwebheading4, li.jdwebheading4, div.jdwebheading4
+	{mso-style-name:"jd web heading 4";
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:10.0pt;
+	font-family:"Cambria","serif";
+	text-transform:uppercase;}
+p.jdwebfiguretitle, li.jdwebfiguretitle, div.jdwebfiguretitle
+	{mso-style-name:"jd web figure title";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";
+	font-weight:bold;}
+p.jdwebheading5, li.jdwebheading5, div.jdwebheading5
+	{mso-style-name:"jd web heading 5";
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:10.0pt;
+	font-family:"Cambria","serif";
+	font-weight:bold;}
+p.jdwebtable, li.jdwebtable, div.jdwebtable
+	{mso-style-name:"jd web table";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";}
+p.jdwebchapterheading, li.jdwebchapterheading, div.jdwebchapterheading
+	{mso-style-name:"jd web chapter heading";
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:14.0pt;
+	font-family:"Helvetica","sans-serif";
+	color:#365F91;
+	font-weight:bold;}
+p.jdwebbullets, li.jdwebbullets, div.jdwebbullets
+	{mso-style-name:"jd web bullets";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.jdweblistnumbers, li.jdweblistnumbers, div.jdweblistnumbers
+	{mso-style-name:"jd web list numbers";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.jdwebheading7, li.jdwebheading7, div.jdwebheading7
+	{mso-style-name:"jd web heading 7";
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:9.0pt;
+	font-family:"Cambria","serif";
+	text-transform:uppercase;}
+p.jdwebheading8, li.jdwebheading8, div.jdwebheading8
+	{mso-style-name:"jd web heading 8";
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:9.0pt;
+	font-family:"Cambria","serif";
+	text-transform:uppercase;
+	font-style:italic;
+	text-decoration:underline;}
+p.jdwebtablelistnumber, li.jdwebtablelistnumber, div.jdwebtablelistnumber
+	{mso-style-name:"jd web table list number";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.15in;
+	text-indent:-.15in;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";}
+p.jdwebemphasis, li.jdwebemphasis, div.jdwebemphasis
+	{mso-style-name:"jd web emphasis";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	font-style:italic;}
+p.jdwebfiguredescription, li.jdwebfiguredescription, div.jdwebfiguredescription
+	{mso-style-name:"jd web figure description";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";}
+p.StylejdwebfiguretitleNotBold, li.StylejdwebfiguretitleNotBold, div.StylejdwebfiguretitleNotBold
+	{mso-style-name:"Style jd web figure title + Not Bold";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:"Calibri","sans-serif";}
+p.jdwebheading6, li.jdwebheading6, div.jdwebheading6
+	{mso-style-name:"jd web heading 6";
+	margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:10.0pt;
+	font-family:"Cambria","serif";
+	text-decoration:underline;}
+p.jdwebnormalindent, li.jdwebnormalindent, div.jdwebnormalindent
+	{mso-style-name:"jd web normal indent";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.5in;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.Stylejdlistnumbers1CalibriBefore0ptAfter0pt, li.Stylejdlistnumbers1CalibriBefore0ptAfter0pt, div.Stylejdlistnumbers1CalibriBefore0ptAfter0pt
+	{mso-style-name:"Style jd list numbers 1 + Calibri Before\:  0 pt After\:  0 pt";
+	margin:0in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.jdweblistbullet, li.jdweblistbullet, div.jdweblistbullet
+	{mso-style-name:"jd web list bullet";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.StylejdwebnormalLeft05, li.StylejdwebnormalLeft05, div.StylejdwebnormalLeft05
+	{mso-style-name:"Style jd web normal + Left\:  0\.5\0022";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.5in;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.jdtocheading, li.jdtocheading, div.jdtocheading
+	{mso-style-name:"jd toc heading";
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:12.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:12.0pt;
+	font-family:"Helvetica","sans-serif";
+	color:#365F91;
+	font-weight:bold;}
+p.Stylejdweblistnumbersindent, li.Stylejdweblistnumbersindent, div.Stylejdweblistnumbersindent
+	{mso-style-name:"Style jd web list numbers indent";
+	margin:0in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.jdweblistletters, li.jdweblistletters, div.jdweblistletters
+	{mso-style-name:"jd web list letters";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.jdweblistbulletindent, li.jdweblistbulletindent, div.jdweblistbulletindent
+	{mso-style-name:"jd web list bullet indent";
+	margin-top:0in;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p.jdwebnormalindent2, li.jdwebnormalindent2, div.jdwebnormalindent2
+	{mso-style-name:"jd web normal indent 2";
+	margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:1.5in;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+span.jdwebnormalChar
+	{mso-style-name:"jd web normal Char";
+	mso-style-link:"jd web normal";
+	font-family:"Calibri","sans-serif";}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US link=blue vlink=purple>
+
+<div class=Section1>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc228780603">Starting i2b2 Workbench</a></p>
+
+</div>
+
+<p class=jdwebnormal>The following section outlines the steps to log into the
+i2b2 Workbench. The only pre-requisites are that the i2b2 Workbench has been
+successfully installed and the user has been setup with the appropriate access.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Go to the location (folder) in which the i2b2 Workbench was installed.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=438 height=329
+src="wb_intro_startWB_files/image001.jpg"></p>
+
+<p class=MsoCaption>Figure 1. 1      i2b2 Workbench - Folder</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Double click on <b>i2b2Workbench</b>.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=195 height=268
+src="wb_intro_startWB_files/image002.jpg"></p>
+
+<p class=MsoCaption>Figure 1. 2      i2b2 Workbench Application</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The <b>Login dialog box</b> will open.</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Enter you <b>User</b> <b>ID</b> and <b>Password</b>.</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: if you
+are using the HarvardDemo site the User ID is “<i>demo</i>” and the Password is
+“<i>demouser</i>”.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=291 height=241
+src="wb_intro_startWB_files/image003.jpg"></p>
+
+<p class=MsoCaption>Figure 1. 3      i2b2 Login Dialog Box</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The <b>Choose a Project dialog box</b> will open.</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: the
+project dialog box will only appear if you have access to multiple projects. If
+you only have access to one project you will be brought to the Welcome page.</p>
+
+<p class=jdwebnormal><span style='color:navy'>&nbsp;</span></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=500 height=203
+src="wb_intro_startWB_files/image004.jpg"></p>
+
+<p class=MsoCaption>Figure 1. 4      Choose a Project</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the down arrow (<img width=17 height=19
+src="wb_intro_startWB_files/image005.jpg"> ) to display the list of projects.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=500 height=203
+src="wb_intro_startWB_files/image006.jpg"></p>
+
+<p class=MsoCaption>Figure 1. 5      Choose Project Drop Down List</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Select the project you want to log into.</p>
+
+<p class=jdweblistnumbers>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The <b>Welcome</b> page will open.</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: the
+welcome page will open the first time you login. All subsequent logins will bring
+you directly to the desktop. You can access the welcome page anytime by
+selecting it from the Help menu on the toolbar.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=683 height=492
+src="wb_intro_startWB_files/image007.jpg"></p>
+
+<p class=MsoCaption>Figure 1. 6      i2b2 Welcome Window</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on <b>Go to the workbench</b>.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=538 height=245
+src="wb_intro_startWB_files/image008.jpg"></p>
+
+<p class=MsoCaption>Figure 1. 7      Workbench Link</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>The <b>desktop</b> of the i2b2 Workbench will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=604 height=436
+src="wb_intro_startWB_files/image009.jpg"></p>
+
+<p class=MsoCaption>Figure 1. 8      i2b2 Workbench Desktop</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+</div>
+
+</body>
+
+</html>

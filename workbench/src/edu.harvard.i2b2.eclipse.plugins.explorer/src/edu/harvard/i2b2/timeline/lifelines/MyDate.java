@@ -43,9 +43,6 @@ public class MyDate {
     }
 
     public MyDate(String str) throws Exception{
-       StringTokenizer tokens;
-       String token;
-
        if(str.equals("today"))  {
         MyDate today = loadRecord.getToday();
 
@@ -141,20 +138,20 @@ public class MyDate {
        else {
         tokens = new StringTokenizer(str1, "/");
         token = tokens.nextToken();
-        month = (int)(new Integer(token.trim()).intValue());
+        month = (new Integer(token.trim()).intValue());
 
         token = tokens.nextToken();
-        day = (int)(new Integer(token.trim()).intValue());
+        day = (new Integer(token.trim()).intValue());
 
         token = tokens.nextToken();
-        year = (int)(new Integer(token.trim()).intValue());
+        year = (new Integer(token.trim()).intValue());
 
         tokens = new StringTokenizer(str2, ":");
         token = tokens.nextToken();
-        hour = (int)(new Integer(token.trim()).intValue());
+        hour = (new Integer(token.trim()).intValue());
 
         token = tokens.nextToken();
-        min = (int)(new Integer(token.trim()).intValue());
+        min = (new Integer(token.trim()).intValue());
 
         if(hour == 12){
           if(str3.equals("AM")) hour = 0;
@@ -264,7 +261,7 @@ public class MyDate {
     }
 
     public MyDate DateFromStart(long days){
-       int day,month,year,i;
+       int day,month,year;
        long y400,d400,y100,d100,y4,d4,y1,d1,d;
 
        y400=days/(365*400+97);

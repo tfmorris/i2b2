@@ -17,6 +17,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
+import edu.harvard.i2b2.eclipse.plugins.ontology.util.MessageUtil;
 import edu.harvard.i2b2.eclipse.plugins.ontology.views.OntologyDisplayXmlMessageDialog;
 
 /**
@@ -25,20 +26,17 @@ import edu.harvard.i2b2.eclipse.plugins.ontology.views.OntologyDisplayXmlMessage
  */
 public class ViewResponseMessageToolbarActionDelegate implements IViewActionDelegate {
 	
-	private OntologyView ontView;
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IViewActionDelegate#init(org.eclipse.ui.IViewPart)
 	 */
 	public void init(IViewPart view) {
-		ontView = (OntologyView) view;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
 	public void run(IAction action) {
-		JFrame frame = new OntologyDisplayXmlMessageDialog(System.getProperty("ONT_RESPONSE"));
+		JFrame frame = new OntologyDisplayXmlMessageDialog(MessageUtil.getInstance().getNavResponse());
 		frame.setTitle("Navigate Terms Last XML Response Message");
 		frame.setVisible(true);
 	}

@@ -26,7 +26,7 @@ public class LoginThread extends Thread {
 	private String userName;
 	public String getUserName() {return userName;}
 	public String getProject() {return project;}
-	private String msg;
+	private String msg = "";
 	private UserInfoBean userInfoBean;
 	public UserInfoBean getUserBean() {return userInfoBean;}	
 	

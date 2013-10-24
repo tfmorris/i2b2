@@ -139,7 +139,7 @@ public class Timer
 
                 do
                 {
-                    thread.sleep(delay);
+                    Thread.sleep(delay);
 
                     if (execute)
                     {

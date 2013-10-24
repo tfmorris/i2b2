@@ -31,9 +31,7 @@ public class GetChildrenRequestMessage extends OntologyRequestData {
 	public static final String THIS_CLASS_NAME = GetChildrenRequestMessage.class.getName();
     private Log log = LogFactory.getLog(THIS_CLASS_NAME);	
 
-    private GetChildrenType childrenType;
-
-	public GetChildrenRequestMessage() {}
+    public GetChildrenRequestMessage() {}
 	
 	/**
 	 * Function to build getChildren type for a given request

@@ -57,7 +57,8 @@ public class MatchInfo {
 	return matchString;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
 	return "(" + start + ":" + (end - start) + ":\"" + matchString + "\")";
     }
 }

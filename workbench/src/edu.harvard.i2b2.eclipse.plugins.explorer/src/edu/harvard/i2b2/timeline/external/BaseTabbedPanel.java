@@ -420,6 +420,7 @@ public abstract class BaseTabbedPanel extends Panel
 		repaint();
 	}
 
+	@Override
 	public void layout()
 	{
 		Rectangle r = bounds();
@@ -456,6 +457,7 @@ public abstract class BaseTabbedPanel extends Panel
 		}
 	}
 
+	@Override
 	public synchronized void paint(Graphics g)
 	{
 		Rectangle r = bounds();
@@ -772,6 +774,7 @@ public abstract class BaseTabbedPanel extends Panel
 		g.setColor(c);
 	}
 
+	@Override
 	public boolean handleEvent(Event evt)
 	{
 		switch (evt.id)
@@ -821,19 +824,24 @@ public abstract class BaseTabbedPanel extends Panel
 	// Component functions overridden so user cannot change the
 	// way this container should work
 	// ===========================================================
-    public Component add(Component comp) { return comp; }
-    public synchronized Component add(Component comp, int pos) { return comp; }
-    public synchronized Component add(String name, Component comp) { return comp; }
-    public synchronized void remove(Component comp)
+    @Override
+	public Component add(Component comp) { return comp; }
+    @Override
+	public synchronized Component add(Component comp, int pos) { return comp; }
+    @Override
+	public synchronized Component add(String name, Component comp) { return comp; }
+    @Override
+	public synchronized void remove(Component comp)
     {
     	if (comp == dbLeft || comp == dbRight)
     		return;
    		super.remove(comp);
-    	if (comp == (Component) userPanel)
+    	if (comp == userPanel)
 	   		userPanel = null;
     }
 
-    public synchronized void removeAll()
+    @Override
+	public synchronized void removeAll()
     {
     	super.removeAll();
 		super.add(dbLeft, -1);
@@ -841,8 +849,10 @@ public abstract class BaseTabbedPanel extends Panel
     	userPanel = null;
     }
 
-    public void setLayout(LayoutManager mgr) {}
+    @Override
+	public void setLayout(LayoutManager mgr) {}
 
+	@Override
 	public Insets insets()
 	{
 		btpInsets = super.insets();
@@ -863,14 +873,16 @@ public abstract class BaseTabbedPanel extends Panel
 		return btpInsets;
     }
 
-    public Dimension preferredSize()
+    @Override
+	public Dimension preferredSize()
     {
 		Dimension s = size();
 		Dimension m = minimumSize();
 		return new Dimension(Math.max(s.width, m.width), Math.max(s.height, m.height));
     }
 
-    public Dimension minimumSize()
+    @Override
+	public Dimension minimumSize()
     {
     	if (userPanel != null)
     	{

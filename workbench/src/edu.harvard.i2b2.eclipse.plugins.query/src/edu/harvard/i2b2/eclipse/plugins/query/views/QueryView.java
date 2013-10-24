@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *     Wensong Pan
+ *     Janice Donahoe (documentation for on-line help)
  */
 
 package edu.harvard.i2b2.eclipse.plugins.query.views;
@@ -20,8 +21,12 @@ import javax.swing.UIManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.help.IWorkbenchHelpSystem;
 import org.eclipse.ui.part.*;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -29,8 +34,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.SWT;
 
 import edu.harvard.i2b2.eclipse.ICommonMethod;
-import edu.harvard.i2b2.query.QueryPanel;
-import edu.harvard.i2b2.query.QueryPanelInvestigator;
+import edu.harvard.i2b2.query.ui.QueryPanel;
+import edu.harvard.i2b2.query.ui.QueryPanelInvestigator;
 
 
 /**
@@ -39,7 +44,6 @@ import edu.harvard.i2b2.query.QueryPanelInvestigator;
  *  This class defines the Query View to the
  *  Eclipse workbench
  *  
- *  @author Wensong Pan
  */
 
 public class QueryView extends ViewPart implements ICommonMethod {
@@ -51,6 +55,11 @@ public class QueryView extends ViewPart implements ICommonMethod {
 	private java.awt.Container oAwtContainer;
 	
 	private int mode_ = 0;
+	
+	//setup context help
+	public static final String PREFIX = "edu.harvard.i2b2.eclipse.plugins.query";
+	public static final String QUERY_VIEW_CONTEXT_ID = PREFIX + ".queryTool_view_help_context";
+	private Composite queryComposite;
 	
 	private QueryPanel queryPanel;
 	public QueryPanel queryPanel() {return queryPanel;}
@@ -66,15 +75,21 @@ public class QueryView extends ViewPart implements ICommonMethod {
 	 * This is a callback that will allow us
 	 * to create the viewer and initialize it.
 	 */
+	@Override
 	public void createPartControl(Composite parent) {
-		log.info("Query Tool plugin version 1.0.0");
+		
+		//setup context help
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, QUERY_VIEW_CONTEXT_ID);
+		addHelpButtonToToolBar();
+		
+		log.info("Query Tool plugin version 1.3.0");
 		GridLayout topGridLayout = new GridLayout(1, false);
 		topGridLayout.numColumns = 1;
 		topGridLayout.marginWidth = 2;
 		topGridLayout.marginHeight = 2;
 		parent.setLayout(topGridLayout);		
 		
-		Composite queryComposite = new Composite(parent, SWT.NONE);
+		queryComposite = new Composite(parent, SWT.NONE);
 		queryComposite.setLayout(new FillLayout(SWT.VERTICAL));
 		GridData gridData2 = new GridData();
 		gridData2.horizontalAlignment = GridData.FILL;
@@ -110,6 +125,17 @@ public class QueryView extends ViewPart implements ICommonMethod {
 	    
 	}
 	
+	//add help button
+	private void addHelpButtonToToolBar() {
+		final IWorkbenchHelpSystem helpSystem = PlatformUI.getWorkbench().getHelpSystem();
+		Action helpAction = new Action(){
+			public void run() {
+				helpSystem.displayHelpResource("/edu.harvard.i2b2.eclipse.plugins.query/html/i2b2_qt_index.htm");
+		}
+		};
+		helpAction.setImageDescriptor(ImageDescriptor.createFromFile(QueryView.class, "/icons/help.png"));
+		getViewSite().getActionBars().getToolBarManager().add(helpAction);
+	}
 	/**
 	 * This is a callback that will allow the i2b2 views to communicate
 	 * with each other.
@@ -117,8 +143,9 @@ public class QueryView extends ViewPart implements ICommonMethod {
 	public void doSomething(Object obj) {
 		String msg = (String)obj;
 		//System.out.println("Query View: "+ msg);
+		
 		queryPanel().getTopPanel().reset();
-		queryPanel().dataModel().redrawPanelFromXml(msg);
+		queryPanel().dataModel().redrawPanelFromXml(msg);		
 	}
 
 	@Override
@@ -137,7 +164,8 @@ public class QueryView extends ViewPart implements ICommonMethod {
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
+	@Override
 	public void setFocus() {
-
+		queryComposite.setFocus();
 	}
 }

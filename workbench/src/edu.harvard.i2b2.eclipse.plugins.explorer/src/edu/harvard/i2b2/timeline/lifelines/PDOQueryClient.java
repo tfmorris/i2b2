@@ -12,7 +12,6 @@
 package edu.harvard.i2b2.timeline.lifelines;
 
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -36,30 +35,24 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.harvard.i2b2.eclipse.plugins.ontology.ws.*;
+import edu.harvard.i2b2.eclipse.plugins.explorer.ontologyMessaging.*;
 
-import edu.harvard.i2b2.explorer.PDOResponseMessageFactory;
-import edu.harvard.i2b2.explorer.datavo.ExplorerJAXBUtil;
+import edu.harvard.i2b2.explorer.dataModel.PDOResponseMessageModel;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.StatusType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.ConceptType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.ConceptsType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.MatchStrType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.VocabRequestType;
 
-import edu.harvard.i2b2.ontclient.datavo.i2b2message.StatusType;
-import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
-import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptsType;
-import edu.harvard.i2b2.ontclient.datavo.vdo.MatchStrType;
-import edu.harvard.i2b2.ontclient.datavo.vdo.VocabRequestType;
-
-import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
-import edu.harvard.i2b2.crcxmljaxb.datavo.dnd.DndType;
-import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.ObservationFactType;
-import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.PatientDataType;
+import edu.harvard.i2b2.common.datavo.pdo.ObservationSet;
+import edu.harvard.i2b2.common.datavo.pdo.ObservationType;
 
 public class PDOQueryClient {
 	private static final Log log = LogFactory.getLog(PDOQueryClient.class);
 	private static EndpointReference targetEPR; 
-	private static String servicename = null;
-	
 	private static String getPDOServiceName(){
 		
-	    return UserInfoBean.getInstance().getCellDataUrl("pdo") + "pdorequest";
+	    return UserInfoBean.getInstance().getCellDataUrl("CRC") + "pdorequest";
 	}
 	
 	public static OMElement getQueryPayLoad(String str) throws Exception {
@@ -176,15 +169,15 @@ public class PDOQueryClient {
 	
 	public static String[] getNotes(String result) {
 		try {
-			PDOResponseMessageFactory pdoresponsefactory = new PDOResponseMessageFactory();
-			List<PatientDataType.ObservationFactSet> factSets = 
+			PDOResponseMessageModel pdoresponsefactory = new PDOResponseMessageModel();
+			List<ObservationSet> factSets = 
 				pdoresponsefactory.getFactSetsFromResponseXML(result);
-			PatientDataType.ObservationFactSet observationFactSet = factSets.get(0);
-			ObservationFactType obsFactType = observationFactSet.getObservationFact().get(0);
-			String eNotes = (String)obsFactType.getObservationBlob();
-			System.out.println("notes: "+eNotes);		
+			ObservationSet observationFactSet = factSets.get(0);
+			ObservationType obsFactType = observationFactSet.getObservation().get(0);
+			String eNotes = (String)obsFactType.getObservationBlob().getContent().get(0);
+//			System.out.println("notes: "+eNotes);		
 			
-			return new String[]{eNotes, obsFactType.getValtypeCd(), result};
+			return new String[]{eNotes, obsFactType.getValuetypeCd(), obsFactType.getValueflagCd().getValue(), result};
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -240,7 +233,7 @@ public class PDOQueryClient {
 	public static void main(String[] args) throws Exception {
 		PDORequestMessageFactory pdoFactory = new PDORequestMessageFactory();
 				
-		String xmlStr = pdoFactory.requestXmlMessage(29, 2002906454, "LCS-I2B2:c1009c", "10020626", null, "3-18-2004 12:00");
+		String xmlStr = pdoFactory.requestXmlMessage("29", "2002906454", "LCS-I2B2:c1009c", "10020626", null, "3-18-2004 12:00");
 		String result = sendQueryRequestREST(xmlStr);
 		
 		//FileWriter fwr = new FileWriter("c:\\testdir\\response.txt");

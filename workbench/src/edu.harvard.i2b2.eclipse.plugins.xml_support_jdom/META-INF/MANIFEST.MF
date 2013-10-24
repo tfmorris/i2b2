@@ -5,7 +5,7 @@ Bundle-SymbolicName: edu.harvard.i2b2.eclipse.plugins.xml_support_jdom
 Bundle-Version: 1.0
 Bundle-ClassPath: jdom-contrib.jar,
  jdom.jar
-Bundle-Vendor: i2b2.mgh.harvard.edu
+Bundle-Vendor: i2b2.harvard.edu
 Bundle-Localization: plugin
 Export-Package: .,
  org.jdom,

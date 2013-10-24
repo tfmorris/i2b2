@@ -84,7 +84,8 @@ class Lite implements Cloneable {
    */
   public Lite copy() { return (Lite)clone(); }
 
-  public Object clone() {
+  @Override
+public Object clone() {
     try { 
       return super.clone();
     } catch (CloneNotSupportedException e) { 

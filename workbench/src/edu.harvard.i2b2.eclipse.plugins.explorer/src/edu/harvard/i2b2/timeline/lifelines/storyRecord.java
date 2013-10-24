@@ -13,7 +13,6 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 import java.util.*;
-import edu.harvard.i2b2.timeline.labeling.*;
 
 /**
  * storyRecord class defines event
@@ -22,10 +21,8 @@ public class storyRecord extends genRecord {
     private String cause = "";
     private Color rectColor;
     private int rectWidth;
-    private static int rectp = 0;
     private String theUrl;
     private Hashtable attrList;   
-    private Image theImage;
     private String inputLine;
     private Rectangle currentBarArea;
     private Rectangle currentLabelArea;
@@ -37,12 +34,10 @@ public class storyRecord extends genRecord {
     public int currentY;
     private int rwinWidth;
     
-    private int mark, optionnum, ynum, diff1, diff2;
+    private int mark, optionnum, diff1, diff2;
     public int streamX, streamY, startX, startY;
     private int[][] options = new int[4][2];
     private boolean[] lbloption = new boolean[3];
-    private boolean[] arrowoption = new boolean[2];   
-
     public storyRecord(String type, String cause, MyDate start_date, MyDate end_date,Color rectColor,
                         int rectWidth,String theUrl,Hashtable attrList, String inputLine) {
         super(type);
@@ -59,10 +54,10 @@ public class storyRecord extends genRecord {
         labelX = saveLabelX = -1;
         labelY = saveLabelY = -10000; 
         if (lbloption[1]) {
-            optionnum=2; ynum=1;
+            optionnum=2;
         }
         else if (lbloption[2])  {
-            optionnum=4; ynum=2;
+            optionnum=4;
         }
         
         currentBarArea = new Rectangle(-1,0,0,0);
@@ -72,11 +67,13 @@ public class storyRecord extends genRecord {
         textColor = Color.black;
     }
 
-    public String getInputLine() {
+    @Override
+	public String getInputLine() {
         return inputLine;
     }
 
-    public String getUrl() {
+    @Override
+	public String getUrl() {
         return theUrl;
     }
 
@@ -84,23 +81,28 @@ public class storyRecord extends genRecord {
         this.theUrl = theUrl;
     }
     
-    public boolean getSelected()    {
+    @Override
+	public boolean getSelected()    {
         return selected;
     }
     
-    public genRecord getSelected(int x,int y) {      
+    @Override
+	public genRecord getSelected(int x,int y) {      
         return this;  
     }
 
-    public String getCause(){
+    @Override
+	public String getCause(){
         return cause;
     }
 
-    public Color getRectColor(){
+    @Override
+	public Color getRectColor(){
         return rectColor;
     }
     
-    public int getRectWidth(){
+    @Override
+	public int getRectWidth(){
         return rectWidth;
     }
     
@@ -108,12 +110,12 @@ public class storyRecord extends genRecord {
         this.rectWidth = rectWidth;
     }
 
-    public Hashtable getAttrList()  {
+    @Override
+	public Hashtable getAttrList()  {
         return attrList;
     }
 
     public void setImage(Image theImage) {
-        this.theImage = theImage;
     }
 
     /**
@@ -126,15 +128,15 @@ public class storyRecord extends genRecord {
             if (record.lbllength == 0)
                 labelWidth=0;
             else if (cause.length() > record.lbllength)
-                labelWidth = record.theTabPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause.substring(0, record.lbllength));
+                labelWidth = mainPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause.substring(0, record.lbllength));
             else
-                labelWidth = record.theTabPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause);
+                labelWidth = mainPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause);
         }
         else {
             if (cause.equals(" "))
                 labelWidth=0;
             else
-                labelWidth = record.theTabPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause);
+                labelWidth = mainPanel.theTimeLinePanel.fontMetrics1.stringWidth(cause);
         }        
             
         return labelWidth;
@@ -151,7 +153,8 @@ public class storyRecord extends genRecord {
     /**
      * Check whether the event and its corrsponding label contains the point (x,y)
      */
-    public boolean contains(int x,int y) {
+    @Override
+	public boolean contains(int x,int y) {
        if (currentBarArea.contains(x,y) || currentLabelArea.contains(x,y) ) {
           return true;
        } 
@@ -169,7 +172,8 @@ public class storyRecord extends genRecord {
     /**
      * Check whether the event intersects with a rectangle
      */
-    public genRecord intersects(int rubber_startX, int rubber_startY, int rubber_endX, int rubber_endY) {
+    @Override
+	public genRecord intersects(int rubber_startX, int rubber_startY, int rubber_endX, int rubber_endY) {
         Rectangle rubberRect = new Rectangle(rubber_startX, rubber_startY, rubber_endX-rubber_startX, rubber_endY-rubber_startY);
         if (currentBarArea.intersects(rubberRect))  {
             stream_selected = true;
@@ -202,7 +206,8 @@ public class storyRecord extends genRecord {
     /**
      * Label the event
      */
-    public boolean fitlabel(int currentY, timeLinePanel displayArea, boolean backtrack, int height) {
+    @Override
+	public boolean fitlabel(int currentY, timeLinePanel displayArea, boolean backtrack, int height) {
         scale aScale = displayArea.getScale();
         int rwinWidth = displayArea.getRwinWidth();
         int rwinOffset = displayArea.getRwinOffset();
@@ -213,19 +218,17 @@ public class storyRecord extends genRecord {
             lbloption[i] = record.lbloption[i];
            
         if (lbloption[1]) {
-            optionnum=2; 
-            ynum=1;
+            optionnum=2;
         }
         else if (lbloption[2])   {
-            optionnum=4; 
-            ynum=2;
+            optionnum=4;
         }
             
         if( !(aScale.offScale(start_date,end_date)) )   {
         
-            double scaleFactor = (double) ((double)rwinWidth/ (double) (aScale.getDateMin()).MinDiff( aScale.getDateMax() ));                
-            diff1 = (int)Math.round((double)((aScale.getDateMin()).MinDiff(start_date) * scaleFactor));         
-            diff2 = (int)Math.round((double)((aScale.getDateMin()).MinDiff(end_date) * scaleFactor));
+            double scaleFactor = ((double)rwinWidth/ (double) (aScale.getDateMin()).MinDiff( aScale.getDateMax() ));                
+            diff1 = (int)Math.round(((aScale.getDateMin()).MinDiff(start_date) * scaleFactor));         
+            diff2 = (int)Math.round(((aScale.getDateMin()).MinDiff(end_date) * scaleFactor));
             
             int x1 = rwinOffset + diff1 + 1;
             int x2 = rwinOffset + diff1 + 1 - getLabelWidth();
@@ -308,7 +311,8 @@ public class storyRecord extends genRecord {
 	return fit;
    }
    
-   public void resetlabel() {
+   @Override
+public void resetlabel() {
         mark=0;
    }
 
@@ -321,16 +325,14 @@ public class storyRecord extends genRecord {
         int fontTextHeight = displayArea.getFontTextHeight();
         Graphics g = displayArea.getOfg();
         String tempCause = new String(""); // needed?
-        boolean labeling = false;
-        
         rwinWidth = displayArea.getRwinWidth();
         this.currentY = currentY;
         g.setColor(Color.black);
-		g.setFont(record.theTabPanel.theTimeLinePanel.fontMetrics1.getFont());
+		g.setFont(mainPanel.theTimeLinePanel.fontMetrics1.getFont());
         
-        double scaleFactor = (double) ((double)rwinWidth/ (double) (aScale.getDateMin()).MinDiff( aScale.getDateMax() ));                
-        diff1 = (int)Math.round((double)((aScale.getDateMin()).MinDiff(start_date) * scaleFactor));         
-        diff2 = (int)Math.round((double)((aScale.getDateMin()).MinDiff(end_date) * scaleFactor));
+        double scaleFactor = ((double)rwinWidth/ (double) (aScale.getDateMin()).MinDiff( aScale.getDateMax() ));                
+        diff1 = (int)Math.round(((aScale.getDateMin()).MinDiff(start_date) * scaleFactor));         
+        diff2 = (int)Math.round(((aScale.getDateMin()).MinDiff(end_date) * scaleFactor));
             
         if( !(aScale.offScale(start_date,end_date)) )    {
             startY = currentY + ((silhouette)? record.SILPIXEL:fontTextHeight);
@@ -345,7 +347,8 @@ public class storyRecord extends genRecord {
   /**
    * Draw the event on the display
    */
-  public void drawData(int currentY, timeLinePanel displayArea, boolean silhouette, boolean timeline, boolean summaryrecord) {
+  @Override
+public void drawData(int currentY, timeLinePanel displayArea, boolean silhouette, boolean timeline, boolean summaryrecord) {
         int fontTextHeight = displayArea.getFontTextHeight();
         Graphics g = displayArea.getOfg();
          
@@ -394,7 +397,8 @@ public class storyRecord extends genRecord {
   /**
    * Draw the label on the display
    */
-  public void drawLabel(int currentY, timeLinePanel displayArea, boolean label, boolean summaryrecord, boolean stream) {
+  @Override
+public void drawLabel(int currentY, timeLinePanel displayArea, boolean label, boolean summaryrecord, boolean stream) {
         int fontTextHeight = displayArea.getFontTextHeight();
         Graphics g = displayArea.getOfg();
         int rwinWidth = displayArea.getRwinWidth();
@@ -409,13 +413,13 @@ public class storyRecord extends genRecord {
 	        if (selected && summaryrecord)   {
 		        //g.setColor(Color.blue);
 		        g.setColor(textColor);
-		        Font thisFont = record.theTabPanel.theTimeLinePanel.fontMetrics1.getFont();
+		        Font thisFont = mainPanel.theTimeLinePanel.fontMetrics1.getFont();
 		        //descent = Toolkit.getDefaultToolkit().getFontMetrics(thisFont).getMaxDescent();
 		        g.setFont(new Font(thisFont.getName(), Font.BOLD, thisFont.getSize()));
 		    }
 		    else   {
 		        //g.setColor(selectedColor);   // gray
-		        g.setFont(record.theTabPanel.theTimeLinePanel.fontMetrics1.getFont());
+		        g.setFont(mainPanel.theTimeLinePanel.fontMetrics1.getFont());
 		        g.setColor(textColor);
 		    }
 		        
@@ -460,12 +464,14 @@ public class storyRecord extends genRecord {
         }
    }
     
-  public void setSummaryFlag(boolean label, boolean timeline)   {
+  @Override
+public void setSummaryFlag(boolean label, boolean timeline)   {
         this.label = !label;        // if summary is labeled, then do not label this record
         this.timeline = !timeline;
   }
   
-  public void redraw() {
+  @Override
+public void redraw() {
 	  Rectangle r = getBarArea();
       //System.out.println("original rect: "+r.x+","+r.y);
       r.x = -1;
@@ -475,14 +481,16 @@ public class storyRecord extends genRecord {
       //System.out.println("set rect to: "+getBarArea().x+","+getBarArea().y);
   }
   
-  public void clearConflicts(int currentY) {
+  @Override
+public void clearConflicts(int currentY) {
       if (genRecord.xOverlap1 != null && genRecord.xOverlap1.identifierIsEqualTo(currentY+labelY))
 	    genRecord.xOverlap1.deleteConflicts(labelX, labelX + getLabelWidth());
       else if (lbloption[2] && genRecord.xOverlap2 != null && genRecord.xOverlap2.identifierIsEqualTo(currentY+labelY))
         genRecord.xOverlap2.deleteConflicts(labelX, labelX + getLabelWidth());
   }
 
-  public void setConflicts(int currentY) {
+  @Override
+public void setConflicts(int currentY) {
       if (genRecord.xOverlap1.identifierIsEqualTo(currentY+labelY))
 	    genRecord.xOverlap1.resolveConflicts(labelX, labelX + getLabelWidth());
       else if (lbloption[2] && genRecord.xOverlap2.identifierIsEqualTo(currentY+labelY))
@@ -492,7 +500,8 @@ public class storyRecord extends genRecord {
   /**
    * Mark the event as unselected
    */
-  public void unSelect() { 
+  @Override
+public void unSelect() { 
         currentColor = new Color(selectedColor.getRed(),selectedColor.getGreen(),selectedColor.getBlue()); // tried this on 12/20/97 without unselect and with doublepanels
         textColor =  new Color(selectedColor.getRed(),selectedColor.getGreen(),selectedColor.getBlue());
         selected = false; 
@@ -501,7 +510,8 @@ public class storyRecord extends genRecord {
   /**
    * Mark the event as selected
    */
-  public void select() { 
+  @Override
+public void select() { 
         currentColor = rectColor;
         textColor = Color.black; 
         selected = true; 

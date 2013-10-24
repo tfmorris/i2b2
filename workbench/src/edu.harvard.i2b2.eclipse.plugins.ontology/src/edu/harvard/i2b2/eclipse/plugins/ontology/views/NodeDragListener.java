@@ -38,8 +38,23 @@ final class NodeDragListener implements DragSourceListener
 	
 	public void dragStart(DragSourceEvent event) 
 	{
-		selectionOnDrag = (IStructuredSelection)this.viewer.getSelection();
+		Iterator it = ((IStructuredSelection)this.viewer.getSelection()).iterator();
+		while(it.hasNext())
+		{
+			TreeNode node = (TreeNode) it.next();
+			ConceptType data = node.getData();
+		    if (((data.getVisualattributes().substring(0,1).equals("C"))) ||
+    		((data.getVisualattributes().substring(1,2).equals("I")))){
+				event.doit = false;		
+				event.detail = DND.DROP_NONE;
+				return;
+		    }
+		}
+
 		event.doit = true;		
+		event.detail = DND.DROP_COPY;
+		
+		selectionOnDrag = (IStructuredSelection)this.viewer.getSelection();
 	}
 	
 	// snm - this was the old drag that produced a query
@@ -106,10 +121,12 @@ final class NodeDragListener implements DragSourceListener
 		while(iterator.hasNext())
 		{
 			TreeNode node = (TreeNode) iterator.next();
-			ConceptType data = (ConceptType) node.getData();
-			concepts.getConcept().add(data);
+			ConceptType data = node.getData();
+		    if ((!(data.getVisualattributes().substring(0,1).equals("C"))) &&
+    		(!(data.getVisualattributes().substring(1,2).equals("I"))))
+				concepts.getConcept().add(data);
 		}	
-			
+
 		try {
 			strWriter = new StringWriter();
 			DndType dnd = new DndType();
@@ -118,14 +135,15 @@ final class NodeDragListener implements DragSourceListener
 
 			edu.harvard.i2b2.ontclient.datavo.dnd.ObjectFactory of = new edu.harvard.i2b2.ontclient.datavo.dnd.ObjectFactory();
 			OntologyJAXBUtil.getJAXBUtil().marshaller(of.createPluginDragDrop(dnd), strWriter);
-			
-			
+
+
 		} catch (JAXBUtilException e) {
 			log.error("Error marshalling Ont drag text");
 		} 
 
-	//	log.info("Ont Client dragged "+ strWriter.toString());
+		//	log.info("Ont Client dragged "+ strWriter.toString());
 		event.data = strWriter.toString();
+
 	}
 	
 /*	//snm - this is the new drag that produces XML  -- JDOM based

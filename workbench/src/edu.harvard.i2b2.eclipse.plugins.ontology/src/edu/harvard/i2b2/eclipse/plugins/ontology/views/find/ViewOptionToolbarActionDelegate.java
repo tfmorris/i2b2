@@ -16,18 +16,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
-import edu.harvard.i2b2.eclipse.plugins.ontology.views.OntologyDisplayOptionsDialog;
-import edu.harvard.i2b2.eclipse.plugins.ontology.views.OntologyView;
-
 public class ViewOptionToolbarActionDelegate implements IViewActionDelegate {
-	
-	private FindView findView;
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IViewActionDelegate#init(org.eclipse.ui.IViewPart)
 	 */
 	public void init(IViewPart view) {
-		findView = (FindView) view;
 	}
 
 	/* (non-Javadoc)

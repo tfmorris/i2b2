@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="CheckoutAsWizard">
+	</section>
+	<section name="NewLocationWizard">
+		<list key="ConfigurationWizardMainPage.STORE_HOSTNAME_ID">
+			<item value="phsi2b2appdev.mgh.harvard.edu"/>
+		</list>
+		<list key="ConfigurationWizardMainPage.STORE_PATH_ID">
+			<item value="/cvs/repository"/>
+		</list>
+		<list key="ConfigurationWizardMainPage.STORE_USERNAME_ID">
+			<item value="mem61"/>
+		</list>
+	</section>
+</section>

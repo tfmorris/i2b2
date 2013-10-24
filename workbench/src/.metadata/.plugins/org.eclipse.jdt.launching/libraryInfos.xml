@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<libraryInfos>
+<libraryInfo home="C:\Program Files\Java\jre1.5.0_16" version="1.5.0_16">
+<bootpath>
+<entry path="C:\Program Files\Java\jre1.5.0_16\lib\rt.jar"/>
+<entry path="C:\Program Files\Java\jre1.5.0_16\lib\i18n.jar"/>
+<entry path="C:\Program Files\Java\jre1.5.0_16\lib\sunrsasign.jar"/>
+<entry path="C:\Program Files\Java\jre1.5.0_16\lib\jsse.jar"/>
+<entry path="C:\Program Files\Java\jre1.5.0_16\lib\jce.jar"/>
+<entry path="C:\Program Files\Java\jre1.5.0_16\lib\charsets.jar"/>
+<entry path="C:\Program Files\Java\jre1.5.0_16\classes"/>
+</bootpath>
+<extensionDirs>
+<entry path="C:\Program Files\Java\jre1.5.0_16\lib\ext"/>
+</extensionDirs>
+<endorsedDirs>
+<entry path="C:\Program Files\Java\jre1.5.0_16\lib\endorsed"/>
+</endorsedDirs>
+</libraryInfo>
+</libraryInfos>

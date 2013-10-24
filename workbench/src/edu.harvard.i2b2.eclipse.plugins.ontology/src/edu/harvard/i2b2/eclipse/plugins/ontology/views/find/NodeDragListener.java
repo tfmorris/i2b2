@@ -17,10 +17,6 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.OntologyJAXBUtil;
 import edu.harvard.i2b2.eclipse.plugins.ontology.views.find.NodeDragListener;
@@ -55,7 +51,7 @@ final class NodeDragListener implements DragSourceListener
 		while(iterator.hasNext())
 		{
 			TreeNode node = (TreeNode) iterator.next();
-			ConceptType data = (ConceptType) node.getData();
+			ConceptType data = node.getData();
 			concepts.getConcept().add(data);
 		}	
 			

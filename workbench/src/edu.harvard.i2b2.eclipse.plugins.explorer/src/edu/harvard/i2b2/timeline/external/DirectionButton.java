@@ -1,6 +1,5 @@
 package edu.harvard.i2b2.timeline.external;
 
-import java.awt.Rectangle;
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -110,7 +109,8 @@ public class DirectionButton
         bottom = b;
     }
 
-    public void paint(Graphics g)
+    @Override
+	public void paint(Graphics g)
     {
         super.paint(g);
 
@@ -128,7 +128,8 @@ public class DirectionButton
 		g.fillPolygon(poly);
     }
 
-    public Dimension preferredSize()
+    @Override
+	public Dimension preferredSize()
     {
         Dimension s;
 

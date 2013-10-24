@@ -11,9 +11,7 @@
 
 package edu.harvard.i2b2.timeline.lifelines;
 
-import java.applet.*;
 import java.awt.*;
-import java.util.*;
 
 public class monthSlider extends slider{
 
@@ -22,10 +20,10 @@ public class monthSlider extends slider{
     public monthSlider(int width, int height,MyDate today){
         super(width, height,today);
 
-        dateMin = record.theData.getMinDate();
-        dateMax = record.theData.getMinDate();
-        validDateMin = record.theData.getMinDate();
-        validDateMax = record.theData.getMinDate();
+        dateMin = loadRecord.getMinDate();
+        dateMax = loadRecord.getMinDate();
+        validDateMin = loadRecord.getMinDate();
+        validDateMax = loadRecord.getMinDate();
         aScale = new scale(rangeWidth, validDateMin, validDateMax,today);
 
         validMin = 0; validMax = rangeWidth;
@@ -61,12 +59,13 @@ public class monthSlider extends slider{
             maxClipRect.reshape(0,0,0,0);
             maxClipPos = sliderWidth;
             lowValue = 0; highValue = sliderWidth - 2*thumbWidth;
-            record.theTabPanel.theMonthSlider.repaint();
-            record.theTabPanel.theWeekSlider.wakeup("disabled",null);
+            mainPanel.theMonthSlider.repaint();
+            mainPanel.theWeekSlider.wakeup("disabled",null);
         }
     }
 
-    public boolean mouseDrag(Event e, int x, int y){
+    @Override
+	public boolean mouseDrag(Event e, int x, int y){
         if(status.equals("disabled")) return true;
         switch(currentPos){
             case MINTHUMB:
@@ -85,9 +84,9 @@ public class monthSlider extends slider{
                     lowValue = minThumbPos;
                     adjust(MINTHUMB, lowValue);
                     if(rangeWidth == monthRange)
-                       record.theTabPanel.theWeekSlider.wakeup("enabled",validDateMin);
+                       mainPanel.theWeekSlider.wakeup("enabled",validDateMin);
                     else if(rangeWidth > monthRange)
-                       record.theTabPanel.theWeekSlider.wakeup("disabled",null);
+                       mainPanel.theWeekSlider.wakeup("disabled",null);
                     repaint();
                  }
                  break;
@@ -108,9 +107,9 @@ public class monthSlider extends slider{
                     highValue = maxThumbPos - thumbWidth;
                     adjust(MAXTHUMB, highValue);
                     if(rangeWidth == monthRange)
-                       record.theTabPanel.theWeekSlider.wakeup("enabled",validDateMin);
+                       mainPanel.theWeekSlider.wakeup("enabled",validDateMin);
                     else if(rangeWidth > monthRange)
-                       record.theTabPanel.theWeekSlider.wakeup("disabled",null);
+                       mainPanel.theWeekSlider.wakeup("disabled",null);
                     repaint();
                  }
                  break;
@@ -142,7 +141,7 @@ public class monthSlider extends slider{
                     highValue = maxThumbPos - thumbWidth;
                     adjust(MAXTHUMB, highValue);
                     if(rangeWidth == monthRange)
-                       record.theTabPanel.theWeekSlider.wakeup("enabled",validDateMin);
+                       mainPanel.theWeekSlider.wakeup("enabled",validDateMin);
                     repaint();
                  }
                  break;

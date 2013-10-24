@@ -12,7 +12,6 @@
 package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
-import java.applet.*;
 import java.util.*;
 
 public class labelPanel extends Panel {
@@ -67,7 +66,8 @@ public class labelPanel extends Panel {
 		
 	}
 
-    public void paint(Graphics g){
+    @Override
+	public void paint(Graphics g){
 
         // actual alerts
 
@@ -94,7 +94,6 @@ public class labelPanel extends Panel {
 
 	 StringTokenizer words = new StringTokenizer(label," ,");
          int currentWidth = 20;
-         int countDate = 0;
          int countQuotes = 0;
          int curTokens = 0;
          int totalCount = 0;
@@ -272,18 +271,19 @@ public class labelPanel extends Panel {
 
     }
 
-    public boolean handleEvent (Event e) {
+    @Override
+	public boolean handleEvent (Event e) {
 
      if(e.shiftDown()  && e.id == Event.MOUSE_DOWN) 
-            record.theTabPanel.theTimeLinePanel.repaint();
+            mainPanel.theTimeLinePanel.repaint();
 
      if(e.controlDown() && e.id == Event.MOUSE_DOWN && record.noRects == true) {
        record.noRects = false;
-       record.theTabPanel.theTimeLinePanel.repaint();
+       mainPanel.theTimeLinePanel.repaint();
      } else
      if(e.controlDown() && e.id == Event.MOUSE_DOWN &&  record.noRects == false) {
        record.noRects = true;
-       record.theTabPanel.theTimeLinePanel.repaint();
+       mainPanel.theTimeLinePanel.repaint();
      }
 
      return super.handleEvent(e);

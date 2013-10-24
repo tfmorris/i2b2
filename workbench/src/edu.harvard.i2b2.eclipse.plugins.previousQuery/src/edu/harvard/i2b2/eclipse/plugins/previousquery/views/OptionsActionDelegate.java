@@ -17,10 +17,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-/**
- * @author wp066
- *
- */
 public class OptionsActionDelegate implements IWorkbenchWindowActionDelegate {
 
 	/* (non-Javadoc)

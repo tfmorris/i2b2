@@ -35,8 +35,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class QueryClient {
 	private static final Log log = LogFactory.getLog(QueryClient.class);
-	private static EndpointReference targetEPR;// = new EndpointReference(
-										//"http://wxp26488:9093/axis2/services/identity1");
+	private static EndpointReference targetEPR;
 	
 	private static String servicename = null;
 
@@ -54,30 +53,6 @@ public class QueryClient {
 		OMElement lineItem = builder.getDocumentElement();
 		method.addChild(lineItem);
 		return method;
-	}
-
-	private static String buildQueryXML() {
-		
-		String queryStr = "<?xml version=\"1.0\" standalone=\"yes\"?>\n"
-				
-				+"<search_by_master id=\"6\">\n" +
-				"</search_by_master>\n";
-								
-		/*String queryStr = "<?xml version=\"1.0\" standalone=\"yes\"?>\n" +		
-				"<search_by_local>" +
-				"<match_id site=\"EMPI\">100016900</match_id>\n"+
-				"<match_string pattern=\"exact\">"+
-				"<string concept_cd=\"RELIGION\">6179331633</string>"+
-				"</match_string>"+
-				"<match_string pattern=\"exact\">"+
-				"<string concept_cd=\"STATE\">MA</string>"+
-				"</match_string>"+ 
-				"<match_string pattern=\"exact\">" +
-				"<string concept_cd=\"PREFIX\">N</string>" +
-				"</match_string>" +
-				"</search_by_local>";*/
-				
-		return queryStr;
 	}
 
 	public static String query(String queryXML, String user, String password){

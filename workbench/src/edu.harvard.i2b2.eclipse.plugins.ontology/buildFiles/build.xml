@@ -15,11 +15,11 @@
 		<path id="classpath">
 			<path refid="common-classpath" />
 		</path>
-
+<!-- JRE 1.5 style jaxb gen tool
 		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
 			<classpath refid="classpath" />
 		</taskdef>
-
+-->
 	</target>
 
 
@@ -39,19 +39,31 @@
 	<!-- =================================================================== -->
 	<!-- 								COMMON JAXB GENERATION 				 -->
 	<!-- =================================================================== -->
+	
+<!-- JRE 1.5 style jaxb_gen	
 	<target name="jaxb_gen" depends="gensrcInit" description="Generate JAXB classes for i2b2 and Patient Data messages">
 		<xjc destdir="${gensrc}" removeOldOutput="no">
-			<schema dir="../${i2b2xmlproject}/xsd/cell/ont" includes="ONT_LITE_QRY.xsd" />
-			<schema dir="../${i2b2xmlproject}/xsd/cell/ont" includes="ONT_LITE_RESP.xsd" />
-			<schema dir="../${i2b2xmlproject}/xsd/hive/msg" includes="i2b2_response.xsd" />
+			<schema dir="../${i2b2xmlproject}/xsd/cell/ont_1.1" includes="ONT_QRY.xsd" />
+			<schema dir="../${i2b2xmlproject}/xsd/cell/ont_1.1" includes="ONT_RESP.xsd" />
+			<schema dir="../${i2b2xmlproject}/xsd/hive/msg_1.1" includes="i2b2_response.xsd" />
 			<schema dir="../${i2b2xmlproject}/xsd/hive/plugin" includes="drag_drop.xsd" />
-			<binding dir="." includes="etc/xsd/i2b2_vdo_bindings.xjb" />
-			<binding dir="." includes="etc/xsd/i2b2_rspdo_bindings.xjb" />
-			<binding dir="." includes="etc/xsd/i2b2_response_message_bindings.xjb" />
+			<binding dir="." includes="etc/xsd_1.1/i2b2_vdo_bindings.xjb" />
+			<binding dir="." includes="etc/xsd_1.1/i2b2_rspdo_bindings.xjb" />
+			<binding dir="." includes="etc/xsd_1.1/i2b2_response_message_bindings.xjb" />
 			<binding dir="." includes="etc/xsd/i2b2_dnd_bindings.xjb" />
 		</xjc>
 	</target>
-
+-->
+	<target name="jaxb_gen" depends="gensrcInit">
+			 <java dir="." jar="../edu.harvard.i2b2.common/lib/jaxb/jaxb-xjc.jar" fork="true" failonerror="true" >
+			     <arg line="-quiet -nv -extension ../${i2b2xmlproject}/xsd/cell/ont_1.1/ONT_QRY.xsd ../${i2b2xmlproject}/xsd/cell/ont_1.1/ONT_RESP.xsd ../${i2b2xmlproject}/xsd/hive/msg_1.1/i2b2_response.xsd ../${i2b2xmlproject}/xsd/hive/plugin/drag_drop.xsd 
+			     	-b etc/xsd_1.1/i2b2_vdo_bindings.xjb etc/xsd_1.1/i2b2_response_message_bindings.xjb etc/xsd_1.1/i2b2_dnd_bindings.xjb  -d ${gensrc}"/>
+			     <jvmarg value="-Djava.endorsed.dirs=../edu.harvard.i2b2.common/lib/jaxb" />
+			     <classpath refid="classpath"/>
+			</java>
+	</target>
+	
+	
 	<!-- =================================================================== -->
 	<!-- 								ALL 								 -->
 	<!-- =================================================================== -->

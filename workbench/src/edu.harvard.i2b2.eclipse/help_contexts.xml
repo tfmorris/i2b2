@@ -14,9 +14,9 @@
 <contexts>
 <!--  Views 
   --> 
-  <context id="login_view_help_context" title="Login View">
-  <description>This view provides a context for administrative tasks</description> 
-  <topic href="html/concepts/login-view.html" label="Concepts: Login View" /> 
+  <context id="login_view_help_context" title="i2b2 Workbench">
+  <description>The i2b2 Workbench Desktop</description> 
+  <topic href="html/i2b2_wb_index.htm" label="Concepts: Login View" /> 
   </context>
 <!--  
   <topic href="edu.harvard.i2b2.eclipse/html/concepts/views.html" label="Reference: Views" /> 

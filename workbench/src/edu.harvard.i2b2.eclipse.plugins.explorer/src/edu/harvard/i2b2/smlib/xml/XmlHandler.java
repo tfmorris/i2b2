@@ -10,7 +10,7 @@
  */
 // XmlHandler.java: the callback interface.
 // NO WARRANTY! See README, and copyright below.
-// $Id: XmlHandler.java,v 1.2 2007/05/21 18:50:58 wp066 Exp $
+// $Id: XmlHandler.java,v 1.4 2007/08/27 20:06:20 wp066 Exp $
 package edu.harvard.i2b2.smlib.xml;
 
 /**

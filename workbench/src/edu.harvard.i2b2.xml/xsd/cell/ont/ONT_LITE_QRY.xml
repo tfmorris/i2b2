@@ -29,11 +29,11 @@
     </message_body>
     
     <message_body>
-        <ont:get_categories max="300"/>
+        <ont:get_categories />
     </message_body>
     
     <message_body>
-        <ont:get_schemes max="300"/>
+        <ont:get_schemes />
     </message_body>
 
 </ont:examples>

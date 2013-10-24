@@ -21,8 +21,8 @@ package edu.harvard.i2b2.query.datavo;
 public class JAXBConstant {
     public static final String[] DEFAULT_PACKAGE_NAME = new String[] {
             "edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message",
-            "edu.harvard.i2b2.ontclient.datavo.vdo",
-            "edu.harvard.i2b2.crcxmljaxb.datavo.pdo",
+            "edu.harvard.i2b2.crcxmljaxb.datavo.vdo",
+            "edu.harvard.i2b2.common.datavo.pdo",
             "edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query",
             "edu.harvard.i2b2.crcxmljaxb.datavo.psm.query",
             "edu.harvard.i2b2.crcxmljaxb.datavo.dnd"

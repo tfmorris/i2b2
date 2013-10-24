@@ -12,7 +12,6 @@
 package edu.harvard.i2b2.timeline.labeling;
 
 import java.awt.*;
-import java.applet.*;
 import edu.harvard.i2b2.timeline.lifelines.record;
 
 /**
@@ -27,8 +26,6 @@ import edu.harvard.i2b2.timeline.lifelines.record;
 public
 class LiteLabel implements Lite {
   private String text;
-  //private  a pointer back to the data
-  private Point datapos;  // extended by Julia
   private Color datacolor;  // extended by Julia
   private Point position;
   private Font font;
@@ -77,7 +74,6 @@ class LiteLabel implements Lite {
    
   public LiteLabel(String s, Point sp, Point lp, int border, Font f, Color fg, Color bg, int degree, record applet) {
     this.text = s;
-    this.datapos = sp;
     this.position = lp;
     this.border = border;
     if (f == null)

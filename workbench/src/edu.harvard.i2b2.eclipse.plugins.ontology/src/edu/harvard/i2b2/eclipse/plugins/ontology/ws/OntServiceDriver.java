@@ -22,54 +22,53 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.soap.SOAPEnvelope;
+import org.apache.axiom.soap.SOAPFactory;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
+import org.apache.axis2.client.OperationClient;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
+import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.i2b2.eclipse.UserInfoBean;
+import edu.harvard.i2b2.eclipse.plugins.ontology.util.MessageUtil;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetChildrenType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetReturnType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetTermInfoType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.VocabRequestType;
+import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.common.util.xml.*;
 
 
 public class OntServiceDriver {
 
 	public static final String THIS_CLASS_NAME = OntServiceDriver.class.getName();
     private static Log log = LogFactory.getLog(THIS_CLASS_NAME);
-    private int result;
     private static String serviceURL = UserInfoBean.getInstance().getCellDataUrl("ont");
+    private static String serviceMethod = UserInfoBean.getInstance().getCellDataMethod("ont").toUpperCase();
+	private static EndpointReference soapEPR = new EndpointReference(serviceURL);
 	
 	private static EndpointReference childrenEPR = new EndpointReference(
-//		"http://wxx53142:8080/axis2/rest/OntologyService/getChildren");
-//			"http://wxp26488:8080/axis2/rest/OntologyService/getChildren");
 			serviceURL + "getChildren");
 
 	private static EndpointReference categoriesEPR = new EndpointReference(
-//	"http://wxx53142:8080/axis2/rest/OntologyService/getCategories");
-//	"http://wxp26488:8080/axis2/rest/OntologyService/getCategories");
 		serviceURL + "getCategories");
 	
 	private static EndpointReference nameInfoEPR = new EndpointReference(
-//	"http://wxx53142:8080/axis2/rest/OntologyService/getNameInfo");
-//  "http://phsi2b2appdev:8080/axis2/rest/OntologyService/getNameInfo");
 			serviceURL + "getNameInfo");
 	
 	private static EndpointReference codeInfoEPR = new EndpointReference(
-//	"http://wxx53142:8080/axis2/rest/OntologyService/getCodeInfo");
 		serviceURL + "getCodeInfo");
 	
-	private static EndpointReference termInfoEPR = new EndpointReference(
-//	"http://wxx53142:8080/axis2/rest/OntologyService/getTermInfo");	
+	private static EndpointReference termInfoEPR = new EndpointReference(	
 			serviceURL + "getTermInfo");
 	
 	private static EndpointReference schemesEPR = new EndpointReference(
-//			"http://phsi2b2appdev:8080/axis2/rest/OntologyService/getSchemes");	
 					serviceURL + "getSchemes");
 	
 	
@@ -97,36 +96,13 @@ public class OntServiceDriver {
 
 				 String getChildrenRequestString = reqMsg.doBuildXML(parentNode);
 				 log.debug(getChildrenRequestString);
-				 if(type != null){
-					 if (type.equals("ONT"))
-						 System.setProperty("ONT_REQUEST", getChildrenRequestString);
-					 else
-						 System.setProperty("FIND_REQUEST", getChildrenRequestString);
+				 				 
+				 if(serviceMethod.equals("SOAP")) {
+					 response = sendSOAP(getChildrenRequestString, "http://rpdr.partners.org/GetChildren", "GetChildren", type );
 				 }
-						 
-				OMElement getOnt = getOntPayLoad(getChildrenRequestString);
-			
-				Options options = new Options();
-				
-				log.debug(childrenEPR.toString());
-				options.setTo(childrenEPR);
-				options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-				options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
-				options.setProperty(HTTPConstants.SO_TIMEOUT,new Integer(125000));
-				options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,new Integer(125000));
-
-				ServiceClient sender = OntServiceClient.getServiceClient();
-				sender.setOptions(options);
-				
-				OMElement result = sender.sendReceive(getOnt);
-				response = result.getFirstElement().toString();
-				log.debug("Ont response = " + response);
-				if(type != null){
-					if (type.equals("ONT"))
-						System.setProperty("ONT_RESPONSE", response);
-					else
-						System.setProperty("FIND_RESPONSE", response);
-				}
+				 else {
+					 response = sendREST(childrenEPR, getChildrenRequestString, type);
+				 }
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
 				throw new AxisFault(e);
@@ -149,39 +125,20 @@ public class OntServiceDriver {
 			 try {
 				 GetCategoriesRequestMessage reqMsg = new GetCategoriesRequestMessage();
 				 String getCategoriesRequestString = reqMsg.doBuildXML(returnData);
-				 if(type != null){
-					 if (type.equals("ONT"))
-						 System.setProperty("ONT_REQUEST", getCategoriesRequestString);
-					 else
-						 System.setProperty("FIND_REQUEST", getCategoriesRequestString);
-				 }
 				log.debug(getCategoriesRequestString); 
-				OMElement getOnt = getOntPayLoad(getCategoriesRequestString);
-				
-				Options options = new Options();
-				log.debug(categoriesEPR.toString());
-				options.setTo(categoriesEPR);
-				options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-	
-				options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
-				options.setProperty(HTTPConstants.SO_TIMEOUT,new Integer(125000));
-				options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,new Integer(125000));
-				
-				ServiceClient sender = OntServiceClient.getServiceClient();
-				sender.setOptions(options);
-				
-				OMElement result = sender.sendReceive(getOnt);
-				response = result.getFirstElement().toString();
-				if(type != null){
-					if (type.equals("ONT"))
-						System.setProperty("ONT_RESPONSE", response);
-					else
-						System.setProperty("FIND_RESPONSE", response);
+				if(serviceMethod.equals("SOAP")) {
+					response = sendSOAP(getCategoriesRequestString,"http://rpdr.partners.org/GetCategories", "GetCategories", type );
+				}
+				else {
+					response = sendREST(categoriesEPR, getCategoriesRequestString, type);
 				}
 				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
 				throw new AxisFault(e);
+			} catch (I2B2Exception e) {
+				log.error(e.getMessage());
+				throw new I2B2Exception(e.getMessage());
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
@@ -201,39 +158,22 @@ public class OntServiceDriver {
 			 try {
 				 GetSchemesRequestMessage reqMsg = new GetSchemesRequestMessage();
 				 String getSchemesRequestString = reqMsg.doBuildXML(returnData);
-				 if(type != null){
-					 if (type.equals("ONT"))
-						 System.setProperty("ONT_REQUEST", getSchemesRequestString);
-					 else
-						 System.setProperty("FIND_REQUEST", getSchemesRequestString);
-				 }	
-				log.debug(getSchemesRequestString);
-				OMElement getOnt = getOntPayLoad(getSchemesRequestString);
-				
-				Options options = new Options();
 
-				log.debug(schemesEPR.toString());
-				options.setTo(schemesEPR);
-				options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-				options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
-				options.setProperty(HTTPConstants.SO_TIMEOUT,new Integer(125000));
-				options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,new Integer(125000));
+				log.debug(getSchemesRequestString);
 				
-				ServiceClient sender = OntServiceClient.getServiceClient();
-				sender.setOptions(options);
-				
-				OMElement result = sender.sendReceive(getOnt);
-				response = result.getFirstElement().toString();
-				if(type != null){
-					if (type.equals("ONT"))
-						System.setProperty("ONT_RESPONSE", response);
-					else
-						System.setProperty("FIND_RESPONSE", response);
+				if(serviceMethod.equals("SOAP")) {
+					response = sendSOAP(getSchemesRequestString, "http://rpdr.partners.org/GetSchemes", "GetSchemes", type );
+				}
+				else {
+					response = sendREST(schemesEPR, getSchemesRequestString, type);
 				}
 				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
 				throw new AxisFault(e);
+			} catch (I2B2Exception e) {
+				log.error(e.getMessage());
+				throw new I2B2Exception(e.getMessage());
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
@@ -255,34 +195,16 @@ public class OntServiceDriver {
 				 GetTermInfoRequestMessage reqMsg = new GetTermInfoRequestMessage();
 
 				 String getTermInfoRequestString = reqMsg.doBuildXML(self);		
-				 if(type != null){
-					 if (type.equals("ONT"))
-						 System.setProperty("ONT_REQUEST", getTermInfoRequestString);
-					 else
-						 System.setProperty("FIND_REQUEST", getTermInfoRequestString);
-				 }
-				log.debug(getTermInfoRequestString);
-				OMElement getOnt = getOntPayLoad(getTermInfoRequestString);
-				Options options = new Options();
 
-				log.debug(termInfoEPR.toString());
-				options.setTo(termInfoEPR);
-				options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-				options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
-				options.setProperty(HTTPConstants.SO_TIMEOUT,new Integer(125000));
-				options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,new Integer(125000));
+				log.debug(getTermInfoRequestString);
 				
-				ServiceClient sender = OntServiceClient.getServiceClient();
-				sender.setOptions(options);
-				
-				OMElement result = sender.sendReceive(getOnt);
-				response = result.getFirstElement().toString();
-				if(type != null){
-					if (type.equals("ONT"))
-						System.setProperty("ONT_RESPONSE", response);
-					else
-						System.setProperty("FIND_RESPONSE", response);
-				}
+	//			 if(serviceMethod.equals("SOAP")) {
+	//				 response = sendSOAP(getTermInfoRequestString, "http://rpdr.partners.org/GetTermInfo", "GetTermInfo", type );
+	//			 }
+	//			 else {
+					 response = sendREST(termInfoEPR, getTermInfoRequestString, type);
+		//		 }
+
 				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
@@ -308,35 +230,16 @@ public class OntServiceDriver {
 			 try {
 				 GetNameInfoRequestMessage reqMsg = new GetNameInfoRequestMessage();
 				 String getNameInfoRequestString = reqMsg.doBuildXML(vocabData);
-				 if(type != null){
-					 if (type.equals("ONT"))
-						 System.setProperty("ONT_REQUEST", getNameInfoRequestString);
-					 else
-						 System.setProperty("FIND_REQUEST", getNameInfoRequestString);
-				 }
+
 				 log.debug(getNameInfoRequestString);
-				OMElement getOnt = getOntPayLoad(getNameInfoRequestString);
+				 
+					if(serviceMethod.equals("SOAP")) {
+						response = sendSOAP(getNameInfoRequestString,"http://rpdr.partners.org/GetNameInfo", "GetNameInfo", type );
+					}
+					else {
+						response = sendREST(nameInfoEPR, getNameInfoRequestString, type);
+					}
 
-				Options options = new Options();
-
-				options.setTo(nameInfoEPR);
-				log.debug(nameInfoEPR.toString());
-				options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-				options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
-				options.setProperty(HTTPConstants.SO_TIMEOUT,new Integer(125000));
-				options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,new Integer(125000));
-				
-				ServiceClient sender = OntServiceClient.getServiceClient();
-				sender.setOptions(options);
-
-				OMElement result = sender.sendReceive(getOnt);
-				response = result.getFirstElement().toString();
-				if(type != null){
-					if (type.equals("ONT"))
-						System.setProperty("ONT_RESPONSE", response);
-					else
-						System.setProperty("FIND_RESPONSE", response);
-				}
 				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
@@ -381,35 +284,16 @@ public class OntServiceDriver {
 			 try {
 				 GetCodeInfoRequestMessage reqMsg = new GetCodeInfoRequestMessage();
 				 String getCodeInfoRequestString = reqMsg.doBuildXML(vocabType);
-				 if(type != null){
-					 if (type.equals("ONT"))
-						 System.setProperty("ONT_REQUEST", getCodeInfoRequestString);
-					 else
-						 System.setProperty("FIND_REQUEST", getCodeInfoRequestString);
-				 }
-				log.debug(getCodeInfoRequestString);
-				OMElement getOnt = getOntPayLoad(getCodeInfoRequestString);
-		
-				Options options = new Options();
 
-				log.debug(codeInfoEPR.toString());
-				options.setTo(codeInfoEPR);
-				options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-				options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
-				options.setProperty(HTTPConstants.SO_TIMEOUT,new Integer(125000));
-				options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,new Integer(125000));
+				log.debug(getCodeInfoRequestString);
 				
-				ServiceClient sender = OntServiceClient.getServiceClient();
-				sender.setOptions(options);
-				
-				OMElement result = sender.sendReceive(getOnt);
-				response = result.getFirstElement().toString();
-				if(type != null){
-					if (type.equals("ONT"))
-						System.setProperty("ONT_RESPONSE", response);
-					else
-						System.setProperty("FIND_RESPONSE", response);
-				}
+				 if(serviceMethod.equals("SOAP")) {
+					 response = sendSOAP(getCodeInfoRequestString, "http://rpdr.partners.org/GetCodeInfo", "GetCodeInfo", type );
+				 }
+				 else {
+					 response = sendREST(codeInfoEPR, getCodeInfoRequestString, type);
+				 }
+
 				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
@@ -419,6 +303,132 @@ public class OntServiceDriver {
 				throw new Exception(e);
 			}
 		return response;
+	}
+	
+	public static String sendREST(EndpointReference restEPR, String requestString, String type) throws Exception{	
+		if(UserInfoBean.getInstance().getCellDataUrl("ont") == null){
+			throw new I2B2Exception("Ontology cell (ONT) not configured in PM");
+		}
+		
+		OMElement getOnt = getOntPayLoad(requestString);
+
+		if(type != null){
+			if(type.equals("ONT"))
+				MessageUtil.getInstance().setNavRequest("URL: " + restEPR + "\n" + getOnt.toString());
+			else 
+				MessageUtil.getInstance().setFindRequest("URL: " + restEPR + "\n" + getOnt.toString());
+		}
+		
+		Options options = new Options();
+		log.debug(restEPR.toString());
+		options.setTo(restEPR);
+		options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
+
+		options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
+		options.setProperty(HTTPConstants.SO_TIMEOUT,new Integer(125000));
+		options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,new Integer(125000));
+
+		ServiceClient sender = OntServiceClient.getServiceClient();
+		sender.setOptions(options);
+
+		OMElement result = sender.sendReceive(getOnt);
+		String response = result.toString();
+		
+		if(type != null){
+			if(type.equals("ONT"))
+				MessageUtil.getInstance().setNavResponse("URL: " + restEPR + "\n" + response);
+			else 
+				MessageUtil.getInstance().setFindResponse("URL: " + restEPR + "\n" + response);
+		}
+		
+		return response;
+
+	}
+	
+	public static String sendSOAP(String requestString, String action, String operation, String type) throws Exception{	
+
+		ServiceClient sender = OntServiceClient.getServiceClient();
+		OperationClient operationClient = sender
+				.createClient(ServiceClient.ANON_OUT_IN_OP);
+
+		// creating message context
+		MessageContext outMsgCtx = new MessageContext();
+		// assigning message context's option object into instance variable
+		Options opts = outMsgCtx.getOptions();
+		// setting properties into option
+		log.debug(soapEPR);
+		opts.setTo(soapEPR);
+		opts.setAction(action);
+		opts.setTimeOutInMilliSeconds(180000);
+		
+		log.debug(requestString);
+
+		SOAPEnvelope envelope = null;
+		
+		try {
+			SOAPFactory fac = OMAbstractFactory.getSOAP11Factory();
+			envelope = fac.getDefaultEnvelope();
+			OMNamespace omNs = fac.createOMNamespace(
+					"http://rpdr.partners.org/",                                   
+					"rpdr");
+
+			
+			// creating the SOAP payload
+			OMElement method = fac.createOMElement(operation, omNs);
+			OMElement value = fac.createOMElement("RequestXmlString", omNs);
+			value.setText(requestString);
+			method.addChild(value);
+			envelope.getBody().addChild(method);
+		}
+		catch (FactoryConfigurationError e) {
+			log.error(e.getMessage());
+			throw new Exception(e);
+		}
+ 
+		outMsgCtx.setEnvelope(envelope);
+		
+		// used to be envelope.getBody().getFirstElement().toString()
+		if(type != null){
+			String request = envelope.toString();
+			String formattedRequest = XMLUtil.StrFindAndReplace("&lt;", "<", request);
+			if (type.equals("ONT")){
+				MessageUtil.getInstance().setNavRequest("URL: " + soapEPR + "\n" + formattedRequest);
+			}
+
+			else {
+				MessageUtil.getInstance().setFindRequest("URL: " + soapEPR + "\n" + formattedRequest);
+			}
+		}
+		
+		operationClient.addMessageContext(outMsgCtx);
+		operationClient.execute(true);
+		
+		
+		MessageContext inMsgtCtx = operationClient.getMessageContext("In");
+		SOAPEnvelope responseEnv = inMsgtCtx.getEnvelope();
+		
+		OMElement soapResponse = responseEnv.getBody().getFirstElement();
+		
+		if(type != null){
+			if(type.equals("ONT")){
+				String formattedResponse = XMLUtil.StrFindAndReplace("&lt;", "<", responseEnv.toString());
+				String indentedResponse = XMLUtil.convertDOMToString(XMLUtil.convertStringToDOM(formattedResponse) );
+				MessageUtil.getInstance().setNavResponse("URL: " + soapEPR + "\n" + indentedResponse);
+			}else{
+				String formattedResponse = XMLUtil.StrFindAndReplace("&lt;", "<", responseEnv.toString());
+				String indentedResponse = XMLUtil.convertDOMToString(XMLUtil.convertStringToDOM(formattedResponse) );
+				MessageUtil.getInstance().setFindResponse("URL: " + soapEPR + "\n" + indentedResponse);
+			}
+		}
+		
+//		System.out.println("Sresponse: "+ soapResponse.toString());
+		OMElement soapResult = soapResponse.getFirstElement();
+//		System.out.println("Sresult: "+ soapResult.toString());
+
+		String i2b2Response = soapResult.getText();
+		log.debug(i2b2Response);
+
+		return i2b2Response;		
 	}
 	
 }

@@ -14,11 +14,6 @@ package edu.harvard.i2b2.timeline.lifelines;
 import java.awt.*;
 import java.awt.event.*;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Clob;
-//import java.text.SimpleDateFormat;
-
 import java.util.*;
 import java.io.*;
 
@@ -26,21 +21,16 @@ import javax.swing.*;
 
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
-//import org.eclipse.swt.program.Program;
 
-import edu.harvard.i2b2.smlib.DBLib;
 import edu.harvard.i2b2.timeline.excentric.*;
 import edu.harvard.i2b2.timeline.external.*;
-import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crcxmljaxb.datavo.dnd.DndType;
-import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.PatientDataType;
-import edu.harvard.i2b2.explorer.ExplorerC;
-import edu.harvard.i2b2.explorer.PDOResponseMessageFactory;
+import edu.harvard.i2b2.common.datavo.pdo.PatientDataType;
+import edu.harvard.i2b2.eclipse.UserInfoBean;
+import edu.harvard.i2b2.explorer.dataModel.PDOResponseMessageModel;
 import edu.harvard.i2b2.explorer.datavo.ExplorerJAXBUtil;
+import edu.harvard.i2b2.explorer.ui.ExplorerC;
 import edu.harvard.i2b2.navigator.Application;
-//import edu.harvard.i2b2.navigator.LoginDHelper;
-//import edu.harvard.i2b2.navigator.UserInfoBean;
-//import oracle.jdbc.OracleConnection;
 
 //this is the timeline panel that gets displayed
 public class timeLinePanel extends ScrollingPanel
@@ -154,7 +144,6 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	public int width, height, dataheight; // 3/28/98  width is used when scale is initialized. 12/17/97 made public
 	private Hashtable recordTable; // this contains the data;
 	private String keyLabels[]; // keys are strings in facet list in left window
-	private int keyHeight[];
 	private int n_key;
 	private int n_rect = 0;
 	private int lwinWidth;
@@ -173,7 +162,6 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 	private MyDate dateMin, dateMax, validDateMin, validDateMax;
 	private scale aScale;
 	private MyRectangle rects[];
-	private int action = DEFAULT;
 	public static int MOUSE_MOVE = 1;
 	public static int DEFAULT = 0;
 	public static int START = 2;
@@ -235,8 +223,6 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		// i.e. above is the main data in a hashtable, each entry is actually a facet 1/13/98 dan
 		n_key = recordTable.size();
 		keyLabels = new String[n_key];
-		keyHeight = new int[n_key + 1];
-		
 		facet afacetRecord;
 		//MyDate lastEndDate = new MyDate(1,1,2010);
 		
@@ -380,8 +366,8 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 						final String id = title.substring(title.indexOf("#")+1, end);
 						System.out.println(id);
 						
-						String username = System.getProperty("user");
-						String password = System.getProperty("pass");
+						String username = UserInfoBean.getInstance().getUserName();
+						String password = UserInfoBean.getInstance().getUserPassword();
 						
 						String queryStr = "<?xml version=\"1.0\" standalone=\"yes\"?>\n"						
 							+ "<search_by_master id=\""+id+"\">"
@@ -484,23 +470,20 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 						//note = "No notes found";
 						return;
 					}
+					//blobdata string array contents:
+					// [0] is note
+					// [1] is valueTypeCd
+					// [2] is valueFlagCd
+					// [3] is PDO 
 					note = blobdata[0];
 					
 					Application app;
-					//TODO change to use PM
-					/*
-					if (blobdata[1] == null)
-						app = uib.getUserApp("nte");
-					else
-						app = uib.getUserApp(blobdata[1]);
-					
-					//unreconized format, just use noteview than
-					if (app== null)
-						app = uib.getUserApp("nte");
-					*/
 					app = new Application();
 					app.setClassName("edu.harvard.i2b2.timeline.external.NotesViewer");
-					app.setEncrypted(true);
+					if(	(blobdata[1].equals("B")) && (blobdata[2].equals("X")) )
+							app.setEncrypted(true);
+					else 
+						app.setEncrypted(false);
 					app.setName("Display Note");
 					
 					if (app.getEncrypted())
@@ -527,22 +510,26 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 						System.out.println(ee.getMessage());
 					}*/
 					
-					String xmlPdoData = blobdata[2];
+					String xmlPdoData = blobdata[3];
 					StringWriter strWriter=null;
 					
 					try {
-						PDOResponseMessageFactory pdoresponsefactory = new PDOResponseMessageFactory();
+						PDOResponseMessageModel pdoresponsefactory = new PDOResponseMessageModel();
 						PatientDataType patientDataType = 
 							pdoresponsefactory.getPatientDataTypeFromResponseXML(xmlPdoData);
-						patientDataType.getObservationFactSet().get(0).getObservationFact().get(0).setObservationBlob(note.replaceAll("/n", "\n"));
-					
+						//following line was appending decrypted note to encrypted one....   enc should be replaced with decrypted one.
+				//		patientDataType.getObservationSet().get(0).getObservation().get(0).getObservationBlob().getContent().add(note.replaceAll("/n", "\n"));
+						patientDataType.getObservationSet().get(0).getObservation().get(0).getObservationBlob().getContent().set(0,note.replaceAll("/n", "\n"));
+
 						strWriter = new StringWriter();
 						DndType dnd = new DndType();
-						edu.harvard.i2b2.crcxmljaxb.datavo.pdo.ObjectFactory pdoOf = new edu.harvard.i2b2.crcxmljaxb.datavo.pdo.ObjectFactory();
+						
+						edu.harvard.i2b2.common.datavo.pdo.ObjectFactory pdoOf = new edu.harvard.i2b2.common.datavo.pdo.ObjectFactory();
 						dnd.getAny().add(pdoOf.createPatientData(patientDataType));
+
 						edu.harvard.i2b2.crcxmljaxb.datavo.dnd.ObjectFactory of = new edu.harvard.i2b2.crcxmljaxb.datavo.dnd.ObjectFactory();
 						ExplorerJAXBUtil.getJAXBUtil().marshaller(of.createPluginDragDrop(dnd), strWriter);
-						
+
 					} catch (Exception ex) {
 						System.out.println("Error marshalling Explorer drag text");
 					} 
@@ -944,7 +931,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 					infotip = conceptName+", "+msgs[1];
 				}
 				else if(name.startsWith("\"C")) {
-					conceptName = PDOQueryClient.getCodeInfo(concept_cd);//getConceptDetails(concept_cd);
+					conceptName = PDOQueryClient.getCodeInfo(concept_cd);
 					if(msgs[7].indexOf("Value")>=0) {
 						val = xtras[0].substring(xtras[0].lastIndexOf(": ")+2, xtras[0].length()-2);
 						infotip = conceptName+" ("+makeReadableCodeString(concept_cd)+"), "+val+"("+msgs[4]+")"+", "+msgs[1];//+": "+val+" ("+msgs[4]+")";
@@ -955,10 +942,10 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 					System.out.println("concept_cd: "+concept_cd+" code: "
 							+makeReadableCodeString(concept_cd));
 				}
-				else if(name.startsWith("\"P")) {					
-					conceptName = getProviderDetails(concept_cd);
-					infotip = conceptName+" ("+concept_cd+"), "+msgs[1];
-				}
+				//else if(name.startsWith("\"P")) {					
+				//	conceptName = getProviderDetails(concept_cd);
+				//	infotip = conceptName+" ("+concept_cd+"), "+msgs[1];
+				//}
 				
 				/*if(msgs[7].indexOf("Value")>=0) {
 					val = xtras[0].substring(xtras[0].lastIndexOf(": ")+2, xtras[0].length()-2);
@@ -967,22 +954,34 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 				else {
 					infotip = conceptName+" ("+makeReadableCodeString(concept_cd)+"), "+msgs[1];
 				}*/
-				
-				
+								
 				infoTipLabel = new LiteLabel(infotip,
-						new Point(x+10, y+10),
+						new Point(x+10, y+30),
 						1,
 						fontMetrics1.getFont(),
 						Color.black,
 						Color.yellow);
 				
 				Rectangle r = infoTipLabel.getBounds();
-				if((r.x+r.width) >= (getSize().width-100)) {
-					infoTipLabel.setAlignment(LiteLabel.RIGHT);
-				} 
-				else {
-					infoTipLabel.setAlignment(LiteLabel.LEFT);
+				if(y > getSize().getHeight()-40) {
+					infoTipLabel = new LiteLabel(infotip,
+							new Point(x+10, y-5),
+							1,
+							fontMetrics1.getFont(),
+							Color.black,
+							Color.yellow);
 				}
+				
+				if((x+r.width) < (getSize().width-10)) {
+					infoTipLabel.setAlignment(LiteLabel.LEFT);
+				} 
+				else if(x > r.width) {
+					infoTipLabel.setAlignment(LiteLabel.RIGHT);
+				}
+				else {
+					infoTipLabel.setAlignment(LiteLabel.RIGHT);//CENTER);
+				}
+				
 				repaint_rect(infoTipLabel.getBounds());  
 			}
 		}
@@ -1071,7 +1070,6 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		this.validDateMin = validDateMin;
 		this.validDateMax = validDateMax;
 		aScale.setScale(validDateMin, validDateMax,today);
-		action = DEFAULT;  // allows sliding if a tag has been displayed
 		relabeling = true;   
 		slide = true;     
 		
@@ -1737,8 +1735,8 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		try {
 			PDORequestMessageFactory pdoFactory = new PDORequestMessageFactory();
 			
-			String xmlStr = pdoFactory.requestXmlMessage(new Integer(patientNumber).intValue(), 
-					new Integer(encounterNumber).intValue(), concept_cd, providerId, modifier_cd, start_date);
+			String xmlStr = pdoFactory.requestXmlMessage(patientNumber, 
+					encounterNumber, concept_cd, providerId, modifier_cd, start_date);
 			String result = PDOQueryClient.sendQueryRequestREST(xmlStr);
 			
 			//FileWriter fwr = new FileWriter("c:\\testdir\\response.txt");
@@ -1799,7 +1797,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		return null;
 	}
 	
-	private String getConceptDetails(String concept_cd) {		
+	/*private String getConceptDetails(String concept_cd) {		
 		Connection oConnection = null;
 		String sSQL = null;
 		ResultSet oRs = null;
@@ -1860,9 +1858,9 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		else {
 			return data;
 		}
-	}
+	}*/
 	
-	private String getProviderDetails(String provider_id) {		
+	/*private String getProviderDetails(String provider_id) {		
 		Connection oConnection = null;
 		String sSQL = null;
 		ResultSet oRs = null;
@@ -1923,7 +1921,7 @@ implements ActionListener, MouseListener, MouseMotionListener    {
 		else {
 			return data;
 		}
-	}
+	}*/
 	
 	private String makeReadableCodeString(String sCode) {
 		

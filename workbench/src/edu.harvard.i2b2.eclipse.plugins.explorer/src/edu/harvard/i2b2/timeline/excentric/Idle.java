@@ -130,7 +130,7 @@ public abstract class Idle implements MouseMotionListener, MouseListener, Runnab
   public void run() {
 	  while (! stopped) {
       try {
-    	  thread.sleep(time_slice);
+    	  Thread.sleep(time_slice);
       } 
       catch(InterruptedException e) { 
     	  //e.printStackTrace();

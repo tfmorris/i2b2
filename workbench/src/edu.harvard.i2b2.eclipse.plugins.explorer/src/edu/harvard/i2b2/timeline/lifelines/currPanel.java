@@ -14,13 +14,9 @@ package edu.harvard.i2b2.timeline.lifelines;
 import java.awt.*;
 import java.net.*;
 
-public class currPanel extends Panel{
+public class currPanel extends Panel {
 
     private int width, height;
-    private TextArea currText;
-    private Label currMed;
-    private Button medHis;
-    private URL hcil;
     public URLConnection hcilCon;
 
     protected static Font font = new Font("Dialog", Font.BOLD, 14);
@@ -28,85 +24,90 @@ public class currPanel extends Panel{
 
     private Button load;
     private record theApplet;
-    private Button zoom;
     private enterField fileEntry;
-    private Button control;  
+    private Button control;
     public ControlPanel ctrlpanel;
-    private loadButton customLoad;
     private Button grep;
     private TextField grepEntry;
 
-    public currPanel(int width, int height, record theApplet ) {
-        this.width = width;
-        this.height = height;
+    public currPanel(int width, int height, record theApplet) {
+	this.width = width;
+	this.height = height;
 
-        this.theApplet = theApplet;
+	this.theApplet = theApplet;
 
-        load = new Button("load");
-        //control = new Button("Control Panel");
-        
-        load.setBounds((int)(width*0.2),(int)(height/5.0),(int)(width*0.05),(int)(3.0*height/5.0));
-        //add(load);
+	load = new Button("load");
+	// control = new Button("Control Panel");
 
-        grep = new Button("Text Search");
+	load.setBounds((int) (width * 0.2), (int) (height / 5.0),
+		(int) (width * 0.05), (int) (3.0 * height / 5.0));
+	// add(load);
 
-        grep.setBounds((int)(width*0.3), (int)(height/5.0),(int)(width*0.15),(int)(3.0*height/5.0));
-        add(grep);
+	grep = new Button("Text Search");
 
-        //control.setBounds((int)(width*0.6),(int)(height/5.0),(int)(width*0.15),(int)(3.0*height/5.0));
-        //add(control);
-        
-        fileEntry = new enterField();
-        fileEntry.setApplet(theApplet);
-        //add(fileEntry);
-        //fileEntry.setBounds((int)(width*0.1),(int)(height/5.0),(int)(width*0.1),(int)(3.0*height/5.0));
+	grep.setBounds((int) (width * 0.3), (int) (height / 5.0),
+		(int) (width * 0.15), (int) (3.0 * height / 5.0));
+	add(grep);
 
-        grepEntry = new TextField();
-        add(grepEntry);
-        grepEntry.setBounds((int)(width*0.1),(int)(height/5.0),(int)(width*0.2),(int)(3.0*height/5.0));
+	//control.setBounds((int)(width*0.6),(int)(height/5.0),(int)(width*0.15)
+	// ,(int)(3.0*height/5.0));
+	// add(control);
+
+	fileEntry = new enterField();
+	fileEntry.setApplet(theApplet);
+	// add(fileEntry);
+	//fileEntry.setBounds((int)(width*0.1),(int)(height/5.0),(int)(width*0.1
+	// ),(int)(3.0*height/5.0));
+
+	grepEntry = new TextField();
+	add(grepEntry);
+	grepEntry.setBounds((int) (width * 0.1), (int) (height / 5.0),
+		(int) (width * 0.2), (int) (3.0 * height / 5.0));
     }
 
-    public void paint(Graphics g){
-        g.setColor(Color.lightGray);
-        g.draw3DRect(0,0,width-1,height-1,true);
-        g.draw3DRect(1,1,width-3,height-3,true);
+    @Override
+    public void paint(Graphics g) {
+	g.setColor(Color.lightGray);
+	g.draw3DRect(0, 0, width - 1, height - 1, true);
+	g.draw3DRect(1, 1, width - 3, height - 3, true);
 
-        g.setColor(Color.black);
-        g.setFont(font);
+	g.setColor(Color.black);
+	g.setFont(font);
     }
 
-  public boolean action(Event e,Object arg) { // changed to mouseDown 2/11/98 by dan to try
-    // to fix extra loading problem
+    @Override
+    public boolean action(Event e, Object arg) { // changed to mouseDown 2/11/98
+	// by dan to try
+	// to fix extra loading problem
 
-        if(e.target == grep) {
-           record.theTabPanel.theTimeLinePanel.search = true;  
-           record.theTabPanel.theTimeLinePanel.grep(grepEntry.getText());
-         }
+	if (e.target == grep) {
+	    mainPanel.theTimeLinePanel.search = true;
+	    mainPanel.theTimeLinePanel.grep(grepEntry.getText());
+	}
 
+	if (e.target == load) {
+	    System.out.println("before loadrecord");
+	    record.theData = new loadRecord(theApplet.getCodeBase()
+		    + fileEntry.getText(), "none");
+	    System.out.println("after loadrecord");
+	    theApplet.resetTabPanel();
+	    theApplet.resetPicPanel();
+	    theApplet.resetInfoPanel();
+	    theApplet.setWidthHeight(400, 350);
 
-        if(e.target == load) {
-           System.out.println("before loadrecord");
-	       record.theData = new loadRecord(theApplet.getCodeBase() + fileEntry.getText(),"none");
-           System.out.println("after loadrecord");
-           theApplet.resetTabPanel();
-           theApplet.resetPicPanel();
-           theApplet.resetInfoPanel();
-           theApplet.setWidthHeight(400,350);
-
-           if (ctrlpanel != null)  {
-                ctrlpanel.setVisible(false);
-                ctrlpanel = null;   
-           }
-           System.out.println("after loadrecord");
-        } 
-        else if (e.target == control) {
-            if (ctrlpanel == null)  {
-                ctrlpanel = new ControlPanel("LifeLines Control Panel", 400, 500);
-                ctrlpanel.setBounds(700,300,400,500);
-            }
-            ctrlpanel.setVisible(true);
-        }
-        return true;
+	    if (ctrlpanel != null) {
+		ctrlpanel.setVisible(false);
+		ctrlpanel = null;
+	    }
+	    System.out.println("after loadrecord");
+	} else if (e.target == control) {
+	    if (ctrlpanel == null) {
+		ctrlpanel = new ControlPanel("LifeLines Control Panel", 400,
+			500);
+		ctrlpanel.setBounds(700, 300, 400, 500);
+	    }
+	    ctrlpanel.setVisible(true);
+	}
+	return true;
     }
 }
-

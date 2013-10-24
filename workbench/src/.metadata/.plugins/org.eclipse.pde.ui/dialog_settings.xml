@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="ProductExportWizard">
+		<item key="destination0" value="C:\Documents and Settings\jmd86\Desktop\build"/>
+		<item key="productRoot" value="Windows"/>
+		<item key="productConfig1" value="/edu.harvard.i2b2.eclipse/i2b2Eclipse.product"/>
+		<item key="p2metadata" value="false"/>
+		<item key="exportSource" value="false"/>
+		<item key="destination1" value="C:\Documents and Settings\jmd86\Desktop\build"/>
+		<item key="productConfig0" value="/edu.harvard.i2b2.eclipse/i2b2Eclipse.product"/>
+		<item key="syncProduct" value="false"/>
+		<item key="exportDirectory" value="true"/>
+	</section>
+</section>

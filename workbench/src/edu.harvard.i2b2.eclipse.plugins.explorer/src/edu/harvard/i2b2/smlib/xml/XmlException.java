@@ -10,7 +10,7 @@
  */
 // XmlException.java: Simple base class for AElfred processors.
 // NO WARRANTY! See README, and copyright below.
-// $Id: XmlException.java,v 1.2 2007/05/21 18:50:58 wp066 Exp $
+// $Id: XmlException.java,v 1.5 2008/02/19 19:39:47 mem61 Exp $
 
 //package com.microstar.xml;
 package edu.harvard.i2b2.smlib.xml;
@@ -58,7 +58,8 @@ public class XmlException extends Exception
     * Get the error message from the parser.
     * @return A string describing the error.
     */
-  public String getMessage ()
+  @Override
+public String getMessage ()
   {
     return message;
   }

@@ -9,8 +9,6 @@
  */
 package edu.harvard.i2b2.eclipse.plugins.ontology.util;
 
-import edu.harvard.i2b2.common.exception.I2B2Exception;
-
 
 
 
@@ -36,8 +34,14 @@ public class StringUtil {
     	if(fullPath == null)
     		return null;
     	else {
-    		int end = fullPath.indexOf("\\", 3);
-    		return fullPath.substring(2, end).trim();
+    		int end;
+			try {
+				end = fullPath.indexOf("\\", 3);
+				return fullPath.substring(2, end).trim();
+			} catch (RuntimeException e) {
+				// TODO Auto-generated catch block
+				return fullPath.substring(2).trim();
+			}    		
     	}
     }
     
@@ -45,7 +49,13 @@ public class StringUtil {
     	if(fullPath == null)
     		return null;
     	else {
-    		int end = fullPath.indexOf("\\", 3);
+    		int end;
+			try {
+				end = fullPath.indexOf("\\", 3);
+			} catch (RuntimeException e) {
+				// TODO Auto-generated catch block
+				return null;
+			}
     		return fullPath.substring(end).trim();
     	}
     }

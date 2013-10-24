@@ -25,9 +25,7 @@ public class GetTermInfoRequestMessage extends OntologyRequestData {
 	public static final String THIS_CLASS_NAME = GetTermInfoRequestMessage.class.getName();
     private Log log = LogFactory.getLog(THIS_CLASS_NAME);	
 
-    private GetTermInfoType termInfoType;
-
-	public GetTermInfoRequestMessage() {}
+    public GetTermInfoRequestMessage() {}
 	
 	/**
 	 * Function to build getTermInfo type for a given request

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the i2b2 Software License v1.0 
+ * which accompanies this distribution. 
+ * 
+ * Contributors:
+ * 		Wensong Pan
+ */
 package edu.harvard.i2b2.eclipse.plugins.ontology.views;
 
 import org.eclipse.jface.action.IAction;
@@ -14,13 +23,10 @@ import edu.harvard.i2b2.eclipse.plugins.ontology.views.OntologyDisplayOptionsDia
  */
 public class ViewOptionToolbarActionDelegate implements IViewActionDelegate {
 	
-	private OntologyView ontView;
-	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IViewActionDelegate#init(org.eclipse.ui.IViewPart)
 	 */
 	public void init(IViewPart view) {
-		ontView = (OntologyView) view;
 	}
 
 	/* (non-Javadoc)

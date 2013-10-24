@@ -13,7 +13,7 @@
         </xs:annotation>
         <xs:sequence>
             <xs:element name="i2b2_version_compatible" type="i2b2:decimal" minOccurs="1"/>                   
-            <xs:element name="hl7_version_compatible" type="i2b2:decimal" minOccurs="1"/>         
+            <xs:element name="hl7_version_compatible" type="i2b2:decimal" minOccurs="1"/>
             <xs:element name="sending_application" type="i2b2:applicationType"/>
             <xs:element name="sending_facility" type="i2b2:facilityType"/>
             <xs:element name="receiving_application" type="i2b2:applicationType"/>
@@ -26,6 +26,7 @@
             <xs:element name="accept_acknowledgement_type" type="xs:string"/>
             <xs:element name="application_acknowledgement_type" type="xs:string"/>
             <xs:element name="country_code" type="xs:string"/>
+            <xs:element name="project_id" type="xs:string" nillable="true" minOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 

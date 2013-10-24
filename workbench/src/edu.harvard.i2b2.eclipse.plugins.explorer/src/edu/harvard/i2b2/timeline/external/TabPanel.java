@@ -6,7 +6,6 @@ package edu.harvard.i2b2.timeline.external;
 
 import java.awt.*;
 import java.util.Vector;
-import java.lang.Boolean;
 
 /**
  * TabPanel is a Panel extension which provides for
@@ -88,6 +87,7 @@ public class TabPanel extends BaseTabbedPanel
             curIndex = index;
 	}
 
+	@Override
 	public Component add(Component comp) { return add(comp,-1); }
 
 	private String createDefaultLabel(int i) {
@@ -96,6 +96,7 @@ public class TabPanel extends BaseTabbedPanel
 	    return name;
 	}
 
+	@Override
 	public synchronized Component add(Component comp, int pos) {
        int newIndex = addTabPanel(createDefaultLabel(vPanels.size()),true,comp);
        
@@ -107,8 +108,10 @@ public class TabPanel extends BaseTabbedPanel
 	   return comp;
 	}
 
+	@Override
 	public synchronized Component add(String name, Component comp) { return comp; }
 
+	@Override
 	public synchronized void remove(Component comp) 
 	{
 	  int i=getPanelTabIndex(comp);
@@ -299,6 +302,7 @@ public class TabPanel extends BaseTabbedPanel
 		return vPanels.size();
 	}
 
+	@Override
 	public boolean handleEvent(Event evt)
 	{
 		switch (evt.id)
@@ -314,7 +318,8 @@ public class TabPanel extends BaseTabbedPanel
 		return super.handleEvent(evt);
 	}
 
-    public Dimension preferredSize()
+    @Override
+	public Dimension preferredSize()
     {
     	Component pan = null;
     	Dimension d = null;
@@ -355,7 +360,8 @@ public class TabPanel extends BaseTabbedPanel
 		return p;
     }
 
-    public Dimension minimumSize()
+    @Override
+	public Dimension minimumSize()
     {
     	Component pan = null;
     	Dimension d = null;

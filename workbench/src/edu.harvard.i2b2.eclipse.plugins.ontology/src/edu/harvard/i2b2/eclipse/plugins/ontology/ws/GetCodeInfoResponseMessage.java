@@ -9,10 +9,6 @@
  */
 package edu.harvard.i2b2.eclipse.plugins.ontology.ws;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.harvard.i2b2.ontclient.datavo.vdo.VocabRequestType;
 
 /**
  * @author Lori Phillips
@@ -21,11 +17,8 @@ import edu.harvard.i2b2.ontclient.datavo.vdo.VocabRequestType;
 public class GetCodeInfoResponseMessage extends OntologyResponseData {
 	
 	public static final String THIS_CLASS_NAME = GetCodeInfoResponseMessage.class.getName();
-    private Log log = LogFactory.getLog(THIS_CLASS_NAME);	
 
-    private VocabRequestType requestType;
-
-	public GetCodeInfoResponseMessage() {}
+    public GetCodeInfoResponseMessage() {}
 	
 
 }

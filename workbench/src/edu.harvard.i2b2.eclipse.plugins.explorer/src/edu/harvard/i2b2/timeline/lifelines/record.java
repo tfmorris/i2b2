@@ -16,6 +16,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.StringReader;
 
+import edu.harvard.i2b2.explorer.ui.TimelineSearchFrame;
+
 // this is the op level class
 public class record extends Panel implements newApplet, Runnable{ 
 // public class record extends Applet implements newApplet,Runnable{ 
@@ -72,6 +74,15 @@ public class record extends Panel implements newApplet, Runnable{
 
     //int resizeWidth; // width to be used when a resize is done... read from a parameter 
     //int resizeHeight; // same for height...
+    
+    public void showSearchFrame() {
+    	final record r = this;
+    	java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new TimelineSearchFrame(r).setVisible(true);
+            }
+        });
+    }
 
     public void start() {
         if(theThread == null)
@@ -204,7 +215,7 @@ public class record extends Panel implements newApplet, Runnable{
 	        	System.out.println("got a null pointer for datafile");
 	        else
 	        	try {
-	        		String appDirectory = System.getProperty("user.dir").toString();
+	        		String appDirectory = System.getProperty("user.dir").toString()+"/temp/";
 	        		datafile = "file:///" + appDirectory + File.separator + datafile;
 	        		System.out.println(datafile);
 	        	}

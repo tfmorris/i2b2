@@ -24,11 +24,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.*;
 import org.eclipse.jface.action.StatusLineManager;
 import org.eclipse.jface.window.*;
 
+import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.StringUtil;
 import edu.harvard.i2b2.eclipse.plugins.ontology.views.find.TreeNode;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.OntServiceDriver;
@@ -65,7 +65,7 @@ public class FindTool extends ApplicationWindow
 		GridLayout gridLayout = new GridLayout(2, false);
 		compositeFind.setLayout(gridLayout);
 		
-		//		 Set up the match combo box
+		//	First Set up the match combo box
 	    final Combo matchCombo = new Combo(compositeFind,SWT.READ_ONLY);
 
 	    matchCombo.add("Starting with");
@@ -87,7 +87,7 @@ public class FindTool extends ApplicationWindow
 	    	}
 	    });
 	    
-		   // First set up the Find text combo box    
+		   // Then set up the Find text combo box    
 	    final Combo findCombo = new Combo(compositeFind, SWT.DROP_DOWN);
 		GridData findComboData = new GridData (GridData.FILL_HORIZONTAL);
 		findComboData.widthHint = 200;
@@ -144,7 +144,8 @@ public class FindTool extends ApplicationWindow
 			findButtonData.widthHint = 60;
 	    findButton.setLayoutData(findButtonData);
 	    findButton.addMouseListener(new MouseAdapter() {
-	    	public void mouseDown(MouseEvent e) {
+	    	@Override
+			public void mouseDown(MouseEvent e) {
 	    		// Add item to findCombo drop down list if not already there
 	    		if(findText == null)
 	    		{
@@ -184,7 +185,7 @@ public class FindTool extends ApplicationWindow
 	    			categoryKey = "any";
 	    		else{
 	    			ConceptType concept = (ConceptType)categories.get(categoryCombo.getSelectionIndex()-1);
-	    			categoryKey = StringUtil.getInstance().getTableCd(concept.getKey());
+	    			categoryKey = StringUtil.getTableCd(concept.getKey());
 	    		}
 	    	}
 	    	public void widgetDefaultSelected(SelectionEvent e) {
@@ -245,6 +246,9 @@ public class FindTool extends ApplicationWindow
     	} catch (AxisFault e) {
     		log.error(e.getMessage());
     		System.setProperty("errorMessage", "Ontology cell unavailable");
+    	} catch (I2B2Exception e) {
+    		log.error(e.getMessage());
+    		System.setProperty("errorMessage", e.getMessage());
     	} catch (Exception e) {
     		log.error(e.getMessage());
     		System.setProperty("errorMessage", "Remote server unavailable");

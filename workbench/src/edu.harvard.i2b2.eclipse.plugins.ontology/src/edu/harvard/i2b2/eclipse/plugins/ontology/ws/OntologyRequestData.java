@@ -21,6 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 
+import edu.harvard.i2b2.eclipse.UserInfoBean;
+import edu.harvard.i2b2.eclipse.plugins.ontology.util.Messages;
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.OntologyJAXBUtil;
 import edu.harvard.i2b2.ontclient.datavo.i2b2message.ApplicationType;
 import edu.harvard.i2b2.ontclient.datavo.i2b2message.BodyType;
@@ -54,39 +56,39 @@ abstract public class OntologyRequestData {
 	 * 
 	 * @return MessageHeader object
 	 */
+
 	public MessageHeaderType getMessageHeader() {
 		MessageHeaderType messageHeader = new MessageHeaderType();
 		
-		messageHeader.setI2B2VersionCompatible(new BigDecimal("1.0"));
-		messageHeader.setHl7VersionCompatible(new BigDecimal("2.4"));
-		
+		messageHeader.setI2B2VersionCompatible(new BigDecimal(Messages.getString("OntologyRequestData.i2b2VersionCompatible"))); //$NON-NLS-1$
+
 		ApplicationType appType = new ApplicationType();
-		appType.setApplicationName("i2b2 Ontology");
-		appType.setApplicationVersion("1.0"); 
+		appType.setApplicationName(Messages.getString("OntologyRequestData.SendingApplicationName")); //$NON-NLS-1$
+		appType.setApplicationVersion(Messages.getString("OntologyRequestData.SendingApplicationVersion"));  //$NON-NLS-1$
 		messageHeader.setSendingApplication(appType);
 		
 		FacilityType facility = new FacilityType();
-		facility.setFacilityName("i2b2 Hive");
+		facility.setFacilityName(Messages.getString("OntologyRequestData.SendingFacilityName")); //$NON-NLS-1$
 		messageHeader.setSendingFacility(facility);
 		
 		ApplicationType appType2 = new ApplicationType();
-		appType2.setApplicationVersion("1.0");
-		appType2.setApplicationName("Ontology Cell");		
+		appType2.setApplicationVersion(Messages.getString("OntologyRequestData.ReceivingApplicationVersion")); //$NON-NLS-1$
+		appType2.setApplicationName(Messages.getString("OntologyRequestData.ReceivingApplicationName"));		 //$NON-NLS-1$
 		messageHeader.setReceivingApplication(appType2);
 	
 		FacilityType facility2 = new FacilityType();
-		facility2.setFacilityName("i2b2 Hive");
+		facility2.setFacilityName(Messages.getString("OntologyRequestData.ReceivingFacilityName")); //$NON-NLS-1$
 		messageHeader.setReceivingFacility(facility2);
-		
-		SecurityType secType = new SecurityType();
-		secType.setDomain(System.getProperty("projectName"));
-		secType.setUsername(System.getProperty("user"));
-		secType.setPassword(System.getProperty("pass"));
-		messageHeader.setSecurity(secType);
 
 		Date currentDate = new Date();
 		DTOFactory factory = new DTOFactory();
 		messageHeader.setDatetimeOfMessage(factory.getXMLGregorianCalendar(currentDate.getTime()));
+		
+		SecurityType secType = new SecurityType();
+		secType.setDomain(UserInfoBean.getInstance().getUserDomain());
+		secType.setUsername(UserInfoBean.getInstance().getUserName());
+		secType.setPassword(UserInfoBean.getInstance().getUserPassword());
+		messageHeader.setSecurity(secType);
 		
 		MessageControlIdType mcIdType = new MessageControlIdType();
 		mcIdType.setInstanceNum(0);
@@ -94,14 +96,14 @@ abstract public class OntologyRequestData {
 		messageHeader.setMessageControlId(mcIdType);
 
 		ProcessingIdType proc = new ProcessingIdType();
-		proc.setProcessingId("P");
-		proc.setProcessingMode("I");
+		proc.setProcessingId(Messages.getString("OntologyRequestData.ProcessingId")); //$NON-NLS-1$
+		proc.setProcessingMode(Messages.getString("OntologyRequestData.ProcessingMode")); //$NON-NLS-1$
 		messageHeader.setProcessingId(proc);
 		
-		messageHeader.setAcceptAcknowledgementType("AL");
-		messageHeader.setApplicationAcknowledgementType("AL");
-		messageHeader.setCountryCode("US");
-
+		messageHeader.setAcceptAcknowledgementType(Messages.getString("OntologyRequestData.AcceptAcknowledgementType")); //$NON-NLS-1$
+		messageHeader.setApplicationAcknowledgementType(Messages.getString("OntologyRequestData.ApplicationAcknowledgementType")); //$NON-NLS-1$
+		messageHeader.setCountryCode(Messages.getString("OntologyRequestData.CountryCode")); //$NON-NLS-1$
+		messageHeader.setProjectId(UserInfoBean.getInstance().getProjectId());
 		return messageHeader;
 	}
 	

@@ -24,9 +24,7 @@ public class GetCodeInfoRequestMessage extends OntologyRequestData {
 	public static final String THIS_CLASS_NAME = GetCodeInfoRequestMessage.class.getName();
     private Log log = LogFactory.getLog(THIS_CLASS_NAME);	
 
-    private VocabRequestType vocabType;
-
-	public GetCodeInfoRequestMessage() {}
+    public GetCodeInfoRequestMessage() {}
 	
 	/**
 	 * Function to build get return type for a given request

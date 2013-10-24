@@ -1,10 +1,8 @@
 package edu.harvard.i2b2.timeline.external;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Panel;
-import java.awt.Label;
 
 /**
  * This helper class draws InfoTips

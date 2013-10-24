@@ -240,7 +240,8 @@ public abstract class ButtonBase
      * @see #mouseDown
      * @see #postMouseUpEvent
      */
-    public boolean mouseUp(Event e, int x, int y)
+    @Override
+	public boolean mouseUp(Event e, int x, int y)
     {
         if (running)
         {
@@ -275,7 +276,8 @@ public abstract class ButtonBase
      * @see #setNotifyDelay
      * @see #mouseUp
      */
-    public boolean mouseDown(Event e, int x, int y)
+    @Override
+	public boolean mouseDown(Event e, int x, int y)
     {
         if (notifyWhilePressed && !running)
         {
@@ -297,7 +299,8 @@ public abstract class ButtonBase
      * @param int y the Y co-ordinate of the mouse
      * @return true since the Event was handled
      */
-    public boolean mouseEnter(Event e, int x, int y)
+    @Override
+	public boolean mouseEnter(Event e, int x, int y)
     {
         inButton = true;
 
@@ -324,7 +327,8 @@ public abstract class ButtonBase
      * @param int y the Y co-ordinate of the mouse
      * @return true since the Event was handled
      */
-    public boolean mouseExit(Event e, int x, int y)
+    @Override
+	public boolean mouseExit(Event e, int x, int y)
     {
         inButton = false;
 
@@ -349,7 +353,8 @@ public abstract class ButtonBase
         return true;
     }
 
-    public boolean action(Event e, Object o)
+    @Override
+	public boolean action(Event e, Object o)
     {
         if (notifyWhilePressed)
         {
@@ -379,7 +384,8 @@ public abstract class ButtonBase
      * Enables the button.
      * @see #disable
      */
-    public void enable()
+    @Override
+	public void enable()
     {
         if (!isEnabled())
         {
@@ -395,7 +401,8 @@ public abstract class ButtonBase
      * Disables the button.
      * @see #enable
      */
-    public void disable()
+    @Override
+	public void disable()
     {
         if (isEnabled())
         {
@@ -421,7 +428,8 @@ public abstract class ButtonBase
     /**
      * @param Graphics g the Graphics object
      */
-    public void update(Graphics g)
+    @Override
+	public void update(Graphics g)
     {
         Dimension s;
 
@@ -435,7 +443,8 @@ public abstract class ButtonBase
      * Paints the button
      * @param Graphics g the Graphics object
      */
-    public void paint(Graphics g)
+    @Override
+	public void paint(Graphics g)
     {
         Dimension s;
         int width;

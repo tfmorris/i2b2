@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Export Data Category"
+            id="edu.harvard.i2b2.eclipse.plugins.exportData">
+      </category>
+      <view
+            name="Export Data"
+            icon="icons/core-cell.gif"
+            category="edu.harvard.i2b2.eclipse.plugins.exportData"
+            class="edu.harvard.i2b2.eclipse.plugins.exportData.views.ExportDataView"
+            id="edu.harvard.i2b2.eclipse.plugins.exportData.views.ExportDataView">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension targetID="edu.harvard.i2b2.eclipse.perspective">
+         <view
+               closeable="true"
+               id="edu.harvard.i2b2.eclipse.plugins.exportData.views.ExportDataView"
+               moveable="true"
+               ratio="0.25"
+               relationship="right"
+               relative="org.eclipse.ui.editorss"
+               showTitle="true"
+               standalone="false"
+               visible="true"/>
+      </perspectiveExtension>
+   </extension>
+      <extension
+            point="org.eclipse.ui.viewActions">
+        <viewContribution
+            id="edu.harvard.i2b2.eclipse.plugins.exportData.viewActions"
+            targetID="edu.harvard.i2b2.eclipse.plugins.exportData.views.ExportDataView">
+            
+		<action 
+               class="edu.harvard.i2b2.eclipse.plugins.exportData.views.ViewStackToolbarActionDelegate" 
+               icon="icons/xmlstack.gif" 
+               id="edu.harvard.i2b2.eclipse.plugins.exportData.viewResponseMessageStack" 
+               label="XMLMessageStack" 
+               style="push" 
+               toolbarPath="additions" 
+               tooltip="Display the XML message stack"/>            
+      </viewContribution>
+      </extension>
+      <extension point="org.eclipse.ui.contexts">
+      	<context
+      		id="exportdata_view_help_context"
+      		name="Export Data View"
+      		parentId="edu.harvard.i2b2.eclipse.plugins.exportData.views.ExportDataView">
+      	</context>
+      </extension>
+	<extension point="org.eclipse.help.contexts">
+       <contexts
+            file="help_contexts.xml"
+			plugin="edu.harvard.i2b2.eclipse.plugins.exportData">
+        </contexts>
+      </extension>
+      <extension point="org.eclipse.help.toc">
+      	<toc
+      		file="toc.xml"
+      		primary="true"/>
+       <toc
+             file="tocconcepts.xml"
+             primary="false">
+       </toc>
+      </extension>
+      
+</plugin>

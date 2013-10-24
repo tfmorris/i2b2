@@ -96,7 +96,7 @@ class AngleLayout {
     int newX, newY, x, y;
     double sine, cosine, radians;
     
-    radians = Math.PI * (double)degree / 180.0;
+    radians = Math.PI * degree / 180.0;
     sine = Math.sin(radians);
     cosine = Math.cos(radians);
     x = point.x;

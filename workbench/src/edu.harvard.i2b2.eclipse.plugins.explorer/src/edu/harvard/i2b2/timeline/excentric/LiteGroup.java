@@ -35,8 +35,6 @@ package edu.harvard.i2b2.timeline.excentric;
 
 import java.awt.*;
 import java.util.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -113,7 +111,8 @@ public class LiteGroup extends Lite {
    *
    * @return The bounding rectangle.
    */
-  public Rectangle getBounds() {
+  @Override
+public Rectangle getBounds() {
     if (lites.isEmpty())
       return new Rectangle();
 
@@ -133,7 +132,8 @@ public class LiteGroup extends Lite {
    *
    * @param	p	The new position point.
    */
-  public void setPosition(Point p) {
+  @Override
+public void setPosition(Point p) {
     for (Enumeration e = lites.elements(); e.hasMoreElements(); ) {
       Lite l = (Lite)e.nextElement();
       l.setPosition(p);
@@ -143,7 +143,8 @@ public class LiteGroup extends Lite {
   /**
    * @return The position of the first <code>Lite</code> object.
    */
-  public Point getPosition() {
+  @Override
+public Point getPosition() {
     if (! lites.isEmpty())
       return ((Lite)lites.firstElement()).getPosition();
     else
@@ -157,7 +158,8 @@ public class LiteGroup extends Lite {
    * than the time required to compute its bounds.
    * @see excentric.LiteGroup#paintAll(java.awt.Graphics)
    */
-  public void paint(Graphics g) {
+  @Override
+public void paint(Graphics g) {
     Rectangle clip = g.getClipBounds();
     for (Enumeration e = lites.elements(); e.hasMoreElements(); ) {
       Lite l = (Lite)e.nextElement();

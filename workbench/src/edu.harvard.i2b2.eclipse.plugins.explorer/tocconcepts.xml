@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Concepts" link_to="toc.xml#concepts">
+   <topic href="html/concepts/timeline_intro_layout_createModelTimeline.htm" label="Layout of the Create Model for Timeline Tab">
+   </topic>
+   <topic href="html/concepts/timeline_intro_layout_renderTimeline.htm" label="Layout of the Render a Timeline Tab">
+   </topic>
+   <topic href="html/concepts/timeline_create/timeline_create.htm" label="Creating a timeline">
+      <topic href="html/concepts/timeline_create/timeline_create_dragItems.htm" label="Draggable items">
+      </topic>
+      <topic href="html/concepts/timeline_create/timeline_create_add_concepts.htm" label="Add concepts">
+      </topic>
+      <topic href="html/concepts/timeline_create/timeline_create_add_previousQuery.htm" label="Add previous query">
+      </topic>
+      <topic href="html/concepts/timeline_create/timeline_create_add_patientSet.htm" label="Add patient set">
+      </topic>
+      <topic href="html/concepts/timeline_create/timeline_create_add_grpTemplate.htm" label="Add group template">
+      </topic>
+      <topic href="html/concepts/timeline_create/timeline_create_delete.htm" label="Delete concepts">
+      </topic>
+      <topic href="html/concepts/timeline_create/timeline_create_move.htm" label="Move concepts">
+      </topic>
+      <topic href="html/concepts/timeline_create/timeline_create_constraints.htm" label="Setting constraints">
+      </topic>
+      <topic href="html/concepts/timeline_create/timeline_create_displayOptions.htm" label="Display options">
+      </topic>
+   </topic>
+      <topic href="html/concepts/timeline_view/timeline_view.htm" label="Viewing a timeline">
+      <topic href="html/concepts/timeline_view/timeline_view_navigation.htm" label="Navigation">
+      </topic>
+      <topic href="html/concepts/timeline_view/timeline_view_notesViewer.htm" label="Notes viewer">
+      </topic>
+   </topic>>
+</toc>

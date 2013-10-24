@@ -12,7 +12,7 @@ package edu.harvard.i2b2.smlib;/************************************************
  * Copyright (c) 1998, 2004 Jackwind Li Guojie
  * 
  * Created on 2004-3-31 1:19:00 by JACK
- * $Id: SimpleProgressC.java,v 1.2 2007/05/18 17:19:26 wp066 Exp $
+ * $Id: SimpleProgressC.java,v 1.5 2008/02/19 19:39:46 mem61 Exp $
  * 
  *****************************************************************************/
 
@@ -45,7 +45,8 @@ public class SimpleProgressC {
     progressBar.setMinimum(0);
     progressBar.setMaximum(iMax);
     simpleProgressThread = new Thread(){
-      public void run() {
+      @Override
+	public void run() {
         for(int i=0; i<=iMax; i++) {
           final int num = i;
           try {

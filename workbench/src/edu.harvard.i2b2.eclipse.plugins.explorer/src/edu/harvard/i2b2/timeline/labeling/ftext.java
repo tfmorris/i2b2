@@ -10,13 +10,12 @@
  */
 
 package edu.harvard.i2b2.timeline.labeling;
-import java.applet.*;
 import java.awt.*;
-import java.awt.image.*;
 
 public class ftext extends ImgFilt  {
 
-    public int[] filter(int[] p1, int w, int h) {
+    @Override
+	public int[] filter(int[] p1, int w, int h) {
         Image image;
         Graphics g;
         int ascent, descent;

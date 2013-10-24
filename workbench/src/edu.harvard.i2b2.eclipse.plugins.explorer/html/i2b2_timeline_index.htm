@@ -1,0 +1,2785 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 11 (filtered)">
+<title>i2b2 Timeline View</title>
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Helvetica;
+	panose-1:2 11 6 4 2 2 2 2 2 4;}
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Cambria;
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+h1
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:16.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+h2
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-weight:bold;
+	font-style:italic;}
+h3
+	{margin-right:0in;
+	margin-left:0in;
+	font-size:13.5pt;
+	font-family:"Times New Roman";
+	font-weight:bold;}
+h4
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:"Times New Roman";
+	font-weight:bold;}
+p.MsoIndex1, li.MsoIndex1, div.MsoIndex1
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:12.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex2, li.MsoIndex2, div.MsoIndex2
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:24.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex3, li.MsoIndex3, div.MsoIndex3
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex4, li.MsoIndex4, div.MsoIndex4
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:48.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex5, li.MsoIndex5, div.MsoIndex5
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:60.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex6, li.MsoIndex6, div.MsoIndex6
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex7, li.MsoIndex7, div.MsoIndex7
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:84.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex8, li.MsoIndex8, div.MsoIndex8
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:96.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoIndex9, li.MsoIndex9, div.MsoIndex9
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.5in;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoToc1, li.MsoToc1, div.MsoToc1
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	text-transform:uppercase;
+	font-weight:bold;}
+p.MsoToc2, li.MsoToc2, div.MsoToc2
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:12.0pt;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	font-variant:small-caps;}
+p.MsoToc3, li.MsoToc3, div.MsoToc3
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:24.0pt;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	font-style:italic;}
+p.MsoToc4, li.MsoToc4, div.MsoToc4
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc5, li.MsoToc5, div.MsoToc5
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:48.0pt;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc6, li.MsoToc6, div.MsoToc6
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:60.0pt;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc7, li.MsoToc7, div.MsoToc7
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc8, li.MsoToc8, div.MsoToc8
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:84.0pt;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoToc9, li.MsoToc9, div.MsoToc9
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:96.0pt;
+	margin-bottom:.0001pt;
+	font-size:9.0pt;
+	font-family:"Times New Roman";}
+p.MsoFootnoteText, li.MsoFootnoteText, div.MsoFootnoteText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:Arial;}
+p.MsoCommentText, li.MsoCommentText, div.MsoCommentText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:Arial;}
+p.MsoIndexHeading, li.MsoIndexHeading, div.MsoIndexHeading
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.MsoCaption, li.MsoCaption, div.MsoCaption
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	font-size:10.0pt;
+	font-family:Calibri;
+	font-weight:bold;}
+p.MsoTof, li.MsoTof, div.MsoTof
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+span.MsoFootnoteReference
+	{vertical-align:super;}
+span.MsoEndnoteReference
+	{vertical-align:super;}
+p.MsoEndnoteText, li.MsoEndnoteText, div.MsoEndnoteText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:Arial;}
+p.MsoToa, li.MsoToa, div.MsoToa
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:12.0pt;
+	margin-bottom:.0001pt;
+	text-indent:-12.0pt;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoMacroText, li.MsoMacroText, div.MsoMacroText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";}
+p.MsoToaHeading, li.MsoToaHeading, div.MsoToaHeading
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.MsoListBullet2, li.MsoListBullet2, div.MsoListBullet2
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.55in;
+	margin-bottom:.0001pt;
+	text-indent:-.1in;
+	font-size:12.0pt;
+	font-family:Arial;}
+p.MsoTitle, li.MsoTitle, div.MsoTitle
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	text-align:center;
+	font-size:16.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+	{margin:0in;
+	margin-bottom:.0001pt;
+	background:navy;
+	font-size:10.0pt;
+	font-family:Tahoma;}
+p
+	{margin-right:0in;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+tt
+	{font-family:"Courier New";}
+p.MsoCommentSubject, li.MsoCommentSubject, div.MsoCommentSubject
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.MsoAcetate, li.MsoAcetate, div.MsoAcetate
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:8.0pt;
+	font-family:Tahoma;}
+p.jdheading1, li.jdheading1, div.jdheading1
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:18.0pt;
+	font-family:Arial;
+	color:navy;
+	font-weight:bold;}
+p.jdnormal, li.jdnormal, div.jdnormal
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.jdchapternumber, li.jdchapternumber, div.jdchapternumber
+	{margin:0in;
+	margin-bottom:.0001pt;
+	text-align:right;
+	font-size:72.0pt;
+	font-family:Arial;
+	color:navy;
+	font-weight:bold;}
+p.jdchapterheading, li.jdchapterheading, div.jdchapterheading
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:12.0pt;
+	margin-left:0in;
+	text-align:right;
+	line-height:150%;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:18.0pt;
+	font-family:Arial;
+	color:navy;
+	font-weight:bold;}
+p.jdheading2, li.jdheading2, div.jdheading2
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.jdheading3, li.jdheading3, div.jdheading3
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.jdtable, li.jdtable, div.jdtable
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:Arial;}
+p.jdnormalindent1, li.jdnormalindent1, div.jdnormalindent1
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.jdlistnumbers1, li.jdlistnumbers1, div.jdlistnumbers1
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.5in;
+	text-indent:-.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.BulletedListJD, li.BulletedListJD, div.BulletedListJD
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.Normal2, li.Normal2, div.Normal2
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.NormalIndent1, li.NormalIndent1, div.NormalIndent1
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.StyleBulletedListJDArial11pt, li.StyleBulletedListJDArial11pt, div.StyleBulletedListJDArial11pt
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:11.0pt;
+	font-family:Arial;}
+p.StyleHeading1Right, li.StyleHeading1Right, div.StyleHeading1Right
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	text-align:right;
+	page-break-after:avoid;
+	font-size:18.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.StyleHeading412pt, li.StyleHeading412pt, div.StyleHeading412pt
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.Style1, li.Style1, div.Style1
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:18.0pt;
+	font-family:Arial;
+	color:navy;
+	font-weight:bold;}
+p.SuperTitle, li.SuperTitle, div.SuperTitle
+	{margin-top:48.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-align:right;
+	border:none;
+	padding:0in;
+	font-size:14.0pt;
+	font-family:Arial;
+	font-weight:bold;}
+p.jdwebheading1, li.jdwebheading1, div.jdwebheading1
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:Calibri;
+	font-weight:bold;}
+p.jdwebheading2, li.jdwebheading2, div.jdwebheading2
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:14.0pt;
+	font-family:Cambria;
+	color:#365F91;}
+p.jdwebheading3, li.jdwebheading3, div.jdwebheading3
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:12.0pt;
+	font-family:Cambria;}
+p.jdwebnormal, li.jdwebnormal, div.jdwebnormal
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdwebheading4, li.jdwebheading4, div.jdwebheading4
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:10.0pt;
+	font-family:Cambria;
+	text-transform:uppercase;}
+p.jdwebfiguretitle, li.jdwebfiguretitle, div.jdwebfiguretitle
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:Calibri;
+	font-weight:bold;}
+p.jdwebheading5, li.jdwebheading5, div.jdwebheading5
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:10.0pt;
+	font-family:Cambria;
+	font-weight:bold;}
+p.jdwebtable, li.jdwebtable, div.jdwebtable
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:Calibri;}
+p.jdwebchapterheading, li.jdwebchapterheading, div.jdwebchapterheading
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:14.0pt;
+	font-family:Helvetica;
+	font-weight:bold;}
+p.jdwebbullets, li.jdwebbullets, div.jdwebbullets
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdweblistnumbers, li.jdweblistnumbers, div.jdweblistnumbers
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdwebheading7, li.jdwebheading7, div.jdwebheading7
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:9.0pt;
+	font-family:Cambria;
+	text-transform:uppercase;}
+p.jdwebheading8, li.jdwebheading8, div.jdwebheading8
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:9.0pt;
+	font-family:Cambria;
+	text-transform:uppercase;
+	font-style:italic;
+	text-decoration:underline;}
+p.jdwebtablelistnumber, li.jdwebtablelistnumber, div.jdwebtablelistnumber
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.15in;
+	text-indent:-.15in;
+	font-size:10.0pt;
+	font-family:Calibri;}
+p.jdwebemphasis, li.jdwebemphasis, div.jdwebemphasis
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.25in;
+	font-size:11.0pt;
+	font-family:Calibri;
+	font-style:italic;}
+p.jdwebfiguredescription, li.jdwebfiguredescription, div.jdwebfiguredescription
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:Calibri;}
+p.StylejdwebfiguretitleNotBold, li.StylejdwebfiguretitleNotBold, div.StylejdwebfiguretitleNotBold
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:10.0pt;
+	font-family:Calibri;}
+p.jdwebheading6, li.jdwebheading6, div.jdwebheading6
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	font-size:10.0pt;
+	font-family:Cambria;
+	text-decoration:underline;}
+p.jdwebnormalindent, li.jdwebnormalindent, div.jdwebnormalindent
+	{margin-top:6.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.5in;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.Stylejdlistnumbers1CalibriBefore0ptAfter0pt, li.Stylejdlistnumbers1CalibriBefore0ptAfter0pt, div.Stylejdlistnumbers1CalibriBefore0ptAfter0pt
+	{margin:0in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdweblistbullet, li.jdweblistbullet, div.jdweblistbullet
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:.75in;
+	text-indent:-.25in;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.StylejdwebnormalLeft05, li.StylejdwebnormalLeft05, div.StylejdwebnormalLeft05
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:.5in;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdtocheading, li.jdtocheading, div.jdtocheading
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:12.0pt;
+	margin-left:0in;
+	page-break-after:avoid;
+	border:none;
+	padding:0in;
+	font-size:12.0pt;
+	font-family:Helvetica;
+	font-weight:bold;}
+p.Stylejdweblistnumbersindent, li.Stylejdweblistnumbersindent, div.Stylejdweblistnumbersindent
+	{margin:0in;
+	margin-bottom:.0001pt;
+	line-height:150%;
+	font-size:11.0pt;
+	font-family:Calibri;}
+p.jdweblistletters, li.jdweblistletters, div.jdweblistletters
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:1.0in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	font-size:11.0pt;
+	font-family:Calibri;}
+span.jdwebnormalChar
+	{font-family:Calibri;}
+span.jdwebfiguretitleChar
+	{font-family:Calibri;
+	font-weight:bold;}
+span.StylejdwebfiguretitleNotBoldChar
+	{font-family:Calibri;
+	font-weight:bold;}
+span.Heading1Char
+	{font-family:Arial;
+	font-weight:bold;}
+span.Heading2Char
+	{font-family:Arial;
+	font-weight:bold;
+	font-style:italic;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US link=blue vlink=purple>
+
+<div class=Section1>
+
+<p class=jdwebchapterheading><a name="_Toc224020811"></a><a name="_Toc223923440"></a><a
+name="_Toc222040999"></a><a name="_Toc222025453">i2b2 Timeline View</a></p>
+
+<p class=StylejdwebnormalLeft05>The timeline view is designed to display the information
+in a graphical representation of a chronological sequence of events.</p>
+
+<p class=StylejdwebnormalLeft05>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid windowtext 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdtocheading><a name="_Toc222025454">Table of Contents</a></p>
+
+</div>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc224020811">i2b2
+Timeline View<span style='color:windowtext;display:none;text-decoration:none'>... </span><span
+style='color:windowtext;display:none;text-decoration:none'>1</span></a></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc224020812">Introduction<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020813">Layout of the Create model
+for Timeline tab<span style='color:windowtext;display:none;text-decoration:
+none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>2</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020814">Query Name<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>3</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020815">Concept List<span
+style='color:windowtext;display:none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>3</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020816">Deletion
+Buttons<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020817">Move Buttons<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020818">Display
+Options<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020819">Display
+Concepts with No Data<span style='color:windowtext;display:none;text-decoration:
+none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020820">Display
+Patient Demographics<span style='color:windowtext;display:none;text-decoration:
+none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020821">Patient Set<span
+style='color:windowtext;display:none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020822">Layout of the Render a
+Timeline Tab<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>4</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020823">Timeline<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>5</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020824">Zoom In/Out
+Arrows<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>5</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020825">Increment
+Settings<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>5</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020826">Start<span
+style='color:windowtext;display:none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>5</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020827">Increment<span
+style='color:windowtext;display:none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>5</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020828">Previous and
+Next Buttons<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>6</span></a></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc224020829">Creating a
+Timeline<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>6</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020830">Draggable Items<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>6</span></a></span></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020831">Add Concepts<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>7</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020832">Navigate
+Terms View<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>7</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020833">Add Concept
+From Navigate Terms View<span style='color:windowtext;display:none;text-decoration:
+none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>7</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020834">Find Terms
+View<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>8</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020835">Add Concept
+From Find Terms View<span style='color:windowtext;display:none;text-decoration:
+none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>9</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020836">Workplace<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>9</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020837">Add Concept
+From Workplace View<span style='color:windowtext;display:none;text-decoration:
+none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>10</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020838">Add Previous Query<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>10</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020839">Previous
+Query View<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>10</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020840">Add Previous
+Query From Previous Query View<span style='color:windowtext;display:none;
+text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>11</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020841">Workplace
+View<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>13</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020842">Add Previous
+Query From Workplace View<span style='color:windowtext;display:none;text-decoration:
+none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>13</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020843">Add Group Template<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>13</span></a></span></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020844">Add Patient Set<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>15</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020845">Previous
+Query View<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>15</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020846">Add Previous
+Query From Previous Query View<span style='color:windowtext;display:none;
+text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>16</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020847">Workplace
+View<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>17</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020848">Add Previous
+Query From Workplace View<span style='color:windowtext;display:none;text-decoration:
+none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>18</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020849">Delete/Remove<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>18</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020850">Delete All
+Concepts<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>18</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020851">Delete
+Single Concept<span style='color:windowtext;display:none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>19</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020852">Move Concepts<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>19</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020853">Move Concept
+Up<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>19</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020854">Move Concept
+Down<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>19</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020855">Put Concepts
+in Order<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>19</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020856">Setting Constraints<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>20</span></a></span></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020857">SETTING THE
+VALUE CONSTRAINT<span style='color:windowtext;display:none;text-decoration:
+none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>21</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020858">Display Options<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>21</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020859">Height<span
+style='color:windowtext;display:none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>22</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020860">Change
+Height<span style='color:windowtext;display:none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>22</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020861">Color<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>23</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020862">Change
+Colors<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>23</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020863">Concepts
+without data<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>24</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020864">Patient
+Demographics<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>24</span></a></span></p>
+
+<p class=MsoToc1><span class=MsoHyperlink><a href="#_Toc224020865">Viewing a
+Timeline<span style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>24</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020866">Navigation<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>24</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020867">Collapse/Expand
+Headings<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>25</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020868">Zoom In/Out<span
+style='color:windowtext;display:none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>25</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020869">Zoom In<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>25</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020870">Zoom Out<span
+style='color:windowtext;display:none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>27</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020871">Moving to
+Next/Previous Groups of Patients<span style='color:windowtext;display:none;
+text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>27</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020872">Increment
+Settings<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>27</span></a></span></p>
+
+<p class=MsoToc4><span class=MsoHyperlink><a href="#_Toc224020873">Move Forward
+and Backwards<span style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>27</span></a></span></p>
+
+<p class=MsoToc2><span class=MsoHyperlink><span style='font-variant:normal !important;
+text-transform:uppercase'><a href="#_Toc224020874">Notes Viewer<span
+style='color:windowtext;display:none;text-decoration:none'>.. </span><span
+style='color:windowtext;display:none;text-decoration:none'>28</span></a></span></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020875">View a Note<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>28</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020876">View an
+Encrypted Note (Enter Key Manually)<span style='color:windowtext;display:none;
+text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>28</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020877">View an
+Encrypted Note (Enter Key from a File)<span style='color:windowtext;display:
+none;text-decoration:none'> </span><span
+style='color:windowtext;display:none;text-decoration:none'>30</span></a></span></p>
+
+<p class=MsoToc3><span class=MsoHyperlink><a href="#_Toc224020878">Close a Note<span
+style='color:windowtext;display:none;text-decoration:none'>. </span><span
+style='color:windowtext;display:none;text-decoration:none'>31</span></a></span></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading1><a name="_Toc224020812"></a><a name="_Toc223923441"></a><a
+name="_Toc223252652">Introduction</a></p>
+
+<p class=jdwebnormal>The timeline view is comprised of two tabs; (1) Create
+model for Timeline and (2) Render of a Timeline.  This section describes the
+layout and contents of both tabs.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020813"></a><a name="_Toc223923444"></a><a
+name="_Toc222041015"></a><a name="_Toc222025470">Layout of the Create model for
+Timeline tab</a></p>
+
+</div>
+
+<p class=jdwebnormal><a name="_Toc222041016"></a><a name="_Toc222025471">The
+concepts to be used when rendering the timeline are defined in the <b>Create
+model for Timeline</b> tab.  Users can add individual or groups of concepts. 
+In addition to adding concepts, users can define value constraints for each
+concept and set the height and color of the ticks that appear on the timeline.</a></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=734 height=333
+src="i2b2_timeline_index_files/image001.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 1     Create model for Timeline Layout</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020814"></a><a name="_Toc223923445"></a><a
+name="_Toc223252654">Query Name</a></p>
+
+<p class=jdwebnormal>The query name will appear when you drag a <b>previous
+query</b> from either <b>Previous Query View</b> or <b>Workplace View</b> and
+drop it into the <b>Query Name</b> field.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020815"></a><a name="_Toc223923446">Concept
+List</a></p>
+
+<p class=jdwebnormal>This section contains a user defined list of concepts and
+additional information used when creating the timeline.  The following table
+describes each column:</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='margin-left:17.4pt;border-collapse:collapse;border:none'>
+ <tr>
+  <td width=128 valign=top style='width:96.05pt;border:solid #999999 1.0pt;
+  background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Column
+  Name</span></b></p>
+  </td>
+  <td width=487 valign=top style='width:365.35pt;border:solid #999999 1.0pt;
+  border-left:none;background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Description
+  / Use</span></b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=128 valign=top style='width:96.05pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Row
+  #</span></b></p>
+  </td>
+  <td width=487 valign=top style='width:365.35pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Identifies
+  order in which the concept will display in the timeline.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=128 valign=top style='width:96.05pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Name
+  of Terms</span></b></p>
+  </td>
+  <td width=487 valign=top style='width:365.35pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  name of the concept.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=128 valign=top style='width:96.05pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Value</span></b></p>
+  </td>
+  <td width=487 valign=top style='width:365.35pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>List
+  of fields in the database that can be used to limit the data available on the
+  timeline for a particular concept.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=128 valign=top style='width:96.05pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Value
+  Text</span></b></p>
+  </td>
+  <td width=487 valign=top style='width:365.35pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Limit
+  the data to a user defined range of values for a particular concept.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=128 valign=top style='width:96.05pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Height</span></b></p>
+  </td>
+  <td width=487 valign=top style='width:365.35pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  height of the tick on the timeline.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=128 valign=top style='width:96.05pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Color</span></b></p>
+  </td>
+  <td width=487 valign=top style='width:365.35pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>The
+  color of the tick on the timeline.</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020816"></a><a name="_Toc223923447">Deletion
+Buttons</a></p>
+
+<p class=jdwebnormal>Remove concepts from the list.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020817">Move Buttons</a></p>
+
+<p class=jdwebnormal>Change the order of concepts on the list.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020818"></a><a name="_Toc223923448">Display
+Options</a></p>
+
+<p class=jdwebnormal>Select what to display when viewing the timeline. Currently
+there are two options.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020819"></a><a name="_Toc223923449">Display
+Concepts with No Data</a></p>
+
+<p class=jdwebnormal>A check in the box next to Display concepts with no data
+means all concepts listed will display in the timeline even if an event for
+that concept has not occurred.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020820"></a><a name="_Toc223923450">Display
+Patient Demographics</a></p>
+
+<p class=jdwebnormal>A check means the patient’s demographic information will
+display.</p>
+
+<p class=jdwebnormal>No check means only the patient id will display.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020821"></a><a name="_Toc223923451">Patient
+Set</a> </p>
+
+<p class=jdwebnormal>In the bottom left corner of the timeline view is the <b>Patient
+Set</b> box.  This box will display the number of patient’s in the set that
+will be used when rendering the timeline.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020822"></a><a name="_Toc223923452"></a><a
+name="_Toc222041040"></a><a name="_Toc222025495">Layout of the Render a
+Timeline Tab</a></p>
+
+</div>
+
+<p class=jdwebnormal>The render a timeline tab will use the information entered
+on the <b>Create model for Timeline</b> tab.  If data has not been entered, a
+warning will appear and the user needs to go back and add the required
+information.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=795 height=390
+src="i2b2_timeline_index_files/image002.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 2     Render a Timeline Layout</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020823"></a><a name="_Toc223923453">Timeline</a></p>
+
+<p class=jdwebnormal>Graphical display of chronological events based on the
+concepts identified on the Create model for Timeline tab.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020824"></a><a name="_Toc223923454">Zoom
+In/Out Arrows</a></p>
+
+<p class=jdwebnormal>Arrows that allow users to zoom in and out of the timeline.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020825"></a><a name="_Toc223923455">Increment
+Settings</a></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020826">Start</a></p>
+
+<p class=jdwebnormal>Defines what record number the timeline should begin the
+display.</p>
+
+<p class=jdwebheading4><a name="_Toc224020827">Increment</a></p>
+
+<p class=jdwebnormal>Defines how many to advance when the Next and Previous
+buttons are clicked on.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020828">Previous and Next Buttons</a></p>
+
+<p class=jdwebnormal><b>Next</b> button moves the timeline forward to the next
+group of patients.</p>
+
+<p class=jdwebnormal><b>Previous</b> button moves the timeline backwards to the
+previous group of patients.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading1><a name="_Toc224020829"></a><a name="_Toc223923456"></a><a
+name="_Toc223252664">Creating a </a>Timeline</p>
+
+<p class=jdwebnormal>This section describes the process of adding items to the
+query tool, setting constraints and setting the display options for the
+timeline.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020830"></a><a name="_Toc223923457"></a><a
+name="_Toc223252665">Draggable Items</a></p>
+
+</div>
+
+<p class=jdwebnormal>In order to create your timeline, you will need to define
+what information will be retrieved from the databases.  Selected items from
+other i2b2 Workbench views can be dragged and dropped (copied) into the <b>Timeline</b>
+view. </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Concepts</p>
+
+<p class=jdwebnormalindent>Concepts <span style='color:silver'>(<img width=16
+height=16 src="i2b2_timeline_index_files/image003.gif">)</span> can be defined
+as terms, results, providers, etc.  They can be added as a group
+(folder/subfolder <span style='color:silver'>(<img width=16 height=16
+src="i2b2_timeline_index_files/image004.gif">)</span>) or individually by
+dragging the item(s) from <b>Navigate Terms</b>, <b>Find Terms</b>, and <b>Workplace</b>
+views.</p>
+
+<p class=jdwebnormalindent>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>2.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Previous
+Query</p>
+
+<p class=jdwebnormalindent>The concepts and patient set can easily be added by
+dragging a previous query <span style='color:silver'>(<img width=16 height=16
+src="i2b2_timeline_index_files/image005.gif">) </span>from <b>Previous Query</b>
+and <b>Workplace</b> views.</p>
+
+<p class=jdwebnormalindent>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>3.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Group
+Template</p>
+
+<p class=jdwebnormalindent>Users can define a group of concepts that they
+frequently run and save them in their workplace view. This grouping of concepts
+is referred to as a group template <span style='color:silver'>(<img width=16
+height=16 src="i2b2_timeline_index_files/image006.gif">)</span>. This template
+can be added to the timeline view by dragging it from <b>Workplace</b> view to
+the concept list section.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='margin-left:.5in;text-indent:-.25in'>4.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Patient
+Set</p>
+
+<p class=jdwebnormalindent>A specific set of patients can be added to the
+timeline by dragging the patient list (<img width=16 height=16
+src="i2b2_timeline_index_files/image007.gif">) from <b>Previous Query</b> and <b>Workplace</b>
+views.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020831"></a><a name="_Toc223923458"></a><a
+name="_Toc223252669">Add Concepts</a></p>
+
+</div>
+
+<p class=jdwebnormal>Concepts can be added to the timeline view by simply
+dragging the concept from one of the following views.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020832"></a><a name="_Toc223923459"></a><a
+name="_Toc223252670">Navigate Terms View</a></p>
+
+<p class=jdwebnormal>The Navigate Terms view contains a hierarchical display of
+all the concepts that can be used to search the database.</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>&nbsp;</span></i></b></p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: How
+the items are grouped and displayed is dependent on how the database is setup.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=249 height=320
+src="i2b2_timeline_index_files/image008.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 3     Navigate Terms</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020833"></a><a name="_Toc223923460"></a><a
+name="_Toc223252671">Add Concept From Navigate Terms View</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Expand the folders that contain the concept or grouping of concepts that
+you want to add.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the concept/term and drag the item over to the <b>Timeline View</b>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Drop the concept into the section that displays the list of concepts
+(Figure 8.4).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=565 height=336
+src="i2b2_timeline_index_files/image009.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 4     Drag Concept</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The concept will display (Figure 8.5).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=529 height=133
+src="i2b2_timeline_index_files/image010.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 5     Concept Added</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020834"></a><a name="_Toc223923461"></a><a
+name="_Toc223252672">Find Terms View</a></p>
+
+<p class=jdwebnormal>The Find Terms view provides a way to search for a
+particular concept.  There are two basic methods that can be used to find
+terms: (1) Search by Names and (2) Search by Codes.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=283 height=318
+src="i2b2_timeline_index_files/image011.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 6     Find Terms View</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020835"></a><a name="_Toc223923462"></a><a
+name="_Toc223252673">Add Concept From Find Terms View</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Expand the folders that contain the concept or grouping of concepts that
+you want to add.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the concept/term and drag the item over to the <b>Timeline View</b>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Drop the concept into the section that displays the list of concepts
+(see Figure 8.4).</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The concept will display (see Figure 8.5).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020836"></a><a name="_Toc223923463"></a><a
+name="_Toc223252674">Workplace</a></p>
+
+<p class=jdwebnormal>Information in the workplace is related to the most common
+concepts and queries that an individual uses and in essence becomes their
+personal workplace.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=222 height=315
+src="i2b2_timeline_index_files/image012.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 7     Workplace View</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020837"></a><a name="_Toc223923464"></a><a
+name="_Toc223252675">Add Concept From Workplace View</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Find the set of concepts you want to add (either in your folder or a
+shared folder).</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the concept/term and drag the item over to the <b>Timeline View</b>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Drop the concept into the section that displays the list of concepts
+(see Figure 8.4).</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The concept will display (see Figure 8.5).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020838"></a><a name="_Toc223923465"></a><a
+name="_Toc223252676">Add Previous Query</a></p>
+
+</div>
+
+<p class=jdwebnormal>A previous query can be added to the timeline view by
+simply dragging the query name from one of the following views.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020839"></a><a name="_Toc223923466"></a><a
+name="_Toc223252677">Previous Query View</a></p>
+
+<p class=jdwebnormal>The previous query view displays the queries that were run
+by the user.  </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=260 height=332
+src="i2b2_timeline_index_files/image013.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 8     Previous Query View</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020840"></a><a name="_Toc223923467"></a><a
+name="_Toc223252678">Add Previous Query From Previous Query View</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the previous query and drag the item over to the <b>Timeline
+View</b>.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Drop the previous query into the section that displays the list of
+concepts (see Figure 8.9).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=562 height=335
+src="i2b2_timeline_index_files/image014.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 9     Previous Query Drop</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The concept(s) associated with the previous query will display in the list,
+the patient list will be added and the name of the query will appear at <b>Query
+Name</b> (Figure 8.10).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=560 height=332
+src="i2b2_timeline_index_files/image015.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020841"></a><a name="_Toc223923468"></a><a
+name="_Toc223252679">Workplace View</a></p>
+
+<p class=jdwebnormalindent>Information in the workplace is related to the most
+common concepts and queries that an individual uses and in essence becomes
+their personal workplace.</p>
+
+<p class=jdwebnormalindent>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=212 height=315
+src="i2b2_timeline_index_files/image016.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 10  Workplace View</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020842"></a><a name="_Toc223923469"></a><a
+name="_Toc223252680">Add Previous Query From Workplace View</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Find the previous query you want to add (either in your folder or a
+shared folder).</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the previous query and drag it over to the <b>Timeline View</b>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Drop the previous query into the section that displays the list of
+concepts (see Figure 8.9).</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The concept(s) associated with the previous query will display in the
+list, the patient list will be added and the name of the query will appear at <b>Query
+Name</b> (see Figure 8.10).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020843"></a><a name="_Toc223923470"></a><a
+name="_Toc223252681">Add Group Template</a></p>
+
+</div>
+
+<p class=jdwebnormal>Users can define a group of concepts that they frequently
+run and save them in their workplace view. This grouping of concepts is
+referred to as a group template.  The group template can be added to the
+timeline by dragging the template from <b>Workplace</b> view to the concept
+list in the <b>Create model for Timeline</b> tab.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Find the group template you want to add (either in your folder or a
+shared folder).</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the group template and drag it over to the <b>Timeline View</b>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Drop the query definition into the section that displays the list of
+concepts (see Figure 8.11).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=564 height=335
+src="i2b2_timeline_index_files/image017.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 11  Add Group Template</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The concept(s) associated with the group template will display (Figure
+8.12).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=560 height=332
+src="i2b2_timeline_index_files/image018.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 12  Group Template Added</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020844">Add Patient Set</a></p>
+
+</div>
+
+<p class=jdwebnormal>A set of patients can be added to the timeline view by
+simply dragging the patient list from one of the following views.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020845">Previous Query View</a></p>
+
+<p class=jdwebnormal>The previous query view displays the queries that were run
+by the user.  Included in the previous query is a <b>patient list</b>. This
+list of patients is what you will drag to the <b>patient set</b> field in the
+timeline view.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: <b>Patient
+list</b> will only appear if <b>Timeline</b> was checked when the previous
+query was originally run.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=204 height=332
+src="i2b2_timeline_index_files/image019.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 13  Previous Query View</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020846">Add Previous Query From Previous
+Query View</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Expand the previous query that contains the patient list to be added to
+the <b>Timeline View</b>.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the patient list and while holding down the right mouse button
+drag the item over to the <b>Timeline View</b>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Drop the patient list into the <b>Patient Set</b> field (Figure 8.14).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=563 height=337
+src="i2b2_timeline_index_files/image020.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 14  Patient Set Drop</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The number of patients in the list will display (Figure 8.15).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=275 height=32
+src="i2b2_timeline_index_files/image021.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 15  Patient Set Displayed</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020847">Workplace View</a></p>
+
+<p class=jdwebnormalindent>Users can save sets of patients they commonly use to
+their workplace. </p>
+
+<p class=jdwebnormalindent>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=238 height=315
+src="i2b2_timeline_index_files/image022.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 16  Workplace View</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020848">Add Previous Query From
+Workplace View</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Find the patient set you want to add (either in your folder or a shared
+folder).</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the patient set and drag it over to the <b>Timeline View</b>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Drop the patient set into the <b>Patient Set</b> field (see Figure 8.14).</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The number of patients in the set will display (see Figure 8.15).</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020849"></a><a name="_Toc223923471"></a><a
+name="_Toc222041021"></a><a name="_Toc222025476">Delete/Remove</a></p>
+
+</div>
+
+<p class=jdwebnormal>There are two options for removing a concept from the list
+of concepts to be used. Users can (1) delete the entire listing of concepts, or
+(2) delete a single concept from the list.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020850"></a><a name="_Toc223923472"></a><a
+name="_Toc222041022"></a><a name="_Toc222025477">Delete All Concepts</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>Delete All</b> button located under the list of concepts.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The list of concepts will be cleared.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:red'>Warning</span>:</i></b> Once
+you click on the Delete All button, <i><u>all</u></i> the concepts on the list
+and their constraints will be removed, therefore you need to make sure you want
+to delete everyone.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020851"></a><a name="_Toc223923473"></a><a
+name="_Toc222041023"></a><a name="_Toc222025478">Delete Single Concept</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the concept in the list that you want to remove.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Once the concept is highlighted, click on the <b>Delete From List</b>
+button.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The concept will be removed from the list.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020852"></a><a name="_Toc223923474"></a><a
+name="_Toc222041025"></a><a name="_Toc222025480">Move Concepts</a></p>
+
+</div>
+
+<p class=jdwebnormal>Each item listed is assigned a Row # that is used when
+rendering the timeline. This row # determines the order the concepts will
+appear in the timeline. Users have the option of moving concepts to a new row
+before the timeline is created.  The system will automatically update the row
+#.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020853"></a><a name="_Toc223923475"></a><a
+name="_Toc222041026"></a><a name="_Toc222025481">Move Concept Up</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Highlight the concept to be moved.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>Move Up</b> button.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Continue to click on the move up button until the record is in the
+desired location.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020854"></a><a name="_Toc223923476"></a><a
+name="_Toc222041027"></a><a name="_Toc222025482">Move Concept Down</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Highlight the concept to be moved.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>Move Down</b> button.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Continue to click on the move down button until the record is in the
+desired location.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020855"></a><a name="_Toc223923477">Put
+Concepts in Order</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Double click on the row # field for the concept to be moved.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Enter the new row #.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>Put In Order</b> button.</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The row #’s for the remaining concepts will be updated and placed in the
+correct sequential order.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020856"></a><a name="_Toc223923478"></a><a
+name="_Toc222041028"></a><a name="_Toc222025483">Setting Constraints</a></p>
+
+</div>
+
+<p class=jdwebnormal>The only constraints that can be defined in the timeline
+view are value constraints.  Not all concepts have values. For instance,
+diagnosis of Acute Myocardial Infarction does not have a value but the tests
+used to make the diagnosis do have values (high, low, numeric, etc.).  For
+those concepts that do have values there are different types of values that may
+be associated with it. </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='margin-left:41.4pt;border-collapse:collapse;border:none'>
+ <tr>
+  <td width=190 valign=top style='width:142.6pt;border:solid #999999 1.0pt;
+  background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Type
+  of Value</span></b></p>
+  </td>
+  <td width=250 valign=top style='width:187.6pt;border:solid #999999 1.0pt;
+  border-left:none;background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Description/Use</span></b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=190 valign=top style='width:142.6pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>NVAL_NUM</span></p>
+  </td>
+  <td width=250 valign=top style='width:187.6pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Numerical
+  Value</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=190 valign=top style='width:142.6pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>TVAL_CHAR</span></p>
+  </td>
+  <td width=250 valign=top style='width:187.6pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Character/Text
+  Value</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=190 valign=top style='width:142.6pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Location_CD</span></p>
+  </td>
+  <td width=250 valign=top style='width:187.6pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Location
+  code</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=190 valign=top style='width:142.6pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Confidence_Num</span></p>
+  </td>
+  <td width=250 valign=top style='width:187.6pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>&nbsp;</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=190 valign=top style='width:142.6pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Location_Path</span></p>
+  </td>
+  <td width=250 valign=top style='width:187.6pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Address/path
+  for where the data is stored</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=190 valign=top style='width:142.6pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>InOut_CD</span></p>
+  </td>
+  <td width=250 valign=top style='width:187.6pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Inpatient
+  or outpatient code</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>The type of value constraint to be used is defined in the <b>Value</b>
+column. </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>Values in the timeline view use operators, such as greater
+than or less than when setting constraints. The following is a listing of
+operators currently in use.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='margin-left:41.4pt;border-collapse:collapse;border:none'>
+ <tr>
+  <td width=198 valign=top style='width:148.6pt;border:solid #999999 1.0pt;
+  background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Operator</span></b></p>
+  </td>
+  <td width=383 valign=top style='width:287.55pt;border:solid #999999 1.0pt;
+  border-left:none;background:#D9D9D9;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b><span style='font-size:10.0pt'>Description/Use</span></b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=198 valign=top style='width:148.6pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Equal
+  To (=)</span></p>
+  </td>
+  <td width=383 valign=top style='width:287.55pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>An
+  exact match to the value entered.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=198 valign=top style='width:148.6pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Greater
+  Than (&gt;)</span></p>
+  </td>
+  <td width=383 valign=top style='width:287.55pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Any
+  value greater than the number entered.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=198 valign=top style='width:148.6pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Less
+  Than (&lt;)</span></p>
+  </td>
+  <td width=383 valign=top style='width:287.55pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Any
+  value less than the number entered.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=198 valign=top style='width:148.6pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Between
+  And</span></p>
+  </td>
+  <td width=383 valign=top style='width:287.55pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Any
+  value in the range entered.</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=198 valign=top style='width:148.6pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Like</span></p>
+  </td>
+  <td width=383 valign=top style='width:287.55pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><span style='font-size:10.0pt'>Any
+  value resembling the one entered.</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>The operator along with the constraint criteria is defined
+in the <b>Value Text</b> column. </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc222041037"></a><a name="_Toc222025492"></a><a
+name="_Toc224020857"></a><a name="_Toc223923479">SETTING THE VALUE CONSTRAINT</a>
+</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Double click on the field in the value column.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The field will change to a drop down list.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=532 height=137
+src="i2b2_timeline_index_files/image023.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 17  Value Column</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Select the appropriate value.</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Double click on the field in the <b>Value Text</b> column.  </p>
+
+<p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The field will change to a drop down list containing the operators.</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=535 height=139
+src="i2b2_timeline_index_files/image024.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 18  Value Text Column</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Select the appropriate operator.</p>
+
+<p class=jdweblistnumbers>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Add the criteria (text) to the operator.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020858">Display Options</a></p>
+
+</div>
+
+<p class=jdwebnormal>Users can change how data is represented on the timeline.
+The things that can be changed are the height and color of the tick, whether or
+not display patient demographics or to include concepts with no data.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020859">Height</a></p>
+
+<p class=jdwebnormal>The height of the tick can be changed for each concept and
+is done by changing the value in the height column of the concept list
+section.  The options available are:</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Very Tall</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Tall</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Medium</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Low</p>
+
+<p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Very Low</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>Changing the height of a concept may be done to create a
+way to easily identify the concept on the timeline or to reflect the highs and
+lows of lab values.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020860">Change Height</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Double click on the field in the <b>Height</b> column of the concept
+list.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The field will change to a drop down list.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the down arrow to display the list of options.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=508 height=112
+src="i2b2_timeline_index_files/image025.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 19  Height Options</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Select the height you want to use.</p>
+
+<p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The new height will appear.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=538 height=64
+src="i2b2_timeline_index_files/image026.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 20  Height and Color</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020861">Color</a></p>
+
+<p class=jdwebnormal>The color of the tick can be changed for each concept and
+is done by changing the value in the color column of the concept list section. 
+This may be done to create a way to easily identify the concept on the
+timeline.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020862">Change Colors</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Double click on the field in the <b>Color</b> column of the concept
+list.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A new window will open displaying a color palette (Figure 8.21)</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=321 height=368
+src="i2b2_timeline_index_files/image027.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 21  Color Palette</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the color you want to use.</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the OK button.</p>
+
+<p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The color palette window will close and the new color will be displayed
+(see Figure 8.20)</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020863">Concepts without data</a></p>
+
+<p class=jdwebnormal>A check in the box next to Display concepts with no data
+means all concepts listed will display in the timeline even if an event for
+that concept has not occurred. </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020864">Patient Demographics</a></p>
+
+<p class=jdwebnormal>Users may choose whether or not they want the patient’s
+demographic information to display on the timeline.  The patient id will always
+display.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>A check mark in the box next to Display Patient
+Demographics means the demographic information <i><u>will</u></i> appear in the
+timeline.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=301 height=20
+src="i2b2_timeline_index_files/image028.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 22  Patient Demographics Displayed</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>No check mark in the box next to Display Patient
+Demographics means the demographic information will <i><u>not</u></i> appear in
+the timeline.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=209 height=20
+src="i2b2_timeline_index_files/image029.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 23  No Patient Demographics Displayed</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading1><a name="_Toc224020865">Viewing a Timeline</a></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020866">Navigation</a></p>
+
+</div>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020867">Collapse/Expand Headings</a></p>
+
+<p class=jdwebnormal>Users can choose to expand or collapse a heading in the
+timeline by clicking on the arrow to the left of the heading.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020868">Zoom In/Out</a></p>
+
+<p class=jdwebnormal>The timeline view allows the user to zoom in and out of
+the timeline by dragging the arrows located at the bottom of the timeline.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020869"></a><a name="_Toc222041065"></a><a
+name="_Toc222025530">Zoom In</a></p>
+
+<p class=jdwebnormal>Users can zoom in to any point on the timeline.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading5>Zoom in Towards the Beginning of the Timeline</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the arrows icon (<img width=22 height=20
+src="i2b2_timeline_index_files/image030.jpg">) to the <i>right</i> of the
+timeline.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Holding the <b><i>Left Mouse Button</i></b> down, drag the arrow to the <i>left</i>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Release the <b><i>Left Mouse Button</i></b> once you reach the point on
+the timeline you want to be the <i>end</i> point.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=360 height=18
+src="i2b2_timeline_index_files/image031.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 24  Zoom to Beginning</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The dates at the top of the timeline will be updated to reflect the new
+range.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=325 height=27
+src="i2b2_timeline_index_files/image032.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 25  Date Change: Zoom to Beginning</p>
+
+<p class=jdwebnormal><a name="_Toc222041066"></a><a name="_Toc222025531">&nbsp;</a></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading5>Zoom in Towards the End of the Timeline</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the arrows icon (<img width=22 height=20
+src="i2b2_timeline_index_files/image030.jpg">) to the <i>left</i> of the
+timeline.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Holding the <b><i>Left Mouse Button</i></b> down, drag the arrow to the <i>right</i>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Release the <b><i>Left Mouse Button</i></b> once you reach the point on
+the timeline you want to be the <i>beginning</i> point.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=360 height=18
+src="i2b2_timeline_index_files/image033.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 26  Zoom to End</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The dates at the top of the timeline will be updated to reflect the new
+range.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=324 height=24
+src="i2b2_timeline_index_files/image034.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 27  Date Change: Zoom to End</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading5>Zoom in to the Middle of the Timeline</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the arrows icon (<img width=22 height=20
+src="i2b2_timeline_index_files/image030.jpg">) to the <i>left</i> of the
+timeline.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Holding the <b><i>Left Mouse Button</i></b> down, drag the arrow to the <i>right</i>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Release the <b><i>Left Mouse Button</i></b> once you reach the point on
+the timeline you want to be the <i>end</i> point.</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the arrows icon to the right of the timeline.</p>
+
+<p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Holding the Left Mouse Button down, drag the arrow to the left.</p>
+
+<p class=jdweblistnumbers>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Release the Left Mouse Button once you reach the point on the timeline
+you want to be the beginning point.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=360 height=18
+src="i2b2_timeline_index_files/image035.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 28  Zoom to Middle</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The dates at the top of the timeline will be updated to reflect the new
+range.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=326 height=25
+src="i2b2_timeline_index_files/image036.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 29  Date Change: Zoom to Middle</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020870">Zoom Out</a></p>
+
+<p class=jdwebnormal>Users can zoom out to any point on the timeline.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading5>Zoom Out Towards the Beginning of the Timeline</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the arrows icon (<img width=22 height=20
+src="i2b2_timeline_index_files/image030.jpg">) to the <i>left</i> of the
+timeline.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Holding the <b><i>Left Mouse Button</i></b> down, drag the arrow to the <i>right</i>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Release the <b><i>Left Mouse Button</i></b> once you reach the point on
+the timeline you want to be the <i>beginning</i> point.</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The dates at the top of the timeline will be updated to reflect the new
+range.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading5>Zoom Out Towards the End of the Timeline</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the arrows icon (<img width=22 height=20
+src="i2b2_timeline_index_files/image030.jpg">) to the <i>right</i> of the
+timeline.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Holding the <b><i>Left Mouse Button</i></b> down, drag the arrow to the <i>left</i>.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Release the <b><i>Left Mouse Button</i></b> once you reach the point on
+the timeline you want to be the <i>end</i> point.</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The dates at the top of the timeline will be updated to reflect the new
+range.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020871">Moving to Next/Previous Groups
+of Patients</a></p>
+
+<p class=jdwebnormal>The timeline view will display the patient set in groups.
+The number of patients in a group is defined by the user.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020872">Increment Settings</a></p>
+
+<p class=jdwebheading5>Start</p>
+
+<p class=jdwebnormal>Defines what record number the timeline should begin the
+display.</p>
+
+<p class=jdwebheading5>Increment</p>
+
+<p class=jdwebnormal>Defines how many to advance when the Next and Previous
+buttons are clicked on.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4><a name="_Toc224020873">Move Forward and Backwards</a></p>
+
+<p class=jdwebnormal>At the bottom of the <b>Timeline View</b> are two buttons
+for moving forward and backward through the patient set. </p>
+
+<p class=jdwebnormalindent>The Next button (<img width=23 height=16
+src="i2b2_timeline_index_files/image037.jpg">) moves the timeline forward to
+the next group of patients.</p>
+
+<p class=jdwebnormalindent>The Previous button (<img width=24 height=16
+src="i2b2_timeline_index_files/image038.jpg">) moves the timeline back to the last
+group of patients.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #4F81BD 1.0pt;padding:0in 0in 1.0pt 0in'>
+
+<p class=jdwebheading2><a name="_Toc224020874">Notes Viewer</a></p>
+
+</div>
+
+<p class=jdwebnormal>Notes in the timeline can be viewed by double clicking on
+the tick. Depending on how the system is setup the notes may be encrypted in
+which the user will need a key to view the note.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020875">View a Note</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>In the timeline, identify the note to be viewed.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Double click on the tick.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A new window will open displaying the text of the note.</p>
+
+<p class=jdweblistnumbers>&nbsp;</p>
+
+<p class=jdweblistnumbers style='page-break-after:avoid'><img width=368
+height=271 src="i2b2_timeline_index_files/image039.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 30  Notes Viewer</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020876">View an Encrypted Note (Enter
+Key Manually)</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>In the timeline, identify the note to be viewed.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Double click on the tick.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A new window will open informing you that you need an encryption key.</p>
+
+<p class=jdweblistnumbers>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=328 height=210
+src="i2b2_timeline_index_files/image040.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 31  Encryption Key Request</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the down arrow to display the choices in the drop down list.</p>
+
+<p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Select <b>Type in the Key</b>.</p>
+
+<p class=jdweblistnumbers>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>OK</b> button.</p>
+
+<p class=jdweblistnumbers>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A new dialog box will open asking you to type in the decryption key.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=268 height=122
+src="i2b2_timeline_index_files/image041.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 32  Input Decryption Key</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Enter the key.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><i><span style='color:red'>Warning</span><b>:</b></i> It
+is important to make sure you enter the key correctly. If you do not enter the
+key correctly a message will appear and you will need to create the timeline
+again in order to have another chance to enter the correct key.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers style='page-break-after:avoid'><img width=268
+height=122 src="i2b2_timeline_index_files/image042.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 33  Invalid Key Message</p>
+
+<p class=jdweblistnumbers>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>OK</b> button.</p>
+
+<p class=jdweblistnumbers>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>The notes viewer window will open displaying the note (see Figure 8.30)</p>
+
+<p class=jdweblistnumbers>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020877">View an Encrypted Note (Enter
+Key from a File)</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>In the timeline, identify the note to be viewed.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Double click on the tick.</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A new window will open informing you that you need an encryption key (see
+Figure 8.30).</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the down arrow to display the choices in the drop down list.</p>
+
+<p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Select <b>Browse to find the file containing the key</b>.</p>
+
+<p class=jdweblistnumbers>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>OK</b> button.</p>
+
+<p class=jdweblistnumbers>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A new dialog box will open allowing you to browse for the key.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=595 height=433
+src="i2b2_timeline_index_files/image043.jpg"></p>
+
+<p class=MsoCaption>Figure 8. 34  Browse for File</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Find the file containing the key.</p>
+
+<p class=jdweblistnumbers>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>OK</b> button.</p>
+
+<p class=jdweblistnumbers>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>The notes viewer window will open displaying the note (see Figure 8.30)</p>
+
+<p class=jdweblistnumbers>&nbsp;</p>
+
+<p class=jdwebheading3><a name="_Toc224020878">Close a Note</a></p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the exit button (<img width=16 height=16
+src="i2b2_timeline_index_files/image044.jpg">) in the top right corner of the
+notes viewer.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The window will close.</p>
+
+<p class=jdweblistnumbers>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+</div>
+
+</body>
+
+</html>

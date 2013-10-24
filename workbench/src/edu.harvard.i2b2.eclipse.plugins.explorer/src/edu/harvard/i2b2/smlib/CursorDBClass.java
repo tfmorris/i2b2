@@ -21,14 +21,10 @@ package edu.harvard.i2b2.smlib;
 
 import java.sql.*;
 import java.sql.Types;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Enumeration ;
 import java.math.BigDecimal;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class CursorDBClass {
   private final static String CONNECTION_FAILED_MESSAGE = "stuff";
@@ -41,7 +37,6 @@ public class CursorDBClass {
   // global table characteristics
   private String msTableName;
   private String msAutoincrementColumnName;
-  private String msTimestampColumnName;
   // derived table characteristics
   private int miMin;
   private int miMax;
@@ -59,9 +54,7 @@ public class CursorDBClass {
   private String msBizareAutonumbername = "c_hyfgeekhgwp";
   // debug variables  
 	private boolean noisy = true;
-	private String msClass = "CursorDBClass";
-    
-  public CursorDBClass(
+	public CursorDBClass(
       Connection oCursorConnection,
       String sTableName)
       throws Exception {

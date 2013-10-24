@@ -54,8 +54,6 @@ public class GetUserConfigurationRequestMessage extends ProjectManagementRequest
 		return ConfigurationType;
 	}
 	
-	
-	
 	/**
 	 * Function to build vocabData body type
 	 * 

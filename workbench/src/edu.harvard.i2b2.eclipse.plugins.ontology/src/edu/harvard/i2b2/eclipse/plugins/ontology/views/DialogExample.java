@@ -1,7 +1,6 @@
 package edu.harvard.i2b2.eclipse.plugins.ontology.views;
 
 
-import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.*;
@@ -30,7 +29,8 @@ public class DialogExample {
 		    Button button = new Button(parent, SWT.PUSH);
 		    button.setText("Push Me");
 		    button.addSelectionListener(new SelectionAdapter() {
-		      public void widgetSelected(SelectionEvent event) {
+		      @Override
+			public void widgetSelected(SelectionEvent event) {
 		        // Create and display the InputDialog
 		    	  OntologyDisplayOptionsDialog dlg = new OntologyDisplayOptionsDialog(parent);
 		    	  dlg.open();

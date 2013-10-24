@@ -16,9 +16,9 @@ import java.util.Hashtable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.harvard.i2b2.common.security.HighEncryption;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 //import edu.harvard.i2b2.navigator.LoginDHelper;
+import edu.harvard.i2b2.explorer.security.HighEncryption;
 
 public class noteCryptUtil {
 

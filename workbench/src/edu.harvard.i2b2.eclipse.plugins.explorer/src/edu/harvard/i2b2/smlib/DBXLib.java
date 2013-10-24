@@ -19,9 +19,7 @@
 
 package edu.harvard.i2b2.smlib;
 
-import java.net.URL;
 import java.util.StringTokenizer;
-import java.util.Vector;
 import java.util.Date;
 import java.util.Hashtable;
 import java.sql.Connection;
@@ -31,11 +29,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import javax.sql.*;
-
-//import org.apache.commons.dbcp.BasicDataSource;
-
-import edu.harvard.i2b2.common.util.ServiceLocator;
 
 public class DBXLib {
   private static String msDBType = "SQLServer";

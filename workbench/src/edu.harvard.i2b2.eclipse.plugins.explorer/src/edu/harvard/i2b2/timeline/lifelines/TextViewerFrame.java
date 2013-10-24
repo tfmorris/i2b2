@@ -80,7 +80,8 @@ public class TextViewerFrame extends javax.swing.JFrame {
                 super("text"); 
               } 
 
-            protected Transferable createTransferable(JComponent c) { 
+            @Override
+			protected Transferable createTransferable(JComponent c) { 
                   // Creates a new Transferable object 
                   // with the correct DataFlavors etc. 
                   return new StringSelection(pdoData_); 
@@ -92,7 +93,8 @@ public class TextViewerFrame extends javax.swing.JFrame {
          // Mouse click used as a Drag gesture recogniser 
          MouseListener ml = new MouseAdapter() { 
         	 
-           public void mousePressed(MouseEvent e) { 
+           @Override
+		public void mousePressed(MouseEvent e) { 
         	   	 jTextArea2.setSelectionStart(0);
         	     jTextArea2.setSelectionEnd(jTextArea2.getText().length()-1);
         	   
@@ -104,7 +106,8 @@ public class TextViewerFrame extends javax.swing.JFrame {
          
          MouseMotionListener mml = new MouseMotionAdapter() { 
         	 
-        	 public void mouseDragged(MouseEvent e) { 
+        	 @Override
+			public void mouseDragged(MouseEvent e) { 
           	   	 //jTextArea2.setSelectionStart(0);
           	     //jTextArea2.setSelectionEnd(jTextArea2.getText().length()-1);
           	   
@@ -136,8 +139,9 @@ public class TextViewerFrame extends javax.swing.JFrame {
         setTitle("Notes Viewer");
         jPanel1.setLayout(new java.awt.BorderLayout());
 
-        jTextArea2.setColumns(20);
+        jTextArea2.setColumns(20);  
         jTextArea2.setRows(5);
+        jTextArea2.setLineWrap(true);
         jScrollPane2.setViewportView(jTextArea2);
 
         jPanel1.add(jScrollPane2, java.awt.BorderLayout.CENTER);
@@ -198,7 +202,9 @@ public class TextViewerFrame extends javax.swing.JFrame {
     private void jSearchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         String find = JOptionPane.showInputDialog(this, "Type in the string for searching: ");
         if(find != null && !find.equals("")) {
-        	highlight(jTextArea2, find);
+        	int newCaretPosition = highlight(jTextArea2, find);
+        	if (newCaretPosition != -1)
+        		jTextArea2.setCaretPosition(newCaretPosition);
         }
     }
 
@@ -246,7 +252,7 @@ public class TextViewerFrame extends javax.swing.JFrame {
         });
     }
     
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration
     private javax.swing.JMenuItem jExitMenuItem;
     private javax.swing.JMenu jFileMenu;
     private javax.swing.JMenu jEditMenu;
@@ -257,31 +263,35 @@ public class TextViewerFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextArea jTextArea2;
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration
     
     /**  
      *  Creates highlights around all occurrences of pattern in textComp
      */
-    public void highlight(JTextComponent textComp, String pattern) {
+    public int highlight(JTextComponent textComp, String pattern) {
         // First remove all old highlights
         removeHighlights(textComp);
-    
+        int firstPosition = -1;
         try {
             Highlighter hilite = textComp.getHighlighter();
             Document doc = textComp.getDocument();
             String text = doc.getText(0, doc.getLength());
             int pos = 0;
-    
+
             // Search for pattern
             while ((pos = text.toLowerCase().indexOf(pattern.toLowerCase(), pos)) >= 0) {
                 // Create highlighter using private painter and apply around pattern
+            	if (firstPosition == -1)
+            		firstPosition = pos;
                 hilite.addHighlight(pos, pos+pattern.length(), myHighlightPainter);
                 pos += pattern.length();
             }
+
         } 
         catch (BadLocationException e) {
         	e.printStackTrace();
         }
+        return firstPosition;
     }
     
     public void highlight(JTextComponent textComp, int start, int end) {

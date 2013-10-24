@@ -12,14 +12,18 @@
 package edu.harvard.i2b2.timeline.lifelines;
 
 import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.util.Date;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 //import edu.harvard.i2b2.querytool.datavo.JAXBUtil;
+import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
+import edu.harvard.i2b2.explorer.data.Messages;
 import edu.harvard.i2b2.explorer.datavo.ExplorerJAXBUtil;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ApplicationType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.BodyType;
@@ -47,8 +51,8 @@ public class PDORequestMessageFactory {
 		return pdoHeader;
 	}
 	
-	public GetObservationFactByPrimaryKeyRequestType buildFactRequestTypeByPrimaryKey(int patientNum, 
-			int encounterNum, String concept_cd, String providerId, String modifier_cd, String start_date) {
+	public GetObservationFactByPrimaryKeyRequestType buildFactRequestTypeByPrimaryKey(String patientNum, 
+			String encounterNum, String concept_cd, String providerId, String modifier_cd, String start_date) {
 		GetObservationFactByPrimaryKeyRequestType reqType = 
 			new GetObservationFactByPrimaryKeyRequestType();
 
@@ -84,7 +88,7 @@ public class PDORequestMessageFactory {
         return reqType;
 	}
 	
-	public String  requestXmlMessage(int patientNum, int encounterNum, 
+	public String  requestXmlMessage(String patientNum, String encounterNum, 
 			String concept_cd, String providerId, String modifier_cd, String start_date) throws Exception { 
 		
 		PdoQryHeaderType headerType = buildHeaderType();
@@ -121,47 +125,61 @@ public class PDORequestMessageFactory {
 		return strWriter.toString();
 	}
 	
+
 	protected MessageHeaderType getMessageHeader() {
 		MessageHeaderType messageHeader = new MessageHeaderType();
+		
+		messageHeader.setI2B2VersionCompatible(new BigDecimal(Messages.getString("QueryData.i2b2VersionCompatible"))); //$NON-NLS-1$
+
+		ApplicationType appType = new ApplicationType();
+		appType.setApplicationName(Messages.getString("QueryData.SendingApplicationName")); //$NON-NLS-1$
+		appType.setApplicationVersion(Messages.getString("QueryData.SendingApplicationVersion"));  //$NON-NLS-1$
+		messageHeader.setSendingApplication(appType);
+		
 		messageHeader.setAcceptAcknowledgementType(new String("messageId"));
 		
-		MessageControlIdType mcIdType = new MessageControlIdType();
-		//mcIdType.setInstanceNum(1);
-		mcIdType.setMessageNum(generateMessageId());
-		//mcIdType.setSessionId("1");
-		messageHeader.setMessageControlId(mcIdType);
-		
 		MessageTypeType messageTypeType = new MessageTypeType();
-		messageTypeType.setEventType("EQQ");
-		messageTypeType.setMessageCode("Q04");
+		messageTypeType.setEventType(Messages.getString("QueryData.EventType"));
+		messageTypeType.setMessageCode(Messages.getString("QueryData.MessageCode"));
 		messageHeader.setMessageType(messageTypeType);
 		
-		ApplicationType sendAppType = new ApplicationType();
-		sendAppType.setApplicationName("i2b2_QueryTool");
-		sendAppType.setApplicationVersion("0.2"); 
-		messageHeader.setSendingApplication(sendAppType);
+		FacilityType facility = new FacilityType();
+		facility.setFacilityName(Messages.getString("QueryData.SendingFacilityName")); //$NON-NLS-1$
+		messageHeader.setSendingFacility(facility);
 		
-		ApplicationType receiveAppType = new ApplicationType();
-		receiveAppType.setApplicationName("i2b2_DataRepositoryCell");
-		receiveAppType.setApplicationVersion("0.2"); 
-		messageHeader.setReceivingApplication(receiveAppType);
-		
-		FacilityType facType = new FacilityType();
-		facType.setFacilityName("PHS");
-		messageHeader.setSendingFacility(facType);
-		messageHeader.setReceivingFacility(facType);
+		ApplicationType appType2 = new ApplicationType();
+		appType2.setApplicationVersion(Messages.getString("QueryData.ReceivingApplicationVersion")); //$NON-NLS-1$
+		appType2.setApplicationName(Messages.getString("QueryData.ReceivingApplicationName"));		 //$NON-NLS-1$
+		messageHeader.setReceivingApplication(appType2);
+	
+		FacilityType facility2 = new FacilityType();
+		facility2.setFacilityName(Messages.getString("QueryData.ReceivingFacilityName")); //$NON-NLS-1$
+		messageHeader.setReceivingFacility(facility2);
+
+		Date currentDate = new Date();
+		DTOFactory factory = new DTOFactory();
+		messageHeader.setDatetimeOfMessage(factory.getXMLGregorianCalendar(currentDate.getTime()));
 		
 		SecurityType secType = new SecurityType();
-		secType.setDomain(System.getProperty("projectName"));
+		secType.setDomain(UserInfoBean.getInstance().getUserDomain());
 		secType.setUsername(UserInfoBean.getInstance().getUserName());
 		secType.setPassword(UserInfoBean.getInstance().getUserPassword());
 		messageHeader.setSecurity(secType);
 		
-		ProcessingIdType procIdType = new ProcessingIdType();
-		procIdType.setProcessingId("P");
-		procIdType.setProcessingMode("I");
-		messageHeader.setProcessingId(procIdType);
+		MessageControlIdType mcIdType = new MessageControlIdType();
+		mcIdType.setInstanceNum(0);
+		mcIdType.setMessageNum(generateMessageId());
+		messageHeader.setMessageControlId(mcIdType);
+
+		ProcessingIdType proc = new ProcessingIdType();
+		proc.setProcessingId(Messages.getString("QueryData.ProcessingId")); //$NON-NLS-1$
+		proc.setProcessingMode(Messages.getString("QueryData.ProcessingMode")); //$NON-NLS-1$
+		messageHeader.setProcessingId(proc);
 		
+		messageHeader.setAcceptAcknowledgementType(Messages.getString("QueryData.AcceptAcknowledgementType")); //$NON-NLS-1$
+		messageHeader.setApplicationAcknowledgementType(Messages.getString("QueryData.ApplicationAcknowledgementType")); //$NON-NLS-1$
+		messageHeader.setCountryCode(Messages.getString("QueryData.CountryCode")); //$NON-NLS-1$
+		messageHeader.setProjectId(UserInfoBean.getInstance().getProjectId());
 		return messageHeader;
 	}
 	
@@ -191,6 +209,6 @@ public class PDORequestMessageFactory {
 	public static void main(String[] args) throws Exception { 
 		PDORequestMessageFactory pdoFactory = new PDORequestMessageFactory();
 				
-		pdoFactory.requestXmlMessage(52003, 2004005981, "LCS-I2B2:c1009c", "03840261", null, null);
+		pdoFactory.requestXmlMessage("52003", "2004005981", "LCS-I2B2:c1009c", "03840261", null, null);
 	}
 }

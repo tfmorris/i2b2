@@ -10,15 +10,10 @@
 
 package edu.harvard.i2b2.eclipse.plugins.ontology.ws;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 public class OntologyResponseMessage extends OntologyResponseData{
 	
 	public static final String THIS_CLASS_NAME = OntologyResponseMessage.class.getName();
-    private Log log = LogFactory.getLog(THIS_CLASS_NAME);	
-
 
 	public OntologyResponseMessage() {}
 	

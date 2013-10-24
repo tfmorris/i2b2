@@ -5,7 +5,7 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="i2b2 Category"
+            name="Query Tool Category"
             id="edu.harvard.i2b2.eclipse.plugins.query">
       </category>
       <view
@@ -36,23 +36,13 @@
             id="edu.harvard.i2b2.eclipse.plugins.query.viewActions"
             targetID="edu.harvard.i2b2.eclipse.plugins.query.views.QueryView">
          <action
-               class="edu.harvard.i2b2.eclipse.plugins.query.views.ViewResponseMessageToolbarActionDelegate"
-               icon="icons/xmlreceive_2.gif"
-               id="edu.harvard.i2b2.eclipse.plugins.query.viewResponseMessage"
-               label="ResponseMessage"
-               state="false"
+               class="edu.harvard.i2b2.eclipse.plugins.query.views.ViewStackToolbarActionDelegate"
+               icon="icons/xmlstack.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.query.viewResponseMessageStack"
+               label="ResponseMessageStack"
                style="push"
                toolbarPath="additions"
-               tooltip="Display the last response xml message"/>
-         <action
-               class="edu.harvard.i2b2.eclipse.plugins.query.views.ViewRequestMessageToolbarActionDelegate"
-               icon="icons/xmlsend_2.gif"
-               id="edu.harvard.i2b2.eclipse.plugins.query.viewRequestMessage"
-               label="RequestMessage"
-               state="false"
-               style="push"
-               toolbarPath="additions"
-               tooltip="Display the last request xml message"/>
+               tooltip="Display the XML message stack"/>
          <action
                class="edu.harvard.i2b2.eclipse.plugins.query.views.ViewOptionToolbarActionDelegate"
                icon="icons/options_1.gif"
@@ -64,5 +54,26 @@
                tooltip="Display the options dialog"/>
       </viewContribution>
    </extension>
-
+     <extension point="org.eclipse.ui.contexts">
+      	<context
+      		id="queryTool_view_help_context"
+      		name="Query Tool View"
+      		parentId="edu.harvard.i2b2.eclipse.plugins.query.views.QueryView">
+      	</context>
+      </extension>
+      <extension point="org.eclipse.help.contexts">
+       <contexts
+             file="help_contexts.xml"
+             plugin="edu.harvard.i2b2.eclipse.plugins.query">
+       </contexts>
+      </extension>
+      <extension point="org.eclipse.help.toc">
+      	<toc
+      		file="toc.xml"
+      		primary="true"/>
+       <toc
+             file="tocconcepts.xml"
+             primary="false">
+       </toc>
+      </extension>
 </plugin>

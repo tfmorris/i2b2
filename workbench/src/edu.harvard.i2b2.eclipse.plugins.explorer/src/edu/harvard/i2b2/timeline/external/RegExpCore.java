@@ -57,7 +57,8 @@ class RegExpCore {
 	return pattern;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
 	return pattern;
     }
 

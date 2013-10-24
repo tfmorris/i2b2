@@ -10,7 +10,7 @@
  */
 // XmlApp.java: base class for Ælfred demos.
 // NO WARRANTY! See README, and copyright below.
-// $Id: XmlApp.java,v 1.2 2007/05/21 18:50:58 wp066 Exp $
+// $Id: XmlApp.java,v 1.5 2008/02/19 19:39:47 mem61 Exp $
 
 //import com.microstar.xml.XmlHandler;
 //import com.microstar.xml.XmlParser;
@@ -22,9 +22,7 @@ import java.awt.Button;
 import java.awt.Event;
 import java.awt.FlowLayout;
 import java.awt.Panel;
-import java.awt.Color;
 import java.awt.TextArea;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -309,7 +307,8 @@ public class XmlApp extends Applet implements XmlHandler {
   /**
     * Initialise the applet the first time it runs.
     */
-  public void init ()
+  @Override
+public void init ()
   {
     startButton = new Button("Parse " + getParameter("url"));
     isApplet = true;
@@ -330,7 +329,8 @@ public class XmlApp extends Applet implements XmlHandler {
     * existing browsers.  It will cause a 'deprecated' warning
     * when you compile.
     */
-  public boolean action (Event ev, Object target)
+  @Override
+public boolean action (Event ev, Object target)
   {
     if (target == startButton.getLabel()) {
       try {

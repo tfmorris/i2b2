@@ -212,7 +212,8 @@ public class fPanel extends Panel {
         return bsize;
     }
 
-    public void paint(Graphics g) {
+    @Override
+	public void paint(Graphics g) {
         FontMetrics fm = getFontMetrics(theFont);
         int p_width;
         int p_height;
