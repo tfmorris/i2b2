@@ -1,0 +1,57 @@
+<portlet-tabbed-pane>
+    <portlet-tab label="i2b2 project">
+	<title lang="en">i2b2 project</title>
+        <portlet-tabbed-pane style="sub-menu">
+            <portlet-tab label="infotab">
+		<title lang="en">Group Info</title>
+                <table-layout>
+                    <row-layout>
+                        <column-layout>
+                            <portlet-frame label="projectinfo">
+                                <portlet-class>edu.harvard.i2b2.pm.portlets.InfoParameterPortlet.1</portlet-class>
+                            </portlet-frame>
+                        </column-layout>
+                    </row-layout>
+                </table-layout>
+            </portlet-tab>
+            <portlet-tab label="securitytab">
+		<title lang="en">Group Security</title>
+                <table-layout>
+                    <row-layout>
+                        <column-layout>
+                            <portlet-frame label="projectsecurity">
+                                <portlet-class>edu.harvard.i2b2.pm.portlets.SecurityParameterPortlet.1</portlet-class>
+                            </portlet-frame>
+                        </column-layout>
+                    </row-layout>
+                </table-layout>
+            </portlet-tab>
+            <portlet-tab label="parametertab">
+		<title lang="en">Group Parameter</title>
+                <table-layout>
+                    <row-layout>
+                        <column-layout>
+                            <portlet-frame label="projectparameter">
+                                <portlet-class>edu.harvard.i2b2.pm.portlets.ProjectParameterPortlet.1</portlet-class>
+                            </portlet-frame>
+                        </column-layout>
+                    </row-layout>
+                </table-layout>
+            </portlet-tab>
+            
+            <portlet-tab label="hellotab">
+		<title lang="en">Hello World!</title>
+		<title lang="de">Hallo Welt!</title>
+                <table-layout>
+                    <row-layout>
+                        <column-layout>
+                            <portlet-frame label="hello">
+                                <portlet-class>demo.portlets.HelloWorld.1</portlet-class>
+                            </portlet-frame>
+                        </column-layout>
+                    </row-layout>
+                </table-layout>
+            </portlet-tab>
+        </portlet-tabbed-pane>
+    </portlet-tab>
+</portlet-tabbed-pane>

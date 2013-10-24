@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd"
+    version="1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd">
+    <portlet>
+        <description xml:lang="en">Provides a persistent, searchable global param list</description>
+        <description xml:lang="de"></description>
+        <portlet-name>GlobalDataPortlet</portlet-name>
+        <display-name xml:lang="en">Global Data Portlet</display-name>
+        <display-name xml:lang="de">GlobalDataPortlet</display-name>
+        <portlet-class>org.gridlab.gridsphere.jsrtutorial.portlets.globaldata.GlobalDataPortlet</portlet-class>
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>GlobalData</title>
+            <short-title>GlobalData</short-title>
+            <keywords>GlobalData, persistence</keywords>
+        </portlet-info>
+    </portlet>
+    <portlet>
+        <description xml:lang="en">Provides a persistent, searchable global param list</description>
+        <description xml:lang="de"></description>
+        <portlet-name>RegisteredCellPortlet</portlet-name>
+        <display-name xml:lang="en">Registered Cell Portlet</display-name>
+        <display-name xml:lang="de">Registered Cell Portlet</display-name>
+        <portlet-class>org.gridlab.gridsphere.jsrtutorial.portlets.globaldata.RegisteredCellPortlet</portlet-class>
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Registered Cell</title>
+            <short-title>Registered Cell</short-title>
+            <keywords>Registered Cell, persistence</keywords>
+        </portlet-info>
+    </portlet>
+    <portlet>
+        <description xml:lang="en">Provides a persistent, searchable global param list</description>
+        <description xml:lang="de"></description>
+        <portlet-name>EnvironmentDataPortlet</portlet-name>
+        <display-name xml:lang="en">Environment Portlet</display-name>
+        <display-name xml:lang="de">Environment Portlet</display-name>
+        <portlet-class>org.gridlab.gridsphere.jsrtutorial.portlets.globaldata.EnvironmentDataPortlet</portlet-class>
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Environment Data</title>
+            <short-title>Environment Data</short-title>
+            <keywords>Environment Data, persistence</keywords>
+        </portlet-info>
+    </portlet>
+    <portlet>
+        <description xml:lang="en">Provides a persistent, searchable address book</description>
+        <description xml:lang="de"></description>
+        <portlet-name>AddressPortlet</portlet-name>
+        <display-name xml:lang="en">Address Book Portlet</display-name>
+        <display-name xml:lang="de">AddressPortlet</display-name>
+        <portlet-class>org.gridlab.gridsphere.jsrtutorial.portlets.address.AddressPortlet</portlet-class>
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Param</title>
+            <short-title>Param</short-title>
+            <keywords>Address, persistence</keywords>
+        </portlet-info>
+    </portlet>
+    <portlet>
+        <description xml:lang="en">The classic Hello World example using ActionPortlet</description>
+        <portlet-name>ActionHelloPortlet</portlet-name>
+        <display-name xml:lang="en">Action Hello World</display-name>
+        <portlet-class>org.gridlab.gridsphere.jsrtutorial.portlets.helloworld.ActionHelloWorld</portlet-class>
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Action Hello World</title>
+            <short-title>Action Hello World</short-title>
+            <keywords>hello</keywords>
+        </portlet-info>
+    </portlet>
+    <portlet>
+        <description xml:lang="en">The classic Hello World example</description>
+        <portlet-name>HelloPortlet</portlet-name>
+        <display-name xml:lang="en">Hello World</display-name>
+        <portlet-class>org.gridlab.gridsphere.jsrtutorial.portlets.helloworld.HelloWorld</portlet-class>
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Hello World</title>
+            <short-title>Hello World</short-title>
+            <keywords>hello</keywords>
+        </portlet-info>
+    </portlet>
+    <portlet>
+        <description xml:lang="en">Provides a photo album</description>
+        <portlet-name>PhotoPortlet</portlet-name>
+        <display-name xml:lang="en">Photo Portlet</display-name>
+        <portlet-class>org.gridlab.gridsphere.jsrtutorial.portlets.photo.PhotoPortlet</portlet-class>
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Photo Portlet</title>
+            <short-title>Photo Portlet</short-title>
+            <keywords>photo</keywords>
+        </portlet-info>
+    </portlet>
+    <portlet>
+        <description xml:lang="en">The classic Hello World example using UI tag library</description>
+        <portlet-name>UiHelloPortlet</portlet-name>
+        <display-name xml:lang="en">UI Hello World</display-name>
+        <portlet-class>org.gridlab.gridsphere.jsrtutorial.portlets.helloworld.UiHelloWorld</portlet-class>
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>UI Hello World</title>
+            <short-title>UI Hello World</short-title>
+            <keywords>hello</keywords>
+        </portlet-info>
+    </portlet>
+    <custom-portlet-mode>
+        <description xml:lang="en">Pre-defined custom portlet mode CONFIGURE</description>
+        <portlet-mode>config</portlet-mode>
+    </custom-portlet-mode>
+    <user-attribute>
+        <description xml:lang="en">User Name</description>
+        <name>user.name</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">User Id</description>
+        <name>user.id</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">User Full Name</description>
+        <name>user.name.full</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">User E-Mail</description>
+        <name>user.email</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">Company Organization</description>
+        <name>user.organization</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">Last Login Time</description>
+        <name>user.lastlogintime</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">Timezone</description>
+        <name>user.timezone</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">Preferred Locale</description>
+        <name>user.locale</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">Preferred Theme</description>
+        <name>user.theme</name>
+    </user-attribute>
+</portlet-app>

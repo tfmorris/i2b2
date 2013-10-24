@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<portlet-app-collection>
+
+<portlet-app-def>
+	<portlet-app id="edu.harvard.i2b2.pm.portlets.ProjectVariablePortlet">
+	    <portlet-name>Group Variable Portlet Application</portlet-name>
+	    <servlet-name>GroupVariable</servlet-name>
+	    <portlet-config>
+		<param-name>PortletConfig Variable</param-name>
+		<param-value>some config parameter value</param-value>
+	    </portlet-config>
+	    <allows>
+		<maximized/>
+		<minimized/>
+		<resizing/>
+	    </allows>
+	    <supports>
+		<view/>
+		<edit/>
+		<help/>
+		<configure/>
+	    </supports>
+	</portlet-app>
+
+	<concrete-portlet-app id="edu.harvard.i2b2.pm.portlets.ProjectVariablePortlet.1">
+	    <context-param>
+		<param-name>A PortletApplicationSettings variable</param-name>
+		<param-value>the value</param-value>
+	    </context-param>
+	    <concrete-portlet>
+		<portlet-name>Group Variable</portlet-name>
+		<default-locale>en</default-locale>
+		<language locale="en_US">
+		    <title>Project Parameter</title>
+		    <title-short>Group Variable</title-short>
+		    <description>Group Variable -  Portlet</description>
+		    <keywords>portlet Group Variable</keywords>
+		</language>
+		<config-param>
+		    <param-name>A PortletSettings parameter</param-name>
+		    <param-value>the value</param-value>
+		</config-param>
+	    </concrete-portlet>
+	</concrete-portlet-app>
+</portlet-app-def>
+
+<portlet-app-def>
+	<portlet-app id="edu.harvard.i2b2.pm.portlets.ProjectInfoPortlet">
+	    <portlet-name>Group Info Portlet Application</portlet-name>
+	    <servlet-name>GroupInfo</servlet-name>
+	    <portlet-config>
+		<param-name>PortletConfig Parameter</param-name>
+		<param-value>some config parameter value</param-value>
+	    </portlet-config>
+	    <allows>
+		<maximized/>
+		<minimized/>
+		<resizing/>
+	    </allows>
+	    <supports>
+		<view/>
+		<edit/>
+		<help/>
+		<configure/>
+	    </supports>
+	</portlet-app>
+
+	<concrete-portlet-app id="edu.harvard.i2b2.pm.portlets.ProjectInfoPortlet.1">
+	    <context-param>
+		<param-name>A PortletApplicationSettings parameter</param-name>
+		<param-value>the value</param-value>
+	    </context-param>
+	    <concrete-portlet>
+		<portlet-name>Group Info</portlet-name>
+		<default-locale>en</default-locale>
+		<language locale="en_US">
+		    <title>Project Info</title>
+		    <title-short>Group Info</title-short>
+		    <description>Group Info - Portlet</description>
+		    <keywords>portlet Group Info</keywords>
+		</language>
+		<config-param>
+		    <param-name>A PortletSettings parameter</param-name>
+		    <param-value>the value</param-value>
+		</config-param>
+	    </concrete-portlet>
+	</concrete-portlet-app>
+</portlet-app-def>
+
+<portlet-app-def>
+	<portlet-app id="edu.harvard.i2b2.pm.portlets.ProjectRolePortlet">
+	    <portlet-name>Group Role Portlet Application</portlet-name>
+	    <servlet-name>GroupRole</servlet-name>
+	    <portlet-config>
+		<param-name>PortletConfig Parameter</param-name>
+		<param-value>some config parameter value</param-value>
+	    </portlet-config>
+	    <allows>
+		<maximized/>
+		<minimized/>
+		<resizing/>
+	    </allows>
+	    <supports>
+		<view/>
+		<edit/>
+		<help/>
+		<configure/>
+	    </supports>
+	</portlet-app>
+
+	<concrete-portlet-app id="edu.harvard.i2b2.pm.portlets.ProjectRolePortlet.1">
+	    <context-param>
+		<param-name>A PortletApplicationSettings parameter</param-name>
+		<param-value>the value</param-value>
+	    </context-param>
+	    <concrete-portlet>
+		<portlet-name>Group Role</portlet-name>
+		<default-locale>en</default-locale>
+		<language locale="en_US">
+		    <title>Project Role</title>
+		    <title-short>Group Role</title-short>
+		    <description>Group Role - Portlet</description>
+		    <keywords>portlet Group Role</keywords>
+		</language>
+		<config-param>
+		    <param-name>A PortletSettings parameter</param-name>
+		    <param-value>the value</param-value>
+		</config-param>
+	    </concrete-portlet>
+	</concrete-portlet-app>
+</portlet-app-def>
+
+
+<portlet-app-def>
+<portlet-app id="demo.portlets.HelloWorld">
+    <portlet-name>Hello World Portlet Application</portlet-name>
+    <servlet-name>HelloWorld</servlet-name>
+    <portlet-config>
+        <param-name>PortletConfig Param</param-name>
+        <param-value>some config param value</param-value>
+    </portlet-config>
+    <allows>
+        <maximized/>
+        <minimized/>
+        <resizing/>
+    </allows>
+    <supports>
+        <view/>
+        <edit/>
+        <help/>
+        <configure/>
+    </supports>
+</portlet-app>
+
+
+
+<concrete-portlet-app id="demo.portlets.HelloWorld.1">
+    <context-param>
+        <param-name>A PortletApplicationSettings parameter</param-name>
+        <param-value>the value</param-value>
+    </context-param>
+    <concrete-portlet>
+        <portlet-name>Hello World</portlet-name>
+        <default-locale>en</default-locale>
+        <language locale="en_US">
+            <title>Hello World - Sample Portlet #1</title>
+            <title-short>Hello World</title-short>
+            <description>Hello World - Sample Portlet #1</description>
+            <keywords>portlet hello world</keywords>
+        </language>
+        <config-param>
+            <param-name>A PortletSettings parameter</param-name>
+            <param-value>the value</param-value>
+        </config-param>
+    </concrete-portlet>
+</concrete-portlet-app>
+
+<concrete-portlet-app id="demo.portlets.HelloWorld.2">
+    <context-param>
+        <param-name>Yet another PortletApplicationSettings param</param-name>
+        <param-value>another value</param-value>
+    </context-param>
+    <concrete-portlet>
+        <portlet-name>Hello World 2</portlet-name>
+        <default-locale>en</default-locale>
+        <language locale="en_US">
+            <title>Hello World - Sample Portlet #2</title>
+            <title-short>Hello World</title-short>
+            <description>Hello World - Sample Portlet #2</description>
+            <keywords>portlet hello world</keywords>
+        </language>
+        <config-param>
+            <param-name>Yet another PortletSettings param</param-name>
+            <param-value>another value</param-value>
+        </config-param>
+    </concrete-portlet>
+</concrete-portlet-app>
+
+</portlet-app-def>
+
+</portlet-app-collection>

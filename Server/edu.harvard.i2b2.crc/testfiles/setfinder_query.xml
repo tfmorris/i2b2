@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns5:request xmlns:ns4="http://www.i2b2.org/xsd/cell/crc/psm/1.1/" 
+xmlns:ns5="http://www.i2b2.org/xsd/hive/msg/1.1/">
+    <message_header>
+        <sending_application>
+            <application_name>i2b2_QueryTool</application_name>
+            <application_version>0.2</application_version>
+        </sending_application>
+        <sending_facility>
+            <facility_name>PHS</facility_name>
+        </sending_facility>
+        <receiving_application>
+            <application_name>i2b2_DataRepositoryCell</application_name>
+            <application_version>0.2</application_version>
+        </receiving_application>
+        <receiving_facility>
+            <facility_name>PHS</facility_name>
+        </receiving_facility>
+        <security>
+            <domain>Demo</domain>
+            <username>demo</username>
+            <password>demouser</password>
+        </security>
+        <message_type>
+            <message_code>Q04</message_code>
+            <event_type>EQQ</event_type>
+        </message_type>
+        <message_control_id>
+            <message_num>LnDNcwUsBSeGyDIicdim</message_num>
+            <instance_num>0</instance_num>
+        </message_control_id>
+        <processing_id>
+            <processing_id>P</processing_id>
+            <processing_mode>I</processing_mode>
+        </processing_id>
+        <accept_acknowledgement_type>messageId</accept_acknowledgement_type>
+    </message_header>
+    <request_header>
+        <result_waittime_ms>180000</result_waittime_ms>
+    </request_header>
+    <message_body>
+        <ns4:psmheader>
+            <user group="Asthma" login="demo">demo</user>
+            <patient_set_limit>0</patient_set_limit>
+            <estimated_time>0</estimated_time>
+            <request_type>CRC_QRY_runQueryInstance_fromQueryDefinition</request_type>
+        </ns4:psmheader>
+        <ns4:request xsi:type="ns4:query_definition_requestType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <query_definition>
+                <query_name>Digestive syste@00:02:28</query_name>
+                <specificity_scale>0</specificity_scale>
+                <panel>
+                    <panel_number>1</panel_number>
+                    <invert>0</invert>
+                    <total_item_occurrences>1</total_item_occurrences>
+                    <item>
+                        <hlevel>2</hlevel>
+                        <item_name>Digestive system</item_name>
+                        <item_key>\\i2b2\i2b2\Diagnoses</item_key>
+                        <tooltip>Diagnoses \ Digestive system</tooltip>
+                        <class>ENC</class>
+                        <constrain_by_date/>
+                    </item>
+                </panel>
+            </query_definition>
+        </ns4:request>
+    </message_body>
+</ns5:request>

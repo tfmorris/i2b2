@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd"
+    version="1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd">
+    <portlet>
+        <description xml:lang="en">Tab to provide access to Global Variables</description>
+        <description xml:lang="de"></description>
+        <portlet-name>GlobalDataPortlet</portlet-name>
+        <display-name xml:lang="en">Hive Global Variables</display-name>
+        <display-name xml:lang="de">GlobalDataPortlet</display-name>
+        <portlet-class>edu.harvard.i2b2.pm.portlets.defaults.GlobalDataPortlet</portlet-class>
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Global Variables</title>
+            <short-title>Global Variables</short-title>
+            <keywords>Global Variables, persistence</keywords>
+        </portlet-info>
+    </portlet>
+    <portlet>
+        <description xml:lang="en">Tab to provide access to Registered Cell</description>
+        <description xml:lang="de"></description>
+        <portlet-name>RegisteredCellPortlet</portlet-name>
+        <display-name xml:lang="en">Hive Registered Cell</display-name>
+        <display-name xml:lang="de">Hive Registered Cell</display-name>
+        <portlet-class>edu.harvard.i2b2.pm.portlets.defaults.RegisteredCellPortlet</portlet-class>
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Registered Cell</title>
+            <short-title>Registered Cell</short-title>
+            <keywords>Registered Cell, persistence</keywords>
+        </portlet-info>
+    </portlet>
+    <portlet>
+        <description xml:lang="en">Tab to provide access to Environment Data</description>
+        <description xml:lang="de"></description>
+        <portlet-name>EnvironmentDataPortlet</portlet-name>
+        <display-name xml:lang="en">Hive Environment Data</display-name>
+        <display-name xml:lang="de">Hive Environment Data</display-name>
+        <portlet-class>edu.harvard.i2b2.pm.portlets.defaults.EnvironmentDataPortlet</portlet-class>
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>edit</portlet-mode>
+            <portlet-mode>help</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>Environment Data</title>
+            <short-title>Environment Data</short-title>
+            <keywords>Environment Data, persistence</keywords>
+        </portlet-info>
+    </portlet>
+    <custom-portlet-mode>
+        <description xml:lang="en">Pre-defined custom portlet mode CONFIGURE</description>
+        <portlet-mode>config</portlet-mode>
+    </custom-portlet-mode>
+    <user-attribute>
+        <description xml:lang="en">User Name</description>
+        <name>user.name</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">User Id</description>
+        <name>user.id</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">User Full Name</description>
+        <name>user.name.full</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">User E-Mail</description>
+        <name>user.email</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">Company Organization</description>
+        <name>user.organization</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">Last Login Time</description>
+        <name>user.lastlogintime</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">Timezone</description>
+        <name>user.timezone</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">Preferred Locale</description>
+        <name>user.locale</name>
+    </user-attribute>
+    <user-attribute>
+        <description xml:lang="en">Preferred Theme</description>
+        <name>user.theme</name>
+    </user-attribute>
+</portlet-app>

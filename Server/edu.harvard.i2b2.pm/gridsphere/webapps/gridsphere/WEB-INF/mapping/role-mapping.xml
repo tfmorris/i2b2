@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<!--
+
+    Portlet role mapping file
+
+    $Id: role-mapping.xml,v 1.1 2007/08/24 17:24:58 mem61 Exp $
+
+-->
+<!DOCTYPE mapping PUBLIC "-//EXOLAB/Castor Object Mapping DTD Version 1.0//EN" "http://castor.exolab.org/mapping.dtd">
+<mapping>
+
+    <class name="org.gridlab.gridsphere.services.core.security.role.impl.descriptor.PortletRoleCollection">
+        <map-to xml="portlet-roles"/>
+        <field name="PortletRolesList" type="org.gridlab.gridsphere.services.core.security.role.impl.descriptor.PortletRoleDescription" collection="vector">
+            <bind-xml name="portlet-role"/>
+        </field>
+    </class>
+
+    <class name="org.gridlab.gridsphere.services.core.security.role.impl.descriptor.PortletRoleDescription">
+        <map-to xml="portlet-role"/>
+        <field name="RoleName" type="string">
+            <bind-xml name="role-name"/>
+        </field>
+        <field name="RoleDescription" type="string">
+            <bind-xml name="role-description"/>
+        </field>
+    </class>
+
+</mapping>

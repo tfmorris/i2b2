@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ===================================================================== -->
+<!--                                                                       -->
+<!--  JBoss Server Configuration                                           -->
+<!--                                                                       -->
+<!-- ===================================================================== -->
+
+<!-- $Id: crc-oracle-jms-ds.xml,v 1.4 2007/10/10 18:21:32 lcp5 Exp $ -->
+<!-- ==================================================================== -->
+<!--  Datasource config for Oracle originally from Steven Coy             -->
+<!-- ==================================================================== -->
+
+
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>DefaultDS</jndi-name>
+    <connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
+    <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>
+    <user-name>demodata_uname</user-name>
+    <password>demodata_password</password>
+    <!-- Checks the Oracle error codes and messages for fatal errors -->
+    <exception-sorter-class-name>org.jboss.resource.adapter.jdbc.vendor.OracleExceptionSorter</exception-sorter-class-name>
+      <!-- corresponding type-mapping in the standardjbosscmp-jdbc.xml (optional) -->
+      <metadata>
+         <type-mapping>Oracle9i</type-mapping>
+      </metadata>
+  </local-tx-datasource>
+</datasources>

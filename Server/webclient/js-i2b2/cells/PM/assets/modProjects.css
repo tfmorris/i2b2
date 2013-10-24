@@ -1,0 +1,146 @@
+
+DIV.opAdd {
+float:left;
+overflow:hidden;
+padding:6px 10px 0 0;
+position:relative;
+}
+
+DIV#i2b2_projects_modal_dialog DIV#projectAttribs {
+	margin-top: 8px;
+	border:#AAA solid;
+	border-width: 1px 1px 2px;
+	background-color:#DDDDFF;
+	margin-top:8px;
+}
+
+
+DIV#i2b2_projects_modal_dialog DIV.name {
+	background:#DDDDFF;
+	border-top: 1px solid #BBB;
+	float:left;
+	padding-left:4px;
+	width:119px;
+}
+
+DIV#pmNavTreeview {
+	background: #FFFFFF;
+	border: 1px solid #667788;
+	width:auto;
+	padding:1px 5px;
+	overflow: auto;
+}
+
+DIV#pmNav {
+	position: absolute;
+}
+
+DIV#pmNav .bodyBox {
+	background:#BBCCEE none repeat scroll 0% 50%;
+	border:1px solid #667788;
+	clear:both;
+	display:block;
+	height:auto;
+	overflow:hidden;
+	padding:5px;
+	position:relative;
+	top:-1px;
+	width:auto;
+	z-index:0;
+}
+
+
+DIV#pmMain {
+	position: absolute;
+}
+
+DIV#pmMain .bodyBox {
+	background:#BBCCEE none repeat scroll 0% 50%;
+	border:1px solid #667788;
+	clear:both;
+	display:block;
+	height:auto;
+	overflow:hidden;
+	padding:5px;
+	position:relative;
+	top:-1px;
+	width:auto;
+	z-index:0;
+}
+DIV#pmMain .bodyBox #pmMainTableview {
+	overflow:auto;
+	width: 100%;
+}
+DIV#pmMain .bodyBox #pmMainTableview table{
+	width: 100%;
+}
+
+DIV#pmParam {
+	position: absolute;
+}
+
+DIV#pmParam .bodyBox {
+	background:#BBCCEE none repeat scroll 0% 50%;
+	border:1px solid #667788;
+	clear:both;
+	display:block;
+	height:auto;
+	overflow:hidden;
+	padding:5px;
+	position:relative;
+	top:-1px;
+	width:auto;
+	z-index:0;
+}
+
+DIV#i2b2_projects_modal_dialog DIV.value {
+	border-left: 1px solid #BBB;
+	border-top: 1px solid #BBB; 
+	float: right; 
+	padding-left: 5px; 
+	width: 248px;
+	background: #F2F2F2;
+}
+
+
+DIV#i2b2_projects_modal_dialog SELECT#loginProjs {
+	width: 200px;
+}
+
+
+DIV#i2b2_projects_modal_dialog DIV.NoDetails {
+	text-align:center;
+	font-style: italic;
+	font-size: 12px;
+	border-top:1px solid #BBB;
+	padding:4px 0px;
+}
+
+
+/* login dialog box */
+
+/* DIV#i2b2_login_modal_dialog { border: 1px solid #000; } */
+
+DIV#i2b2_login_modal_dialog .login-dialog {
+	background-image: url(login_bg.jpg);
+	width: 501px;
+	height: 178px;	
+}
+
+DIV#i2b2_login_modal_dialog DIV.formDiv { padding-top: 6px; }
+
+DIV#i2b2_login_modal_dialog DIV.label { font-weight: bold; }
+
+DIV#i2b2_login_modal_dialog DIV.input {
+	margin-bottom: 8px;
+}
+
+DIV#i2b2_login_modal_dialog INPUT,
+DIV#i2b2_login_modal_dialog SELECT {
+	width: 180px;
+}
+
+DIV#i2b2_login_modal_dialog DIV.button INPUT { 
+	width: 90px;
+	margin-top: 6px;
+}

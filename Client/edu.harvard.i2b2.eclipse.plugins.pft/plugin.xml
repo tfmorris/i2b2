@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="PFT Category"
+            id="edu.harvard.i2b2.eclipse.plugins.pft">
+      </category>
+      <view
+            name="PFT"
+            category="edu.harvard.i2b2.eclipse.plugins.pft"
+            icon="icons/non-core-cell.gif"
+            class="edu.harvard.i2b2.eclipse.plugins.pft.views.PftView"
+            id="edu.harvard.i2b2.eclipse.plugins.pft.views.pftView">
+      </view>
+   </extension>
+   <extension
+            point="org.eclipse.ui.perspectiveExtensions">
+            <perspectiveExtension
+                  targetID="edu.harvard.i2b2.eclipse.perspective">
+                  <view
+                  		visible="true"
+                  		relationship="left"
+                  		ratio="0.5"
+                  		relative="org.eclipse.ui.editorss"
+                        id="edu.harvard.i2b2.eclipse.plugins.pft.views.pftView">
+                  </view>
+            </perspectiveExtension>
+    </extension>
+   <extension point="org.eclipse.ui.contexts">
+	  <context
+	  	id="pft_view_help_context"
+	  	name="PFT View"
+	  	parentId="edu.harvard.i2b2.eclipse.plugins.pft.views.pftView">
+      </context>
+   </extension>
+   <extension point="org.eclipse.help.contexts">
+   		 <contexts file="help_contexts.xml" />
+   	</extension>	
+   	   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc.xml"
+            primary="true"/>
+      <toc file="tocconcepts.xml"/>
+      <toc file="tocgettingstarted.xml"/>
+      <toc file="tocreference.xml"/>
+      <toc file="tocsamples.xml"/>
+      <toc file="toctasks.xml"/>
+   </extension>
+</plugin>

@@ -1,0 +1,60 @@
+setenv CLASSPATH ${CLASSPATH}:.
+
+javac -d . JClutoWrapper.java
+
+javah cluto.JClutoWrapper
+
+# write JClutoWrapper.c
+
+cc -G -I/net/opt/java/jdk/j2sdk1.4.1_01/include -I/net/opt/java/jdk/j2sdk1.4.1_01/include/solaris -Icluto-2.1 -Icluto-2.1/GKlib -Icluto-2.1/Lib JClutoWrapper.c cluto-2.1/Sun/libcluto.a -lm -o libJCluto.so
+
+setenv LD_LIBRARY_PATH `pwd`
+
+java cluto.JClutoWrapper
+
+#
+# The java wrapper code
+#
+
+jar cvf jcluto.jar cluto/
+jarsigner -keystore ~jj/javaws/cacerts -storepass password -keypass cbcJWS2u jcluto.jar jjcbc
+scp -p jcluto.jar /web/ccgb/htdocs/software/java/lib/
+
+#
+# The native lib has to be in its own jar file
+#
+
+jar cvf cluto.jar libJCluto.so
+jarsigner -keystore ~jj/javaws/cacerts -storepass password -keypass cbcJWS2u cluto.jar jjcbc
+scp -p cluto.jar /web/ccgb/htdocs/software/java/lib/solaris/
+
+#
+# Linux
+#
+scp -p cluto.jar /web/ccgb/htdocs/software/java/lib/linux/
+
+#
+# MacOSX
+# http://developer.apple.com/techpubs/macosx/Java/JavaDevelopment/overview/chapter_2_section_8.html
+#
+# cc -c -I/System/Library/Frameworks/JavaVM.framework/Headers sourceFile.c
+# cc -dynamiclib -o  libhello.jnilib sourceFile.o -framework JavaVM
+ssh brcf07.ccgb.umn.edu
+cd cluto-2.1/GKlib/
+cc -c -I/usr/include/sys -I. *.c
+cd ../Lib
+cc -c -I/usr/include/sys -I../GKLib -I.. -I. *.c
+cd ../..
+cc -c -I/System/Library/Frameworks/JavaVM.framework/Headers -I/usr/include/sys -Icluto-2.1/GKLib -Icluto-2.1/Lib -Icluto-2.1 -I. JClutoWrapper.c
+
+cc -dynamiclib -o libJCluto.jnilib JClutoWrapper.o cluto-2.1/GKLib/*.o cluto-2.1/Lib/*.o -framework JavaVM
+
+DYLD_LIBRARY_PATH
+
+
+#
+# /web/ccgb/htdoc/software/java/webstarts/TVCluto.jnlp 
+#  has native resources listed
+# http://www.ccgb.umn.edu/software/java/webstarts/TVCluto.jnlp 
+#
+

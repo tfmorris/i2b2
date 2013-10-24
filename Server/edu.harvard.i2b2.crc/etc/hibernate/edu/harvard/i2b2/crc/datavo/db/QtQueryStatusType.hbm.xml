@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 25, 2006 1:08:57 PM by Hibernate Tools 3.1.0.beta5 -->
+<hibernate-mapping>
+    <class name="edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType" table="QT_QUERY_STATUS_TYPE">
+        <id name="statusTypeId" type="int">
+            <column name="STATUS_TYPE_ID" precision="3" scale="0" />
+            <generator class="assigned" />
+        </id>
+        <property name="name" type="string">
+            <column name="NAME" length="100" />
+        </property>
+        <property name="description" type="string">
+            <column name="DESCRIPTION" length="200" />
+        </property>
+
+           <set name="qtQueryInstances" inverse="true">
+            <key>
+                <column name="STATUS_TYPE_ID" precision="5" scale="0" />
+            </key>
+            <one-to-many class="edu.harvard.i2b2.crc.datavo.db.QtQueryInstance" />
+        </set>
+        <set name="qtQueryResultInstances" inverse="true">
+            <key>
+                <column name="STATUS_TYPE_ID" precision="3" scale="0" not-null="true" />
+            </key>
+            <one-to-many class="edu.harvard.i2b2.crc.datavo.db.QtQueryResultInstance" />
+        </set>
+    </class>
+</hibernate-mapping>

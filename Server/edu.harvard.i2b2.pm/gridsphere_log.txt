@@ -1,0 +1,792 @@
+0:INFO:(DBTask.java:execute:206)
+< Database: >
+
+16:INFO:(DBTask.java:execute:207)
+< Config: C:\java\apache-tomcat-5.5.23/webapps/gridsphere >
+
+16:INFO:(DBTask.java:execute:208)
+< Action: CREATE >
+
+16:INFO:(DBTask.java:execute:211)
+< Using project database >
+
+16:INFO:(DBTask.java:loadProperties:134)
+< Using database configuration information from: C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\CustomPortal\database\hibernate.properties >
+
+687:INFO:(DBTask.java:execute:216)
+< Tested DB connection. >
+
+734:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthEntryModule.hbm.xml >
+
+1562:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthModuleDefinition.hbm.xml >
+
+1609:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\MessagingID.hbm.xml >
+
+1641:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PasswordImpl.hbm.xml >
+
+1750:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PersistencePreferenceAttribute.hbm.xml >
+
+1797:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortalConfigSettings.hbm.xml >
+
+1859:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletData.hbm.xml >
+
+1891:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletGroup.hbm.xml >
+
+1922:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletPreferences.hbm.xml >
+
+1969:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRole.hbm.xml >
+
+1984:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRoleInfo.hbm.xml >
+
+2016:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletUser.hbm.xml >
+
+2062:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\Request.hbm.xml >
+
+2078:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\TrackerInfo.hbm.xml >
+
+2094:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserGroups.hbm.xml >
+
+2141:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserRoles.hbm.xml >
+
+2156:INFO:(DBTask.java:execute:220)
+< Got DB configuration. >
+
+2750:INFO:(DBTask.java:createDatabase:82)
+< Successfully created DB >
+
+0:INFO:(DBTask.java:execute:206)
+< Database: >
+
+31:INFO:(DBTask.java:execute:207)
+< Config: C:\java\apache-tomcat-5.5.23/webapps/gridsphere >
+
+31:INFO:(DBTask.java:execute:208)
+< Action: CREATE >
+
+31:INFO:(DBTask.java:execute:211)
+< Using project database >
+
+31:INFO:(DBTask.java:loadProperties:134)
+< Using database configuration information from: C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\CustomPortal\database\hibernate.properties >
+
+3672:INFO:(DBTask.java:execute:216)
+< Tested DB connection. >
+
+3718:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthEntryModule.hbm.xml >
+
+4250:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthModuleDefinition.hbm.xml >
+
+4297:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\MessagingID.hbm.xml >
+
+4328:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PasswordImpl.hbm.xml >
+
+4437:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PersistencePreferenceAttribute.hbm.xml >
+
+4500:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortalConfigSettings.hbm.xml >
+
+4547:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletData.hbm.xml >
+
+4593:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletGroup.hbm.xml >
+
+4609:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletPreferences.hbm.xml >
+
+4656:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRole.hbm.xml >
+
+4672:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRoleInfo.hbm.xml >
+
+4703:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletUser.hbm.xml >
+
+4750:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\Request.hbm.xml >
+
+4765:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\TrackerInfo.hbm.xml >
+
+4797:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserGroups.hbm.xml >
+
+4828:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserRoles.hbm.xml >
+
+4843:INFO:(DBTask.java:execute:220)
+< Got DB configuration. >
+
+5437:INFO:(DBTask.java:createDatabase:82)
+< Successfully created DB >
+
+0:INFO:(DBTask.java:execute:206)
+< Database: >
+
+15:INFO:(DBTask.java:execute:207)
+< Config: C:\java\apache-tomcat-5.5.23/webapps/gridsphere >
+
+15:INFO:(DBTask.java:execute:208)
+< Action: CREATE >
+
+15:INFO:(DBTask.java:execute:211)
+< Using project database >
+
+31:INFO:(DBTask.java:loadProperties:134)
+< Using database configuration information from: C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\CustomPortal\database\hibernate.properties >
+
+421:INFO:(DBTask.java:execute:216)
+< Tested DB connection. >
+
+468:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthEntryModule.hbm.xml >
+
+1031:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthModuleDefinition.hbm.xml >
+
+1062:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\MessagingID.hbm.xml >
+
+1109:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PasswordImpl.hbm.xml >
+
+1203:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PersistencePreferenceAttribute.hbm.xml >
+
+1281:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortalConfigSettings.hbm.xml >
+
+1343:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletData.hbm.xml >
+
+1359:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletGroup.hbm.xml >
+
+1390:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletPreferences.hbm.xml >
+
+1453:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRole.hbm.xml >
+
+1468:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRoleInfo.hbm.xml >
+
+1500:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletUser.hbm.xml >
+
+1546:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\Request.hbm.xml >
+
+1562:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\TrackerInfo.hbm.xml >
+
+1609:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserGroups.hbm.xml >
+
+1625:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserRoles.hbm.xml >
+
+1640:INFO:(DBTask.java:execute:220)
+< Got DB configuration. >
+
+2187:INFO:(DBTask.java:createDatabase:82)
+< Successfully created DB >
+
+0:INFO:(DBTask.java:execute:206)
+< Database: >
+
+31:INFO:(DBTask.java:execute:207)
+< Config: C:\java\apache-tomcat-5.5.23/webapps/gridsphere >
+
+31:INFO:(DBTask.java:execute:208)
+< Action: CREATE >
+
+31:INFO:(DBTask.java:execute:211)
+< Using project database >
+
+31:INFO:(DBTask.java:loadProperties:134)
+< Using database configuration information from: C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\CustomPortal\database\hibernate.properties >
+
+438:INFO:(DBTask.java:execute:216)
+< Tested DB connection. >
+
+484:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthEntryModule.hbm.xml >
+
+1047:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthModuleDefinition.hbm.xml >
+
+1078:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\MessagingID.hbm.xml >
+
+1125:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PasswordImpl.hbm.xml >
+
+1219:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PersistencePreferenceAttribute.hbm.xml >
+
+1281:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortalConfigSettings.hbm.xml >
+
+1328:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletData.hbm.xml >
+
+1375:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletGroup.hbm.xml >
+
+1406:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletPreferences.hbm.xml >
+
+1453:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRole.hbm.xml >
+
+1469:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRoleInfo.hbm.xml >
+
+1516:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletUser.hbm.xml >
+
+1547:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\Request.hbm.xml >
+
+1563:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\TrackerInfo.hbm.xml >
+
+1625:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserGroups.hbm.xml >
+
+1641:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserRoles.hbm.xml >
+
+1656:INFO:(DBTask.java:execute:220)
+< Got DB configuration. >
+
+2188:INFO:(DBTask.java:createDatabase:82)
+< Successfully created DB >
+
+0:INFO:(DBTask.java:execute:206)
+< Database: >
+
+31:INFO:(DBTask.java:execute:207)
+< Config: C:\java\apache-tomcat-5.5.23/webapps/gridsphere >
+
+31:INFO:(DBTask.java:execute:208)
+< Action: CREATE >
+
+31:INFO:(DBTask.java:execute:211)
+< Using project database >
+
+31:INFO:(DBTask.java:loadProperties:134)
+< Using database configuration information from: C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\CustomPortal\database\hibernate.properties >
+
+406:INFO:(DBTask.java:execute:216)
+< Tested DB connection. >
+
+453:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthEntryModule.hbm.xml >
+
+1000:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthModuleDefinition.hbm.xml >
+
+1031:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\MessagingID.hbm.xml >
+
+1078:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PasswordImpl.hbm.xml >
+
+1172:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PersistencePreferenceAttribute.hbm.xml >
+
+1234:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortalConfigSettings.hbm.xml >
+
+1312:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletData.hbm.xml >
+
+1344:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletGroup.hbm.xml >
+
+1359:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletPreferences.hbm.xml >
+
+1422:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRole.hbm.xml >
+
+1437:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRoleInfo.hbm.xml >
+
+1469:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletUser.hbm.xml >
+
+1500:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\Request.hbm.xml >
+
+1516:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\TrackerInfo.hbm.xml >
+
+1562:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserGroups.hbm.xml >
+
+1578:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserRoles.hbm.xml >
+
+1609:INFO:(DBTask.java:execute:220)
+< Got DB configuration. >
+
+2219:INFO:(DBTask.java:createDatabase:82)
+< Successfully created DB >
+
+0:INFO:(DBTask.java:execute:206)
+< Database: >
+
+78:INFO:(DBTask.java:execute:207)
+< Config: C:\java\apache-tomcat-5.5.23/webapps/gridsphere >
+
+78:INFO:(DBTask.java:execute:208)
+< Action: CREATE >
+
+78:INFO:(DBTask.java:execute:211)
+< Using project database >
+
+78:INFO:(DBTask.java:loadProperties:134)
+< Using database configuration information from: C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\CustomPortal\database\hibernate.properties >
+
+609:INFO:(DBTask.java:execute:216)
+< Tested DB connection. >
+
+656:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthEntryModule.hbm.xml >
+
+1234:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthModuleDefinition.hbm.xml >
+
+1265:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\MessagingID.hbm.xml >
+
+1312:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PasswordImpl.hbm.xml >
+
+1422:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PersistencePreferenceAttribute.hbm.xml >
+
+1469:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortalConfigSettings.hbm.xml >
+
+1515:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletData.hbm.xml >
+
+1547:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletGroup.hbm.xml >
+
+1594:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletPreferences.hbm.xml >
+
+1640:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRole.hbm.xml >
+
+1640:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRoleInfo.hbm.xml >
+
+1672:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletUser.hbm.xml >
+
+1703:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\Request.hbm.xml >
+
+1734:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\TrackerInfo.hbm.xml >
+
+1750:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserGroups.hbm.xml >
+
+1781:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserRoles.hbm.xml >
+
+1797:INFO:(DBTask.java:execute:220)
+< Got DB configuration. >
+
+2359:INFO:(DBTask.java:createDatabase:82)
+< Successfully created DB >
+
+0:INFO:(DBTask.java:execute:206)
+< Database: >
+
+47:INFO:(DBTask.java:execute:207)
+< Config: C:\java\apache-tomcat-5.5.23/webapps/gridsphere >
+
+47:INFO:(DBTask.java:execute:208)
+< Action: CREATE >
+
+62:INFO:(DBTask.java:execute:211)
+< Using project database >
+
+62:INFO:(DBTask.java:loadProperties:134)
+< Using database configuration information from: C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\CustomPortal\database\hibernate.properties >
+
+687:INFO:(DBTask.java:execute:216)
+< Tested DB connection. >
+
+734:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthEntryModule.hbm.xml >
+
+1359:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthModuleDefinition.hbm.xml >
+
+1390:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\MessagingID.hbm.xml >
+
+1437:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PasswordImpl.hbm.xml >
+
+1547:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PersistencePreferenceAttribute.hbm.xml >
+
+1625:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortalConfigSettings.hbm.xml >
+
+1703:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletData.hbm.xml >
+
+1734:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletGroup.hbm.xml >
+
+1765:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletPreferences.hbm.xml >
+
+1828:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRole.hbm.xml >
+
+1890:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRoleInfo.hbm.xml >
+
+1922:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletUser.hbm.xml >
+
+1937:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\Request.hbm.xml >
+
+2000:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\TrackerInfo.hbm.xml >
+
+2015:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserGroups.hbm.xml >
+
+2031:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserRoles.hbm.xml >
+
+2047:INFO:(DBTask.java:execute:220)
+< Got DB configuration. >
+
+2703:INFO:(DBTask.java:createDatabase:82)
+< Successfully created DB >
+
+0:INFO:(DBTask.java:execute:206)
+< Database: >
+
+32:INFO:(DBTask.java:execute:207)
+< Config: C:\java\apache-tomcat-5.5.23/webapps/gridsphere >
+
+32:INFO:(DBTask.java:execute:208)
+< Action: CREATE >
+
+32:INFO:(DBTask.java:execute:211)
+< Using project database >
+
+32:INFO:(DBTask.java:loadProperties:134)
+< Using database configuration information from: C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\CustomPortal\database\hibernate.properties >
+
+516:INFO:(DBTask.java:execute:216)
+< Tested DB connection. >
+
+578:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthEntryModule.hbm.xml >
+
+1157:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthModuleDefinition.hbm.xml >
+
+1188:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\MessagingID.hbm.xml >
+
+1235:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PasswordImpl.hbm.xml >
+
+1344:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PersistencePreferenceAttribute.hbm.xml >
+
+1438:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortalConfigSettings.hbm.xml >
+
+1516:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletData.hbm.xml >
+
+1547:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletGroup.hbm.xml >
+
+1578:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletPreferences.hbm.xml >
+
+1641:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRole.hbm.xml >
+
+1703:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRoleInfo.hbm.xml >
+
+1719:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletUser.hbm.xml >
+
+1735:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\Request.hbm.xml >
+
+1797:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\TrackerInfo.hbm.xml >
+
+1828:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserGroups.hbm.xml >
+
+1875:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserRoles.hbm.xml >
+
+1907:INFO:(DBTask.java:execute:220)
+< Got DB configuration. >
+
+2594:INFO:(DBTask.java:createDatabase:82)
+< Successfully created DB >
+
+0:INFO:(DBTask.java:execute:206)
+< Database: >
+
+0:INFO:(DBTask.java:execute:207)
+< Config: C:\java\apache-tomcat-5.5.23/webapps/gridsphere >
+
+0:INFO:(DBTask.java:execute:208)
+< Action: CREATE >
+
+0:INFO:(DBTask.java:execute:211)
+< Using project database >
+
+16:INFO:(DBTask.java:loadProperties:134)
+< Using database configuration information from: C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\CustomPortal\database\hibernate.properties >
+
+641:INFO:(DBTask.java:execute:216)
+< Tested DB connection. >
+
+688:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthEntryModule.hbm.xml >
+
+1297:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthModuleDefinition.hbm.xml >
+
+1328:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\MessagingID.hbm.xml >
+
+1375:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PasswordImpl.hbm.xml >
+
+1500:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PersistencePreferenceAttribute.hbm.xml >
+
+1531:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortalConfigSettings.hbm.xml >
+
+1609:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletData.hbm.xml >
+
+1672:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletGroup.hbm.xml >
+
+1703:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletPreferences.hbm.xml >
+
+1781:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRole.hbm.xml >
+
+1797:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRoleInfo.hbm.xml >
+
+1859:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletUser.hbm.xml >
+
+1875:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\Request.hbm.xml >
+
+1891:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\TrackerInfo.hbm.xml >
+
+1953:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserGroups.hbm.xml >
+
+1969:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserRoles.hbm.xml >
+
+2047:INFO:(DBTask.java:execute:220)
+< Got DB configuration. >
+
+2672:INFO:(DBTask.java:createDatabase:82)
+< Successfully created DB >
+
+0:INFO:(DBTask.java:execute:206)
+< Database: >
+
+15:INFO:(DBTask.java:execute:207)
+< Config: C:\java\apache-tomcat-5.5.23/webapps/gridsphere >
+
+15:INFO:(DBTask.java:execute:208)
+< Action: CREATE >
+
+15:INFO:(DBTask.java:execute:211)
+< Using project database >
+
+15:INFO:(DBTask.java:loadProperties:134)
+< Using database configuration information from: C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\CustomPortal\database\hibernate.properties >
+
+422:INFO:(DBTask.java:execute:216)
+< Tested DB connection. >
+
+469:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthEntryModule.hbm.xml >
+
+1047:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthModuleDefinition.hbm.xml >
+
+1094:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\MessagingID.hbm.xml >
+
+1125:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PasswordImpl.hbm.xml >
+
+1234:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PersistencePreferenceAttribute.hbm.xml >
+
+1281:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortalConfigSettings.hbm.xml >
+
+1344:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletData.hbm.xml >
+
+1359:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletGroup.hbm.xml >
+
+1422:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletPreferences.hbm.xml >
+
+1453:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRole.hbm.xml >
+
+1469:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRoleInfo.hbm.xml >
+
+1515:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletUser.hbm.xml >
+
+1562:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\Request.hbm.xml >
+
+1609:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\TrackerInfo.hbm.xml >
+
+1656:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserGroups.hbm.xml >
+
+1672:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserRoles.hbm.xml >
+
+1703:INFO:(DBTask.java:execute:220)
+< Got DB configuration. >
+
+2187:INFO:(DBTask.java:createDatabase:82)
+< Successfully created DB >
+
+0:INFO:(DBTask.java:execute:206)
+< Database: >
+
+16:INFO:(DBTask.java:execute:207)
+< Config: C:\java\apache-tomcat-5.5.23/webapps/gridsphere >
+
+31:INFO:(DBTask.java:execute:208)
+< Action: CREATE >
+
+31:INFO:(DBTask.java:execute:211)
+< Using project database >
+
+31:INFO:(DBTask.java:loadProperties:134)
+< Using database configuration information from: C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\CustomPortal\database\hibernate.properties >
+
+422:INFO:(DBTask.java:execute:216)
+< Tested DB connection. >
+
+469:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthEntryModule.hbm.xml >
+
+1031:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\AuthModuleDefinition.hbm.xml >
+
+1063:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\MessagingID.hbm.xml >
+
+1094:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PasswordImpl.hbm.xml >
+
+1203:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PersistencePreferenceAttribute.hbm.xml >
+
+1266:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortalConfigSettings.hbm.xml >
+
+1313:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletData.hbm.xml >
+
+1328:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletGroup.hbm.xml >
+
+1375:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletPreferences.hbm.xml >
+
+1406:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRole.hbm.xml >
+
+1422:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletRoleInfo.hbm.xml >
+
+1453:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\PortletUser.hbm.xml >
+
+1469:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\Request.hbm.xml >
+
+1516:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\TrackerInfo.hbm.xml >
+
+1547:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserGroups.hbm.xml >
+
+1563:DEBUG:(DBTask.java:getDBConfiguration:188)
+< add hbm file :C:\java\apache-tomcat-5.5.23/webapps/gridsphere\WEB-INF\persistence\UserRoles.hbm.xml >
+
+1609:INFO:(DBTask.java:execute:220)
+< Got DB configuration. >
+
+2109:INFO:(DBTask.java:createDatabase:82)
+< Successfully created DB >
+

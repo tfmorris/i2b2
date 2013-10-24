@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:stard="http://www.i2b2.org/xsd/cell/stard/1.1/"
+	targetNamespace="http://www.i2b2.org/xsd/cell/stard/1.1/">
+
+	<xs:element name="request_set">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="stard:request" minOccurs="1" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="request">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="request_id" type="xs:int" minOccurs="1"
+					maxOccurs="1" />
+				<xs:element name="patient_mrn" type="xs:string"
+					minOccurs="1" maxOccurs="1" />
+				<xs:element name="accession_number" type="xs:string"
+					minOccurs="1" maxOccurs="1" />
+				<xs:element name="study_uid" type="xs:string" minOccurs="0"
+					maxOccurs="1" />
+				<xs:element name="study_description" type="xs:string"
+					minOccurs="0" maxOccurs="1" />
+				<xs:element name="study_date" type="xs:dateTime"
+					minOccurs="0" maxOccurs="1" />
+				<xs:element name="modalities" type="xs:string" minOccurs="0"
+					maxOccurs="1" />
+				<xs:element name="research_project" type="xs:string"
+					minOccurs="0" maxOccurs="1" />
+				<xs:element name="request_date" type="xs:dateTime"
+					minOccurs="0" maxOccurs="1" />
+				<xs:element name="institution" type="xs:string" minOccurs="0"
+					maxOccurs="1" />
+				<xs:element name="department" type="xs:string" minOccurs="0"
+					maxOccurs="1" />
+				<xs:element name="PACS" type="xs:string" minOccurs="0"
+					maxOccurs="1" />
+				<xs:element name="priority" type="xs:byte" minOccurs="0"
+					maxOccurs="1" />
+				<xs:element name="request_status" type="xs:string"
+					minOccurs="0" maxOccurs="1" />
+				<xs:element name="request_status_date" type="xs:dateTime"
+					minOccurs="0" maxOccurs="1" />
+				<xs:element name="destination" type="xs:string"
+					minOccurs="0" maxOccurs="1" />
+				<xs:element name="destination_path" type="xs:string"
+					minOccurs="0" maxOccurs="1" />
+				<xs:element name="file_size" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:long">
+								<xs:attribute name="unit" use="required" >
+									<xs:simpleType>
+										<xs:restriction base="xs:string">
+											<xs:enumeration value="B" />
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:attribute>
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="comments" type="xs:string"
+					minOccurs="0" maxOccurs="1" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+    <xs:element name="get_study_images_response" >
+    <xs:complexType >
+        <xs:sequence>
+            <xs:element ref="stard:image_file" />
+        </xs:sequence>
+    </xs:complexType>    
+    </xs:element>
+    
+    <xs:element name="image_file">
+    <xs:complexType>
+        <xs:sequence minOccurs="0">
+            <xs:element name="desc" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="date" type="xs:dateTime" use="optional"/>
+        <xs:attribute name="hash" type="xs:string" use="optional"/>
+        <xs:attribute name="algorithm" type="xs:string" use="optional"/>
+        <xs:attribute name="overwrite" type="xs:string" use="optional"/>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="size" type="xs:integer" use="required"/>
+    </xs:complexType>
+    </xs:element>
+
+	<xs:element name="get_config_response" >
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="image_source" type="stard:image_sourceType" />
+				<xs:element name="stard_processes" type="stard:stard_processesType" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+</xs:schema>

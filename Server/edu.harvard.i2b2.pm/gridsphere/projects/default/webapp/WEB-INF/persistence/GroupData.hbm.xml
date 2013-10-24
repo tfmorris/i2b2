@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+        
+<hibernate-mapping>
+    <class
+        name="edu.harvard.i2b2.pm.services.GroupData"
+        table="pm_project_data"
+        >
+
+        <id
+            name="oid"
+            column="gsoid"
+            type="java.lang.String"
+            length="32"
+            >
+
+        </id>
+	<property name="name" type="string" column="name"/>
+	<property name="wiki" type="string" column="wiki"/>
+        <property name="key" type="string" column="key"/>
+    </class>
+
+
+</hibernate-mapping>

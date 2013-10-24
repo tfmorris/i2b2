@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<portlet-group>
+    <group-name>JSRTutorial</group-name>
+    <group-description>JSR Tutorial portlets</group-description>
+    <group-visibility>PUBLIC</group-visibility>
+    <portlet-role-info>
+        <portlet-class>jsrtutorial#ActionHelloPortlet</portlet-class>
+        <required-role>USER</required-role>
+    </portlet-role-info>
+    <portlet-role-info>
+        <portlet-class>jsrtutorial#HelloPortlet</portlet-class>
+        <required-role>USER</required-role>
+    </portlet-role-info>
+    <portlet-role-info>
+        <portlet-class>jsrtutorial#UiHelloPortlet</portlet-class>
+        <required-role>USER</required-role>
+    </portlet-role-info>
+    <portlet-role-info>
+        <portlet-class>jsrtutorial#PhotoPortlet</portlet-class>
+        <required-role>USER</required-role>
+    </portlet-role-info>
+    <portlet-role-info>
+        <portlet-class>jsrtutorial#AddressPortlet</portlet-class>
+        <required-role>USER</required-role>
+    </portlet-role-info>
+    <portlet-role-info>
+        <portlet-class>jsrtutorial#GlobalDataPortlet</portlet-class>
+        <required-role>USER</required-role>
+    </portlet-role-info>
+    <portlet-role-info>
+        <portlet-class>jsrtutorial#RegisteredCellPortlet</portlet-class>
+        <required-role>USER</required-role>
+    </portlet-role-info>
+    <portlet-role-info>
+        <portlet-class>jsrtutorial#EnvironmentDataPortlet</portlet-class>
+        <required-role>USER</required-role>
+    </portlet-role-info>
+</portlet-group>

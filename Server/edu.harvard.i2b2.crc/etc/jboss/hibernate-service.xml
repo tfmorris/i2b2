@@ -1,0 +1,28 @@
+<server>
+    <mbean code="org.jboss.hibernate.jmx.Hibernate" 
+           name="jboss.har:service=QueryToolHibernate">
+           <!-- 
+        <depends>jboss.jca:service=LocalTxCM,name=QueryToolDS</depends>
+         -->
+         <depends>jboss.jca:service=DataSourceBinding,name=QueryToolDS</depends> 
+        <attribute name="DatasourceName">java:/QueryToolDS</attribute>
+        <attribute name="Dialect">org.hibernate.dialect.Oracle9Dialect</attribute>
+        <attribute name="SessionFactoryName">java:/hibernate/QueryToolSessionFactory</attribute>
+        <!--  
+        <attribute name="CacheProviderClass">org.hibernate.cache.HashtableCacheProvider</attribute>
+         -->
+        <attribute name="SecondLevelCacheEnabled">true</attribute>
+		<attribute name="CacheProviderClass">org.hibernate.cache.EhCacheProvider</attribute>
+		
+		<!--  
+		<attribute name="TransactionStrategy">org.hibernate.transaction.JTATransactionFactory</attribute>
+		<attribute name="TransactionManagerLookupStrategy">org.hibernate.transaction.JBossTransactionManagerLookup</attribute>
+		<attribute name="FlushBeforeCompletionEnabled">true</attribute>
+		<attribute name="AutoCloseSessionEnabled">true</attribute>
+		 -->
+        <attribute name="ShowSqlEnabled">false</attribute>
+        <attribute name="JdbcBatchSize">30</attribute>
+		<attribute name="QueryCacheEnabled">true</attribute>
+
+    </mbean>
+</server>
