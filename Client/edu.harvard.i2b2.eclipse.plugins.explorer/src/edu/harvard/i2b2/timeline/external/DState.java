@@ -19,54 +19,54 @@ import java.util.*;
  * RegExpDFA do it automatically.
  */
 class DState {
-    private BitSet nfaStateSet; // a set of NFA state
-    private boolean visited;
-    private DSList next;
-    private boolean accepted;
+	private BitSet nfaStateSet; // a set of NFA state
+	private boolean visited;
+	private DSList next;
+	private boolean accepted;
 
-    /*
-     * The constructor.
-     */
-    DState(BitSet nfaStateSet, boolean visited, boolean accepted, DSList next) {
-	this.nfaStateSet = nfaStateSet;
-	this.visited = visited;
-	this.accepted = accepted;
-	this.next = next;
-    }
+	/*
+	 * The constructor.
+	 */
+	DState(BitSet nfaStateSet, boolean visited, boolean accepted, DSList next) {
+		this.nfaStateSet = nfaStateSet;
+		this.visited = visited;
+		this.accepted = accepted;
+		this.next = next;
+	}
 
-    /**
-     * If accepted return true, else return false.
-     */
-    public boolean accepted() {
-	return accepted;
-    }
+	/**
+	 * If accepted return true, else return false.
+	 */
+	public boolean accepted() {
+		return accepted;
+	}
 
-    /**
-     * If accepted return true, else return false.
-     */
-    public BitSet nfaStateSet() {
-	return nfaStateSet;
-    }
+	/**
+	 * If accepted return true, else return false.
+	 */
+	public BitSet nfaStateSet() {
+		return nfaStateSet;
+	}
 
-    /**
-     * If accepted return true, else return false.
-     */
-    public boolean visited() {
-	return visited;
-    }
+	/**
+	 * If accepted return true, else return false.
+	 */
+	public boolean visited() {
+		return visited;
+	}
 
-    public void visit() {
-	visited = true;
-    }
+	public void visit() {
+		visited = true;
+	}
 
-    /**
-     * If accepted return true, else return false.
-     */
-    public DSList next() {
-	return next;
-    }
+	/**
+	 * If accepted return true, else return false.
+	 */
+	public DSList next() {
+		return next;
+	}
 
-    public void setNext(DSList dsl) {
-	next = dsl;
-    }
+	public void setNext(DSList dsl) {
+		next = dsl;
+	}
 }

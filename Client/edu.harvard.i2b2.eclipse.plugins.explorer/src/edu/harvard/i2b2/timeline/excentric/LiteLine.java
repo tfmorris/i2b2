@@ -29,50 +29,67 @@
  * THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF LIABILITY, ARISING OUT
  * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-  
+
 package edu.harvard.i2b2.timeline.excentric;
 
 import java.awt.*;
 
 /**
- * A <code>LiteLite</code> is a liteweight line with a color and a
- * thickness (0 or 1).
+ * A <code>LiteLite</code> is a liteweight line with a color and a thickness (0
+ * or 1).
  */
 public class LiteLine extends Lite {
-  private Point start, end;
-  private Color foreground;
-  private int thickness;
-  
-  public LiteLine(Point start, Point end, int thickness, Color fg) {
-    this.start = start;
-    this.end = end;
-    this.thickness = thickness;
-    this.foreground = fg;
-  }
+	private Point start, end;
+	private Color foreground;
+	private int thickness;
 
-  @Override
-public void setPosition(Point p) { start = p; }
-  @Override
-public Point getPosition() { return start; }
-  @Override
-public Rectangle getBounds() {
-    int margin = (thickness+1)/2;
-    Rectangle r = new Rectangle(start);
-    r.add(end);
-    r.grow(margin, margin);
-    return r;
-  }
-  public int getThickness() { return thickness; }
-  public void setThickness(int t) { thickness = t; }
-  public Color getColor() { return foreground; }
-  public void setColor(Color c) { foreground = c; }
-  
-  @Override
-public void paint(Graphics g) {
-    if (thickness > 0) {
-      g.setColor(foreground);
-      g.drawLine(start.x, start.y, end.x, end.y);
-    }
-  }
+	public LiteLine(Point start, Point end, int thickness, Color fg) {
+		this.start = start;
+		this.end = end;
+		this.thickness = thickness;
+		this.foreground = fg;
+	}
+
+	@Override
+	public void setPosition(Point p) {
+		start = p;
+	}
+
+	@Override
+	public Point getPosition() {
+		return start;
+	}
+
+	@Override
+	public Rectangle getBounds() {
+		int margin = (thickness + 1) / 2;
+		Rectangle r = new Rectangle(start);
+		r.add(end);
+		r.grow(margin, margin);
+		return r;
+	}
+
+	public int getThickness() {
+		return thickness;
+	}
+
+	public void setThickness(int t) {
+		thickness = t;
+	}
+
+	public Color getColor() {
+		return foreground;
+	}
+
+	public void setColor(Color c) {
+		foreground = c;
+	}
+
+	@Override
+	public void paint(Graphics g) {
+		if (thickness > 0) {
+			g.setColor(foreground);
+			g.drawLine(start.x, start.y, end.x, end.y);
+		}
+	}
 }
-

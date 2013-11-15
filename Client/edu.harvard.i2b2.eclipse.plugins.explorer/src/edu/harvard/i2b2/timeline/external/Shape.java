@@ -14,89 +14,89 @@ import java.awt.Color;
  */
 
 public abstract class Shape extends Canvas implements BevelStyle {
-    protected int width;
-    protected int height;
-    protected int style;
-    protected boolean fill;
-    protected Color fillColor;
+	protected int width;
+	protected int height;
+	protected int style;
+	protected boolean fill;
+	protected Color fillColor;
 
-    protected Shape() {
-	style = BEVEL_LINE;
-    }
+	protected Shape() {
+		style = BEVEL_LINE;
+	}
 
-    /**
-     * Sets the border style of the shape.
-     * 
-     * @see #getStyle
-     */
-    public void setBevelStyle(int s) {
-	style = s;
-	repaint();
-    }
+	/**
+	 * Sets the border style of the shape.
+	 * 
+	 * @see #getStyle
+	 */
+	public void setBevelStyle(int s) {
+		style = s;
+		repaint();
+	}
 
-    /**
-     * Returns the current style of the shape.
-     * 
-     * @see #setStyle
-     */
-    public int getBevelStyle() {
-	return style;
-    }
+	/**
+	 * Returns the current style of the shape.
+	 * 
+	 * @see #setStyle
+	 */
+	public int getBevelStyle() {
+		return style;
+	}
 
-    /**
-     * Sets the fill mode of the shape.
-     * 
-     * @see #getFillMode
-     */
-    public void setFillMode(boolean f) {
-	fill = f;
-	repaint();
-    }
+	/**
+	 * Sets the fill mode of the shape.
+	 * 
+	 * @see #getFillMode
+	 */
+	public void setFillMode(boolean f) {
+		fill = f;
+		repaint();
+	}
 
-    /**
-     * Returns the current fill mode of the shape.
-     * 
-     * @see #setFillMode
-     */
-    public boolean getFillMode() {
-	return fill;
-    }
+	/**
+	 * Returns the current fill mode of the shape.
+	 * 
+	 * @see #setFillMode
+	 */
+	public boolean getFillMode() {
+		return fill;
+	}
 
-    /**
-     * Sets the fill color of the shape.
-     * 
-     * @see #getFillColor
-     */
-    public void setFillColor(Color color) {
-	fillColor = color;
-	repaint();
-    }
+	/**
+	 * Sets the fill color of the shape.
+	 * 
+	 * @see #getFillColor
+	 */
+	public void setFillColor(Color color) {
+		fillColor = color;
+		repaint();
+	}
 
-    /**
-     * Returns the current fill color of the shape.
-     * 
-     * @see #setFillColor
-     */
-    public Color getFillColor() {
-	return fillColor;
-    }
+	/**
+	 * Returns the current fill color of the shape.
+	 * 
+	 * @see #setFillColor
+	 */
+	public Color getFillColor() {
+		return fillColor;
+	}
 
-    /**
-     * Reshapes the shape.
-     */
-    @Override
-    public void reshape(int x, int y, int width, int height) {
-	this.width = width;
-	this.height = height;
+	/**
+	 * Reshapes the shape.
+	 */
+	@Override
+	public void reshape(int x, int y, int width, int height) {
+		this.width = width;
+		this.height = height;
 
-	super.reshape(x, y, width, height);
-    }
+		super.reshape(x, y, width, height);
+	}
 
-    /**
-     * Returns the current "preferred size" of the shape.
-     */
-    @Override
-    public Dimension preferredSize() {
-	return new Dimension(50, 50);
-    }
+	/**
+	 * Returns the current "preferred size" of the shape.
+	 */
+	@Override
+	public Dimension preferredSize() {
+		return new Dimension(50, 50);
+	}
 }

@@ -22,6 +22,15 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+	
+	<xs:element name="modifier_set">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="modifier" maxOccurs="unbounded"
+					type="pdo:modifierType" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 
 	<xs:element name="observer_set">
 		<xs:complexType>
@@ -109,6 +118,19 @@
 				minOccurs="1" />
 			<xs:element name="name_char" type="xs:string" />
 			<xs:element name="concept_blob" type="pdo:blobType"
+				minOccurs="0" />
+		</xs:sequence>
+		<xs:attributeGroup ref="pdo:techDataAttributeGroup" />
+	</xs:complexType>
+	<!-- ModifierType -->
+	<xs:complexType name="modifierType">
+		<xs:sequence>
+			<xs:element name="modifier_path" type="xs:string"
+				minOccurs="1" />
+			<xs:element name="modifier_cd" type="xs:string"
+				minOccurs="1" />
+			<xs:element name="name_char" type="xs:string" />
+			<xs:element name="modifier_blob" type="pdo:blobType"
 				minOccurs="0" />
 		</xs:sequence>
 		<xs:attributeGroup ref="pdo:techDataAttributeGroup" />
@@ -248,7 +270,7 @@
 				<xs:complexType>
 					<xs:simpleContent>
 						<xs:extension base="xs:string">
-							<xs:attribute name="soruce" type="xs:string"
+							<xs:attribute name="name" type="xs:string"
 								use="required" />
 						</xs:extension>
 					</xs:simpleContent>
@@ -261,6 +283,14 @@
 						<xs:extension base="xs:string">
 							<xs:attribute name="name" type="xs:string"
 								use="required" />
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="instance_num">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
 						</xs:extension>
 					</xs:simpleContent>
 				</xs:complexType>
@@ -331,7 +361,11 @@
 			<xs:extension base="xs:string">
 				<xs:attribute name="column" type="xs:string"
 					use="optional" />
+				<xs:attribute name="column_descriptor" type="xs:string"
+					use="optional" />
 				<xs:attribute name="name" type="xs:string"
+					use="optional" />
+				<xs:attribute name="type" type="xs:string"
 					use="optional" />
 			</xs:extension>
 		</xs:simpleContent>

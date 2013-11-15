@@ -1,7 +1,7 @@
 /*
-* Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2010 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
-* are made available under the terms of the i2b2 Software License v2.1 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
@@ -36,10 +36,11 @@ import org.apache.commons.logging.LogFactory;
 public class QueryClient {
 	private static final Log log = LogFactory.getLog(QueryClient.class);
 	private static EndpointReference targetEPR;
-	
+
 	private static String servicename = null;
 
-	public static OMElement getQueryPayLoad(String queryXML) throws XMLStreamException {
+	public static OMElement getQueryPayLoad(String queryXML)
+			throws XMLStreamException {
 		OMFactory fac = OMAbstractFactory.getOMFactory();
 		OMNamespace omNs = fac.createOMNamespace("http://mgh.harvard.edu/i2b2",
 				"");
@@ -55,37 +56,39 @@ public class QueryClient {
 		return method;
 	}
 
-	public static String query(String queryXML, String user, String password){
+	public static String query(String queryXML, String user, String password) {
 		try {
 			HttpTransportProperties.Authenticator basicAuthentication = new HttpTransportProperties.Authenticator();
-		
+
 			basicAuthentication.setUsername(user);
 			basicAuthentication.setPassword(password);
-			
-			targetEPR = new EndpointReference(getCRCNavigatorIdentityServiceName());
+
+			targetEPR = new EndpointReference(
+					getCRCNavigatorIdentityServiceName());
 			OMElement payload = getQueryPayLoad(queryXML);
 			Options options = new Options();
 			options.setTo(targetEPR);
 
-			options.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE,
+			options.setProperty(
+					org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE,
 					basicAuthentication);
 
 			options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-		
+
 			ConfigurationContext configContext = ConfigurationContextFactory
 					.createConfigurationContextFromFileSystem(null, null);
-			
+
 			// Blocking invocation
 			ServiceClient sender = new ServiceClient(configContext, null);
 			sender.setOptions(options);
-		
+
 			OMElement result = sender.sendReceive(payload);
-			//System.out.println(result.toString());
+			// System.out.println(result.toString());
 
 			return result.toString();
 		} catch (AxisFault axisFault) {
 			axisFault.printStackTrace();
-			//JOptionPane.showMessageDialog(null, axisFault.getMessage());
+			// JOptionPane.showMessageDialog(null, axisFault.getMessage());
 			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -110,27 +113,24 @@ public class QueryClient {
 			axisFault.printStackTrace();
 		}
 	}
-	
-	private static String getCRCNavigatorIdentityServiceName(){
-		//if(servicename != null) {
-		//	return servicename;
-		//}
-		
+
+	private static String getCRCNavigatorIdentityServiceName() {
+		// if(servicename != null) {
+		// return servicename;
+		// }
+
 		servicename = System.getProperty("identityService");
-		/*Properties properties = new Properties();
-		//String identityServiceName="";
-		String filename="crcnavigator.properties";
-	    try {
-	        properties.load(new FileInputStream(filename));
-	        servicename = properties.getProperty("identityserviceName");
-	        System.out.println("Properties Identity Service Name = " + servicename);	    
-	    } 
-	    catch (IOException e) {
-	    	log.error(e.getMessage());
-	    	servicename="";
-	    }*/
-	    //log.info("identityservicename = "+servicename);
-		
+		/*
+		 * Properties properties = new Properties(); //String
+		 * identityServiceName=""; String filename="crcnavigator.properties";
+		 * try { properties.load(new FileInputStream(filename)); servicename =
+		 * properties.getProperty("identityserviceName");
+		 * System.out.println("Properties Identity Service Name = " +
+		 * servicename); } catch (IOException e) { log.error(e.getMessage());
+		 * servicename=""; }
+		 */
+		// log.info("identityservicename = "+servicename);
+
 		return servicename;
 	}
 }

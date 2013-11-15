@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -35,11 +35,41 @@ final class NodeDragListener implements DragSourceListener
 	{
 		this.viewer = viewer;
 	}
-	
+
 	public void dragStart(DragSourceEvent event) 
 	{
-		selectionOnDrag = (IStructuredSelection)this.viewer.getSelection();
+		Iterator it = ((IStructuredSelection)this.viewer.getSelection()).iterator();
+		while(it.hasNext())
+		{
+			TreeNode node = (TreeNode) it.next();
+
+			ConceptType data = node.getData();
+
+			if(data.getModifier() == null){
+				if (((data.getVisualattributes().substring(0,1).equals("C"))) ||
+						((data.getVisualattributes().substring(1,2).equals("I")))){
+					event.doit = false;		
+					event.detail = DND.DROP_NONE;
+					return;
+				}
+			}
+
+			else {
+				if (((data.getModifier().getVisualattributes().substring(0,1).equals("O"))) ||
+
+						((data.getVisualattributes().substring(1,2).equals("I")))){
+					event.doit = false;		
+					event.detail = DND.DROP_NONE;
+					return;
+				}
+			}
+		}
+
 		event.doit = true;		
+		event.detail = DND.DROP_COPY;
+
+		selectionOnDrag = (IStructuredSelection)this.viewer.getSelection();
+
 	}
 
 	// this is the jaxb based dnd XML
@@ -51,10 +81,20 @@ final class NodeDragListener implements DragSourceListener
 		while(iterator.hasNext())
 		{
 			TreeNode node = (TreeNode) iterator.next();
+			//			TableComposite.getInstance().addModifiers(node);
 			ConceptType data = node.getData();
-			concepts.getConcept().add(data);
+			if(data.getModifier() == null){
+				if ((!(data.getVisualattributes().substring(0,1).equals("C"))) &&
+						(!(data.getVisualattributes().substring(1,2).equals("I"))))
+					concepts.getConcept().add(data);
+			}
+			else{
+				if ((!(data.getModifier().getVisualattributes().substring(0,1).equals("O"))) &&
+						(!(data.getVisualattributes().substring(1,2).equals("I"))))
+					concepts.getConcept().add(data);
+			}
 		}	
-			
+
 		try {
 			strWriter = new StringWriter();
 			DndType dnd = new DndType();
@@ -63,16 +103,16 @@ final class NodeDragListener implements DragSourceListener
 
 			edu.harvard.i2b2.ontclient.datavo.dnd.ObjectFactory of = new edu.harvard.i2b2.ontclient.datavo.dnd.ObjectFactory();
 			OntologyJAXBUtil.getJAXBUtil().marshaller(of.createPluginDragDrop(dnd), strWriter);
-			
-			
+
+
 		} catch (JAXBUtilException e) {
 			log.error("Error marshalling Ont drag text");
 		} 
 
-
+		//	log.info("Ont Client dragged "+ strWriter.toString());
 		event.data = strWriter.toString();
 	}
-	
+
 	public void dragFinished(DragSourceEvent event) {
 		selectionOnDrag = null;
 	}

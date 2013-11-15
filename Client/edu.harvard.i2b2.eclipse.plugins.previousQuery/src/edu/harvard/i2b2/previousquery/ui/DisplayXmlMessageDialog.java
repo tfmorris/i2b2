@@ -19,95 +19,95 @@ import java.util.List;
 
 public class DisplayXmlMessageDialog extends javax.swing.JFrame {
 
-    /** Creates new form QueryDisplayXmlMessageDialog */
-    public DisplayXmlMessageDialog(String msg) {
+	/** Creates new form QueryDisplayXmlMessageDialog */
+	public DisplayXmlMessageDialog(String msg) {
 
-	initComponents();
-	setSize(800, 400);
-	jMessageTextArea.setText(msg);
-    }
-
-    public DisplayXmlMessageDialog(List<String> msgs) {
-
-	initComponents();
-	setSize(800, 400);
-	int it = msgs.size();
-	String allMessages = "";
-	while (it > 0) {
-	    allMessages = allMessages + msgs.get(it - 1) + "\n\n";
-	    it = it - 1;
+		initComponents();
+		setSize(800, 400);
+		jMessageTextArea.setText(msg);
 	}
-	jMessageTextArea.setText(allMessages);
-    }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     */
-    private void initComponents() {
-	jScrollPane = new javax.swing.JScrollPane();
-	jMessageTextArea = new javax.swing.JTextArea();
-	jMenuBar = new javax.swing.JMenuBar();
-	jFileMenu = new javax.swing.JMenu();
-	jCloseMenuItem = new javax.swing.JMenuItem();
+	public DisplayXmlMessageDialog(List<String> msgs) {
 
-	getContentPane().setLayout(
-		new javax.swing.BoxLayout(getContentPane(),
-			javax.swing.BoxLayout.X_AXIS));
+		initComponents();
+		setSize(800, 400);
+		int it = msgs.size();
+		String allMessages = "";
+		while (it > 0) {
+			allMessages = allMessages + msgs.get(it - 1) + "\n\n";
+			it = it - 1;
+		}
+		jMessageTextArea.setText(allMessages);
+	}
 
-	setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-	java.awt.Image img = this.getToolkit().getImage(
-		DisplayOptionsDialog.class.getResource("core-cell.gif"));
-	this.setIconImage(img);
+	/**
+	 * This method is called from within the constructor to initialize the form.
+	 */
+	private void initComponents() {
+		jScrollPane = new javax.swing.JScrollPane();
+		jMessageTextArea = new javax.swing.JTextArea();
+		jMenuBar = new javax.swing.JMenuBar();
+		jFileMenu = new javax.swing.JMenu();
+		jCloseMenuItem = new javax.swing.JMenuItem();
 
-	jMessageTextArea.setColumns(20);
-	jMessageTextArea.setEditable(false);
-	jMessageTextArea.setRows(5);
-	jScrollPane.setViewportView(jMessageTextArea);
+		getContentPane().setLayout(
+				new javax.swing.BoxLayout(getContentPane(),
+						javax.swing.BoxLayout.X_AXIS));
 
-	getContentPane().add(jScrollPane);
+		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+		java.awt.Image img = this.getToolkit().getImage(
+				DisplayOptionsDialog.class.getResource("core-cell.gif"));
+		this.setIconImage(img);
 
-	jFileMenu.setText("File");
-	jCloseMenuItem.setText("Close");
-	jCloseMenuItem.addActionListener(new java.awt.event.ActionListener() {
-	    public void actionPerformed(java.awt.event.ActionEvent evt) {
-		jCloseMenuItemActionPerformed(evt);
-	    }
-	});
+		jMessageTextArea.setColumns(20);
+		jMessageTextArea.setEditable(false);
+		jMessageTextArea.setRows(5);
+		jScrollPane.setViewportView(jMessageTextArea);
 
-	jFileMenu.add(jCloseMenuItem);
+		getContentPane().add(jScrollPane);
 
-	jMenuBar.add(jFileMenu);
+		jFileMenu.setText("File");
+		jCloseMenuItem.setText("Close");
+		jCloseMenuItem.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				jCloseMenuItemActionPerformed(evt);
+			}
+		});
 
-	setJMenuBar(jMenuBar);
+		jFileMenu.add(jCloseMenuItem);
 
-	pack();
-    }
+		jMenuBar.add(jFileMenu);
 
-    private void jCloseMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-	setVisible(false);
-	dispose();
-    }
+		setJMenuBar(jMenuBar);
 
-    /**
-     * @param args
-     *            the command line arguments
-     */
-    public static void main(String args[]) {
-	java.awt.EventQueue.invokeLater(new Runnable() {
-	    String empty = null;
+		pack();
+	}
 
-	    public void run() {
-		new DisplayXmlMessageDialog(empty).setVisible(true);
-	    }
-	});
-    }
+	private void jCloseMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
+		setVisible(false);
+		dispose();
+	}
 
-    // Variables declaration
-    private javax.swing.JMenuItem jCloseMenuItem;
-    private javax.swing.JMenu jFileMenu;
-    private javax.swing.JMenuBar jMenuBar;
-    private javax.swing.JTextArea jMessageTextArea;
-    private javax.swing.JScrollPane jScrollPane;
-    // End of variables declaration
+	/**
+	 * @param args
+	 *            the command line arguments
+	 */
+	public static void main(String args[]) {
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			String empty = null;
+
+			public void run() {
+				new DisplayXmlMessageDialog(empty).setVisible(true);
+			}
+		});
+	}
+
+	// Variables declaration
+	private javax.swing.JMenuItem jCloseMenuItem;
+	private javax.swing.JMenu jFileMenu;
+	private javax.swing.JMenuBar jMenuBar;
+	private javax.swing.JTextArea jMessageTextArea;
+	private javax.swing.JScrollPane jScrollPane;
+	// End of variables declaration
 
 }

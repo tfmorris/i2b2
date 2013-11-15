@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -69,15 +69,12 @@ public class EditView extends ViewPart {
 	 * The constructor.
 	 */
 	public EditView() {
-		if(System.getProperty("OntMax") == null){
 
-			if (UserInfoBean.getInstance().getCellDataParam("ont", "OntMax") != null)
-				System.setProperty("OntMax", UserInfoBean.getInstance().getCellDataParam("ont", "OntMax"));
-			else 
-				System.setProperty("OntMax","200");
-			
-
-		}
+		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntEditConceptCode") != null)
+			System.setProperty("OntEditConceptCode",  UserInfoBean.getInstance().getCellDataParam("ont","OntEditConceptCode"));	
+		
+		else
+			System.setProperty("OntEditConceptCode","false"); 		
 		// Hiddens and synonyms are hard coded to false in TreeNode (getChildren)
 	}
 	
@@ -88,7 +85,7 @@ public class EditView extends ViewPart {
 
 	@Override
 	public void createPartControl(final Composite parent) {
-		log.info("Edit Terms plugin version 1.5.0");
+		log.info("Edit Terms plugin version 1.6.0");
 		if (!(Roles.getInstance().isRoleValid()))
 		{
 			final Composite notValid = new Composite(parent, SWT.NONE);
@@ -166,6 +163,11 @@ public class EditView extends ViewPart {
 		TreeComposite dragTree = new TreeComposite(compositeQueryTree, 1, slm);
 		dragTree.setLayoutData(new GridData (GridData.FILL_BOTH));
 		dragTree.setLayout(gridLayout);
+		
+		
+		ModifierComposite.setInstance(compositeQueryTree);
+//		ModifierComposite.getInstance().setLayoutData(new GridData (GridData.FILL_BOTH));
+//		ModifierComposite.getInstance().setLayout(gridLayout);
 	
 		parent.layout(true);
 	}
@@ -293,6 +295,9 @@ public class EditView extends ViewPart {
 	public void setFocus() {	
 		if(compositeQueryTree != null)
 			compositeQueryTree.setFocus();
-
+		if(Boolean.parseBoolean(
+    				System.getProperty("OntDisableModifiers"))){
+			ModifierComposite.getInstance().disableComposite();
+		}
 	}
 }

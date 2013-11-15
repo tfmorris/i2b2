@@ -35,33 +35,41 @@ import edu.harvard.i2b2.eclipse.UserInfoBean;
 
 public class QueryInstanceData extends QueryData {
 	private String queryId;
+
 	public void queryId(String str) {
 		queryId = str;
 	}
+
 	public String queryId() {
 		return queryId;
 	}
 
 	private String finishedTime;
+
 	public void finishedTime(String str) {
 		finishedTime = str;
 	}
+
 	public String finishedTime() {
 		return finishedTime;
 	}
 
 	private String patientCount;
+
 	public void patientCount(String str) {
 		patientCount = str;
 	}
+
 	public String patientCount() {
 		return patientCount;
 	}
 
 	private String patientRefId;
+
 	public void patientRefId(String str) {
 		patientRefId = str;
 	}
+
 	public String patientRefId() {
 		return patientRefId;
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -36,6 +36,7 @@ import edu.harvard.i2b2.eclipse.plugins.ontology.ws.OntologyResponseMessage;
 import edu.harvard.i2b2.ontclient.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptsType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.GetCategoriesType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetReturnType;
 
 
@@ -64,6 +65,12 @@ public class FindTool extends ApplicationWindow
 		Composite compositeFind = new Composite(tabFolder, SWT.NULL);
 		GridLayout gridLayout = new GridLayout(2, false);
 		compositeFind.setLayout(gridLayout);
+/*		GridData fromTreeGridData = new GridData (GridData.FILL_BOTH);
+		fromTreeGridData.grabExcessHorizontalSpace = true;
+		fromTreeGridData.grabExcessVerticalSpace = true;
+	//	fromTreeGridData.widthHint = 300;
+		compositeFind.setLayoutData(fromTreeGridData);
+*/
 		
 		//	First Set up the match combo box
 	    final Combo matchCombo = new Combo(compositeFind,SWT.READ_ONLY);
@@ -114,6 +121,7 @@ public class FindTool extends ApplicationWindow
 	    			slm.setMessage("Performing search");
 	    			slm.update(true);
 	    			browser.flush();
+	    			ModifierComposite.getInstance().disableComposite();
 	    			System.setProperty("statusMessage", "Calling WebService");
 	    			
 		 			TreeNode placeholder = new TreeNode(1, "placeholder", "working...", "C-UNDEF");
@@ -156,6 +164,7 @@ public class FindTool extends ApplicationWindow
 	    		}
 	    		if(findButton.getText().equals("Find"))
 	    		{	    			
+	    			ModifierComposite.getInstance().disableComposite();
 	    			browser.flush();
 	    			System.setProperty("statusMessage", "Calling WebService");
 		 			TreeNode placeholder = new TreeNode(1, "placeholder", "working...", "C-UNDEF");
@@ -192,8 +201,11 @@ public class FindTool extends ApplicationWindow
 	    		// this is not an option (text cant be entered)
 	    	}
 	    });
-	    
+	    ModifierComposite.setInstance(compositeFind);
 	    browser = new NodeBrowser(compositeFind, 1, findButton, slm);
+	    
+
+	    
 	    return compositeFind;
 	}
 	  
@@ -223,9 +235,14 @@ public class FindTool extends ApplicationWindow
     {
     	List concepts = null;
     	try {
-			GetReturnType request = new GetReturnType();
-			request.setType("core");
-			
+	//		GetReturnType request = new GetReturnType();
+	//		request.setType("limited");
+		
+			GetCategoriesType request = new GetCategoriesType();
+			request.setType("limited");
+			request.setHiddens(false);
+			request.setSynonyms(false);
+					
     	    OntologyResponseMessage msg = new OntologyResponseMessage();
 			StatusType procStatus = null;	
 			while(procStatus == null || !procStatus.getType().equals("DONE")){

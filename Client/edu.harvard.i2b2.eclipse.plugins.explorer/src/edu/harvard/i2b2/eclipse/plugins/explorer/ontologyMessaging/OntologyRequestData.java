@@ -49,7 +49,7 @@ abstract public class OntologyRequestData {
 	 */
 	public RequestHeaderType getRequestHeader() { 
 		RequestHeaderType reqHeader = new RequestHeaderType();
-		reqHeader.setResultWaittimeMs(120000);
+		reqHeader.setResultWaittimeMs(3000);
 		return reqHeader;
 	}
 	

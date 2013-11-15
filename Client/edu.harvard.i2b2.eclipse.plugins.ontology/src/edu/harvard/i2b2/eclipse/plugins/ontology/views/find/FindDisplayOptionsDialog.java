@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -29,6 +29,10 @@ public class FindDisplayOptionsDialog extends Dialog {
 	private Text maximum = null;
 	private Button showHiddens = null;
 	private Button showSynonyms = null;
+	private Button showPatientCount = null;
+	private Button showShortTooltips = null;
+	private Button showConceptCode = null;
+	private Button disableModifiers = null;
 	
     /**
      * Creates new form FindDisplayOptionsDialog
@@ -67,6 +71,28 @@ public class FindDisplayOptionsDialog extends Dialog {
     	showSynonyms.setSelection(Boolean.parseBoolean(
 				System.getProperty("OntFindSynonyms")));
 
+    	showPatientCount = new Button(compOptions, SWT.CHECK);
+    	showPatientCount.setText("Show patient count");
+    	showPatientCount.setSelection(Boolean.parseBoolean(
+				System.getProperty("OntFindPatientCount")));
+    	
+    	showShortTooltips = new Button(compOptions, SWT.CHECK);
+    	showShortTooltips.setText("Show short tooltips");
+    	showShortTooltips.setSelection(Boolean.parseBoolean(
+				System.getProperty("OntFindShortTooltips")));
+    	
+    	showConceptCode = new Button(compOptions, SWT.CHECK);
+    	showConceptCode.setText("Show concept code in tooltip");
+    	showConceptCode.setSelection(Boolean.parseBoolean(
+				System.getProperty("OntFindConceptCode")));
+    	
+    	
+    	disableModifiers = new Button(compOptions, SWT.CHECK);
+    	disableModifiers.setText("Disable display of modifiers");
+    	disableModifiers.setSelection(Boolean.parseBoolean(
+				System.getProperty("OntDisableModifiers")));  
+    	
+    	
     	return parent;
     }
     
@@ -93,14 +119,41 @@ public class FindDisplayOptionsDialog extends Dialog {
     			System.setProperty("OntFindSynonyms",  UserInfoBean.getInstance().getCellDataParam("ont","OntFindSynonyms"));	
     		else
     			System.setProperty("OntFindSynonyms","true");		
-    			
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntFindPatientCount") != null)
+    			System.setProperty("OntFindPatientCount",  UserInfoBean.getInstance().getCellDataParam("ont","OntFindPatientCount"));	
+    		else
+    			System.setProperty("OntFindPatientCount","false");
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntFindShortTooltips") != null)
+    			System.setProperty("OntFindShortTooltips",  UserInfoBean.getInstance().getCellDataParam("ont","OntFindShortTooltips"));	
+    		else
+    			System.setProperty("OntFindShortTooltips","false");
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntFindConceptCode") != null)
+    			System.setProperty("OntFindConceptCode",  UserInfoBean.getInstance().getCellDataParam("ont","OntFindConceptCode"));	
+    		else
+    			System.setProperty("OntFindConceptCode","false");    			
+    		
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntDisableModifiers") != null)
+    			System.setProperty("OntDisableModifiers",  UserInfoBean.getInstance().getCellDataParam("ont","OntDisableModifiers"));	
+    		else
+    			System.setProperty("OntDisableModifiers","false");
     		
     		maximum.setText(System.getProperty("OntFindMax"));
     		showHiddens.setSelection(Boolean.parseBoolean(
     				System.getProperty("OntFindHiddens")));
     		showSynonyms.setSelection(Boolean.parseBoolean(
     				System.getProperty("OntFindSynonyms")));
+    		showPatientCount.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntFindPatientCount")));
 
+    		showShortTooltips.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntFindShortTooltips")));
+    		
+    		showConceptCode.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntFindConceptCode")));
+    		disableModifiers.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntDisableModifiers")));
+
+    		
     	}	
     	// OK
     	else if(buttonId == 0){
@@ -123,7 +176,11 @@ public class FindDisplayOptionsDialog extends Dialog {
     		System.setProperty("OntFindMax", maximum.getText());
     		System.setProperty("OntFindHiddens", String.valueOf(showHiddens.getSelection()));
     		System.setProperty("OntFindSynonyms", String.valueOf(showSynonyms.getSelection()));
-        	close();
+      		System.setProperty("OntFindPatientCount",  String.valueOf(showPatientCount.getSelection()));
+      		System.setProperty("OntFindShortTooltips",  String.valueOf(showShortTooltips.getSelection()));
+      		System.setProperty("OntFindConceptCode",  String.valueOf(showConceptCode.getSelection()));
+      		System.setProperty("OntDisableModifiers",  String.valueOf(disableModifiers.getSelection()));
+      		close();
     	}
     	//Cancel
     	else if(buttonId ==1) {

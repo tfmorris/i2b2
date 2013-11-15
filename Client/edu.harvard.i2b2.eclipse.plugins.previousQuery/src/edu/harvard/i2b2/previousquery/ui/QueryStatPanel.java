@@ -17,36 +17,36 @@ package edu.harvard.i2b2.previousquery.ui;
 
 public class QueryStatPanel extends javax.swing.JPanel {
 
-    /** Creates new form QueryStatPanel */
-    public QueryStatPanel() {
-	initComponents();
-    }
+	/** Creates new form QueryStatPanel */
+	public QueryStatPanel() {
+		initComponents();
+	}
 
-    public void setPatientCount(String number) {
-	jPatientCountTextField.setText(number);
-    }
+	public void setPatientCount(String number) {
+		jPatientCountTextField.setText(number);
+	}
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     */
+	/**
+	 * This method is called from within the constructor to initialize the form.
+	 */
 
-    private void initComponents() {
-	jLabel1 = new javax.swing.JLabel();
-	jPatientCountTextField = new javax.swing.JTextField();
+	private void initComponents() {
+		jLabel1 = new javax.swing.JLabel();
+		jPatientCountTextField = new javax.swing.JTextField();
 
-	setLayout(null);
+		setLayout(null);
 
-	jLabel1.setText("Patient Count: ");
-	add(jLabel1);
-	jLabel1.setBounds(40, 20, 80, 20);
+		jLabel1.setText("Patient Count: ");
+		add(jLabel1);
+		jLabel1.setBounds(40, 20, 80, 20);
 
-	add(jPatientCountTextField);
-	jPatientCountTextField.setBounds(120, 20, 130, 20);
-    }
+		add(jPatientCountTextField);
+		jPatientCountTextField.setBounds(120, 20, 130, 20);
+	}
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JTextField jPatientCountTextField;
-    // End of variables declaration//GEN-END:variables
+	// Variables declaration - do not modify//GEN-BEGIN:variables
+	private javax.swing.JLabel jLabel1;
+	private javax.swing.JTextField jPatientCountTextField;
+	// End of variables declaration//GEN-END:variables
 
 }

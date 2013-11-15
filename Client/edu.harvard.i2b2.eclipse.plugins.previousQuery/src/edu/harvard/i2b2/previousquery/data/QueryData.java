@@ -33,57 +33,71 @@ import edu.harvard.i2b2.eclipse.UserInfoBean;
 
 abstract public class QueryData {
 	private String name;
+
 	public void name(String str) {
 		name = str;
 	}
+
 	public String name() {
 		return name;
 	}
 
 	private String id;
+
 	public void id(String str) {
 		id = str;
 	}
+
 	public String id() {
 		return id;
 	}
 
 	private String userId;
+
 	public void userId(String str) {
 		userId = str;
 	}
+
 	public String userId() {
 		return userId;
 	}
 
 	private String visualAttribute;
+
 	public void visualAttribute(String str) {
 		visualAttribute = new String(str);
 	}
+
 	public String visualAttribute() {
 		return visualAttribute;
 	}
 
 	private String tooltip;
+
 	public void tooltip(String str) {
 		tooltip = new String(str);
 	}
+
 	public String tooltip() {
 		return tooltip;
 	}
 
 	private String xmlContent;
+
 	public void xmlContent(String str) {
 		xmlContent = str;
 	}
+
 	public String xmlContent() {
 		return xmlContent;
 	}
 
 	private String queryName;
+
 	public void queryName(String str) {
 		queryName = str;
 	}
+
 	public String queryName() {
 		return queryName;
 	}

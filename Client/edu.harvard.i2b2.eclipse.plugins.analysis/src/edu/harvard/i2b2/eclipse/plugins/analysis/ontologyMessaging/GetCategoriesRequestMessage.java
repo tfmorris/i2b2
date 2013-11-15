@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution.  
@@ -21,6 +21,7 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.RequestHeaderType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.RequestMessageType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.GetReturnType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.GetCategoriesType;
 
 
 /**
@@ -44,7 +45,15 @@ public class GetCategoriesRequestMessage extends OntologyRequestData {
 		return returnType;
 	}
 	
-	
+	/**
+	 * Function to build get category type for a given request
+	 * 
+	 * @return GetCategoriesType object
+	 */
+	public GetCategoriesType getCategoriesType() { 
+		GetCategoriesType returnType = new GetCategoriesType();		
+		return returnType;
+	}
 	
 	/**
 	 * Function to build vocabData body type
@@ -54,7 +63,7 @@ public class GetCategoriesRequestMessage extends OntologyRequestData {
 	 */
 	
 	public BodyType getBodyType() {
-		GetReturnType returnType = getReturnType();
+		GetCategoriesType returnType = getCategoriesType();
 		edu.harvard.i2b2.crcxmljaxb.datavo.vdo.ObjectFactory of = new edu.harvard.i2b2.crcxmljaxb.datavo.vdo.ObjectFactory();
 		
 		BodyType bodyType = new BodyType();
@@ -69,7 +78,7 @@ public class GetCategoriesRequestMessage extends OntologyRequestData {
 	 * @return BodyType object
 	 */
 	
-	public BodyType getBodyType(GetReturnType returnType) {
+	public BodyType getBodyType(GetCategoriesType returnType) {
 		edu.harvard.i2b2.crcxmljaxb.datavo.vdo.ObjectFactory of = new edu.harvard.i2b2.crcxmljaxb.datavo.vdo.ObjectFactory();
 		
 		BodyType bodyType = new BodyType();
@@ -83,7 +92,7 @@ public class GetCategoriesRequestMessage extends OntologyRequestData {
 	 * @param GetChildrenType parentData (get children of this parent node)
 	 * @return A String data type containing the Ont RequestMessage in XML format
 	 */
-	public String doBuildXML(GetReturnType returnData){ 
+	public String doBuildXML(GetCategoriesType returnData){ 
 		String requestString = null;
 			try {
 				MessageHeaderType messageHeader = getMessageHeader(); 

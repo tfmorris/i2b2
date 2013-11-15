@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.eclipse.plugins.analysis.utils.MessageUtil;
 
+import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.GetCategoriesType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.GetChildrenType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.GetReturnType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.GetTermInfoType;
@@ -121,7 +122,7 @@ public class OntServiceDriver {
 	 * @return A String containing the ONT web service response 
 	 */
 	
-	public static String getCategories(GetReturnType returnData, String type) throws Exception {
+	public static String getCategories(GetCategoriesType returnData, String type) throws Exception {
 		String response = null;
 			 try {
 				 GetCategoriesRequestMessage reqMsg = new GetCategoriesRequestMessage();

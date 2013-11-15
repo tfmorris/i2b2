@@ -15,7 +15,7 @@
 <!--  Views 
   --> 
   <context id="navigate_terms_view_help_context" title="i2b2 Navigate Terms View">
-    <description>This view allows users to find terms.</description> 
+    <description>This view allows users to browse for terms.</description> 
   <topic href="html/i2b2_navigate_terms_index.htm" label="Concepts: Navigate Terms View" /> 
   </context>
 

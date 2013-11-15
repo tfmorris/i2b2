@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution.
@@ -116,7 +116,7 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 		String num = jNumberOfQueryTextField.getText();
 		String seconds = jMaxWaitingTimeTextField.getText();
 
-		queryView_.queryPanel().getTopPanel().max_child(
+		queryView_.queryToolPanel().getTopPanel().max_child(
 				new Integer(num).intValue());
 		System.setProperty("QueryToolMaxWaitingTime", seconds);
 		setVisible(false);

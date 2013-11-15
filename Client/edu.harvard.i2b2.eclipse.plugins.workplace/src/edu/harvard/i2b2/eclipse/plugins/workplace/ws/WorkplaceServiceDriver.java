@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -44,6 +44,7 @@ import edu.harvard.i2b2.wkplclient.datavo.wdo.FolderType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.GetChildrenType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.GetReturnType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.RenameChildType;
+import edu.harvard.i2b2.wkplclient.datavo.wdo.ExportChildType;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.xml.*;
 
@@ -73,6 +74,10 @@ public class WorkplaceServiceDriver {
 	
 	private static EndpointReference annotateEPR = new EndpointReference(
 			serviceURL + "annotateChild");
+	
+	private static EndpointReference exportEPR = new EndpointReference(
+			serviceURL + "exportChild");
+
 	
 	private static EndpointReference moveEPR = new EndpointReference(
 			serviceURL + "moveChild");
@@ -317,6 +322,40 @@ public class WorkplaceServiceDriver {
 		}
 		return response;
 	}
+
+	/**
+	 * Function to send exportChild requestWdo to WORK web service
+	 * 
+	 * @param svaeChildType  childNode we wish to annotate
+	 * @return A String containing the WORK web service response 
+	 */
+	
+	public static String exportChild(ExportChildType childNode) throws Exception{
+		String response = null;
+
+		try {
+			ExportChildRequestMessage reqMsg = new ExportChildRequestMessage();
+
+			String exportChildRequestString = reqMsg.doBuildXML(childNode);
+			log.debug(exportChildRequestString);
+
+			if(serviceMethod.equals("SOAP")) { 
+				log.error("SOAP version of exportChild has not been implemented");
+				response = sendREST(exportEPR, exportChildRequestString);
+			}
+			else {
+				response = sendREST(exportEPR, exportChildRequestString);
+			}
+		} catch (AxisFault e) {
+			log.error(e.getMessage());
+			throw new AxisFault(e);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			throw new Exception(e);
+		}
+		return response;
+	}
+
 
 	
 	/**

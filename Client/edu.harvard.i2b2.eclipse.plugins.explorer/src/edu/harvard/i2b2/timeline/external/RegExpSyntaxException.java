@@ -16,17 +16,17 @@ package edu.harvard.i2b2.timeline.external;
  */
 public class RegExpSyntaxException extends Exception {
 
-    /**
-     * Constructs a RegExpSyntaxException with no detail message.
-     */
-    public RegExpSyntaxException() {
-	super();
-    }
+	/**
+	 * Constructs a RegExpSyntaxException with no detail message.
+	 */
+	public RegExpSyntaxException() {
+		super();
+	}
 
-    /**
-     * Constructs a RegExpSyntaxException with the specified detail message.
-     */
-    public RegExpSyntaxException(String s) {
-	super(s);
-    }
+	/**
+	 * Constructs a RegExpSyntaxException with the specified detail message.
+	 */
+	public RegExpSyntaxException(String s) {
+		super(s);
+	}
 }

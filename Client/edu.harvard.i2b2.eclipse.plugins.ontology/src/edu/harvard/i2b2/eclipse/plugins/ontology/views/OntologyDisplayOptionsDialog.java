@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -27,7 +27,10 @@ public class OntologyDisplayOptionsDialog extends Dialog {
 	private Text maximum = null;
 	private Button showHiddens = null;
 	private Button showSynonyms = null;
-	
+	private Button showPatientCount = null;
+	private Button showShortTooltips = null;
+	private Button showConceptCode = null;
+	private Button disableModifiers = null;
     /**
      * Creates new form OntologyOptionsDialog
      */
@@ -65,6 +68,26 @@ public class OntologyDisplayOptionsDialog extends Dialog {
     	showSynonyms.setSelection(Boolean.parseBoolean(
 				System.getProperty("OntSynonyms")));
 
+    	showPatientCount = new Button(compOptions, SWT.CHECK);
+    	showPatientCount.setText("Show patient count");
+    	showPatientCount.setSelection(Boolean.parseBoolean(
+				System.getProperty("OntPatientCount")));
+    	
+    	showShortTooltips = new Button(compOptions, SWT.CHECK);
+    	showShortTooltips.setText("Show short tooltips");
+    	showShortTooltips.setSelection(Boolean.parseBoolean(
+				System.getProperty("OntShortTooltips")));
+    	
+    	showConceptCode = new Button(compOptions, SWT.CHECK);
+    	showConceptCode.setText("Show concept code in tooltip");
+    	showConceptCode.setSelection(Boolean.parseBoolean(
+				System.getProperty("OntConceptCode")));   	
+    	
+    	disableModifiers = new Button(compOptions, SWT.CHECK);
+    	disableModifiers.setText("Disable display of modifiers");
+    	disableModifiers.setSelection(Boolean.parseBoolean(
+				System.getProperty("OntDisableModifiers")));  
+    	
     	return parent;
     }
     
@@ -92,6 +115,23 @@ public class OntologyDisplayOptionsDialog extends Dialog {
     			System.setProperty("OntSynonyms",  UserInfoBean.getInstance().getCellDataParam("ont","OntSynonyms"));	
     		else
     			System.setProperty("OntSynonyms","false");
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntPatientCount") != null)
+    			System.setProperty("OntPatientCount",  UserInfoBean.getInstance().getCellDataParam("ont","OntPatientCount"));	
+    		else
+    			System.setProperty("OntPatientCount","false");
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntShortTooltips") != null)
+    			System.setProperty("OntShortTooltips",  UserInfoBean.getInstance().getCellDataParam("ont","OntShortTooltips"));	
+    		else
+    			System.setProperty("OntShortTooltips","false");
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntConceptCode") != null)
+    			System.setProperty("OntConceptCode",  UserInfoBean.getInstance().getCellDataParam("ont","OntConceptCode"));	
+    		else
+    			System.setProperty("OntConceptCode","false");
+    		
+    		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntDisableModifiers") != null)
+    			System.setProperty("OntDisableModifiers",  UserInfoBean.getInstance().getCellDataParam("ont","OntDisableModifiers"));	
+    		else
+    			System.setProperty("OntDisableModifiers","false");
     		
     		maximum.setText(System.getProperty("OntMax"));
     		showHiddens.setSelection(Boolean.parseBoolean(
@@ -99,6 +139,19 @@ public class OntologyDisplayOptionsDialog extends Dialog {
         	
     		showSynonyms.setSelection(Boolean.parseBoolean(
     				System.getProperty("OntSynonyms")));
+
+    		showPatientCount.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntPatientCount")));
+
+    		showShortTooltips.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntShortTooltips")));
+    		
+    		showConceptCode.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntConceptCode")));
+    		
+    		disableModifiers.setSelection(Boolean.parseBoolean(
+    				System.getProperty("OntDisableModifiers")));
+
     		
     	}	
     	// OK
@@ -123,6 +176,11 @@ public class OntologyDisplayOptionsDialog extends Dialog {
     		System.setProperty("OntMax", maximum.getText());
     		System.setProperty("OntHiddens", String.valueOf(showHiddens.getSelection()));
       		System.setProperty("OntSynonyms", String.valueOf(showSynonyms.getSelection()));
+      		System.setProperty("OntPatientCount",  String.valueOf(showPatientCount.getSelection()));
+      		System.setProperty("OntShortTooltips",  String.valueOf(showShortTooltips.getSelection()));
+      		System.setProperty("OntConceptCode",  String.valueOf(showConceptCode.getSelection()));
+      		System.setProperty("OntDisableModifiers",  String.valueOf(disableModifiers.getSelection()));
+      		      		
 
         	close();
     	}

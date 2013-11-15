@@ -15,49 +15,49 @@ package edu.harvard.i2b2.timeline.external;
  * A class used in pattern matching.
  */
 public class MatchInfo {
-    int start;
-    int end;
-    String matchString;
+	int start;
+	int end;
+	String matchString;
 
-    /**
-     * Constructor.
-     */
-    public MatchInfo() {
-	this(0, 0, "");
-    }
+	/**
+	 * Constructor.
+	 */
+	public MatchInfo() {
+		this(0, 0, "");
+	}
 
-    /**
-     * Constructor.
-     */
-    public MatchInfo(int start, int end, String matchString) {
-	this.start = start;
-	this.end = end;
-	this.matchString = matchString;
-    }
+	/**
+	 * Constructor.
+	 */
+	public MatchInfo(int start, int end, String matchString) {
+		this.start = start;
+		this.end = end;
+		this.matchString = matchString;
+	}
 
-    /**
-     * Returns the start index of the matched string.
-     */
-    public int start() {
-	return start;
-    }
+	/**
+	 * Returns the start index of the matched string.
+	 */
+	public int start() {
+		return start;
+	}
 
-    /**
-     * Returns the end index of the matched string.
-     */
-    public int end() {
-	return end;
-    }
+	/**
+	 * Returns the end index of the matched string.
+	 */
+	public int end() {
+		return end;
+	}
 
-    /**
-     * Returns the matched string.
-     */
-    public String matchString() {
-	return matchString;
-    }
+	/**
+	 * Returns the matched string.
+	 */
+	public String matchString() {
+		return matchString;
+	}
 
-    @Override
-    public String toString() {
-	return "(" + start + ":" + (end - start) + ":\"" + matchString + "\")";
-    }
+	@Override
+	public String toString() {
+		return "(" + start + ":" + (end - start) + ":\"" + matchString + "\")";
+	}
 }

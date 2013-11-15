@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2010 Massachusetts General Hospital 
+* Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
 * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -56,6 +56,8 @@ public class ReLoginDialog extends Dialog {
 	private String input; // return from dialog
 
 	private UserInfoBean userInfo ; //return from dialog
+	
+	private static int iDEFAULT_TIMEOUTINMILLISECONDS = 1800000;
 
 	private String userid; 
 
@@ -370,7 +372,9 @@ public class ReLoginDialog extends Dialog {
 				PasswordType ptype = new PasswordType();
 				ptype.setValue(textPassword.getText());
 				ptype.setIsToken(false);
+				ptype.setTokenMsTimeout(getWorkbenchTimeoutInMiliseconds());
 				
+
 					LoginThread loginThread = new LoginThread(textUser.getText()
 							.trim(), ptype,
 							currentPrj.getUrl(),
@@ -480,6 +484,29 @@ public class ReLoginDialog extends Dialog {
 		return null;
 	}
 
+	/**
+	 * Method to get the timeout in milliseconds of the workbench token from
+	 * the workbench properties file.
+	 * 
+	 * @return  int TimeoutInMilliseconds
+	 * 
+	 */
+	private int getWorkbenchTimeoutInMiliseconds() {
+		Properties properties = new Properties();
+		String sTimeout=""; //$NON-NLS-1$
+		int iTimeoutInMilliseconds = iDEFAULT_TIMEOUTINMILLISECONDS;
+		String filename=Messages.getString("Application.PropertiesFile"); //$NON-NLS-1$
+		try {
+			properties.load(new FileInputStream(filename));
+			sTimeout=properties.getProperty("TimeoutInMilliseconds"); //$NON-NLS-1$
+			iTimeoutInMilliseconds = Integer.parseInt(sTimeout);
+		} catch (Exception e) {
+			log.info("Could not find TimeoutInMilliseconds in " + filename); 
+			iTimeoutInMilliseconds = iDEFAULT_TIMEOUTINMILLISECONDS;
+		}
+		log.info("workbench timeout in milliseconds set to: " + iTimeoutInMilliseconds); //$NON-NLS-1$
+		return iTimeoutInMilliseconds;
+	}
 
 
 	/**

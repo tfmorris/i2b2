@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -26,7 +26,6 @@ import edu.harvard.i2b2.explorer.dataModel.QueryModel;
 public class NumericValueConstraintFrame extends javax.swing.JFrame {
 	private QueryModel data;
 	private KTable table;
-	
 
 	/** Creates new form ValueConstrainFrame */
 	public NumericValueConstraintFrame(QueryModel data_, KTable table_) {
@@ -57,7 +56,7 @@ public class NumericValueConstraintFrame extends javax.swing.JFrame {
 		for (int i = 0; i < data.valueModel().units.size(); i++) {
 			jUnitsComboBox.addItem(data.valueModel().units.get(i));
 		}
-		jUnitsComboBox.setSelectedIndex(0);
+		//jUnitsComboBox.setSelectedIndex(0);
 		setPreviousValues();
 
 	}
@@ -267,7 +266,7 @@ public class NumericValueConstraintFrame extends javax.swing.JFrame {
 		jLabel4.setBounds(10, 10, 130, 20);
 
 		jFlagComboBox.setModel(new javax.swing.DefaultComboBoxModel(
-				new String[]{"HIGH", "LOW"}));
+				new String[] { "HIGH", "LOW" }));
 		jFlagComboBox.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				jFlagComboBoxActionPerformed(evt);
@@ -287,9 +286,9 @@ public class NumericValueConstraintFrame extends javax.swing.JFrame {
 		jLabel5.setBounds(10, 0, 170, 20);
 
 		jOperatorComboBox.setModel(new javax.swing.DefaultComboBoxModel(
-				new String[]{"LESS THAN (<)", "LESS THAN OR EQUAL TO (<=)",
+				new String[] { "LESS THAN (<)", "LESS THAN OR EQUAL TO (<=)",
 						"EQUAL TO (=)", "BETWEEN", "GREATER THAN (>)",
-						"GREATER THAN OR EQUAL TO (>=)"}));
+						"GREATER THAN OR EQUAL TO (>=)" }));
 		jOperatorComboBox
 				.addActionListener(new java.awt.event.ActionListener() {
 					public void actionPerformed(java.awt.event.ActionEvent evt) {

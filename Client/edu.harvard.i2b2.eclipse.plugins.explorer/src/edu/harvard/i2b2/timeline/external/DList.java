@@ -17,39 +17,39 @@ import java.util.*;
  * A class that express list of reachable NFA state set.
  */
 class DList {
-    private Chars chars;
-    private BitSet to; // a set of NFA state
-    private DList next;
+	private Chars chars;
+	private BitSet to; // a set of NFA state
+	private DList next;
 
-    /*
-     * The constructor.
-     */
-    public DList() {
-	this(null, new BitSet(), null);
-    }
+	/*
+	 * The constructor.
+	 */
+	public DList() {
+		this(null, new BitSet(), null);
+	}
 
-    /*
-     * The constructor.
-     */
-    public DList(Chars chars, BitSet to, DList next) {
-	this.chars = chars;
-	this.to = to;
-	this.next = next;
-    }
+	/*
+	 * The constructor.
+	 */
+	public DList(Chars chars, BitSet to, DList next) {
+		this.chars = chars;
+		this.to = to;
+		this.next = next;
+	}
 
-    public Chars chars() {
-	return chars;
-    }
+	public Chars chars() {
+		return chars;
+	}
 
-    public BitSet to() {
-	return to;
-    }
+	public BitSet to() {
+		return to;
+	}
 
-    public DList next() {
-	return next;
-    }
+	public DList next() {
+		return next;
+	}
 
-    public void setNext(DList dl) {
-	next = dl;
-    }
+	public void setNext(DList dl) {
+		next = dl;
+	}
 }

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2010 Massachusetts General Hospital 
+* Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
 * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -152,6 +152,7 @@ public class LoginHelper {
 			else
 			{
 				getUserInfoRequestString = reqMsg.doBuildXML(userConfig);
+				log.info("PM request: /n"+getUserInfoRequestString);
 				if(System.getProperty("webServiceMethod").equals("SOAP")) { //$NON-NLS-1$ //$NON-NLS-2$
 					response = sendSOAP(new EndpointReference(projectID), getUserInfoRequestString, "http://rpdr.partners.org/GetUserConfiguration", "GetUserConfiguration"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
@@ -266,7 +267,7 @@ public class LoginHelper {
 	}
 	
 	public void setUserInfo(String responseXML) throws Exception {
-		
+		log.info("PM response message: /n"+responseXML);
 		UserInfoBean.pmResponse(responseXML);
 		
 		JAXBUtil jaxbUtil = new JAXBUtil(new String[] {
@@ -279,6 +280,10 @@ public class LoginHelper {
 		String procStatus = responseMessageType.getResponseHeader().getResultStatus().getStatus().getType();
 		String procMessage = responseMessageType.getResponseHeader().getResultStatus().getStatus().getValue();
 
+		//String serverVersion = responseMessageType.getMessageHeader()
+		//.getSendingApplication().getApplicationVersion();
+		//System.setProperty("serverVersion", serverVersion);
+		
 		if(procStatus.equals("ERROR")){ //$NON-NLS-1$
 			setMsg(procMessage);				
 		}

@@ -12,6 +12,7 @@
 package edu.harvard.i2b2.timeline.labeling;
 
 import java.awt.*;
+
 import edu.harvard.i2b2.timeline.lifelines.Record;
 
 /**

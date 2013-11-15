@@ -30,65 +30,77 @@
  * THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF LIABILITY, ARISING OUT
  * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-  
+
 package edu.harvard.i2b2.timeline.excentric;
 
 import java.awt.*;
 
 /**
- * A <code>LiteDisplacedLabel</code> is a <code>LiteGroup</code>
- * containing (initially) a <code>LiteLabel</code> and a
- * <code>LiteLine</code>.  
+ * A <code>LiteDisplacedLabel</code> is a <code>LiteGroup</code> containing
+ * (initially) a <code>LiteLabel</code> and a <code>LiteLine</code>.
  * <p>
- * It is meant to represent a displaced label with a line pointing at
- * the origin.
+ * It is meant to represent a displaced label with a line pointing at the
+ * origin.
  * <p>
- * Note that other <code>Lite</code> objects can be added to the group
- * without hurting the interface, as long as the label and the line
- * are not removed.
+ * Note that other <code>Lite</code> objects can be added to the group without
+ * hurting the interface, as long as the label and the line are not removed.
  * 
- * @version 	0.1, 08/04/98
- * @author 	Jean-Daniel Fekete
- * @since       JDK1.1.5
+ * @version 0.1, 08/04/98
+ * @author Jean-Daniel Fekete
+ * @since JDK1.1.5
  */
 
-
 public class LiteDisplacedLabel extends LiteGroup {
-    int item = 1;
-  /**
-   * Only constructor.
-   * <p>
-   * @param	s	Label string.
-   * @param	p1	Position of the label and of a line endpoint.
-   * @param	p2	Position of the other line's endpoint.
-   * @param	border	0 for no border and any other value for a border.
-   * @param	f	Font of the label, or <code>null</code> for
-   the default.
-   * @param	fg	Foreground color, used for borders and lines.
-   * @param	bg	background color for the label.
-   */
-  public LiteDisplacedLabel(String s, Point p1, Point p2,
-		     int border, Font f, Color fg, Color bg) {
-    super(2);
-    item = 2;
-    addElement(new LiteLine(p1, p2, border, fg));
-    addElement(new LiteLabel(s, p1, border, f, fg, bg));
-  }
+	int item = 1;
 
-  public LiteDisplacedLabel(String s, Point p1,
-		     int border, Font f, Color fg, Color bg) {
-    super(1);
-    addElement(new LiteLabel(s, p1, border, f, fg, bg));
-  }
+	/**
+	 * Only constructor.
+	 * <p>
+	 * 
+	 * @param s
+	 *            Label string.
+	 * @param p1
+	 *            Position of the label and of a line endpoint.
+	 * @param p2
+	 *            Position of the other line's endpoint.
+	 * @param border
+	 *            0 for no border and any other value for a border.
+	 * @param f
+	 *            Font of the label, or <code>null</code> for the default.
+	 * @param fg
+	 *            Foreground color, used for borders and lines.
+	 * @param bg
+	 *            background color for the label.
+	 */
+	public LiteDisplacedLabel(String s, Point p1, Point p2, int border, Font f,
+			Color fg, Color bg) {
+		super(2);
+		item = 2;
+		addElement(new LiteLine(p1, p2, border, fg));
+		addElement(new LiteLabel(s, p1, border, f, fg, bg));
+	}
 
-  /**
-   * @return the <code>LiteLine</code>.
-   */
-  public LiteLine getLine() { return (LiteLine)elementAt(0); }
-  /**
-   * @return the <code>LiteLabel</code>.
-   */
-  public LiteLabel getLabel() { return (LiteLabel)elementAt(item-1); }
-  
-  public int getItem() { return item; }
+	public LiteDisplacedLabel(String s, Point p1, int border, Font f, Color fg,
+			Color bg) {
+		super(1);
+		addElement(new LiteLabel(s, p1, border, f, fg, bg));
+	}
+
+	/**
+	 * @return the <code>LiteLine</code>.
+	 */
+	public LiteLine getLine() {
+		return (LiteLine) elementAt(0);
+	}
+
+	/**
+	 * @return the <code>LiteLabel</code>.
+	 */
+	public LiteLabel getLabel() {
+		return (LiteLabel) elementAt(item - 1);
+	}
+
+	public int getItem() {
+		return item;
+	}
 };

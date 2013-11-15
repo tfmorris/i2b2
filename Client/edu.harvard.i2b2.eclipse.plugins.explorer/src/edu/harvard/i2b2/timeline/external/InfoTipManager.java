@@ -16,52 +16,52 @@ import java.awt.Panel;
  * @author Symantec
  */
 public class InfoTipManager {
-    private static Panel infoTipPanel;
+	private static Panel infoTipPanel;
 
-    /**
-     * Do not use, this is an all-static class.
-     */
-    public InfoTipManager() {
-    }
-
-    /**
-     * Creates a new panel for the InfoTip as needed, and then returns it. The
-     * InfoTip is drawn in this panel.
-     * 
-     * @return a panel for the InfoTip
-     */
-    public static Panel getInfoTipPanel() {
-	if (infoTipPanel == null) {
-	    infoTipPanel = new Panel();
-	    infoTipPanel.hide();
-	    infoTipPanel.setLayout(null);
+	/**
+	 * Do not use, this is an all-static class.
+	 */
+	public InfoTipManager() {
 	}
 
-	return infoTipPanel;
-    }
+	/**
+	 * Creates a new panel for the InfoTip as needed, and then returns it. The
+	 * InfoTip is drawn in this panel.
+	 * 
+	 * @return a panel for the InfoTip
+	 */
+	public static Panel getInfoTipPanel() {
+		if (infoTipPanel == null) {
+			infoTipPanel = new Panel();
+			infoTipPanel.hide();
+			infoTipPanel.setLayout(null);
+		}
 
-    /**
-     * Draws the InfoTip in the InfoTip panel.
-     * 
-     * @param x
-     *            location of the InfoTip, x coordinate
-     * @param y
-     *            location of the InfoTip, y coordinate
-     * @param s
-     *            text to display in the InfoTip
-     * @param fm
-     *            font used for InfoTip text
-     * @param bc
-     *            background color used for the InfoTip
-     * @param fc
-     *            foreground color used for the InfoTip
-     * @see #getInfoTipPanel
-     */
-    public static void draw(int x, int y, String s, FontMetrics fm, Color bc,
-	    Color fc) {
-	infoTipPanel.reshape(x, y, fm.stringWidth(s) + 20, fm.getHeight());
-	infoTipPanel.setBackground(bc);
-	infoTipPanel.setForeground(fc);
-	infoTipPanel.show();
-    }
+		return infoTipPanel;
+	}
+
+	/**
+	 * Draws the InfoTip in the InfoTip panel.
+	 * 
+	 * @param x
+	 *            location of the InfoTip, x coordinate
+	 * @param y
+	 *            location of the InfoTip, y coordinate
+	 * @param s
+	 *            text to display in the InfoTip
+	 * @param fm
+	 *            font used for InfoTip text
+	 * @param bc
+	 *            background color used for the InfoTip
+	 * @param fc
+	 *            foreground color used for the InfoTip
+	 * @see #getInfoTipPanel
+	 */
+	public static void draw(int x, int y, String s, FontMetrics fm, Color bc,
+			Color fc) {
+		infoTipPanel.reshape(x, y, fm.stringWidth(s) + 20, fm.getHeight());
+		infoTipPanel.setBackground(bc);
+		infoTipPanel.setForeground(fc);
+		infoTipPanel.show();
+	}
 }

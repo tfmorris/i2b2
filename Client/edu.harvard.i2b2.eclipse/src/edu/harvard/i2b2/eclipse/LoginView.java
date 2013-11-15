@@ -1,7 +1,7 @@
 /*
-* Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
-* are made available under the terms of the i2b2 Software License v2.1 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors:
@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import javax.swing.JFrame;
-
+import java.io.FileInputStream;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,6 +55,7 @@ public class LoginView extends ViewPart  {
 
 	private static Log log = LogFactory.getLog(LoginView.class.getName());
 
+	private static int iDEFAULT_TIMEOUTINMILLISECONDS = 1800000;
 	private Composite top;
 	public String msTitle = ""; //i2b2 Workbench for Asthma Project"; //$NON-NLS-1$
 	public String msUsername = ""; //$NON-NLS-1$
@@ -160,42 +162,42 @@ public class LoginView extends ViewPart  {
 			return;
 		}
 
-		
+
 		// local variable to get system fonts and colors
 		final Display display = parent.getDisplay();
-		
-		
+
+
 		/* TODO disabled screensaver */
 
 		user = userInfoBean.getUserName();
 		//password = userInfoBean.getOrigPassword();
 		project= Application.project;
 		new Thread() {
-	        public void run() {
-	        	while (true) {
-	            try {
-	              Thread.sleep(1000);
-	            } catch (Throwable th) {
-	            }
-	            if (display.isDisposed())
-	              return;
-	            display.asyncExec(new Runnable() {
-	              public void run() {
-	  				checkSessionExpired();
-	  				try{
-	  					checkScreenSaver(parent.getShell(), Application.getLastUsed()); //display.getActiveShell());
-	  				}
-	  				catch(Exception e) {
-	  					return;
-	  				}	  				
-	              }
-	            });
-	          }
-	        }
-	      }.start();
-		 
+			public void run() {
+				while (true) {
+					try {
+						Thread.sleep(1000);
+					} catch (Throwable th) {
+					}
+					if (display.isDisposed())
+						return;
+					display.asyncExec(new Runnable() {
+						public void run() {
+							checkSessionExpired();
+							try{
+								checkScreenSaver(parent.getShell(), Application.getLastUsed()); //display.getActiveShell());
+							}
+							catch(Exception e) {
+								return;
+							}	  				
+						}
+					});
+				}
+			}
+		}.start();
 
-		
+
+
 		final Font headerFont = new Font(display, "Tahoma", 12, SWT.BOLD); //$NON-NLS-1$
 		final Font normalFont = new Font(display, "Tahoma", 12, SWT.NORMAL); //$NON-NLS-1$
 		final Font buttonFont = new Font(display, "Tahoma", 9, SWT.NORMAL); //$NON-NLS-1$
@@ -287,8 +289,8 @@ public class LoginView extends ViewPart  {
 		{
 			for (String param :roles)
 				rolesStr += param + "\n"; //$NON-NLS-1$
-			if (rolesStr.length() > 1)
-				rolesStr = rolesStr.substring(0, rolesStr.length()-1);
+					if (rolesStr.length() > 1)
+						rolesStr = rolesStr.substring(0, rolesStr.length()-1);
 		}
 		authorizationLabel.setToolTipText(rolesStr);
 
@@ -444,7 +446,7 @@ public class LoginView extends ViewPart  {
 		};
 
 
-		
+
 		getViewSite().getActionBars().setGlobalActionHandler("properties", propertyAction); //$NON-NLS-1$
 	}
 
@@ -453,43 +455,51 @@ public class LoginView extends ViewPart  {
 	private static Project project = null;
 	private static String user = null;
 	//private static String password = null;
-	
+
 	private void checkSessionExpired()
 	{
 
 		//		make a date to compare with
 
-		if(UserInfoBean.getLastActivityTime()==null || this.inSessionExpired) return;
+		if(UserInfoBean.getLastActivityTime()==null || this.inSessionExpired ||this.inScreenSaver) return;
 		this.inSessionExpired=true;
 		try {
 			Calendar c=Calendar.getInstance();
-			if (UserInfoBean.getInstance().getUserPasswordTimeout() == -1)
+			if (UserInfoBean.getInstance().getUserPasswordTimeout() < 60000)
 			{
-				c.add(Calendar.MINUTE,-20); //TODO changed from -20 to -1
+				c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout());//-6000); //TODO changed from -20 to -1
 			} else {
-			c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout());//-20); //subtract 20 minutes;
+				c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout()+60000);//-20); //subtract 20 minutes;
 			}
+			
+			//log.info("timeout: " + UserInfoBean.getInstance().getUserPasswordTimeout());
+			//log.info("last activity: " + UserInfoBean.getLastActivityTime()
+					//+ " c_time: "+ c.getTime() + " current: "+ Calendar.getInstance().getTime());
 
 			if(!UserInfoBean.getLastActivityTime().after(c.getTime()))
 			{
 				LoginHelper loginHelper = new LoginHelper();
-				
+
 				/*
 				PasswordType ptype = new PasswordType();
 				ptype.setValue(password);
 				ptype.setIsToken(false);
-				*/
-				
-				PasswordType ptype = UserInfoBean.getInstance().getUserPasswordType();
+				 */
 
+				PasswordType ptype = UserInfoBean.getInstance().getUserPasswordType();
+				ptype.setIsToken(false);
+				ptype.setTokenMsTimeout(getWorkbenchTimeoutInMiliseconds());
+				
 				UserInfoBean ubean = loginHelper.getUserInfo(
 						user, ptype, project.getUrl(), project.getName(), false);
 
-				
+
 				UserInfoBean.getInstance().setUserPassword(ubean.getUserPassword());
 				UserInfoBean.setLastActivityTime(Calendar.getInstance().getTime());
 
-				System.out.println("New Seesion is: " + UserInfoBean.getInstance().getUserPassword());
+				log.info("Start new session: " + UserInfoBean.getInstance().getUserPassword()
+						+ " at "+ Calendar.getInstance().getTime());
+				//System.out.println("New Seesion is: " + UserInfoBean.getInstance().getUserPassword());
 			}
 		} catch (Exception e)
 		{
@@ -499,8 +509,8 @@ public class LoginView extends ViewPart  {
 		}
 		return;
 	}
-	
-	
+
+
 	private void checkScreenSaver(Shell shell, Date lastUsed)
 	{
 
@@ -510,40 +520,29 @@ public class LoginView extends ViewPart  {
 		{
 			this.inScreenSaver=false;
 			return;
-			
+
 		}
 		if(UserInfoBean.getScreenSaverTimer()==null || this.inScreenSaver) return;
 		this.inScreenSaver=true;
 		try {
 			Calendar c=Calendar.getInstance();
 			UserInfoBean.setScreenSaverTimer(lastUsed);
-			
-			if (UserInfoBean.getInstance().getUserPasswordTimeout() == -1)
+
+			if (UserInfoBean.getInstance().getUserPasswordTimeout() < 60000)
 			{
-				c.add(Calendar.MINUTE,-20); //TODO changed from -20 to -1
+				c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout()); //-6000); //TODO changed from -20 to -1
+
 			} else {
-				//c.add(Calendar.MINUTE,-1); 
-				c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout());//-20); //subtract 20 minutes;
+				//c.add(Calendar.MINUTE,-20); 
+				c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout() + 60000);//-20); //subtract 20 minutes;
 			}
 
+			//log.info("timeout: " + UserInfoBean.getInstance().getUserPasswordTimeout());
+			//log.info("screen saver: " + UserInfoBean.getScreenSaverTimer()
+					//+ " c_time: "+ c.getTime() + " current: "+ Calendar.getInstance().getTime());
 			if(!UserInfoBean.getScreenSaverTimer().after(c.getTime()))
 
 			{
-				
-				/* Just display prompt, dont delete anything
-
-				//make the client unusable until you re-login
-				PasswordType ptype = new PasswordType();
-				ptype.setValue(null);
-				ptype.setIsToken(false);
-				
-				//make the client unusable until you re-login
-				UserInfoBean.getInstance().setUserPassword(ptype);
-				UserInfoBean.getInstance().setUserName(null);
-
-				//UserInfoBean.getReauthenticateTask().cancel();
-				// if login action true open dialog and wait for return
-				*/
 
 				UserInfoBean userInfoBean = null;
 				do {
@@ -553,12 +552,15 @@ public class LoginView extends ViewPart  {
 					loginDialog.setCurrentPrj(project);
 
 					userInfoBean = loginDialog.open();		
-					
+
 					//activeShell.close();
 
 				}
 				while (userInfoBean == null);
 				UserInfoBean.setScreenSaverTimer(Calendar.getInstance().getTime());
+				UserInfoBean.getInstance().setUserPassword(userInfoBean.getUserPasswordType());
+				log.info("Start new session (Screen saver): " + UserInfoBean.getInstance().getUserPassword()
+						+ " at "+ Calendar.getInstance().getTime());
 			}
 		} catch (Exception e)
 		{
@@ -568,7 +570,7 @@ public class LoginView extends ViewPart  {
 		}
 		return;
 	}
-	
+
 	private void getCellStatus(StatusLabelPaintListener statusLabelPaintListener2, Label statusLabel)
 	{
 		StringBuffer result = new StringBuffer();
@@ -709,6 +711,30 @@ public class LoginView extends ViewPart  {
 			}
 			e.gc.fillOval(0, 0, 16, 16);
 		}
+	}
+	
+	/**
+	 * Method to get the timeout in milliseconds of the workbench token from
+	 * the workbench properties file.
+	 * 
+	 * @return  int TimeoutInMilliseconds
+	 * 
+	 */
+	private int getWorkbenchTimeoutInMiliseconds() {
+		Properties properties = new Properties();
+		String sTimeout=""; //$NON-NLS-1$
+		int iTimeoutInMilliseconds = iDEFAULT_TIMEOUTINMILLISECONDS;
+		String filename=Messages.getString("Application.PropertiesFile"); //$NON-NLS-1$
+		try {
+			properties.load(new FileInputStream(filename));
+			sTimeout=properties.getProperty("TimeoutInMilliseconds"); //$NON-NLS-1$
+			iTimeoutInMilliseconds = Integer.parseInt(sTimeout);
+		} catch (Exception e) {
+			log.info("Could not find TimeoutInMilliseconds in " + filename); 
+			iTimeoutInMilliseconds = iDEFAULT_TIMEOUTINMILLISECONDS;
+		}
+		log.info("workbench timeout in milliseconds set to: " + iTimeoutInMilliseconds); //$NON-NLS-1$
+		return iTimeoutInMilliseconds;
 	}
 
 	/**

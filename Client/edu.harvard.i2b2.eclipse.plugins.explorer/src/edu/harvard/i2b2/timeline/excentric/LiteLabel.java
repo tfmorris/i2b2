@@ -95,8 +95,8 @@ public class LiteLabel extends Lite {
 	 *            The color of the border. Note that the text is always painted
 	 *            in black for the moment (this is arguable).
 	 * @param bg
-	 *            The color of the background, or <code>null</code> is no
-	 *            color is required.
+	 *            The color of the background, or <code>null</code> is no color
+	 *            is required.
 	 */
 	public LiteLabel(String s, Point p, int border, Font f, Color fg, Color bg) {
 		this.text = s;
@@ -246,16 +246,16 @@ public class LiteLabel extends Lite {
 
 	/**
 	 * @return the alignment of this label, which can be
-	 *         <code>LiteLabel.LEFT</code>, <code>LiteLabel.CENTER</code>
-	 *         and <code>LiteLabel.RIGHT</code>. public int getAlignment() {
-	 *         return alignment; }
+	 *         <code>LiteLabel.LEFT</code>, <code>LiteLabel.CENTER</code> and
+	 *         <code>LiteLabel.RIGHT</code>. public int getAlignment() { return
+	 *         alignment; }
 	 * 
-	 * /** Modifies the alignment of this label.
+	 *         /** Modifies the alignment of this label.
 	 * 
 	 * @param a
 	 *            New alignment value, which can be <code>LiteLabel.LEFT</code>,
-	 *            <code>LiteLabel.CENTER</code> and
-	 *            <code>LiteLabel.RIGHT</code>.
+	 *            <code>LiteLabel.CENTER</code> and <code>LiteLabel.RIGHT</code>
+	 *            .
 	 */
 	public void setAlignment(int a) {
 		invalidate();

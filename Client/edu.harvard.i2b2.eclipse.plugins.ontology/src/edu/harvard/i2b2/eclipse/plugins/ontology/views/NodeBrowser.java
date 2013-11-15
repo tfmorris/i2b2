@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -11,8 +11,10 @@ package edu.harvard.i2b2.eclipse.plugins.ontology.views;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.ITreeViewerListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeExpansionEvent;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -25,7 +27,6 @@ import org.eclipse.jface.window.*;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.StatusLineManager;
 
 import org.eclipse.swt.SWT;
@@ -85,6 +86,12 @@ public class NodeBrowser extends ApplicationWindow
 	  this.imageRegistry.put("closedFolder", imageDescriptor);
 	  imageDescriptor = ImageDescriptor.createFromFile(getClass(), "icons/closedCase.jpg");
 	  this.imageRegistry.put("closedCase", imageDescriptor);
+	  imageDescriptor = ImageDescriptor.createFromFile(getClass(), "icons/modifier_small.png");
+	  this.imageRegistry.put("modLeaf", imageDescriptor);
+	  imageDescriptor = ImageDescriptor.createFromFile(getClass(), "icons/modifierFolder.png");
+	  this.imageRegistry.put("modFolder", imageDescriptor);
+	  imageDescriptor = ImageDescriptor.createFromFile(getClass(), "icons/modifierContainer.png");
+	  this.imageRegistry.put("modCase", imageDescriptor);
 //	  imageDescriptor = ImageDescriptor.createFromFile(getClass(), "icons/xyz.jpg");
 //	  this.imageRegistry.put("error", imageDescriptor);
   }
@@ -106,7 +113,8 @@ public class NodeBrowser extends ApplicationWindow
 
     IAction countAction = new CountAction();
     countAction.setChecked(false);
-    System.setProperty("getPatientCount", "false");
+ //   System.setProperty("getPatientCount", "false");
+    //System.setProperty("getPatientCount", "false");
     
     boolean answer = Boolean.valueOf(System.getProperty("patientCountVisible"));
     countAction.setEnabled(answer);
@@ -118,11 +126,13 @@ public class NodeBrowser extends ApplicationWindow
     conceptCodeAction.setChecked(false);
     System.setProperty("showConceptCodes", "false");
     IAction refreshAction = new RefreshAction();
-    popupMenu.add(countAction);
-    popupMenu.add(shortTooltipAction);
-    popupMenu.add(conceptCodeAction);
-    popupMenu.add(new Separator());
+    IAction refreshAllAction = new RefreshAllAction();
+//    popupMenu.add(countAction);
+ //   popupMenu.add(shortTooltipAction);
+  //  popupMenu.add(conceptCodeAction);
+  //  popupMenu.add(new Separator());
     popupMenu.add(refreshAction);   
+    popupMenu.add(refreshAllAction);   
     
     menu = popupMenu.createContextMenu(tree);
    
@@ -138,51 +148,89 @@ public class NodeBrowser extends ApplicationWindow
         	//  (cant be done in the lookup thread)
         	//   maps TreeViewer node to Tree item and sets item.data
         	TreeItem item =  (TreeItem) (viewer.testFindItem(element));
-
-        	String tooltip = ((TreeNode)element).getData().getTooltip();
+        	Color defaultColor = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
+     		item.setForeground(defaultColor);   	
         	
+    		String tooltip = ((TreeNode)element).getData().getTooltip();
+           	
         	if(System.getProperty("shortToolTip").equals("true"))
         		tooltip = ((TreeNode)element).getData().getName();
+        	
+        	if(    ((TreeNode)element).getData().getModifier() != null ){
+        		tooltip = ((TreeNode)element).getData().getModifier().getTooltip();
+            	if(System.getProperty("shortToolTip").equals("true"))
+            		tooltip = ((TreeNode)element).getData().getModifier().getName();
+        	}
         	
         	if ((tooltip == null) || (tooltip.equals("")))
         	{
         		tooltip = ((TreeNode)element).toString();		
         	}
         	tooltip = " " + tooltip + " ";
-        	if(System.getProperty("showConceptCodes").equals("true"))
-        		tooltip = tooltip + "(" + ((TreeNode)element).getData().getBasecode() + ")";
         	
+        	
+        	if(System.getProperty("showConceptCodes").equals("true")){
+        		if(    ((TreeNode)element).getData().getModifier() != null ){
+        			if ((((TreeNode)element).getData().getModifier().getBasecode() != null) && (!((TreeNode)element).getData().getModifier().getBasecode().equals("null")) ) {
+        				tooltip = tooltip + "(" + ((TreeNode)element).getData().getBasecode() + ")";
+        			}
+        		}
+        		else if ((((TreeNode)element).getData().getBasecode() != null) && (!((TreeNode)element).getData().getBasecode().equals("null")) ) {
+    				tooltip = tooltip + "(" + ((TreeNode)element).getData().getBasecode() + ")";
+    			}
+        	}
         	item.setData("TOOLTIP", tooltip);        
    
         	// if element is Inactive; print label in gray
-        	if (((TreeNode)element).getData().getVisualattributes().substring(1,2).equals("I"))
-        	{
-        		Color color = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
-        		item.setForeground(color);
-        	}
-        	
-//        	 if element is Hidden; print label in red
-        	else if (((TreeNode)element).getData().getVisualattributes().substring(1,2).equals("H"))
-        	{
-        		Color color = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-        		item.setForeground(color);
-        	}
-        	
-//       	 if element is undefined; print label in red
-        	else if (((TreeNode)element).getData().getVisualattributes().equals("C-ERROR"))
-        	{
-        		Color color = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-        		item.setForeground(color);
-        	}
-        	
-//       	 if element is synonym; print label in dark blue
-        	if (((TreeNode)element).getData().getSynonymCd() != null) {
-        		if (((TreeNode)element).getData().getSynonymCd().equals("Y"))
-        		{
-        			Color color = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
+        	if(    ((TreeNode)element).getData().getModifier() != null ){
+        		if (((TreeNode)element).getData().getModifier().getVisualattributes().substring(1,2).equals("I")){
+        			Color color = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
         			item.setForeground(color);
         		}
-        	}	
+        	//	 if element is Hidden; print label in red
+             	else if (((TreeNode)element).getData().getModifier().getVisualattributes().substring(1,2).equals("H"))
+             	{
+             		Color color = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+             		item.setForeground(color);
+             	}
+             	
+//            	 if element is undefined; print label in red
+             	else if (((TreeNode)element).getData().getModifier().getVisualattributes().equals("C-ERROR"))
+             	{
+             		Color color = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+             		item.setForeground(color);
+             	}
+        	}
+        	else {
+        		if (((TreeNode)element).getData().getVisualattributes().substring(1,2).equals("I")){
+        			Color color = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
+        			item.setForeground(color);
+        		}
+        	//	 if element is Hidden; print label in red
+             	else if (((TreeNode)element).getData().getVisualattributes().substring(1,2).equals("H"))
+             	{
+             		Color color = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+             		item.setForeground(color);
+             	}
+             	
+//            	 if element is undefined; print label in red
+             	else if (((TreeNode)element).getData().getVisualattributes().equals("C-ERROR"))
+             	{
+             		Color color = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+             		item.setForeground(color);
+             	}
+
+            	//       	 if element is synonym; print label in dark blue
+             	else if (((TreeNode)element).getData().getSynonymCd() != null) {
+            		if (((TreeNode)element).getData().getSynonymCd().equals("Y"))
+            		{
+            			Color color = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
+            			item.setForeground(color);
+            		}
+            	}
+        	}
+        	
+	
         	return ((TreeNode)element).toString();
         }
         @Override
@@ -233,16 +281,23 @@ public class NodeBrowser extends ApplicationWindow
 			// check to see if child is a placeholder ('working...')
 			//   if so, make Web Service call to update children of node
 			//   leaves that are placeholders have open==true
-			if (node.getChildren().size() == 1) {	
-					TreeNode child = (TreeNode)(node.getChildren().get(0));
-					if((child.getData().getVisualattributes().startsWith("L")) && child.isOpen())			{
-						// child is a placeholder, so remove from list 
-						//   update list with real children  
-						slm.setMessage("Calling WebService");
-						slm.update(true);
-						node.getXMLData(viewer, browser).start();				
-					}
-//				}
+			if (node.getChildren().size() == 1)
+			{	
+				TreeNode child = (TreeNode)(node.getChildren().get(0));
+				if( (child.getData().getVisualattributes().startsWith("L"))							
+						&& child.isOpen())	
+				{
+					// child is a placeholder, so remove from list 
+					//   update list with real children  
+					node.getXMLData(viewer, browser).start();
+				}
+				if( (child.getData().getVisualattributes().startsWith("R"))			
+						&& child.isOpen())	
+				{
+					// child is a placeholder, so remove from list 
+					//   update list with real children  
+					node.getModXMLData(viewer, browser).start();
+				}
 			}
 		
 			
@@ -257,6 +312,26 @@ public class NodeBrowser extends ApplicationWindow
 		}
 	});
 	
+	this.viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+
+		public void selectionChanged(SelectionChangedEvent event) {
+			
+			TreeNode node = null;
+	   	    // if the selection is empty clear the label
+ 	       if(event.getSelection().isEmpty()) {
+ 	 //          setCurrentNode(null);
+ 	           return;
+ 	       }
+ 	       if(event.getSelection() instanceof IStructuredSelection) {
+ 	           IStructuredSelection selection = (IStructuredSelection)event.getSelection();
+ 	           node = (TreeNode) selection.getFirstElement();
+ 	           
+ 	 //          TableComposite.getInstance().addModifiers(node);
+ 	           setCurrentNode(node);
+ 	       }
+		}
+		
+	});
 	
 	this.viewer.addDoubleClickListener(new IDoubleClickListener() {
 		public void doubleClick(DoubleClickEvent event)
@@ -276,7 +351,7 @@ public class NodeBrowser extends ApplicationWindow
  	// Case where we are expanding the node
 			boolean expand = false;
 			String visualAttribute = node.getData().getVisualattributes();
-			if((visualAttribute.startsWith("F")) || (visualAttribute.startsWith("C")))
+			if((visualAttribute.startsWith("F")) || (visualAttribute.startsWith("C")) || (visualAttribute.startsWith("D")) || (visualAttribute.startsWith("O")))
 				if(node.isOpen()){
 					// collapsing node
 					node.setOpen(false);
@@ -294,11 +369,19 @@ public class NodeBrowser extends ApplicationWindow
 					if (node.getChildren().size() == 1)
 					{	
 						TreeNode child = (TreeNode)(node.getChildren().get(0));
-						if((child.getData().getVisualattributes().startsWith("L")) && (child.isOpen()))
+						if( (child.getData().getVisualattributes().startsWith("L"))							
+								&& child.isOpen())	
 						{
 							// child is a placeholder, so remove from list 
 							//   update list with real children  
 							node.getXMLData(viewer, browser).start();
+						}
+						if( (child.getData().getVisualattributes().startsWith("R"))			
+								&& child.isOpen())	
+						{
+							// child is a placeholder, so remove from list 
+							//   update list with real children  
+							node.getModXMLData(viewer, browser).start();
 						}
 					}
 					viewer.refresh();
@@ -356,9 +439,9 @@ public class NodeBrowser extends ApplicationWindow
 						if (selection.size() != 1)
 							return;
 
-//						TreeNode node =  (TreeNode) selection.getFirstElement();
-//						if(node.getData().getVisualAttributes().equals("LA"))
-							menu.setVisible(true);
+			//			TreeNode node =  (TreeNode) selection.getFirstElement();
+			//			if( node.getData().getModifier() == null)
+	 						menu.setVisible(true);
 //						else if(node.getData().getVisualAttributes().startsWith("ZA"))
 //							menu.setVisible(true);
 					//	else if(node.getData().getVisualAttributes().startsWith("F"))
@@ -404,6 +487,7 @@ public class NodeBrowser extends ApplicationWindow
   public void setCurrentNode(TreeNode node)
   {
 	  this.currentData = node.getData();
+	 
   }
   
   public void addNodes(TreeData data)
@@ -465,7 +549,7 @@ public class NodeBrowser extends ApplicationWindow
 	  @Override
 	public void run()
 	  {
-		  System.setProperty("getPatientCount", Boolean.toString(this.isChecked()));
+		  //System.setProperty("getPatientCount", Boolean.toString(this.isChecked()));
 		  IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
 		  if (selection.size() != 1)
 			  return;
@@ -524,12 +608,31 @@ public class NodeBrowser extends ApplicationWindow
 		    TreeNode node = (TreeNode) selection.getFirstElement();
 	 	           setCurrentNode(node);
 		    
-		    
-		    node.getXMLData(viewer, browser).start();
+	 	    if(node.getData().getModifier() == null)
+	 	    	node.getXMLData(viewer, browser).start();
+	 	    else
+	 	    	node.getModXMLData(viewer, browser).start();
 		    viewer.refresh();
 
 	  }
   }
+  
+  private class RefreshAllAction extends Action 
+  {
+	  public RefreshAllAction()
+	  {
+		  super("Refresh All");
+		 
+	  }
+	  @Override
+	public void run()
+	  {
+		  viewer.setInput(populateRootNode());
+
+	  }
+  }
+  
+  
   
 // Old select service version
 //  private TreeNode getRootNode(int inputFlag)

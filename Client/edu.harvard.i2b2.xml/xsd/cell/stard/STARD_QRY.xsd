@@ -24,37 +24,12 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:element name="get_patient_set" type="stard:get_patient_setType" />
-
-	<xs:complexType name="get_patient_setType">
-		<xs:sequence>
-			<xs:element ref="pdo:pid_set" maxOccurs="1"></xs:element>
-		</xs:sequence>
-	</xs:complexType>
-
 	<xs:element name="get_study_event_set" type="stard:get_study_event_setType" />
 
 	<xs:complexType name="get_study_event_setType">
 		<xs:sequence>
-			<xs:element ref="pdo:patient_data" maxOccurs="1"></xs:element>
 			<xs:element ref="pdo:pid_set" maxOccurs="1"></xs:element>
 			<xs:element ref="pdo:eid_set" maxOccurs="1"></xs:element>
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:element name="submit_request" type="stard:submit_requestType" />
-
-	<xs:complexType name="submit_requestType">
-		<xs:sequence>
-			<xs:element ref="pdo:event_set" minOccurs="1" maxOccurs="1"></xs:element>
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:element name="check_request_status" type="stard:check_request_statusType" />
-
-	<xs:complexType name="check_request_statusType">
-		<xs:sequence>
-			<xs:element ref="stard:request_set" minOccurs="1" maxOccurs="1"></xs:element>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -70,17 +45,8 @@
 
 	<xs:complexType name="get_image_event_setType">
 		<xs:sequence>
-			<xs:element ref="pdo:event_set" minOccurs="1" maxOccurs="1"></xs:element>
+			<xs:element ref="pdo:eid_set" minOccurs="1" maxOccurs="1"></xs:element>
 		</xs:sequence>
 	</xs:complexType>
-
-	<xs:element name="get_images" type="stard:get_images_type" />
-
-	<xs:complexType name="get_images_type">
-		<xs:sequence>
-			<xs:element ref="pdo:event_set" maxOccurs="1"></xs:element>
-		</xs:sequence>
-	</xs:complexType>
-
 
 </xs:schema>

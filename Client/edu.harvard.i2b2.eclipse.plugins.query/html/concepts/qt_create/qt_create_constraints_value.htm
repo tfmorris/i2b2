@@ -730,17 +730,31 @@ ul
 <p class=jdwebheading3><a name="_Toc247093886"></a><a name="_Toc222041036"></a><a
 name="_Toc222025491">Value Constraint</a></p>
 
-<p class=jdwebnormal>As stated earlier, not all concepts have values.  For
-those concepts that do have values there are different types of values that may
-be associated with it. </p>
+<p class=jdwebnormal>Value constraints can be associated with concept and
+modifiers but not all of them will have values. For instance, the diagnosis of
+Acute Myocardial Infarction does not have a value but the tests used to make
+the diagnosis do have values (high, low, numeric, etc.). </p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>For those items that do have values there are different
+types of values that may be associated with it.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: The
+different types of constraints and how they work are the same regardless of
+whether or not it is associated with a concept or a modifier.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebheading4><a name="_Toc247093887">Flag Value</a></p>
 
-<p class=jdwebnormal>Flags are defined in the source system when the value is
-entered.  The following are some examples that can be found in the i2b2 Demo
-database.</p>
+<p class=jdwebnormal><b>Flags</b> are defined in the source system when the
+value is entered.  The following are some examples that can be found in the
+i2b2 Demo database.</p>
 
 <p class=jdweblistbullet><span style='font-family:Wingdings'>§<span
 style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -759,21 +773,39 @@ style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 <p class=jdwebheading5><a name="_Toc247093888"></a><a name="_Toc222041037"></a><a
 name="_Toc222025492">Setting the Value Constraint (Flag)</a></p>
 
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: The
+value constraint window will open automatically when you drop a concept into a
+panel in the Query Tool view. This will only happen if the concept is set up in
+the database with XML metadata. The first three steps can be used if you did
+not add a value constraint when you added the item or if you wish to edit an
+existing item.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
 <p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Right click on the concept listed in the panel.</p>
+</span>Using the <i>right mouse button</i>, click on the item in the panel.</p>
 
 <p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>A list box will open.</p>
+</span>A pop-up menu will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=137 height=61
+src="qt_create_constraints_value_files/image001.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span>Select <b>Set Value</b> from the list.</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
-<p class=jdwebnormal style='page-break-after:avoid'><img width=95 height=42
-src="qt_create_constraints_value_files/image001.gif"></p>
-
-<p class=MsoCaption>Figure 29       Set Value Menu Item</p>
+<p class=jdwebnormal style='page-break-after:avoid'><img width=137 height=61
+src="qt_create_constraints_value_files/image002.gif"></p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
@@ -784,46 +816,115 @@ src="qt_create_constraints_value_files/image001.gif"></p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
-<p class=jdwebnormal style='page-break-after:avoid'><img width=410 height=215
-src="qt_create_constraints_value_files/image002.jpg"></p>
-
-<p class=MsoCaption>Figure 30       Value Constraint Window (Flag)</p>
+<p class=jdwebnormal><img width=410 height=215
+src="qt_create_constraints_value_files/image003.jpg"></p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Click the radial dial next to <b>By high/low flag</b>.  </p>
+</span>Click the <i>radial dial</i> next to <b>By high/low flag</b>.  </p>
 
 <p class=jdweblistnumbers>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>A new field with a drop down selection box will appear.</p>
+</span>A new field with a drop-down selection box will appear.</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
-<p class=jdwebnormal style='page-break-after:avoid'><img width=410 height=215
-src="qt_create_constraints_value_files/image003.jpg"></p>
-
-<p class=MsoCaption>Figure 31       Value Constraint (Flag)</p>
+<p class=jdwebnormal><img width=410 height=215
+src="qt_create_constraints_value_files/image004.jpg"></p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdweblistnumbers>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Click on the arrow to change the selection or accept the default.</p>
+</span>Click on the <b>drop-down arrow</b> to change the selection or accept
+the default.</p>
 
 <p class=jdweblistnumbers>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Click on the OK button.</p>
+</span>Click on the <b>OK button</b>.</p>
 
 <p class=jdweblistnumbers>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>The constraint value entered will now appear next to the concept in the
+</span>The value constraint entered will now appear next to the item in the
 panel.</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
-<p class=jdwebnormal style='page-break-after:avoid'><img width=184 height=187
-src="qt_create_constraints_value_files/image004.jpg"></p>
+<p class=jdwebnormal><img width=199 height=93
+src="qt_create_constraints_value_files/image005.jpg"></p>
 
-<p class=MsoCaption>Figure 32       Value Constraint Set (Flag)</p>
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>:
+Depending on the available space, you may need to use the horizontal scroll bar
+at the bottom of the panel to see the entire value constraint.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading5>Setting the Value Constraint (Flag) for a Modifier</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: The
+modifier value constraint window will open automatically when you drop a
+modifier into a panel in the Query Tool view. This will only happen if the
+modifier is set up in the database with XML metadata. The first three steps can
+be used if you did not add a modifier value constraint when you added the item
+or if you wish to edit an existing item.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Using the <i>right mouse button</i>, click on the item in the panel.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A pop-up menu will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=137 height=61
+src="qt_create_constraints_value_files/image006.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Select <b>Set Modifier Value</b> from the list.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=137 height=61
+src="qt_create_constraints_value_files/image007.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A new window will open.</p>
+
+<p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click the <i>radial dial</i> next to <b>By high/low flag</b>.  </p>
+
+<p class=jdweblistnumbers>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A new field with a drop-down selection box will appear.</p>
+
+<p class=jdweblistnumbers>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>drop-down arrow</b> to change the selection or accept
+the default.</p>
+
+<p class=jdweblistnumbers>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>OK button</b>.</p>
+
+<p class=jdweblistnumbers>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The value constraint entered will now appear next to the item in the
+panel.</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
@@ -855,27 +956,56 @@ style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 
 <p class=jdwebnormal><a name="_Toc222041038"></a><a name="_Toc222025493">&nbsp;</a></p>
 
+<p class=jdwebnormal>&nbsp;</p>
+
 <p class=jdwebheading5><a name="_Toc247093890">Setting the Value Constraint
 (Text)</a></p>
 
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: The
+value constraint window will open automatically when you drop a concept into a
+panel in the Query Tool view. This will only happen if the concept is set up in
+the database with XML metadata. The first three steps can be used if you did
+not add a value constraint when you added the item or if you wish to edit an
+existing item.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
 <p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Right click on the concept listed in the panel.</p>
+</span>Using the <i>right mouse button</i>, click on the item in the panel.</p>
 
 <p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>A list box will open.</p>
+</span>A pop-up menu will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=137 height=61
+src="qt_create_constraints_value_files/image001.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Select <b>Set Value</b> from the list (see Figure 29).</p>
+</span>Select <b>Set Value</b> from the list.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=137 height=61
+src="qt_create_constraints_value_files/image002.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span>A new window will open.</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
-<p class=jdwebnormal style='page-break-after:avoid'><img width=410 height=330
-src="qt_create_constraints_value_files/image005.jpg"></p>
-
-<p class=MsoCaption>Figure 33       Value Constraint Window (Text)</p>
+<p class=jdwebnormal><img width=410 height=330
+src="qt_create_constraints_value_files/image008.jpg"></p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
@@ -885,32 +1015,133 @@ src="qt_create_constraints_value_files/image005.jpg"></p>
 </span>Click the radial dial next to <b>By text value</b>.  </p>
 
 <p class=jdweblistnumbers>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>The text value options will now become available to select.  Click on
-the box next to the values you want to include.</p>
-
-<p class=jdwebnormal>&nbsp;</p>
-
-<p class=jdwebnormal style='page-break-after:avoid'><img width=410 height=330
-src="qt_create_constraints_value_files/image006.jpg"></p>
-
-<p class=MsoCaption>Figure 34       Value Constraint (Text)</p>
-
-<p class=jdwebnormal>&nbsp;</p>
-
-<p class=jdwebnormal>&nbsp;</p>
+</span>A new field listing the enumerated values will display.</p>
 
 <p class=jdweblistnumbers>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Click on the OK button.</p>
+</span>Click on the <b>check box</b> next to the values you want to include.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=410 height=330
+src="qt_create_constraints_value_files/image009.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdweblistnumbers>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>The constraint value entered will now appear next to the concept in the
+</span>Click on the <b>OK button</b>.</p>
+
+<p class=jdweblistnumbers>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The value constraint entered will now appear next to the item in the
 panel.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=205 height=90
+src="qt_create_constraints_value_files/image010.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>:
 Depending on the available space, you may need to use the horizontal scroll bar
 at the bottom of the panel to see the entire value constraint.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading5>Setting the Value Constraint (Text) for a Modifier</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: The
+modifier value constraint window will open automatically when you drop a
+modifier into a panel in the Query Tool view. This will only happen if the
+modifier is set up in the database with XML metadata. The first three steps can
+be used if you did not add a modifier value constraint when you added the item
+or if you wish to edit an existing item.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>Using the <i>right mouse button</i>, click on the item in the panel.</p>
+
+<p class=jdweblistnumbers>11.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>A pop-up menu will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=137 height=61
+src="qt_create_constraints_value_files/image006.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>12.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>Select <b>Set Modifier Value</b> from the list.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=137 height=61
+src="qt_create_constraints_value_files/image007.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>13.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>A new window will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=410 height=330
+src="qt_create_constraints_value_files/image011.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>14.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>Click the <i>radial dial</i> next to <b>By text value</b>.  </p>
+
+<p class=jdweblistnumbers>15.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>A new field listing the enumerated values will appear.</p>
+
+<p class=jdweblistnumbers>16.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>Click on the check box next to the values you want to include.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=410 height=330
+src="qt_create_constraints_value_files/image012.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>17.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>Click on the <b>OK button</b>.</p>
+
+<p class=jdweblistnumbers>18.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>The value constraint entered will now appear next to the concept in the
+panel.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=197 height=91
+src="qt_create_constraints_value_files/image013.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>:
+Depending on the available space, you may need to use the horizontal scroll bar
+at the bottom of the panel to see the entire value constraint.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
@@ -1036,64 +1267,388 @@ is a listing of operators currently in use.</p>
 <p class=jdwebheading5><a name="_Toc247093892">Setting the Value Constraint
 (Numeric)</a></p>
 
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: The
+value constraint window will open automatically when you drop a concept into a
+panel in the Query Tool view. This will only happen if the concept is set up in
+the database with XML metadata. The first three steps can be used if you did
+not add a value constraint when you added the item or if you wish to edit an
+existing item.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
 <p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Right click on the concept listed in the panel.</p>
+</span>Using the <i>right mouse button</i>, click on the item in the panel.</p>
 
 <p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>A list box will open.</p>
+</span>A pop-up menu will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=137 height=61
+src="qt_create_constraints_value_files/image001.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Select <b>Set Value</b> from the list (see Figure 27).</p>
+</span>Select <b>Set Value</b> from the list.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=137 height=61
+src="qt_create_constraints_value_files/image002.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span>A new window will open.</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
-<p class=jdwebnormal style='page-break-after:avoid'><img width=408 height=214
-src="qt_create_constraints_value_files/image007.jpg"></p>
-
-<p class=MsoCaption>Figure 35       Value Constraint Window (Numeric)</p>
+<p class=jdwebnormal><img width=408 height=214
+src="qt_create_constraints_value_files/image014.jpg"></p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Click the radial dial next to <b>By numeric value</b>.  </p>
+</span>Click the <i>radial dial</i> next to <b>By numeric value</b>.  </p>
 
 <p class=jdweblistnumbers>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Two new fields, one with a drop down selection box will appear.</p>
+</span>Two new fields will appear; one with a drop down selection box and the
+other a text box.</p>
 
-<p class=jdwebnormal style='page-break-after:avoid'><img width=410 height=215
-src="qt_create_constraints_value_files/image008.jpg"></p>
+<p class=jdwebnormal>&nbsp;</p>
 
-<p class=MsoCaption>Figure 36       Value Constraint (Numeric)</p>
+<p class=jdwebnormal><img width=410 height=215
+src="qt_create_constraints_value_files/image015.jpg"></p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdweblistnumbers>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Click on the Drop-down arrow to change the operator or accept the
+</span>Click on the <b>drop-down arrow</b> to change the operator or accept the
 default.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=201 height=138
+src="qt_create_constraints_value_files/image016.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdweblistnumbers>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span>Enter a numerical value at the <b>Please enter value</b> field.</p>
 
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=203 height=42
+src="qt_create_constraints_value_files/image017.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
 <p class=jdweblistnumbers>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>Click on the OK button.</p>
+</span>Click on the <b>OK button</b>.</p>
 
 <p class=jdweblistnumbers>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span>The constraint value entered will now appear next to the concept in the
+</span>The value constraint entered will now appear next to the item in the
 panel.</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
-<p class=jdwebnormal style='page-break-after:avoid'><img width=183 height=191
-src="qt_create_constraints_value_files/image009.jpg"></p>
+<p class=jdwebnormal><img width=181 height=88
+src="qt_create_constraints_value_files/image018.jpg"></p>
 
-<p class=MsoCaption>Figure 37       Value Constraint Set (Numeric)</p>
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading5>Setting the Value Constraint (Numeric) for a Modifier</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: The
+modifier value constraint window will open automatically when you drop a
+modifier into a panel in the Query Tool view. This will only happen if the
+modifier is set up in the database with XML metadata. The first three steps can
+be used if you did not add a modifier value constraint when you added the item
+or if you wish to edit an existing item.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Using the <i>right mouse button</i>, click on the item in the panel.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A pop-up menu will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=137 height=61
+src="qt_create_constraints_value_files/image006.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Select <b>Set Modifier Value</b> from the list.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=137 height=61
+src="qt_create_constraints_value_files/image007.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A new window will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=410 height=215
+src="qt_create_constraints_value_files/image019.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click the <i>radial dial</i> next to <b>By numeric value</b>.  </p>
+
+<p class=jdweblistnumbers>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Two new fields will appear; one with a drop down selection box and the
+other a text box.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=410 height=215
+src="qt_create_constraints_value_files/image020.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>drop-down arrow</b> to change the operator or accept the
+default.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=201 height=138
+src="qt_create_constraints_value_files/image016.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Enter a numerical value at the <b>Please enter value</b> field.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=203 height=42
+src="qt_create_constraints_value_files/image017.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>OK button</b>.</p>
+
+<p class=jdweblistnumbers>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>The value constraint entered will now appear next to the item in the
+panel.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=195 height=91
+src="qt_create_constraints_value_files/image021.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>:
+Depending on the available space, you may need to use the horizontal scroll bar
+at the bottom of the panel to see the entire value constraint.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading4>Using Units In Value Constraints</p>
+
+<p class=jdwebnormal>Units in regards to i2b2 are the standard units of
+measurement associated with a value. For instance, a medication may have “mg”
+listed as the unit for the dose, while a Hgb lab test may have “gm/dL”.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>The units are defined in the source system and although it
+is recommended that all numerical facts are stored in normalized units it is
+recognized that this is not always feasible. Therefore, the workbench has the
+ability to convert the units when running a query.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>In order for this feature to work a parameter called
+CRC_ENABLE_UNITCD_CONVERSION must be defined for the project. If this is not
+defined you need to contact your system administrator.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading5>Defining the Units When Running A Query</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: The
+modifier value constraint window will open automatically when you drop a
+modifier into a panel in the Query Tool view. This will only happen if the
+modifier is set up in the database with XML metadata. The first three steps can
+be used if you did not add a modifier value constraint when you added the item
+or if you wish to edit an existing item.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Using the <i>right mouse button</i>, click on the item in the panel.</p>
+
+<p class=jdweblistnumbers>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A pop-up menu will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=137 height=61
+src="qt_create_constraints_value_files/image006.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Select <b>Set Modifier Value</b> from the list.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal style='page-break-after:avoid'><img width=137 height=61
+src="qt_create_constraints_value_files/image007.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>4.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>A new window will open.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=410 height=215
+src="qt_create_constraints_value_files/image019.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>5.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click the <i>radial dial</i> next to <b>By numeric value</b>.  </p>
+
+<p class=jdweblistnumbers>6.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Two new fields will appear; one with a drop down selection box and the
+other a text box.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=410 height=215
+src="qt_create_constraints_value_files/image020.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>7.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>The units will default to the normal units for the item.</p>
+
+<p class=jdweblistnumbers>8.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the drop-down arrow to change the units.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=124 height=154
+src="qt_create_constraints_value_files/image022.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>Click on the <b>drop-down arrow</b> to change the operator or accept the
+default.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=201 height=138
+src="qt_create_constraints_value_files/image016.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>10.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>Enter a numerical value at the <b>Please enter value</b> field.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=203 height=42
+src="qt_create_constraints_value_files/image017.gif"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdweblistnumbers>11.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>Click on the <b>OK button</b>.</p>
+
+<p class=jdweblistnumbers>12.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span>The value constraint has been set and the numerical value has been
+converted to the normal units.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><img width=197 height=86
+src="qt_create_constraints_value_files/image023.jpg"></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>In the above scenario, the normal units are “mg”. When
+setting up the value constraint the units were changed to “gm” and the
+numerical value was set to 5. Upon saving the value constraint, the workbench
+converted 5 gm to 5000 mg. When the query is run it will look at those facts
+that have both 5 gm and 5000 mg defined in the observation_fact table.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: The
+unit conversion information is specific to the term and is defined in the i2b2
+metadata table.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 

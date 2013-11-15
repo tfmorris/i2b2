@@ -15,28 +15,28 @@ package edu.harvard.i2b2.timeline.external;
  * A class that express NFA transition.
  */
 class NList {
-    private Chars chars;
-    private int to;
-    private NList next;
+	private Chars chars;
+	private int to;
+	private NList next;
 
-    /*
-     * The constructor.
-     */
-    NList(Chars chars, int to, NList next) {
-	this.chars = chars;
-	this.to = to;
-	this.next = next;
-    }
+	/*
+	 * The constructor.
+	 */
+	NList(Chars chars, int to, NList next) {
+		this.chars = chars;
+		this.to = to;
+		this.next = next;
+	}
 
-    public Chars chars() {
-	return chars;
-    }
+	public Chars chars() {
+		return chars;
+	}
 
-    public int to() {
-	return to;
-    }
+	public int to() {
+		return to;
+	}
 
-    public NList next() {
-	return next;
-    }
+	public NList next() {
+		return next;
+	}
 }

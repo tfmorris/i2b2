@@ -20,8 +20,9 @@ public class Roles {
 	   ArrayList<String> roles = (ArrayList<String>) UserInfoBean.getInstance().getProjectRoles();
 	   for(String param :roles) {
 		   // Bug 728; enable feature for role = editor only
-			//   if(param.equalsIgnoreCase("manager")) 
-			//	   return true;
+		   // superceded by bug 944 enable feature for editor or manager
+			   if(param.equalsIgnoreCase("manager")) 
+				   return true;
 			 //  if(param.equalsIgnoreCase("admin")) 
 			//	   return true;
 			   if(param.equalsIgnoreCase("editor")) 

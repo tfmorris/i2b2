@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -81,10 +81,17 @@ public class GetChildrenRequestMessage extends OntologyRequestData {
 	 * @param GetChildrenType parentData (get children of this parent node)
 	 * @return A String data type containing the Ont RequestMessage in XML format
 	 */
-	public String doBuildXML(GetChildrenType parentData){ 
+	public String doBuildXML(GetChildrenType parentData, String type){ 
 		String requestString = null;
 			try {
 				MessageHeaderType messageHeader = getMessageHeader(); 
+				if(Boolean.parseBoolean(
+						System.getProperty("OntDisableModifiers")) == true){
+					messageHeader.getSendingApplication().setApplicationVersion("1.5");
+				}
+				 if(type.equals("EDIT")){
+					 messageHeader.getSendingApplication().setApplicationVersion("1.5");
+				 }
 				RequestHeaderType reqHeader  = getRequestHeader();
 				BodyType bodyType = getBodyType(parentData) ;
 				RequestMessageType reqMessageType = getRequestMessageType(messageHeader,

@@ -734,13 +734,113 @@ name="_Toc222025483">Setting Constraints</a></p>
 
 </div>
 
-<p class=jdwebnormal>There are several categories of constraints that can be
-defined in the query tool view. One constraint is by the date and the other is
-by the value associated to the constraint.  Not all concepts have values. For
-instance, diagnosis of Acute Myocardial Infarction does not have a value but
-the tests used to make the diagnosis do have values (high, low, numeric,
-etc.).  In addition to date and value constraints, users can also set
-constraints by the number of occurrences an item is documented.</p>
+<p class=jdwebnormal>Constraints are used to narrow down the search criteria to
+a particular time from, number of occurrences or a specific value or range of
+values. In i2b2, there are several types of constraints that can be defined in
+the Query Tool view.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0 width=639
+ style='width:479.4pt;border-collapse:collapse;border:none'>
+ <tr>
+  <td width=118 valign=top style='width:88.5pt;border:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b>Constraint Type</b></p>
+  </td>
+  <td width=521 valign=top style='width:390.9pt;border:solid #999999 1.0pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'><b>Description</b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=118 valign=top style='width:88.5pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Query Timing</p>
+  </td>
+  <td width=521 valign=top style='width:390.9pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Constraint is defined on the
+  query level and utilizes the patient encounters and / or instance number when
+  determining the eligibility.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=118 valign=top style='width:88.5pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Panel Timing</p>
+  </td>
+  <td width=521 valign=top style='width:390.9pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Constraint is defined on the
+  panel level and utilizes the patient encounters and / or instance number when
+  determining eligibility.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=118 valign=top style='width:88.5pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Date</p>
+  </td>
+  <td width=521 valign=top style='width:390.9pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Constraint uses a date range
+  when determining eligibility.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=118 valign=top style='width:88.5pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Occurrence</p>
+  </td>
+  <td width=521 valign=top style='width:390.9pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Constraint is by the number of
+  occurrences an item is documented.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=118 valign=top style='width:88.5pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Exclusion</p>
+  </td>
+  <td width=521 valign=top style='width:390.9pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Constraint will not include patients
+  with the concepts listed in the panel.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=118 valign=top style='width:88.5pt;border:solid #999999 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Value</p>
+  </td>
+  <td width=521 valign=top style='width:390.9pt;border-top:none;border-left:
+  none;border-bottom:solid #999999 1.0pt;border-right:solid #999999 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=jdwebnormal style='margin-left:0in'>Constraint is by the value
+  associated to a concept or modifier. Not all items have values.</p>
+  </td>
+ </tr>
+</table>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><b><i><span style='color:navy'>Note</span></i></b>: In the
+client, the value constraints are currently the only ones that directly
+correspond to a single concept. All others are defined on the query or panel
+level.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 

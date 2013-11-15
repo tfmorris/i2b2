@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2010 Massachusetts General Hospital 
+* Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
 * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -144,96 +144,6 @@ public class Application implements IPlatformRunnable {
 		}
 	}
 
-/*
-	private void checkSessionExpired()
-	{
-
-		//		make a date to compare with
-
-		if(UserInfoBean.getLastActivityTime()==null || this.inScreenSaver) return;
-		this.inScreenSaver=true;
-		try {
-			Calendar c=Calendar.getInstance();
-			if (UserInfoBean.getInstance().getUserPasswordTimeout() == -1)
-			{
-				c.add(Calendar.MINUTE,-20);
-			} else {
-			c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout());//-20); //subtract 20 minutes;
-			}
-
-			if(!UserInfoBean.getLastActivityTime().after(c.getTime()))
-			{
-				LoginHelper loginHelper = new LoginHelper();
-				
-				PasswordType ptype = new PasswordType();
-				ptype.setValue(password);
-				ptype.setIsToken(false);
-				
-				UserInfoBean ubean = loginHelper.getUserInfo(
-						user, ptype, project.getUrl(), project.getName(), false);
-
-				
-				UserInfoBean.getInstance().setUserPassword(ubean.getUserPassword());
-				UserInfoBean.setLastActivityTime(Calendar.getInstance().getTime());
-
-				System.out.println("New Seesion is: " + UserInfoBean.getInstance().getUserPassword());
-			}
-		} catch (Exception e)
-		{
-			log.error(e.getMessage());
-		} finally {
-			this.inScreenSaver=false;
-		}
-		return;
-	}
-	
-	
-	private void checkScreenSaver()
-	{
-
-		//		make a date to compare with
-
-		if(UserInfoBean.getLastActivityTime()==null || this.inScreenSaver) return;
-		this.inScreenSaver=true;
-		try {
-			Calendar c=Calendar.getInstance();
-			
-			if (UserInfoBean.getInstance().getUserPasswordTimeout() == -1)
-			{
-				c.add(Calendar.MINUTE,-20);
-			} else {
-				c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout());//-20); //subtract 20 minutes;
-			}
-
-			if(!UserInfoBean.getLastActivityTime().after(c.getTime()))
-
-			{
-				
-
-
-				UserInfoBean userInfoBean = null;
-				do {
-					//Shell activeShell = new Shell(); //!!!!!!!!cant do this because its the wrong thread
-					ReLoginDialog loginDialog = new ReLoginDialog(Display.getCurrent().getActiveShell());	
-					loginDialog.setUserid(user);
-					loginDialog.setCurrentPrj(project);
-
-					userInfoBean = loginDialog.open();		
-					
-					//activeShell.close();
-
-				}
-				while (userInfoBean == null);
-			}
-		} catch (Exception e)
-		{
-			log.error(e.getMessage());
-		} finally {
-			this.inScreenSaver=false;
-		}
-		return;
-	}
-*/
 
 
 	/**

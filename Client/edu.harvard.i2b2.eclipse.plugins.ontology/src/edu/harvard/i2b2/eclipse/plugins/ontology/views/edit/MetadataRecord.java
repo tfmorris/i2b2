@@ -1,12 +1,23 @@
+/*
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the i2b2 Software License v2.1 
+ * which accompanies this distribution. 
+ * 
+ * Contributors:
+ * 		Lori Phillips
+ */
 package edu.harvard.i2b2.eclipse.plugins.ontology.views.edit;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.viewers.TreeViewer;
 
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.DeleteChildType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.ModifierType;
 
 public class MetadataRecord {
 
@@ -21,7 +32,7 @@ public class MetadataRecord {
 	private boolean updateSyncIconFlag = false;
 	private boolean valueMetadataFlag = false;
 	private IAction syncAction = null;
-	
+	private TreeViewer modifierViewer = null;
 
 
 	private static MetadataRecord thisInstance;
@@ -43,7 +54,24 @@ public class MetadataRecord {
 	public TreeData getParentData(){		
 		return parentData;
 	}
+	public void setParentData(TreeData data){
+		parentData = data;
+	}
 	
+	public void setParentData(ModifierType modifier){
+		parentData = new TreeData();
+		parentData.setName(modifier.getName());
+		parentData.setFullName(modifier.getFullname());
+		parentData.setVisualattributes(modifier.getVisualattributes());
+		parentData.setColumndatatype(modifier.getColumndatatype());
+		parentData.setFacttablecolumn(modifier.getFacttablecolumn());
+		parentData.setKey(modifier.getKey());
+		parentData.setLevel(modifier.getLevel());
+		parentData.setOperator(modifier.getOperator());
+		parentData.setSynonymCd(modifier.getSynonymCd());
+		parentData.setTablename(modifier.getTablename());
+		parentData.setModifier(modifier);
+	}
 	
 	public void setMetadata(TreeNode node){
 		if (metadata == null)
@@ -66,18 +94,78 @@ public class MetadataRecord {
 			metadata.setValuetypeCd("");
 	}
 	
+	public void setMetadata(ModifierType node){
+		if (metadata == null)
+			metadata = new ConceptType();
+		if(metadata.getModifier() == null)
+			metadata.setModifier(new ModifierType());
+			
+		metadata.getModifier().setColumndatatype(node.getColumndatatype());
+		metadata.getModifier().setColumnname(node.getColumnname());
+		metadata.getModifier().setFacttablecolumn(node.getFacttablecolumn());
+		metadata.getModifier().setKey(node.getKey());
+		metadata.getModifier().setLevel(node.getLevel()+1);
+		metadata.getModifier().setOperator(node.getOperator());
+		metadata.getModifier().setTablename(node.getTablename());
+		metadata.getModifier().setDimcode(node.getDimcode());
+		metadata.getModifier().setTooltip(node.getTooltip());
+		metadata.getModifier().setSynonymCd("N");
+		metadata.getModifier().setAppliedPath(node.getAppliedPath());
+	
+	}
+	
+	
 	
 	public void setType(String recordType){
 		type = recordType;
 		if (metadata == null)
 			metadata = new ConceptType();
-		
+				
 		if(type.equals("Folder"))
 			metadata.setVisualattributes("FAE");
 		else if (type.equals("Item"))
 			metadata.setVisualattributes("LAE");
+		else if (type.equals("ModifierFolder")){
+			if(metadata.getModifier() == null){
+				metadata.setModifier(new ModifierType());
+				metadata.getModifier().setSynonymCd("N");
+				metadata.getModifier().setLevel(1);
+				metadata.getModifier().setVisualattributes("DAE");
+			}
+			else{
+				metadata.getModifier().setSynonymCd("N");
+				metadata.getModifier().setLevel(1);
+				metadata.getModifier().setVisualattributes("DAE");
+			}
+		}
+		else if (type.equals("ModifierItem")){
+			if(metadata.getModifier() == null){
+				metadata.setModifier(new ModifierType());
+				metadata.getModifier().setSynonymCd("N");
+				metadata.getModifier().setLevel(1);
+				metadata.getModifier().setVisualattributes("RAE");
+			}
+			else{
+				metadata.getModifier().setSynonymCd("N");
+				metadata.getModifier().setLevel(1);
+				metadata.getModifier().setVisualattributes("RAE");
+			}
+		}
 		else if (type.equals("Container"))
-			metadata.setVisualattributes("CAE");		
+			metadata.setVisualattributes("CAE");	
+		else if (type.equals("ModifierContainer")){
+			if(metadata.getModifier() == null){
+				metadata.setModifier(new ModifierType());
+				metadata.getModifier().setSynonymCd("N");
+				metadata.getModifier().setLevel(1);
+				metadata.getModifier().setVisualattributes("OAE");
+			}
+			else{
+				metadata.getModifier().setSynonymCd("N");
+				metadata.getModifier().setLevel(1);
+				metadata.getModifier().setVisualattributes("OAE");
+			}
+		}
 	}
 	
 	public String getType(){
@@ -106,6 +194,17 @@ public class MetadataRecord {
 		return browser;
 	}
 	
+	public void registerModifierViewer(TreeViewer viewer){
+		modifierViewer = viewer;
+	}
+	
+	public TreeViewer getModifierViewer(){
+		return modifierViewer;
+	}
+	
+
+
+	
 	public void addSynonym(String synonym){
 		synonyms.add(synonym);
 	}
@@ -116,7 +215,7 @@ public class MetadataRecord {
 	public List<String> getSynonyms(){
 		return synonyms;
 	}
-
+	
 	public boolean isUpdateSyncIconFlag() {
 		return updateSyncIconFlag;
 	}
@@ -172,6 +271,8 @@ public class MetadataRecord {
 			metadata.setDimcode("");
 			metadata.setTooltip("");
 			metadata.setVisualattributes("");
+			if(metadata.getModifier() != null)
+				metadata.setModifier(new ModifierType());
 		}
 		if((synonyms != null) || (!synonyms.isEmpty()))
 			synonyms.clear();
@@ -180,20 +281,59 @@ public class MetadataRecord {
 		valueMetadataFlag = false;
 	}
 
+	public String validateModifier(){
+		String message = "";
+		
+		if(metadata.getModifier().getKey() == null)
+			message = message + "Modifier key is empty \n";
+		
+		if(metadata.getModifier().getName() == null)
+			message = message + "Modifier name is empty \n";
+		
+		if(metadata.getModifier().getSynonymCd() == null)
+			message = message + "Synonym code is empty \n";
+		
+		if(metadata.getModifier().getVisualattributes() == null)
+			message = message + "Modifier visual attribute is empty \n";
+		
+		if(metadata.getModifier().getBasecode() == null)
+			message = message + "Modifier code is empty \n";
+		
+		if(metadata.getModifier().getFacttablecolumn() == null)
+			message = message + "Fact table column name is empty \n";
+		
+		if(metadata.getModifier().getTablename() == null)
+			message = message + "Table name is empty \n";
+		
+		if(metadata.getModifier().getColumnname() == null)
+			message = message + "Column name is empty \n";
+		
+		if(metadata.getModifier().getColumndatatype() == null)
+			message = message + "Column data type is empty \n";
+		
+		if(metadata.getModifier().getOperator() == null)
+			message = message + "Operator is empty \n";
+		
+		if(metadata.getModifier().getDimcode() == null)
+			message = message + "Dimension code is empty \n";
+		
+		return message;
+	}
+
 	public String validate(){
 		String message = "";
 		
 		if(metadata.getKey() == null)
-			message = message + "Item key is empty \n";
+			message = message + "Term key is empty \n";
 		
 		if(metadata.getName() == null)
-			message = message + "Item name is empty \n";
+			message = message + "Term name is empty \n";
 		
 		if(metadata.getSynonymCd() == null)
 			message = message + "Synonym code is empty \n";
 		
 		if(metadata.getVisualattributes() == null)
-			message = message + "Item type is empty \n";
+			message = message + "Modifier visual attribute is empty \n";
 		
 		if(metadata.getBasecode() == null)
 			message = message + "Concept code is empty \n";
@@ -218,6 +358,4 @@ public class MetadataRecord {
 		
 		return message;
 	}
-
-	
 }

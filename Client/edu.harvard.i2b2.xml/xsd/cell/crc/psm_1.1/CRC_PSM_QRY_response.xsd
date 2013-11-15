@@ -26,6 +26,18 @@
         </xs:sequence>
     </xs:complexType>
     
+    <xs:element name="process_step_timing" type="crc:timingStepType"/>
+    
+     <xs:complexType name="timingStepType">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="start_date" type="xs:dateTime"/>
+            <xs:element name="end_date" type="xs:dateTime"/>
+            <xs:element name="total_time_second" type="xs:double"/>
+            <xs:element name="message" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    
     
     <xs:complexType name="statusType">
         <xs:sequence>

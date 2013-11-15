@@ -52,6 +52,7 @@
             <xs:element name="observer_id" type="xs:string"/>
             <xs:element name="start_date" type="xs:dateTime"/>
             <xs:element name="modifier_cd" type="xs:string"/>
+            <xs:element name="instance_num" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>    
     
@@ -108,7 +109,24 @@
 	    <xs:sequence>
             <xs:element name="concept_path" type="xs:string"/>
          </xs:sequence>
-    </xs:complexType>        
+    </xs:complexType>      
+    
+    <xs:complexType name="GetModifierByPrimaryKey_requestType">
+        <xs:complexContent>
+            <xs:extension base="crc:requestType">
+                <xs:sequence>
+                    <xs:element name="modifier_primary_key" type="crc:modifier_primary_key_Type"/>
+                    <xs:element name="modifier_output_option" type="crc:output_optionType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="modifier_primary_key_Type">
+	    <xs:sequence>
+            <xs:element name="modifier_path" type="xs:string"/>
+         </xs:sequence>
+    </xs:complexType>     
     
      <xs:complexType name="GetObserverByPrimaryKey_requestType">
         <xs:complexContent>
@@ -148,6 +166,7 @@
             <xs:element name="event_set" type="crc:output_optionType" minOccurs="0"/>
             <xs:element name="observer_set_using_filter_list" type="crc:output_optionType" minOccurs="0"/>
             <xs:element name="concept_set_using_filter_list" type="crc:output_optionType" minOccurs="0"/>
+            <xs:element name="modifier_set_using_filter_list" type="crc:output_optionType" minOccurs="0"/>
             <xs:element name="pid_set" type="crc:output_optionType" minOccurs="0"/>
             <xs:element name="eid_set" type="crc:output_optionType" minOccurs="0"/>
             <xs:element name="dimension_set" type="crc:dimension_output_optionType"  minOccurs="0"/>
@@ -169,6 +188,7 @@
             <xs:extension base="crc:output_optionType">
                 <xs:attribute name="before" type="xs:dateTime"/>
                 <xs:attribute name="after" type="xs:dateTime"/>
+                <xs:attribute name="withmodifiers" type="xs:boolean" default="true"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

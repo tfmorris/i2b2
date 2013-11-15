@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -10,7 +10,6 @@
 package edu.harvard.i2b2.eclipse.plugins.ontology.views.edit;
 
 import java.util.Iterator;
-
 import javax.xml.bind.JAXBElement;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,8 +18,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.ITreeViewerListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeExpansionEvent;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -75,7 +76,7 @@ public class NodeBrowser extends ApplicationWindow
 	// to get the rootNode of a tree.....
 	private ImageRegistry imageRegistry;
 	private StatusLineManager slm;
-	private Menu allMenu, itemMenu, rootMenu, lockedMenu;
+	private Menu allMenu, itemMenu, rootMenu, lockedMenu, modItemMenu;
 
 
 	public NodeBrowser(Composite parent, int inputFlag, StatusLineManager slm)
@@ -123,7 +124,7 @@ public class NodeBrowser extends ApplicationWindow
 		Tree tree = new Tree(parent, style);  
 
 		GridData gridData = new GridData(GridData.FILL_BOTH);
-		gridData.verticalSpan = 50;
+//		gridData.verticalSpan = 50;
 		gridData.horizontalSpan = 2;
 		gridData.widthHint = 150;
 		gridData.grabExcessHorizontalSpace = true;
@@ -131,41 +132,45 @@ public class NodeBrowser extends ApplicationWindow
 		tree.setLayoutData(gridData);
 
 		// create popup menus
-		IAction newFolderAction = new NewFolderAction();
-		IAction newItemAction = new NewItemAction();
-		IAction newContainerAction = new NewContainerAction();
-		IAction deleteAction = new DeleteAction();
-		IAction refreshAction = new RefreshAction();
-		IAction editAction = new EditAction();
-
-		MenuManager itemPopupMenu = new MenuManager();
-		itemPopupMenu.add(deleteAction);
-		itemPopupMenu.add(refreshAction);
-		itemPopupMenu.add(editAction);
-		itemMenu = itemPopupMenu.createContextMenu(tree);
-		itemMenu.setVisible(false);
+		/*
 
 
-		MenuManager newMenu = new MenuManager("New");
-		newMenu.add(newFolderAction);
-		newMenu.add(newItemAction);
-		newMenu.add(newContainerAction);
-		MenuManager rootPopupMenu = new MenuManager();
-		rootPopupMenu.add(newMenu);
-		rootPopupMenu.add(refreshAction);   
-		rootMenu = rootPopupMenu.createContextMenu(tree);
-		rootMenu.setVisible(false);
 
+
+		MenuManager modifierPopupMenu2= new MenuManager("Modifier");
+		modifierPopupMenu2.add(modifierFolderAction);
+		modifierPopupMenu2.add(modifierItemAction);
+		modifierPopupMenu2.add(modifierContainerAction);
 
 		MenuManager newMenu2 = new MenuManager("New");
 		newMenu2.add(newFolderAction);
 		newMenu2.add(newItemAction);
 		newMenu2.add(newContainerAction);
+		newMenu2.add(modifierPopupMenu2);
+
 		MenuManager allPopupMenu = new MenuManager();
 		allPopupMenu.add(newMenu2);
 		allPopupMenu.add(deleteAction);
 		allPopupMenu.add(refreshAction); 
 		allPopupMenu.add(editAction);
+		allMenu = allPopupMenu.createContextMenu(tree);
+		allMenu.setVisible(false);
+		 */
+
+		MenuManager modItemPopupMenu = createModItemPopupMenu();
+		modItemMenu = modItemPopupMenu.createContextMenu(tree);
+		modItemMenu.setVisible(false);
+
+		MenuManager itemPopupMenu = createItemPopupMenu();
+		itemMenu = itemPopupMenu.createContextMenu(tree);
+		itemMenu.setVisible(false);
+
+
+		MenuManager rootPopupMenu = createRootPopupMenu();
+		rootMenu = rootPopupMenu.createContextMenu(tree);
+		rootMenu.setVisible(false);
+
+		MenuManager allPopupMenu = createAllPopupMenu();
 		allMenu = allPopupMenu.createContextMenu(tree);
 		allMenu.setVisible(false);
 
@@ -188,7 +193,7 @@ public class NodeBrowser extends ApplicationWindow
 				TreeItem item =  (TreeItem) (viewer.testFindItem(element));
 				Color defaultColor = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
 				item.setForeground(defaultColor);
-				
+
 				String tooltip = ((TreeNode)element).getData().getTooltip();
 
 
@@ -351,7 +356,33 @@ public class NodeBrowser extends ApplicationWindow
 			}
 
 		});
+		this.viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
+			public void selectionChanged(SelectionChangedEvent event) {
+				
+				TreeNode node = null;
+		   	    // if the selection is empty clear the label
+	 	       if(event.getSelection().isEmpty()) {
+	 	 //          setCurrentNode(null);
+	 	           return;
+	 	       }
+	 	       if(event.getSelection() instanceof IStructuredSelection) {
+	 	           IStructuredSelection selection = (IStructuredSelection)event.getSelection();
+	 	           node = (TreeNode) selection.getFirstElement();
+	 	           if(!Boolean.parseBoolean(System.getProperty("OntDisableModifiers"))){
+	 	        	  ModifierComposite.getInstance().enableComposite(node);
+	 	        	   if(node.getData().getVisualattributes().endsWith("E"))
+	 	        		   ModifierComposite.getInstance().addModifiers(node.getData());
+	 	        	   else
+	 	        		   ModifierComposite.getInstance().clearTree();
+	 	           }else{
+	 	        	   ModifierComposite.getInstance().disableComposite();
+	 	           }
+	 	           setCurrentNode(node);
+	 	       }
+			}
+			
+		});
 		//	 Implement a "fake" tooltip
 		final Listener labelListener = new Listener () {
 			public void handleEvent (Event event) {
@@ -408,24 +439,40 @@ public class NodeBrowser extends ApplicationWindow
 								itemMenu.setVisible(false);
 								allMenu.setVisible(false);
 								rootMenu.setVisible(true);
+								modItemMenu.setVisible(false);
+
 							}
 							else if( (node.getData().getVisualattributes().startsWith("F"))|| (node.getData().getVisualattributes().startsWith("C"))){
 								lockedMenu.setVisible(false);
 								rootMenu.setVisible(false);
 								itemMenu.setVisible(false);
 								allMenu.setVisible(true);
+								modItemMenu.setVisible(false);
+
 							}
-							else if(node.getData().getVisualattributes().startsWith("L")){
+							else if	((node.getData().getVisualattributes().startsWith("L"))|| (node.getData().getVisualattributes().startsWith("O"))
+									|| (node.getData().getVisualattributes().startsWith("D"))){
 								lockedMenu.setVisible(false);
 								rootMenu.setVisible(false);
 								allMenu.setVisible(false);
 								itemMenu.setVisible(true);
+								modItemMenu.setVisible(false);
+
 							}
+							else if	((node.getData().getVisualattributes().startsWith("R"))){
+								rootMenu.setVisible(false);
+								allMenu.setVisible(false);
+								itemMenu.setVisible(false);
+								modItemMenu.setVisible(true);
+								lockedMenu.setVisible(false);
+							}
+						
 							else{
 								lockedMenu.setVisible(false);
 								rootMenu.setVisible(false);
 								allMenu.setVisible(false);
 								itemMenu.setVisible(false);
+								modItemMenu.setVisible(false);
 							}
 
 						}
@@ -433,9 +480,12 @@ public class NodeBrowser extends ApplicationWindow
 							rootMenu.setVisible(false);
 							allMenu.setVisible(false);
 							itemMenu.setVisible(false);
+							modItemMenu.setVisible(false);
 							lockedMenu.setVisible(true);
 						}
 					}
+
+			
 				case SWT.MouseHover: {
 					TreeItem item = (viewer.getTree()).getItem(new Point(event.x, event.y));
 					if (item != null) {
@@ -530,6 +580,9 @@ public class NodeBrowser extends ApplicationWindow
 		viewer.refresh();
 		viewer.expandToLevel((TreeNode)getCurrentNode().getParent(), 1);
 	}
+	
+	
+	
 
 	private class NewFolderAction extends Action 
 	{
@@ -551,7 +604,7 @@ public class NodeBrowser extends ApplicationWindow
 			MetadataRecord.getInstance().setMetadata(node);
 			MetadataRecord.getInstance().registerBrowser(browser);
 			ValueMetadata.getInstance().clear();
-			
+
 			FolderWizard wizard = new FolderWizard();
 
 			WizardDialog dialog = new WizardDialog(Display.getCurrent().getActiveShell(), wizard);
@@ -584,7 +637,7 @@ public class NodeBrowser extends ApplicationWindow
 			MetadataRecord.getInstance().setMetadata(node);
 			MetadataRecord.getInstance().registerBrowser(browser);
 			ValueMetadata.getInstance().clear();
-			
+
 			ItemWizard wizard = new ItemWizard();
 
 			WizardDialog dialog = new WizardDialog(Display.getCurrent().getActiveShell(), wizard);
@@ -620,7 +673,7 @@ public class NodeBrowser extends ApplicationWindow
 			MetadataRecord.getInstance().setMetadata(node);
 			MetadataRecord.getInstance().registerBrowser(browser);
 			ValueMetadata.getInstance().clear();
-			
+
 			ContainerWizard wizard = new ContainerWizard();
 
 			WizardDialog dialog = new WizardDialog(Display.getCurrent().getActiveShell(), wizard);
@@ -634,6 +687,9 @@ public class NodeBrowser extends ApplicationWindow
 		}
 	}
 
+
+
+
 	private class DeleteAction extends Action 
 	{
 		public DeleteAction()
@@ -645,16 +701,16 @@ public class NodeBrowser extends ApplicationWindow
 		@Override
 		public void run()
 		{  
-		if (!(Roles.getInstance().isRoleValid())){
+			if (!(Roles.getInstance().isRoleValid())){
 				MessageBox mBox = new MessageBox(Display.getCurrent().getActiveShell(),SWT.ICON_WARNING|SWT.OK);
 				mBox.setText("Delete Term Warning");
 				mBox.setMessage(Messages.getString("EditView.MinRoleNeeded2"));
 
 				int result = mBox.open();
-				
+
 				return;
 			}
-			
+
 			IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
 			if (selection.size() != 1)
 				return;
@@ -682,9 +738,9 @@ public class NodeBrowser extends ApplicationWindow
 
 			// Nodes that are "deleted" have visAttrib == Hidden.
 			// not true anymore jun 1, 2010
-	//		String hiddenAttribute = visAttribute.charAt(0)+ "H" + visAttribute.charAt(2);
-	//		node.getData().setVisualattributes(hiddenAttribute);
-//			System.out.println(hiddenAttribute);
+			//		String hiddenAttribute = visAttribute.charAt(0)+ "H" + visAttribute.charAt(2);
+			//		node.getData().setVisualattributes(hiddenAttribute);
+			//			System.out.println(hiddenAttribute);
 			deleteChild(node).start();
 
 		}
@@ -705,7 +761,7 @@ public class NodeBrowser extends ApplicationWindow
 						public void run() {
 							MetadataRecord.getInstance().getBrowser().parentUpdate();
 							MetadataRecord.getInstance().getSyncAction()
-								.setImageDescriptor(ImageDescriptor.createFromFile(EditView.class, "/icons/red_database_refresh.png"));
+							.setImageDescriptor(ImageDescriptor.createFromFile(EditView.class, "/icons/red_database_refresh.png"));
 						}
 					});
 				}
@@ -720,7 +776,7 @@ public class NodeBrowser extends ApplicationWindow
 
 					DeleteChildType delChild = theNode.getDeleteChildType();
 					// automatically include children on deletes from folders, containers.
-//					delChild.setIncludeChildren(!(delChild.getVisualattribute().startsWith("L")));
+					//					delChild.setIncludeChildren(!(delChild.getVisualattribute().startsWith("L")));
 					delChild.setIncludeChildren(includeChildren);
 					String response = OntServiceDriver.deleteChild(delChild);
 
@@ -805,7 +861,7 @@ public class NodeBrowser extends ApplicationWindow
 		}
 	}
 
-/*	private class SynchronizeAction extends Action 
+	/*	private class SynchronizeAction extends Action 
 	{
 		public SynchronizeAction()
 		{
@@ -822,7 +878,7 @@ public class NodeBrowser extends ApplicationWindow
 		}
 
 	}
-	*/
+	 */
 	private class EditAction extends Action 
 	{
 		public EditAction()
@@ -842,16 +898,16 @@ public class NodeBrowser extends ApplicationWindow
 			MetadataRecord.getInstance().clear();
 			MetadataRecord.getInstance().setMetadata(node);
 			MetadataRecord.getInstance().registerBrowser(browser);
-			
-			
-			
+
+
+
 			// populate synonyms list
-	//		MetadataRecord.getInstance().getSynonyms().clear();  // start fresh with empty synonym list
-	//		MetadataRecord.getInstance().setSynonymEditFlag(false);
+			//		MetadataRecord.getInstance().getSynonyms().clear();  // start fresh with empty synonym list
+			//		MetadataRecord.getInstance().setSynonymEditFlag(false);
 			synonyms(Display.getCurrent());
-			
+
 			if(node.getData().getVisualattributes().startsWith("C")){
-					MetadataRecord.getInstance().setType("Container");
+				MetadataRecord.getInstance().setType("Container");
 			}
 			else if(node.getData().getVisualattributes().startsWith("F")){
 				MetadataRecord.getInstance().setType("Folder");
@@ -859,7 +915,7 @@ public class NodeBrowser extends ApplicationWindow
 			else if(node.getData().getVisualattributes().startsWith("I")){
 				MetadataRecord.getInstance().setType("Item");
 			}
-	
+
 			ValueMetadata.getInstance().clear();
 			ValueMetadataType vmType = null;
 			XmlValueType xml = node.getData().getMetadataxml();
@@ -871,7 +927,7 @@ public class NodeBrowser extends ApplicationWindow
 					DocumentBuilder builder = factory.newDocumentBuilder();
 					org.w3c.dom.Document doc1 = builder.newDocument();
 					doc1.appendChild( doc1.importNode(xmlElement,true)); 
-				
+
 					JAXBElement jaxbElement = OntologyJAXBUtil.getJAXBUtil().unMashallFromDocument(doc1);
 					vmType = (ValueMetadataType) jaxbElement.getValue();
 				} catch (JAXBUtilException e) {
@@ -883,9 +939,9 @@ public class NodeBrowser extends ApplicationWindow
 				}
 			}
 			ValueMetadata.getInstance().setValueMetadataType(vmType);
-		
-//			ValueMetadata.getInstance().updateFlags();
-			
+
+			//			ValueMetadata.getInstance().updateFlags();
+
 			EditWizard wizard = new EditWizard();
 
 			WizardDialog dialog = new WizardDialog(Display.getCurrent().getActiveShell(), wizard);
@@ -899,7 +955,7 @@ public class NodeBrowser extends ApplicationWindow
 		}
 
 	}
-	
+
 	public Thread getSynonyms(){
 		final Display theDisplay = Display.getCurrent();
 		return new Thread() {
@@ -937,16 +993,16 @@ public class NodeBrowser extends ApplicationWindow
 				//			else if  other error codes
 				//			TABLE_ACCESS_DENIED and USER_INVALID and DATABASE ERRORS
 				if (procStatus.getType().equals("ERROR")){		
-							// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
-							MessageBox mBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_INFORMATION | SWT.OK);
-							mBox.setText("Please Note ...");
-							mBox.setMessage("Unable to make a connection to the remote server\n" +  
-							"This is often a network error, please try again");
-							int result = mBox.open();
+					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+					MessageBox mBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_INFORMATION | SWT.OK);
+					mBox.setText("Please Note ...");
+					mBox.setMessage("Unable to make a connection to the remote server\n" +  
+					"This is often a network error, please try again");
+					int result = mBox.open();
 					log.error(procStatus.getValue());				
-//					return false;
+					//					return false;
 				}			
-			//  check response
+				//  check response
 				ConceptsType concepts = msg.doReadConcepts();
 				Iterator<ConceptType> it = concepts.getConcept().iterator();
 				while(it.hasNext()){
@@ -987,6 +1043,184 @@ public class NodeBrowser extends ApplicationWindow
 			});
 		}
 	}
+
+
+
+
+	private class ModifierFolderAction extends Action 
+	{
+		public ModifierFolderAction()
+		{
+			super("ModifierFolder");
+		}
+		@Override
+		public void run()
+		{
+			IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+			if (selection.size() != 1)
+				return;
+
+			TreeNode node = (TreeNode) selection.getFirstElement();
+			setCurrentNode(node);
+			MetadataRecord.getInstance().clear();
+			MetadataRecord.getInstance().setType("ModifierFolder");
+			MetadataRecord.getInstance().setMetadata(node);
+			MetadataRecord.getInstance().registerBrowser(browser);
+			ValueMetadata.getInstance().clear();
+
+			ModifierFolderWizard wizard = new ModifierFolderWizard();
+
+			WizardDialog dialog = new WizardDialog(Display.getCurrent().getActiveShell(), wizard);
+			dialog.setPageSize(350, 350);
+			dialog.setHelpAvailable(true);
+			dialog.create();
+			dialog.open();
+
+			wizard.dispose();		
+		}
+	}
+
+	private class ModifierItemAction extends Action 
+	{
+		public ModifierItemAction()
+		{
+			super("ModifierItem");
+		}
+		@Override
+		public void run()
+		{
+			IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+			if (selection.size() != 1)
+				return;
+
+			TreeNode node = (TreeNode) selection.getFirstElement();
+			setCurrentNode(node);
+			MetadataRecord.getInstance().clear();
+			MetadataRecord.getInstance().setType("ModifierItem");
+			MetadataRecord.getInstance().setMetadata(node);
+			MetadataRecord.getInstance().registerBrowser(browser);
+			ValueMetadata.getInstance().clear();
+
+			ModifierItemWizard wizard = new ModifierItemWizard();
+
+			WizardDialog dialog = new WizardDialog(Display.getCurrent().getActiveShell(), wizard);
+			dialog.setPageSize(350, 350);
+			dialog.setHelpAvailable(true);
+			dialog.create();
+			dialog.open();
+
+
+			wizard.dispose();	           
+		}
+
+	}
+
+
+	private class	ModifierContainerAction extends Action 
+	{
+		public ModifierContainerAction ()
+		{
+			super("ModifierContainer");
+		}
+		@Override
+		public void run()
+		{
+			IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+			if (selection.size() != 1)
+				return;
+
+			TreeNode node = (TreeNode) selection.getFirstElement();
+			setCurrentNode(node);
+			MetadataRecord.getInstance().clear();
+			MetadataRecord.getInstance().setType("ModifierContainer");
+			MetadataRecord.getInstance().setMetadata(node);
+			MetadataRecord.getInstance().registerBrowser(browser);
+			ValueMetadata.getInstance().clear();
+
+			ModifierContainerWizard wizard = new ModifierContainerWizard();
+
+			WizardDialog dialog = new WizardDialog(Display.getCurrent().getActiveShell(), wizard);
+			dialog.setPageSize(350, 350);
+			dialog.setHelpAvailable(true);
+			dialog.create();
+			dialog.open();
+
+			wizard.dispose();
+
+		}
+	}
+	private MenuManager createModItemPopupMenu() {
+		MenuManager modItemPopupMenu = new MenuManager();
+		modItemPopupMenu.add(new DeleteAction());
+		modItemPopupMenu.add(new RefreshAction());
+		modItemPopupMenu.add(new EditAction());
+		return modItemPopupMenu;
+
+	}
+
+	private MenuManager createRootPopupMenu(){
+
+	//	MenuManager modifierPopupMenu = new MenuManager("Modifier");
+	//	modifierPopupMenu.add(new ModifierFolderAction());
+	//	modifierPopupMenu.add(new ModifierItemAction());
+	//	modifierPopupMenu.add(new ModifierContainerAction());
+
+		MenuManager newMenu = new MenuManager("New");
+		newMenu.add(new	NewFolderAction());
+		newMenu.add(new	NewItemAction());
+		newMenu.add(new	NewContainerAction());
+	//	newMenu.add(modifierPopupMenu);
+
+		MenuManager rootPopupMenu = new MenuManager();
+		rootPopupMenu.add(newMenu);
+		rootPopupMenu.add(new RefreshAction());   
+
+		return rootPopupMenu;
+	}
+
+	private MenuManager createItemPopupMenu(){
+
+	//	MenuManager modifierPopupMenu = new MenuManager("Modifier");
+	//	modifierPopupMenu.add(new ModifierFolderAction());
+	//	modifierPopupMenu.add(new ModifierItemAction());
+	//	modifierPopupMenu.add(new ModifierContainerAction());
+
+	//	MenuManager newMenu = new MenuManager("New");
+	//	newMenu.add(modifierPopupMenu);
+
+		MenuManager itemPopupMenu = new MenuManager();
+	//	itemPopupMenu.add(newMenu);
+		itemPopupMenu.add(new DeleteAction());
+		itemPopupMenu.add(new RefreshAction());
+		itemPopupMenu.add(new EditAction());
+
+		return itemPopupMenu;
+	}
+
+
+	private MenuManager createAllPopupMenu(){
+
+	//	MenuManager modifierPopupMenu2= new MenuManager("Modifier");
+	//	modifierPopupMenu2.add(new ModifierFolderAction());
+	//	modifierPopupMenu2.add(new ModifierItemAction());
+	//	modifierPopupMenu2.add(new ModifierContainerAction());
+
+		MenuManager newMenu2 = new MenuManager("New");
+		newMenu2.add(new NewFolderAction());
+		newMenu2.add(new NewItemAction());
+		newMenu2.add(new NewContainerAction());
+//		newMenu2.add(modifierPopupMenu2);
+
+		MenuManager allPopupMenu = new MenuManager();
+		allPopupMenu.add(newMenu2);
+		allPopupMenu.add(new DeleteAction());
+		allPopupMenu.add(new RefreshAction());
+		allPopupMenu.add(new EditAction());
+
+		return allPopupMenu;
+
+	}
 }
+
 
 

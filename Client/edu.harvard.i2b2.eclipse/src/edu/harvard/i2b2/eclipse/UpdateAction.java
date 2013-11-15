@@ -33,7 +33,7 @@ public class UpdateAction extends org.eclipse.jface.action.Action implements IAc
 		//super();
 		this.window = window;
 		setId("edu.harvard.i2b2.newUpdates");
-		setText("&Update 1.5.0 ...");
+		setText("&Update 1.6.0 ...");
 		setToolTipText("Search for updates for i2b2 workbench");
 		window.getWorkbench().getHelpSystem().setHelp(this, 
 				"edu.harvard.i2b2.updates");

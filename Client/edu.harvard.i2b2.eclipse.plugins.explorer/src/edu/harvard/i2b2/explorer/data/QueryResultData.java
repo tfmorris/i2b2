@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -14,66 +14,65 @@
  */
 package edu.harvard.i2b2.explorer.data;
 
-
 public class QueryResultData extends QueryData {
 
-    private String type;
+	private String type;
 
-    public void type(String str) {
-	type = str;
-    }
+	public void type(String str) {
+		type = str;
+	}
 
-    public String type() {
-	return type;
-    }
+	public String type() {
+		return type;
+	}
 
-    private String queryId;
+	private String queryId;
 
-    public void queryId(String str) {
-	queryId = str;
-    }
+	public void queryId(String str) {
+		queryId = str;
+	}
 
-    public String queryId() {
-	return queryId;
-    }
+	public String queryId() {
+		return queryId;
+	}
 
-    private String finishedTime;
+	private String finishedTime;
 
-    public void finishedTime(String str) {
-	finishedTime = str;
-    }
+	public void finishedTime(String str) {
+		finishedTime = str;
+	}
 
-    public String finishedTime() {
-	return finishedTime;
-    }
+	public String finishedTime() {
+		return finishedTime;
+	}
 
-    private String patientCount;
+	private String patientCount;
 
-    public void patientCount(String str) {
-	patientCount = str;
-    }
+	public void patientCount(String str) {
+		patientCount = str;
+	}
 
-    public String patientCount() {
-	return patientCount;
-    }
+	public String patientCount() {
+		return patientCount;
+	}
 
-    private String patientRefId;
+	private String patientRefId;
 
-    public void patientRefId(String str) {
-	patientRefId = str;
-    }
+	public void patientRefId(String str) {
+		patientRefId = str;
+	}
 
-    public String patientRefId() {
-	return patientRefId;
-    }
+	public String patientRefId() {
+		return patientRefId;
+	}
 
-    public QueryResultData() {
-    }
+	public QueryResultData() {
+	}
 
-    @Override
-    public String writeContentQueryXML() {
+	@Override
+	public String writeContentQueryXML() {
 
-	return null;
-    }
+		return null;
+	}
 
 }

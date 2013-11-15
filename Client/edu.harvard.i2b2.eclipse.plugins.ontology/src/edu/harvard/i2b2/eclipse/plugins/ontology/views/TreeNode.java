@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -18,9 +18,13 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
+
 import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.eclipse.plugins.ontology.util.StringUtil;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.CRCServiceDriver;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.GetChildrenResponseMessage;
+import edu.harvard.i2b2.eclipse.plugins.ontology.ws.GetModifierChildrenResponseMessage;
+import edu.harvard.i2b2.eclipse.plugins.ontology.ws.GetModifiersResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.GetPsmResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.OntServiceDriver;
 import edu.harvard.i2b2.ontclient.datavo.i2b2message.StatusType;
@@ -29,8 +33,13 @@ import edu.harvard.i2b2.ontclient.datavo.psm.query.QueryMasterType;
 import edu.harvard.i2b2.ontclient.datavo.psm.query.QueryResultInstanceType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptsType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.GetCategoriesType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetChildrenType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.GetModifierChildrenType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.GetModifiersType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetReturnType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.ModifierType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.ModifiersType;
 
 public class TreeNode
 {		
@@ -89,23 +98,64 @@ public class TreeNode
     @Override
 	public String toString()
     {
-    	if(this.data.getNumPatients() == null)
-    		return this.data.getName();
+    	if(this.data.getModifier() != null){
+    		
+    		// if element is a modifier
+    		// return modifier name
     	
-    	else
-    		return this.data.getName() + " - " + this.data.getNumPatients();
+    		String name = this.data.getModifier().getName();
+        	return name;
+    		/*  Total num does not apply to modifiers
+    		 * if(System.getProperty("OntPatientCount").equals("false"))
+        		return  name;    		
+     
+        		
+        	else if(this.data.getModifier().getTotalnum() ==0 )
+        		return "[" + name + " - 0]";
+        	else
+        		return name + " - " + this.data.getModifier().getTotalnum();
+        		*/
+    	}else{
+
+    		if(System.getProperty("OntPatientCount").equals("false"))
+    			return  this.data.getName();  		
+        	else if (this.data.getTotalnum() == null)
+        		return this.data.getName();
+    		else if(this.data.getTotalnum() ==0 )
+    			return "[" + this.data.getName() + " - 0]";
+    		else
+    			return this.data.getName() + " - " + this.data.getTotalnum();
+    	
+    	}
     }
 
     public String getIconKey()
     {
     	String key = null;
+    	if(data.getModifier() != null){
+    		if (data.getModifier().getVisualattributes().substring(0,1).equals("R"))
+    		{
+    			key = "modLeaf";
+    		}
+    		else if (data.getModifier().
+    				getVisualattributes().substring(0,1).equals("D"))
+    		{
+    			key = "modFolder";
+    		}
+    		else if (data.getModifier().
+    				getVisualattributes().substring(0,1).equals("O"))
+    		{
+    			key = "modCase";
+    		}
+    		return key;
+    	}
     	if (data.getVisualattributes().substring(0,1).equals("F"))
     	{
     		if (isOpen())
     			key = "openFolder";
     		else 
     			key = "closedFolder";
-    		
+
     	}
     	else if (data.getVisualattributes().substring(0,1).equals("C"))
     	{
@@ -118,6 +168,7 @@ public class TreeNode
     	{
     		key = "leaf";
     	}
+
     	else if (data.getVisualattributes().substring(0,1).equals("M"))
     	{
     		key = "multi";
@@ -126,7 +177,7 @@ public class TreeNode
     	{
     		key = "error";
     	}
-    	
+
 
     	return key;
     }
@@ -134,11 +185,17 @@ public class TreeNode
 	public Thread getXMLData(TreeViewer viewer, NodeBrowser browser) {
 		final TreeNode theNode = this;
 		final TreeViewer theViewer = viewer;
+		final Boolean disableModifiers = Boolean.parseBoolean(
+				System.getProperty("OntDisableModifiers"));  
 		final Display theDisplay = Display.getCurrent();
 		return new Thread() {
 			@Override
 			public void run(){
 				try {
+					getChildren().clear();
+					if(!disableModifiers) {
+						theNode.updateModifiers(theDisplay, theViewer);
+					}
 					theNode.updateChildren(theDisplay, theViewer);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -153,6 +210,147 @@ public class TreeNode
 			}
 		};
 	}
+	public Thread getModXMLData(TreeViewer viewer, NodeBrowser browser) {
+		final TreeNode theNode = this;
+		final TreeViewer theViewer = viewer;
+		final Display theDisplay = Display.getCurrent();
+		return new Thread() {
+			@Override
+			public void run(){
+				try {
+					theNode.updateModifierChildren(theDisplay, theViewer);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+	//				System.setProperty("statusMessage", e.getMessage());					
+				}
+				theDisplay.syncExec(new Runnable() {
+					public void run() {
+					//	theViewer.expandToLevel(theNode, 1);
+						theViewer.refresh(theNode);
+					}
+				});
+			}
+		};
+	}
+	
+	public void updateModifiers(final Display theDisplay, final TreeViewer theViewer) 
+	{
+		String path = StringUtil.getPath(this.getData().getKey());
+		String tableCd = StringUtil.getTableCd(this.getData().getKey());
+		getChildren().clear();
+//		while (path.length()>2){
+			GetModifiersType nodeType = new GetModifiersType();
+
+			nodeType.setBlob(false);
+			nodeType.setSelf("\\\\"+tableCd +  path);		
+			nodeType.setType("limited");
+
+
+			GetModifiersResponseMessage msg = new GetModifiersResponseMessage();
+			StatusType procStatus = null;	
+			while(procStatus == null || !procStatus.getType().equals("DONE")){
+				String response = OntServiceDriver.getModifiers(nodeType, "ONT");
+				// case where server is at pre-1.6 version
+				// ignore the response and continue
+				if(response == null){
+					getChildren().clear();
+					return;
+				}
+				procStatus = msg.processResult(response);
+
+				//				else if  other error codes
+				//				TABLE_ACCESS_DENIED and USER_INVALID and DATABASE ERRORS
+				if (procStatus.getType().equals("ERROR")){		
+					System.setProperty("errorMessage",  procStatus.getValue());				
+					theDisplay.syncExec(new Runnable() {
+						public void run() {
+							MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+							mBox.setText("Please Note ...");
+							mBox.setMessage("Server reports: " +  System.getProperty("errorMessage"));
+							int result = mBox.open();
+						}
+					});
+					getChildren().clear();
+					return;
+				}			
+			}
+		//	getChildren().clear();
+			ModifiersType allModifiers = msg.doReadModifiers();   
+			ConceptsType concepts = new ConceptsType();
+			if (allModifiers != null){
+				// convert list of modifiers to list of concepts
+				List<ModifierType> modifiers = allModifiers.getModifier();
+				if(!modifiers.isEmpty()){	
+					Iterator<ModifierType> it = modifiers.iterator();
+					while(it.hasNext()){
+
+						ConceptType concept = this.getData();
+						TreeData data = new TreeData(concept);
+
+						data.setModifier(	(ModifierType)it.next());
+						concepts.getConcept().add(data);
+					}
+				}
+
+
+				List<DataType> counts = null;
+				getModifiersFromXMLString(concepts.getConcept(), counts);
+			}	
+/*			if(path.endsWith("%")){
+				path = path.substring(0, path.length()-2);
+		//		log.debug("INTERMED modifier path is " + path);
+				path = path.substring(0, path.lastIndexOf("\\") + 1) + "%";
+		//		log.debug("NEW modifier path is " + path);
+			}
+			else
+				path = path + "%";
+		}
+		*/
+	}
+
+	
+
+	/*		} catch (AxisFault e) {
+			log.error(e.getMessage());
+			theDisplay.syncExec(new Runnable() {
+				public void run() {
+					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+					MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					mBox.setText("Please Note ...");
+					mBox.setMessage("Unable to make a connection to the remote server\n" +  
+					"This is often a network error, please try again");
+					int result = mBox.open();
+				}
+			});
+			getChildren().clear();
+		} catch (I2B2Exception e) {
+			log.error(e.getMessage());
+			theDisplay.syncExec(new Runnable() {
+				public void run() {
+					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+					MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					mBox.setText("Please Note ...");
+					mBox.setMessage("Your system does not have enough memory \n  to display the contents of this folder.");
+					int result = mBox.open();
+				}
+			});		
+			getChildren().clear();
+		} catch (Exception e) {
+			log.error(e.getMessage());
+//			disableCountButton();
+			theDisplay.syncExec(new Runnable() {
+				public void run() {
+					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+					MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					mBox.setText("Please Note ...");
+					mBox.setMessage("Error message delivered from the remote server\n" +  
+					"You may wish to retry your last action");
+					int result = mBox.open();
+				}
+			});		
+			getChildren().clear();
+		}
+	 */
 	
 	public void updateChildren(final Display theDisplay, final TreeViewer theViewer) 
 	{
@@ -167,8 +365,8 @@ public class TreeNode
 			//				+ System.getProperty("OntSynonyms") );
 
 			//		parentType.setMax(150);
-			parentType.setBlob(true);
-//			parentType.setType("all");
+			parentType.setBlob(false);
+			parentType.setType("limited");
 
 			parentType.setParent(this.getData().getKey());		
 
@@ -221,12 +419,10 @@ public class TreeNode
 			if (allConcepts != null){
 				List concepts = allConcepts.getConcept();
 				List<DataType> counts = null;
-				if(System.getProperty("getPatientCount").equals("true")){
-					counts = getCounts(parentType);
-//				if(counts == null)
-					//	disableCountButton();
-				}
-				getChildren().clear();
+				//if(System.getProperty("getPatientCount").equals("true")){
+				//	counts = getCounts(parentType);
+				//}
+		//		getChildren().clear();
 				getNodesFromXMLString(concepts, counts);
 			}	
 				
@@ -272,34 +468,218 @@ public class TreeNode
 		}
 
 	}
-    private void getNodesFromXMLString(List concepts, List<DataType> counts){   	
+	public void updateModifierChildren(final Display theDisplay, final TreeViewer theViewer) 
+	{
+//		try {
+			GetModifierChildrenType parentType = new GetModifierChildrenType();
 
-    	if(concepts != null) {
-    		Iterator it = concepts.iterator();
+			parentType.setHiddens(Boolean.parseBoolean(System.getProperty("OntHiddens")));
+			parentType.setSynonyms(Boolean.parseBoolean(System.getProperty("OntSynonyms")));
 
-    		while(it.hasNext()){
-    			TreeData child = new TreeData((ConceptType) it.next()); 
-    			// TODO check button to display counts.
-    			child.setNumPatients(counts);
-    			
-    			TreeNode childNode = new TreeNode(child);
-    			// if the child is a folder/directory set it up with a leaf placeholder
-    			if((child.getVisualattributes().startsWith("FA")) || (child.getVisualattributes().startsWith("CA")))  
-    			{
-    				TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "LA");
-    				placeholder.setOpen(true);
-    				childNode.addChild(placeholder);
-    			}
-    			else if	((child.getVisualattributes().startsWith("FH")) || (child.getVisualattributes().startsWith("CH")))
-    			{
-    				TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "LH");
-    				placeholder.setOpen(true);
-    				childNode.addChild(placeholder);
-    			}
-    			this.addChild(childNode);
+			//		log.info("sent : " + parentType.getMax() + System.getProperty("OntMax") + System.getProperty("OntHiddens")
+			//				+ System.getProperty("OntSynonyms") );
 
-    		} 		
-    	}
+			//		parentType.setMax(150);
+			parentType.setBlob(false);
+			parentType.setType("limited");
+
+			parentType.setParent(this.getData().getModifier().getKey());		
+			parentType.setAppliedPath(this.getData().getModifier().getAppliedPath());
+			parentType.setAppliedConcept(this.getData().getFullName());
+			
+			GetModifierChildrenResponseMessage msg = new GetModifierChildrenResponseMessage();
+			StatusType procStatus = null;	
+			while(procStatus == null || !procStatus.getType().equals("DONE")){
+				String response = OntServiceDriver.getModifierChildren(parentType, "ONT");
+
+				procStatus = msg.processResult(response);
+
+//				else if  other error codes
+//				TABLE_ACCESS_DENIED and USER_INVALID and DATABASE ERRORS
+				if (procStatus.getType().equals("ERROR")){		
+					System.setProperty("errorMessage",  procStatus.getValue());				
+					theDisplay.syncExec(new Runnable() {
+						public void run() {
+							MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+							mBox.setText("Please Note ...");
+							mBox.setMessage("Server reports: " +  System.getProperty("errorMessage"));
+							int result = mBox.open();
+						}
+					});
+					getChildren().clear();
+					return;
+				}
+			}
+			getChildren().clear();
+			ModifiersType allModifiers = msg.doReadModifiers();   
+			ConceptsType concepts = new ConceptsType();
+			if (allModifiers != null){
+				// convert list of modifiers to list of concepts
+				List<ModifierType> modifiers = allModifiers.getModifier();
+				if(!modifiers.isEmpty()){	
+					Iterator<ModifierType> it = modifiers.iterator();
+					while(it.hasNext()){
+
+						ConceptType concept = this.getData();
+						TreeData data = new TreeData(concept);
+
+						data.setModifier(	(ModifierType)it.next());
+						concepts.getConcept().add(data);
+					}
+				}
+
+
+				List<DataType> counts = null;
+				getModifiersFromXMLString(concepts.getConcept(), counts);
+			}	
+					
+				
+/*		} catch (AxisFault e) {
+			log.error(e.getMessage());
+			theDisplay.syncExec(new Runnable() {
+				public void run() {
+					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+					MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					mBox.setText("Please Note ...");
+					mBox.setMessage("Unable to make a connection to the remote server\n" +  
+					"This is often a network error, please try again");
+					int result = mBox.open();
+				}
+			});
+			getChildren().clear();
+		} catch (I2B2Exception e) {
+			log.error(e.getMessage());
+			theDisplay.syncExec(new Runnable() {
+				public void run() {
+					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+					MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					mBox.setText("Please Note ...");
+					mBox.setMessage("Your system does not have enough memory \n  to display the contents of this folder.");
+					int result = mBox.open();
+				}
+			});		
+			getChildren().clear();
+		} catch (Exception e) {
+			log.error(e.getMessage());
+//			disableCountButton();
+			theDisplay.syncExec(new Runnable() {
+				public void run() {
+					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+					MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					mBox.setText("Please Note ...");
+					mBox.setMessage("Error message delivered from the remote server\n" +  
+					"You may wish to retry your last action");
+					int result = mBox.open();
+				}
+			});		
+			getChildren().clear();
+		}*/
+
+	}
+	
+	 private void getModifiersFromXMLString(List concepts, List<DataType> counts){   	
+
+		 if(concepts != null) {
+			 Iterator it = concepts.iterator();
+
+			 while(it.hasNext()){
+				 ConceptType concept = (ConceptType) it.next(); 
+				 TreeData child = new TreeData(concept); 
+
+				 TreeNode childNode = new TreeNode(child);
+				 // TODO check button to display counts.
+				 if((child.getModifier().getVisualattributes().startsWith("DA")) || (child.getModifier().getVisualattributes().startsWith("OA")))  
+				 {
+
+					 TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "RA");
+					 placeholder.setOpen(true);
+					 childNode.addChild(placeholder);
+					 if(System.getProperty("OntShortTooltips").equals("true"))
+					 {
+						 childNode.data.getModifier().setTooltip(childNode.data.getModifier().getName());
+					 }
+					 if(System.getProperty("OntConceptCode").equals("true"))
+					 {
+						 if ((childNode.data.getModifier().getBasecode() != null) && (childNode.data.getModifier().getBasecode().length() != 0))
+							 childNode.data.getModifier().setTooltip(childNode.data.getModifier().getTooltip() + " - " + childNode.data.getModifier().getBasecode());
+					 }
+					 this.addChild(childNode);
+
+				 }
+				 else if	((child.getModifier().getVisualattributes().startsWith("DH")) || (child.getModifier().getVisualattributes().startsWith("OH")))
+				 {
+
+					 TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "RH");
+					 placeholder.setOpen(true);
+					 childNode.addChild(placeholder);
+					 if(System.getProperty("OntShortTooltips").equals("true"))
+					 {
+						 childNode.data.getModifier().setTooltip(childNode.data.getModifier().getName());
+					 }
+					 if(System.getProperty("OntConceptCode").equals("true"))
+					 {
+						 if (childNode.data.getModifier().getBasecode() != null)
+							 childNode.data.getModifier().setTooltip(childNode.data.getModifier().getTooltip() + " - " + childNode.data.getModifier().getBasecode());
+					 }
+					 this.addChild(childNode);
+
+				 }
+				 else if((child.getModifier().getVisualattributes().startsWith("R"))){
+					 if(System.getProperty("OntShortTooltips").equals("true"))
+					 {
+						 childNode.data.getModifier().setTooltip(childNode.data.getModifier().getName());
+					 }
+					 if(System.getProperty("OntConceptCode").equals("true"))
+					 {
+						 if (childNode.data.getModifier().getBasecode() != null)
+							 childNode.data.getModifier().setTooltip(childNode.data.getModifier().getTooltip() + " - " + childNode.data.getModifier().getBasecode());
+					 }
+					 this.addChild(childNode);
+
+				 }
+
+			 }
+
+		 }
+	    }
+	 private void getNodesFromXMLString(List concepts, List<DataType> counts){   	
+		 if(concepts != null) {
+			 Iterator it2 = concepts.iterator();
+
+			 while(it2.hasNext()){
+				 TreeData child = new TreeData((ConceptType) it2.next()); 
+				 // TODO check button to display counts.
+				 //	child.setNumPatients(counts);
+
+				 TreeNode childNode = new TreeNode(child);
+				 // if the child is a folder/directory set it up with a leaf placeholder
+				 if((child.getVisualattributes().startsWith("FA")) || (child.getVisualattributes().startsWith("CA")))  
+				 {
+					 TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "LA");
+					 placeholder.setOpen(true);
+					 childNode.addChild(placeholder);
+				 }
+				 else if	((child.getVisualattributes().startsWith("FH")) || (child.getVisualattributes().startsWith("CH")))
+				 {
+					 TreeNode placeholder = new TreeNode(child.getLevel() + 1, "working...", "working...", "LH");
+					 placeholder.setOpen(true);
+					 childNode.addChild(placeholder);
+				 }
+				 if(System.getProperty("OntShortTooltips").equals("true"))
+				 {
+					 childNode.data.setTooltip(childNode.data.getName());
+				 }
+				 if(System.getProperty("OntConceptCode").equals("true"))
+				 {
+					 if ((childNode.data.getBasecode() != null) && (childNode.data.getBasecode().length() != 0))
+						 childNode.data.setTooltip(childNode.data.getTooltip() + " - " + childNode.data.getBasecode());
+				 }
+
+				 this.addChild(childNode);
+
+			 } 		
+		 }
+
     }
     
 
@@ -328,10 +708,20 @@ public class TreeNode
     public void updateCategories(final Display theDisplay, final TreeViewer theViewer) 
     {
     	try {
-			GetReturnType request = new GetReturnType();
+			GetCategoriesType request = new GetCategoriesType();
 			request.setType("core");
+			request.setBlob(false);
+			request.setHiddens(Boolean.parseBoolean(
+					System.getProperty("OntHiddens")));
+			
+			request.setSynonyms(Boolean.parseBoolean(
+					System.getProperty("OntSynonyms")));
+			
+			
+	//		request.setSynonyms(false);
 			
     	    GetChildrenResponseMessage msg = new GetChildrenResponseMessage();
+    	    
 			StatusType procStatus = null;	
 			while(procStatus == null || !procStatus.getType().equals("DONE")){
 				String response = OntServiceDriver.getCategories(request, "ONT");

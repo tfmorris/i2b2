@@ -29,7 +29,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.Locale;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConstants;
@@ -37,8 +36,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
 import org.jdom.Element;
 
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.BodyType;
@@ -53,50 +50,28 @@ import edu.harvard.i2b2.common.datavo.pdo.ObservationType;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.explorer.datavo.ExplorerJAXBUtil;
-import edu.harvard.i2b2.explorer.ui.ExplorerComposite;
+import edu.harvard.i2b2.explorer.ui.MainComposite;
 import edu.harvard.i2b2.smlib.Lib;
 
 public class TimelineFactory {
 
-	public static String newline = System.getProperty("line.separator");
+	public String newline = System.getProperty("line.separator");
 
 	private static final Log log = LogFactory.getLog(TimelineFactory.class);
-
-	private static String getSValue(String sConcept_cd,
-			ObservationType obsFactType, boolean hasValue) {
-		String prefix = "C";
-		String sValue = null;
-		if (hasValue && obsFactType.getNvalNum().getValue() != null) {
-			sValue = obsFactType.getNvalNum().getValue().toString();
-		}
-		// if(sTablename.equalsIgnoreCase("visit_dimension")) {
-		// prefix = "E";
-		// }
-		// else if(sTablename.equalsIgnoreCase("provider_dimension")) {
-		// prefix = "P";
-		// }
-
-		if (!hasValue) {
-			sValue = prefix + " = ::" + sConcept_cd + "::" + "$$"
-					+ obsFactType.getPatientId().getValue() + "$$"
-					+ obsFactType.getConceptCd().getValue() + "$$"
-					+ obsFactType.getEventId().getValue() + "$$"
-					+ obsFactType.getObserverCd().getValue() + "$$"
-					+ obsFactType.getModifierCd().getValue() + "$$";
-		} else {
-			sValue = prefix + " Value = " + "::" + sConcept_cd + ": " + sValue
-					+ "::" + "$$" + obsFactType.getPatientId().getValue() + "$$"
-					+ obsFactType.getConceptCd().getValue() + "$$"
-					+ obsFactType.getEventId().getValue() + "$$"
-					+ obsFactType.getObserverCd().getValue() + "$$"
-					+ obsFactType.getModifierCd().getValue() + "$$";
-		}
-		return sValue;
+	
+	
+	/**
+	 * 
+	 */
+	public TimelineFactory() {
 	}
 
-	public static String generateTimelineData(String result,
+	
+
+	@SuppressWarnings("unchecked")
+	public String generateTimelineData(String result,
 			ArrayList<TimelineRow> rows, boolean writeFile, boolean displayAll,
-			boolean displayDemographics, final ExplorerComposite explorer) {
+			boolean displayDemographics, final MainComposite explorer) {
 
 		try {
 			PDOResponseMessageModel pdoresponsefactory = new PDOResponseMessageModel();
@@ -110,41 +85,63 @@ public class TimelineFactory {
 
 			JAXBElement jaxbElement = jaxbUtil.unMashallFromString(result);
 			ResponseMessageType messageType = (ResponseMessageType) jaxbElement
-				.getValue();
+					.getValue();
 			BodyType bodyType = messageType.getMessageBody();
 			PatientDataResponseType responseType = (PatientDataResponseType) new JAXBUnWrapHelper()
-			.getObjectByClass(bodyType.getAny(),
-				PatientDataResponseType.class);
+					.getObjectByClass(bodyType.getAny(),
+							PatientDataResponseType.class);
 			PageType pageType = responseType.getPage();
-			if(pageType != null) {
-				final int returnLastIndex = pageType.getPagingByPatients().getPatientsReturned().getLastIndex().intValue();
-				final int returnFirstIndex = pageType.getPagingByPatients().getPatientsReturned().getFirstIndex().intValue();
-				final int requestLastIndex = pageType.getPagingByPatients().getPatientsRequested().getLastIndex().intValue();
-				if(returnLastIndex < requestLastIndex) {
-					//System.out.println("Can't return all the requested "+ requestIndex+" patients, only "+returnIndex+" patients returned");
+			if (pageType != null) {
+				final int returnLastIndex = pageType.getPagingByPatients()
+						.getPatientsReturned().getLastIndex().intValue();
+				final int returnFirstIndex = pageType.getPagingByPatients()
+						.getPatientsReturned().getFirstIndex().intValue();
+				final int requestLastIndex = pageType.getPagingByPatients()
+						.getPatientsRequested().getLastIndex().intValue();
+				if (returnLastIndex < requestLastIndex) {
+					// System.out.println("Can't return all the requested "+
+					// requestIndex+" patients, only "+returnIndex+" patients returned");
 					explorer.getDisplay().syncExec(new Runnable() {
 						public void run() {
-							//MessageBox mBox = new MessageBox(explorer
-							//		.getShell(), SWT.ICON_INFORMATION
-							//		| SWT.OK );
-							//	mBox.setText("Please Note ...");
-							//	mBox.setMessage("Only "+(returnLastIndex-returnFirstIndex+1)+" patients returned");
-							//	mBox.open();
-								if(explorer.runMode() >= 0 ) {
-									explorer.setIncrementNumber(returnLastIndex-returnFirstIndex+1);
-								}
-								else if(explorer.runMode() == -1) {
-									explorer.setDecreaseNumber(returnLastIndex-returnFirstIndex+1);
-								}
+							// MessageBox mBox = new MessageBox(explorer
+							// .getShell(), SWT.ICON_INFORMATION
+							// | SWT.OK );
+							// mBox.setText("Please Note ...");
+							// mBox.setMessage("Only "+(returnLastIndex-returnFirstIndex+1)+" patients returned");
+							// mBox.open();
+							if (explorer.runMode() >= 0) {
+								explorer.setIncrementNumber(returnLastIndex
+										- returnFirstIndex + 1);
+							} else if (explorer.runMode() == -1) {
+								explorer.setDecreaseNumber(returnLastIndex
+										- returnFirstIndex + 1);
+							}
 						}
 					});
-					explorer.returnedNumber(returnLastIndex-returnFirstIndex+1);
-				}
-				else {
+					explorer.returnedNumber(returnLastIndex - returnFirstIndex
+							+ 1);
+				} else {
 					explorer.returnedNumber(-1);
 				}
 			}
-				
+			else {
+				explorer.getDisplay().syncExec(new Runnable() {
+					public void run() {
+						// MessageBox mBox = new MessageBox(explorer
+						// .getShell(), SWT.ICON_INFORMATION
+						// | SWT.OK );
+						// mBox.setText("Please Note ...");
+						// mBox.setMessage("Only "+(returnLastIndex-returnFirstIndex+1)+" patients returned");
+						// mBox.open();
+						if (explorer.runMode() >= 0) {
+							explorer.setIncrementNumber(-1);
+						} else if (explorer.runMode() == -1) {
+							explorer.setDecreaseNumber(-1);
+						}
+					}
+				});
+			}
+
 			StringBuilder resultFile = new StringBuilder();
 			resultFile.append(GetTimelineHeader());
 
@@ -174,12 +171,17 @@ public class TimelineFactory {
 					.getFactSetsFromResponseXML(result);
 
 			log.debug("\nGenerate lld:");
+			
+			String curPNum = "-1";
 			for (int i = 0; i < patientDimensionSet.getPatient().size(); i++) {
 				PatientType patientType = patientDimensionSet.getPatient().get(
 						i);
 				String pnum = patientType.getPatientId().getValue();
 				// Integer pnum = new Integer(snum);
 				// log.debug("PatientNum: " + snum);
+				//if(curPNum.equals("-1")) {
+					curPNum = new String(pnum);
+				//}
 
 				if (displayDemographics) {
 					resultFile.append(getTimelinePatientString(pnum.toString(),
@@ -197,6 +199,15 @@ public class TimelineFactory {
 					TimelineRow row = rows.get(j);
 					int total = 0;
 					StringBuilder resultString = new StringBuilder();
+					
+					XMLGregorianCalendar curStartDate = null;
+					//int currentInstanceNum = 0;
+					//String currentConcept = "";
+					ArrayList<ObservationType> facts = new ArrayList<ObservationType>();
+					ObservationType curFact = null;
+					boolean recorded = false;
+					String sStart_date = null;
+					String sEnd_date = null;
 
 					// loop thru all the pdo sets for this row here
 					for (int s = 0; s < row.pdoItems.size(); s++) {
@@ -206,7 +217,7 @@ public class TimelineFactory {
 						for (int m = 0; m < factSets.size(); m++) {
 							ObservationSet tmpFactSet = factSets.get(m);
 							if (tmpFactSet.getPanelName().equalsIgnoreCase(
-									pset.fullPath)) {
+									pset.panelName())) {
 								observationFactSet = tmpFactSet;
 								path = observationFactSet.getPanelName();
 								currentRow = row;
@@ -217,29 +228,41 @@ public class TimelineFactory {
 						if (observationFactSet == null) {
 							continue;
 						}
-
-						XMLGregorianCalendar curStartDate = null;
+						
 						for (int k = 0; k < observationFactSet.getObservation()
 								.size(); k++) {
 							ObservationType obsFactType = observationFactSet
 									.getObservation().get(k);
+							//if(curFact == null) {
+								//curFact = obsFactType;
+							//}
+							
+								
+							//facts.add(obsFactType);
 
 							if (pnum.equals(obsFactType.getPatientId().getValue())) {
-							/*	if ((curStartDate != null)
-										&& (obsFactType.getStartDate().compare(
-												curStartDate) == DatatypeConstants.EQUAL)) {
-									continue;
+								/*
+								 * if ((curStartDate != null) &&
+								 * (obsFactType.getStartDate().compare(
+								 * curStartDate) == DatatypeConstants.EQUAL)) {
+								 * continue; }
+								 */
+								if(curFact == null) {
+									curFact = obsFactType;
 								}
-								*/
+								
+								if(curStartDate == null) {
+									curStartDate = obsFactType.getStartDate();
+								}
 
-								String sStart_date = obsFactType.getStartDate()
+								sStart_date = obsFactType.getStartDate()
 										.getMonth()
 										+ "-"
 										+ obsFactType.getStartDate().getDay()
 										+ "-"
 										+ obsFactType.getStartDate().getYear()
 										+ " 12:00";
-								String sEnd_date;
+								
 								if (obsFactType.getEndDate() == null) {
 									sEnd_date = sStart_date;
 								} else {
@@ -259,7 +282,7 @@ public class TimelineFactory {
 								}
 								PDOValueModel valdp = null;
 
-								if (pset.hasValueDisplayProperty) {
+								if (false){//pset.hasValueDisplayProperty) {
 									for (int n = 0; n < pset.valDisplayProperties
 											.size(); n++) {
 										PDOValueModel tmpvaldp = pset.valDisplayProperties
@@ -270,50 +293,150 @@ public class TimelineFactory {
 										// }
 									}
 
-									String sValue = getSValue(row.displayName,
+									String sValue = getSValue(obsFactType.getConceptCd().getName(),
 											obsFactType, true);
 									if ((curStartDate != null)
-											&& (obsFactType.getStartDate().compare(
-													curStartDate) == DatatypeConstants.EQUAL)) {
+											&& (obsFactType.getStartDate()
+													.compare(curStartDate) == DatatypeConstants.EQUAL)) {
 										resultString
-										.append(getTimelineDateStringHeight(
-												sStart_date, sEnd_date,
-												"slateblue", valdp.height,
-												sValue));
+												.append(getTimelineDateStringHeight(
+														sStart_date, sEnd_date,
+														"slateblue",
+														valdp.height, sValue));
 									} else {
 										resultString
-											.append(getTimelineDateStringHeight(
-													sStart_date, sEnd_date,
-													valdp.color, valdp.height,
-													sValue));
+												.append(getTimelineDateStringHeight(
+														sStart_date, sEnd_date,
+														valdp.color,
+														valdp.height, sValue));
 									}
-								} 
-								else {
-									String sValue = getSValue(row.displayName,
-											obsFactType, false);
-									if ((curStartDate != null) 
-											&& (obsFactType.getStartDate().compare(
-													curStartDate) == DatatypeConstants.EQUAL)) {
+								} else {
+									//////////////////////
+									String sValue = "";
+									if(sameInstance(curFact, obsFactType)) {
+										//if(recorded) {
+											facts.add(obsFactType);
+											//recorded = false;
+											continue;
+										//}
+										/*sValue = getSValueSame(obsFactType.getConceptCd().getName(),
+												obsFactType, false);
+										if ((curStartDate != null)
+												&& (obsFactType.getStartDate()
+														.compare(curStartDate) == DatatypeConstants.EQUAL)) {
+											resultString
+													.append(getTimelineDateStringHeightSame(
+															sStart_date, sEnd_date,
+															"slateblue",
+															pset.height, sValue));
+										} else {
+											resultString
+													.append(getTimelineDateStringHeightSame(
+															sStart_date, sEnd_date,
+															pset.color,
+															pset.height, sValue));
+										}*/
+									}								
+									//else {
+										sValue = getSValue(curFact.getConceptCd().getName(),
+												facts, false);
+									//}
+										
+										sStart_date = curFact.getStartDate()
+										.getMonth()
+										+ "-"
+										+ curFact.getStartDate().getDay()
+										+ "-"
+										+ curFact.getStartDate().getYear()
+										+ " 12:00";
+								
+								if (curFact.getEndDate() == null) {
+									sEnd_date = sStart_date;
+								} else {
+									sEnd_date = curFact.getEndDate()
+											.getMonth()
+											+ "-"
+											+ curFact.getEndDate().getDay()
+											+ "-"
+											+ curFact.getEndDate()
+													.getYear() + " 12:00";
+								}
+									
+									//if ((curStartDate != null)
+									//		&& (obsFactType.getStartDate()
+											//		.compare(curStartDate) == DatatypeConstants.EQUAL)) {
+										//resultString
+												//.append(getTimelineDateStringHeight(
+														//sStart_date, sEnd_date,
+														//"slateblue",
+														//pset.height, sValue));
+									//} else {
 										resultString
-										.append(getTimelineDateStringHeight(
-												sStart_date, sEnd_date,
-												"slateblue", pset.height,
-												sValue));			
-									} else{
-										resultString
-											.append(getTimelineDateStringHeight(
-													sStart_date, sEnd_date,
-													pset.color, pset.height,
-													sValue));
-									}
+												.append(getTimelineDateStringHeight(
+														sStart_date, sEnd_date,
+														pset.color,
+														pset.height, sValue));
+									//}
 								}
 
 								total++;
+								recorded = false;
+								facts.clear();
+								facts.add(obsFactType);
 								curStartDate = obsFactType.getStartDate();
+								curFact = obsFactType;
+							}
+							else {
+								if(recorded || facts.size() == 0) {
+									curPNum = new String(pnum);
+									continue;
+								}
+								sStart_date = curStartDate.getMonth()
+								+ "-"
+								+ curStartDate.getDay()
+								+ "-"
+								+ curStartDate.getYear()
+								+ " 12:00";
+						
+								//if (obsFactType.getEndDate() == null) {
+									//sEnd_date = sStart_date;
+								//} else {
+									sEnd_date = curStartDate
+											.getMonth()
+											+ "-"
+											+ curStartDate.getDay()
+											+ "-"
+											+ curStartDate
+													.getYear() + " 12:00";
+								//}
+								//curFact = null;
+								String sValue = getSValue(curFact.getConceptCd().getName(),
+										facts, false);
+								//if ((curStartDate != null)
+										//&& (obsFactType.getStartDate()
+												//.compare(curStartDate) == DatatypeConstants.EQUAL)) {
+									//resultString
+											//.append(getTimelineDateStringHeight(
+													//sStart_date, sEnd_date,
+													//"slateblue",
+													//pset.height, sValue));
+								//} else {
+									resultString
+											.append(getTimelineDateStringHeight(
+													sStart_date, sEnd_date,
+													pset.color,
+													pset.height, sValue));
+								//}
+								total++;
+								recorded = true;
+								facts.clear();
+								curStartDate = null;//obsFactType.getStartDate();
+								curFact = null;//obsFactType;
+								curPNum = new String(pnum);
 							}
 						}
 					}
-
+					
 					if (total > 0) {
 						// log.debug("-- "+path+" has "+total+" events");
 						resultFile.append(getTimelineConceptString(
@@ -321,6 +444,8 @@ public class TimelineFactory {
 
 						// log.debug(resultString.toString());
 						resultFile.append(resultString);
+						total = 0;
+						////rdtr
 					} else {
 						// display all
 						if (displayAll) {
@@ -331,6 +456,53 @@ public class TimelineFactory {
 							// log.debug(getTimelineEmptyDateString());
 							resultFile.append(getTimelineEmptyDateString());
 						}
+					}
+					
+					if(recorded || facts.size() == 0) {
+						curPNum = new String(pnum);
+						continue;
+					}
+					sStart_date = curStartDate.getMonth()
+					+ "-"
+					+ curStartDate.getDay()
+					+ "-"
+					+ curStartDate.getYear()
+					+ " 12:00";
+			
+					//if (obsFactType.getEndDate() == null) {
+						//sEnd_date = sStart_date;
+					//} else {
+						sEnd_date = curStartDate
+								.getMonth()
+								+ "-"
+								+ curStartDate.getDay()
+								+ "-"
+								+ curStartDate
+										.getYear() + " 12:00";
+					//}
+					//curFact = null;
+					String sValue = getSValue(curFact.getConceptCd().getName(),
+							facts, false);
+					
+						resultString
+								.append(getTimelineDateStringHeight(
+										sStart_date, sEnd_date,
+										"navyblue",
+										"p10", sValue));
+			
+					total++;
+					recorded = true;
+					facts.clear();
+					//curStartDate = obsFactType.getStartDate();
+					//curFact = obsFactType;
+					curPNum = new String(pnum);
+					if (total > 0) {
+						// log.debug("-- "+path+" has "+total+" events");
+						resultFile.append(getTimelineConceptString(
+								row.displayName, total));
+
+						// log.debug(resultString.toString());
+						resultFile.append(resultString);
 					}
 				}
 			}
@@ -372,7 +544,7 @@ public class TimelineFactory {
 		return;
 	}
 
-	public static String createlld(int minPatientNum, int maxPatientNum,
+	public String createlld(int minPatientNum, int maxPatientNum,
 			boolean bDisplayAll, boolean writeFile, boolean displayDemographics) {
 
 		ArrayList conceptOrder = new ArrayList();
@@ -454,7 +626,7 @@ public class TimelineFactory {
 					}
 
 					Element oChild = (Element) allChildren.get(i);
-					sPatient_num = "";//oChild.getChild(ss_patient_num).getText(
+					sPatient_num = "";// oChild.getChild(ss_patient_num).getText(
 					// );
 
 					if (!sPatient_num.equals(currentPatientNum)
@@ -793,7 +965,7 @@ public class TimelineFactory {
 	 * returns %facet,PERSON_#1...............,white,yes %c,comment %agg,
 	 * normal,1, no %-,2-15-1999,today,white,p1,.,chiempty.html,""
 	 */
-	public static String getTimelinePatientString(String sPatient_num) {
+	public String getTimelinePatientString(String sPatient_num) {
 		String sFinished = newline + "%facet,Person_#" + sPatient_num
 				+ "................,white,yes" + newline + " %c,comment"
 				+ newline + " %agg, normal,1, no" + newline
@@ -802,7 +974,7 @@ public class TimelineFactory {
 		return sFinished;
 	}
 
-	public static String getTimelinePatientString(String sPatient_num,
+	public String getTimelinePatientString(String sPatient_num,
 			PatientDemographics record, String startDate) {
 		String sFinished;
 
@@ -824,7 +996,7 @@ public class TimelineFactory {
 	 * %c,comment %agg, normal,1, no
 	 * %-,2-15-1999,today,white,p1,.,chiempty.html,""
 	 */
-	public static String getTimelinePatientString(String sPatient_num,
+	public String getTimelinePatientString(String sPatient_num,
 			PatientType record) {
 		String sFinished = newline + "%facet,Person_#" + sPatient_num
 				+ ",white,yes" + newline + " %c,comment" + newline
@@ -885,7 +1057,7 @@ public class TimelineFactory {
 	 * %c,comment %agg, normal,1, no
 	 * %-,2-15-1999,today,white,p1,.,chiempty.html,""
 	 */
-	public static String getTimelinePatientString(String sPatient_num,
+	public String getTimelinePatientString(String sPatient_num,
 			PatientDemographics record) {
 		String sFinished;
 
@@ -944,7 +1116,7 @@ public class TimelineFactory {
 	 * %-,6-27-1999,today,slateblue,p5,ICH,blank.htm,""
 	 * %-,6-26-1999,6-30-1999,slateblue,p10, ,blank.htm,""
 	 */
-	public static String getTimelineConceptString(String sConcept_cd,
+	public String getTimelineConceptString(String sConcept_cd,
 			int iNumConceptObservations) {
 		String sNewConcept = sConcept_cd.replaceAll(" ", "_").replaceAll(",",
 				"_");
@@ -964,14 +1136,14 @@ public class TimelineFactory {
 
 	}
 
-	public static String getTimelineDateString(String sStart_date,
+	public String getTimelineDateString(String sStart_date,
 			String sEnd_date) {
 		String sFinished = " %-," + sStart_date + "," + sEnd_date
 				+ ",slateblue,p5, ,blank.htm,\"\"" + newline;
 		return sFinished;
 	}
 
-	public static String getTimelineDateStringHeight(String sStart_date,
+	public String getTimelineDateStringHeight(String sStart_date,
 			String sEnd_date, String height) {
 		String pixel = "p10";
 		if (height.equalsIgnoreCase("Very Low")) {
@@ -989,20 +1161,45 @@ public class TimelineFactory {
 		return sFinished;
 	}
 
-	public static String getTimelineEmptyDateString() {
+	public String getTimelineEmptyDateString() {
 		String sFinished = " %-,2-15-1999 12:00,2-15-1999 12:00"
 				+ ",lightbrown,p5, ,blank.htm,\"\"" + newline;
 		return sFinished;
 	}
 
-	public static String getTimelineDateString(String sStart_date,
+	public String getTimelineDateString(String sStart_date,
 			String sEnd_date, String colorName) {
 		String sFinished = " %-," + sStart_date + "," + sEnd_date + ","
 				+ colorName + ",p5, ,blank.htm,\"\"" + newline;
 		return sFinished;
 	}
 
-	public static String getTimelineDateStringHeight(String sStart_date,
+	public String getTimelineDateStringHeight(String sStart_date,
+			String sEnd_date, String colorName, String height, String sValue) {
+
+		String pixel = "p10";
+		if (height.equalsIgnoreCase("Very Low")) {
+			pixel = "p4";
+		} else if (height.equalsIgnoreCase("Very Tall")) {
+			pixel = "p18";
+		} else if (height.equalsIgnoreCase("Tall")) {
+			pixel = "p12";
+		} else if (height.equalsIgnoreCase("Low")) {
+			pixel = "p8";
+		}
+
+		/*
+		 * if ((sValue==null)||(sValue.trim().length()==0)) sValue = ""; else
+		 * sValue = "Value = " + sValue;
+		 */
+
+		String sFinished = " %-," + sStart_date + "," + sEnd_date + ","
+				+ colorName + "," + pixel + ", ,blank.htm,\""
+				+ sValue.replaceAll(",", "-") + "\"" + newline;
+		return sFinished;
+	}
+	
+	public String getTimelineDateStringHeightSame(String sStart_date,
 			String sEnd_date, String colorName, String height, String sValue) {
 
 		String pixel = "p10";
@@ -1027,7 +1224,7 @@ public class TimelineFactory {
 		return sFinished;
 	}
 
-	public static String getTimelineDateStringHeight(String sStart_date,
+	public String getTimelineDateStringHeight(String sStart_date,
 			String sEnd_date, String colorName, String height) {
 
 		String pixel = "p10";
@@ -1046,28 +1243,28 @@ public class TimelineFactory {
 		return sFinished;
 	}
 
-	public static String getTimelineDateString(String sStart_date,
+	public  String getTimelineDateString(String sStart_date,
 			String sEnd_date, String colorName, String url) {
 		String sFinished = " %-," + sStart_date + "," + sEnd_date + ","
 				+ colorName + ",p5, ," + url + ",\"\"" + newline;
 		return sFinished;
 	}
 
-	public static String getTimelineDateStringSpecial(String sStart_date,
+	public  String getTimelineDateStringSpecial(String sStart_date,
 			String sEnd_date) {
 		String sFinished = " %-," + sStart_date + "," + sEnd_date
 				+ ",tomato,p10, ,blank.htm,\"\"" + newline;
 		return sFinished;
 	}
 
-	public static String getTimelineDateStringSpecial(String sStart_date,
+	public  String getTimelineDateStringSpecial(String sStart_date,
 			String sEnd_date, String colorName) {
 		String sFinished = " %-," + sStart_date + "," + sEnd_date + ","
 				+ colorName + ",p10, ,blank.htm,\"\"" + newline;
 		return sFinished;
 	}
 
-	public static String getTimelineDateStringEncounter(String sStart_date,
+	public  String getTimelineDateStringEncounter(String sStart_date,
 			String sEnd_date) {
 		String sFinished = " %-," + sStart_date + "," + sEnd_date
 				+ ",yellowgreen,p2, ,blank.htm,\"\"" + newline;
@@ -1075,7 +1272,7 @@ public class TimelineFactory {
 		return sFinished;
 	}
 
-	public static String getTimelineDateStringEncounter(String sStart_date,
+	public  String getTimelineDateStringEncounter(String sStart_date,
 			String sEnd_date, String colorName) {
 		String sFinished = " %-," + sStart_date + "," + sEnd_date + ","
 				+ colorName + ",p2, ,blank.htm,\"\"" + newline;
@@ -1083,14 +1280,14 @@ public class TimelineFactory {
 		return sFinished;
 	}
 
-	public static String getTimelineDateStringDeath(String sStart_date,
+	public  String getTimelineDateStringDeath(String sStart_date,
 			String sEnd_date) {
 		String sFinished = " %-," + sStart_date + "," + sEnd_date
 				+ ",black,p5, ,blank.htm,\"\"" + newline;
 		return sFinished;
 	}
 
-	public static String getTimelineDateStringDeath(String sStart_date,
+	public  String getTimelineDateStringDeath(String sStart_date,
 			String sEnd_date, String colorName) {
 		String sFinished = " %-," + sStart_date + "," + sEnd_date + ","
 				+ colorName + ",p5, ,blank.htm,\"\"" + newline;
@@ -1098,18 +1295,20 @@ public class TimelineFactory {
 	}
 
 	/*
-	 * public static String getTimelineDateString(String sStart_date,String
+	 * public  String getTimelineDateString(String sStart_date,String
 	 * sEnd_date, String concept_cd){ String sFinished = " %-," + sStart_date +
 	 * "," + sEnd_date + ",slateblue,p5," + concept_cd + ",blank.htm,\"\"" +
 	 * newline; return sFinished; }
 	 */
 
-	public static String GetTimelineHeader() {
-	    	Calendar cldr = Calendar.getInstance(TimeZone.getDefault());
-	    	cldr.setTimeInMillis(System.currentTimeMillis());
-	    	String todayStr = (cldr.get(Calendar.MONTH)+1)+"-"+cldr.get(Calendar.DAY_OF_MONTH)+"-"+cldr.get(Calendar.YEAR);
-		return "%beforeSeptember1997" + newline + "%today,"+/*5-02-2006*/todayStr+" 12:00"
-				+ newline + newline +
+	public String GetTimelineHeader() {
+		Calendar cldr = Calendar.getInstance(TimeZone.getDefault());
+		cldr.setTimeInMillis(System.currentTimeMillis());
+		String todayStr = (cldr.get(Calendar.MONTH) + 1) + "-"
+				+ cldr.get(Calendar.DAY_OF_MONTH) + "-"
+				+ cldr.get(Calendar.YEAR);
+		return "%beforeSeptember1997" + newline + "%today,"
+				+ /* 5-02-2006 */todayStr + " 12:00" + newline + newline +
 
 				"%c, Available colors:" + newline + "%c, " + newline
 				+ "%c, (\"seagreen\",          \"2e8b57\");" + newline
@@ -1137,17 +1336,18 @@ public class TimelineFactory {
 				+ "%c, (\"darkbrown\",         \"ffecaf\");" + newline
 				+ newline +
 
-				"%person,i2b2 Timeline Application,.,"+cldr.get(Calendar.YEAR)/*2007*/+",.,images/cath.gif"
+				"%person,i2b2 Timeline Application,.,"
+				+ cldr.get(Calendar.YEAR)/* 2007 */+ ",.,images/cath.gif"
 				+ newline + newline +
 
 				"%c,PERSON 1" + newline;
 	}
 
-	public static String GetTimelineFooter() {
+	public  String GetTimelineFooter() {
 		return newline + "%end" + newline;
 	}
 
-	public static String ChangeRsDate(String sInputDate) {
+	public  String ChangeRsDate(String sInputDate) {
 		try {
 			SimpleDateFormat iFormat = new SimpleDateFormat(
 					"d-MMM-yyyy hh:mm:ss a");
@@ -1187,5 +1387,139 @@ public class TimelineFactory {
 				}
 			}
 		}
+	}
+	
+	private boolean sameInstance(ObservationType curFact, ObservationType obsFactType) {
+		boolean same = false;
+		//if(obsFactType.getInstanceNum() == null) {
+			//return same;
+		//}
+		
+		if(obsFactType.getStartDate().compare(curFact.getStartDate()) == DatatypeConstants.EQUAL
+				&& obsFactType.getConceptCd().getValue().equals(curFact.getConceptCd().getValue())
+				&& ((obsFactType.getInstanceNum() == null) || obsFactType.getInstanceNum().getValue().equals(curFact.getInstanceNum().getValue()))) {
+			same = true;
+		}
+		
+		return same;
+	}
+	
+	private String getSValue(String sConcept_cd,
+			ObservationType obsFactType, boolean hasValue) {
+		String prefix = "C";
+		String sValue = null;
+		if (hasValue && obsFactType.getNvalNum().getValue() != null) {
+			sValue = obsFactType.getNvalNum().getValue().toString();
+		}
+		// if(sTablename.equalsIgnoreCase("visit_dimension")) {
+		// prefix = "E";
+		// }
+		// else if(sTablename.equalsIgnoreCase("provider_dimension")) {
+		// prefix = "P";
+		// }
+
+		if (!hasValue) {
+			sValue = prefix + " = ::" + sConcept_cd + "::" + "$$"
+					+ obsFactType.getPatientId().getValue() + "$$"
+					+ obsFactType.getConceptCd().getValue() + "$$"
+					+ obsFactType.getEventId().getValue() + "$$"
+					+ obsFactType.getObserverCd().getValue() + "$$"
+					+ obsFactType.getModifierCd().getValue() + " "
+					+ (obsFactType.getValuetypeCd().equals("T")?obsFactType.getTvalChar()
+							:(obsFactType.getNvalNum().getValue()+obsFactType.getUnitsCd()))+"$$";
+		} else {
+			sValue = prefix + " Value = " + "::" + sConcept_cd + ": " + sValue
+					+ "::" + "$$" + obsFactType.getPatientId().getValue()
+					+ "$$" + obsFactType.getConceptCd().getValue() + "$$"
+					+ obsFactType.getEventId().getValue() + "$$"
+					+ obsFactType.getModifierCd().getValue() + " "
+					+ (obsFactType.getValuetypeCd().equals("T")?obsFactType.getTvalChar()
+							:(obsFactType.getNvalNum().getValue()+obsFactType.getUnitsCd()))+"$$";
+		}
+		return sValue;
+	}
+	
+	private String getSValueSame(String sConcept_cd,
+			ObservationType obsFactType, boolean hasValue) {
+		String prefix = "C";
+		String sValue = null;
+		if (hasValue && obsFactType.getNvalNum().getValue() != null) {
+			sValue = obsFactType.getNvalNum().getValue().toString();
+		}
+		// if(sTablename.equalsIgnoreCase("visit_dimension")) {
+		// prefix = "E";
+		// }
+		// else if(sTablename.equalsIgnoreCase("provider_dimension")) {
+		// prefix = "P";
+		// }
+
+		if (!hasValue) {
+			sValue = prefix + " = ::" + sConcept_cd + "::" + "$$"
+					+ obsFactType.getPatientId().getValue() + "$$"
+					+ obsFactType.getConceptCd().getValue() + "$$"
+					+ obsFactType.getEventId().getValue() + "$$"
+					+ obsFactType.getObserverCd().getValue() + "$$"
+					+ obsFactType.getModifierCd().getValue() + " "
+					+ (obsFactType.getValuetypeCd().equals("T")?obsFactType.getTvalChar()
+							:(obsFactType.getNvalNum().getValue()+obsFactType.getUnitsCd()))+"$$";
+		} else {
+			sValue = prefix + " Value = " + "::" + sConcept_cd + ": " + sValue
+					+ "::" + "$$" + obsFactType.getPatientId().getValue()
+					+ "$$" + obsFactType.getConceptCd().getValue() + "$$"
+					+ obsFactType.getEventId().getValue() + "$$"
+					+ obsFactType.getModifierCd().getValue() + " "
+					+ (obsFactType.getValuetypeCd().equals("T")?obsFactType.getTvalChar()
+							:(obsFactType.getNvalNum().getValue()+obsFactType.getUnitsCd()))+"$$";
+		}
+		return sValue;
+	}
+	
+	
+	private String getSValue(String sConcept_cd,
+			ArrayList<ObservationType> obsFactTypes, boolean hasValue) {
+		String prefix = "C";
+		String sValue = null;
+		//if (hasValue && obsFactType.getNvalNum().getValue() != null) {
+			//sValue = obsFactType.getNvalNum().getValue().toString();
+		//}
+		// if(sTablename.equalsIgnoreCase("visit_dimension")) {
+		// prefix = "E";
+		// }
+		// else if(sTablename.equalsIgnoreCase("provider_dimension")) {
+		// prefix = "P";
+		// }
+		String mds = new String("$$");
+		for(int i=0; i<obsFactTypes.size(); i++) {
+			if(obsFactTypes.get(i).getValuetypeCd() != null) {
+				mds += obsFactTypes.get(i).getModifierCd().getValue() + " "
+				+ (obsFactTypes.get(i).getValuetypeCd().equals("T")?obsFactTypes.get(i).getTvalChar()
+						:(obsFactTypes.get(i).getNvalNum().getValue()+obsFactTypes.get(i).getUnitsCd()))+"@2@";
+			}
+			else {
+				mds += obsFactTypes.get(i).getModifierCd().getValue()+"@2@";
+			}
+		}
+
+		if (!hasValue) {
+			sValue = prefix + " = ::" + sConcept_cd + "::" + "$$"
+					+ obsFactTypes.get(0).getPatientId().getValue() + "$$"
+					+ obsFactTypes.get(0).getConceptCd().getValue() + "$$"
+					+ obsFactTypes.get(0).getEventId().getValue() + "$$"
+					+ obsFactTypes.get(0).getObserverCd().getValue() //+ "$$"
+					/*+ obsFactTypes.get(0).getModifierCd().getValue() + " "
+					+ (obsFactTypes.get(0).getValuetypeCd().equals("T")?obsFactTypes.get(0).getTvalChar()
+							:(obsFactTypes.get(0).getNvalNum().getValue()+obsFactTypes.get(0).getUnitsCd()))*/
+					+mds+"$$";
+		} else {
+			sValue = prefix + " Value = " + "::" + sConcept_cd + ": " + sValue
+					+ "::" + "$$" + obsFactTypes.get(0).getPatientId().getValue()
+					+ "$$" + obsFactTypes.get(0).getConceptCd().getValue() + "$$"
+					+ obsFactTypes.get(0).getEventId().getValue() //+ "$$"
+					/*+ obsFactTypes.get(0).getModifierCd().getValue() + " "
+					+ (obsFactTypes.get(0).getValuetypeCd().equals("T")?obsFactTypes.get(0).getTvalChar()
+							:(obsFactTypes.get(0).getNvalNum().getValue()+obsFactTypes.get(0).getUnitsCd()))*/
+					+mds+"$$";
+		}
+		return sValue;
 	}
 }

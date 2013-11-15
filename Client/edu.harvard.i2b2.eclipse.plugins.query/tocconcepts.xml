@@ -9,7 +9,13 @@
       </topic>
       <topic href="html/concepts/qt_create/qt_create_add_concepts.htm" label="Add concepts">
       </topic>
+      <topic href="html/concepts/qt_create/qt_create_add_modifiers.htm" label="Add modifers">
+      </topic>
       <topic href="html/concepts/qt_create/qt_create_add_previousQuery.htm" label="Add previous query">
+      </topic>
+      <topic href="html/concepts/qt_create/qt_create_add_ptList.htm" label="Add patient list">
+      </topic>
+      <topic href="html/concepts/qt_create/qt_create_add_encList.htm" label="Add event list">
       </topic>
       <topic href="html/concepts/qt_create/qt_create_add_queryDefinition.htm" label="Add query definition">
       </topic>
@@ -20,14 +26,20 @@
       <topic href="html/concepts/qt_create/qt_create_delete.htm" label="Delete">
       </topic>
       <topic href="html/concepts/qt_create/qt_create_constraints.htm" label="Setting contraints">
+         <topic href="html/concepts/qt_create/qt_create_constraints_time.htm" label="Query and panel timing constraints">
+         </topic>
          <topic href="html/concepts/qt_create/qt_create_constraints_date.htm" label="Date constraints">
+         </topic>
+         <topic href="html/concepts/qt_create/qt_create_constraints_occur.htm" label="Occurrences constraint">
+         </topic>
+         <topic href="html/concepts/qt_create/qt_create_constraints_exclude.htm" label="Exclude constraint">
          </topic>
          <topic href="html/concepts/qt_create/qt_create_constraints_value.htm" label="Value contstraints">
          </topic>
       </topic>
    </topic>
    <topic href="html/concepts/qt_run/qt_run.htm" label="Running a query">
-      <topic href="html/concepts/qt_run/qt_run_analysis.htm" label="Analysis selection">
+      <topic href="html/concepts/qt_run/qt_run_analysis.htm" label="Analysis types">
       </topic>
       <topic href="html/concepts/qt_run/qt_run_query.htm" label="Run query">
       </topic>

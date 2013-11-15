@@ -16,6 +16,7 @@ import java.awt.*;
 import java.applet.*;
 import java.net.*;
 import java.util.*;
+
 import edu.harvard.i2b2.timeline.lifelines.Record;
 
 public class Rotate extends Applet {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution.
@@ -7,7 +7,7 @@
  * Contributors: 
  *     Wensong Pan
  */
-package edu.harvard.i2b2.query.ui;
+package edu.harvard.i2b2.query.ui;  
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
@@ -41,10 +41,10 @@ public class QueryC extends Composite {
 		return oAwtContainer;
 	}
 
-	private QueryPanel queryPanel;
+	private QueryToolPanel queryToolPanel;
 
-	public QueryPanel queryPanel() {
-		return queryPanel;
+	public QueryToolPanel queryToolPanel() {
+		return queryToolPanel;
 	}
 
 	private int mode_;
@@ -89,7 +89,7 @@ public class QueryC extends Composite {
 		if (bWantStatusLine) {
 			slm.createControl(this, SWT.NULL);
 		}
-		slm.setMessage("i2b2 Explorer Version 1.5.0");
+		slm.setMessage("i2b2 Explorer Version 1.6.0");
 		slm.update(true);
 
 		// Create the tab folder
@@ -165,17 +165,17 @@ public class QueryC extends Composite {
 		oAwtContainer = root.getContentPane();
 
 		if (mode_ == 0) {
-			queryPanel = new QueryPanelInvestigator(this);
+			queryToolPanel = new QueryToolInvestigatorPanel(this);
 		} else {
-			queryPanel = new QueryPanel(this);
+			queryToolPanel = new QueryToolPanel(this);
 		}
 
-		oAwtContainer.add(queryPanel);
-		queryPanel.setSplitBounds(oAwtContainer.getBounds());
+		oAwtContainer.add(queryToolPanel);
+		queryToolPanel.setSplitBounds(oAwtContainer.getBounds());
 
 		if (mode_ == 0) {
 			// bottomC = new ExplorerC(verticalForm, false);
-			verticalForm.setWeights(new int[]{40, 50});
+			verticalForm.setWeights(new int[] { 40, 50 });
 		}
 		verticalForm.addListener(SWT.Resize, new Listener() {
 			public void handleEvent(Event event) {
@@ -184,8 +184,8 @@ public class QueryC extends Composite {
 					// System.out.println("Height: "+height);
 					if (height > 285) {
 						try {
-							verticalForm
-									.setWeights(new int[]{285, height - 285});
+							verticalForm.setWeights(new int[] { 285,
+									height - 285 });
 						} catch (Exception e) {
 							return;
 						}
@@ -194,7 +194,7 @@ public class QueryC extends Composite {
 			}
 		});
 
-		horizontalForm.setWeights(new int[]{20, 70});
+		horizontalForm.setWeights(new int[] { 20, 70 });
 		return parent;
 	}
 

@@ -735,49 +735,32 @@ ul
 
 <p class=jdwebnormal>Users can define how many concepts to display and whether
 or not to show hidden terms and/or synonyms.  The display options are set in
-the Navigate Terms Options Dialog window (Figure 5.2), which can be accessed by
-clicking on the <b>Options</b> <b>button </b><span style='color:silver'>(<img
-width=16 height=16
-src="navigate_terms_navigation_displayOptions_files/image001.gif">)</span>.</p>
+the Navigate Terms Options Dialog window, which can be accessed by clicking on
+the <b>Options</b> <b>button </b><span style='color:silver'>(<img width=16
+height=16 src="navigate_terms_navigation_displayOptions_files/image001.gif">)</span>.</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
-<p class=jdwebnormal style='page-break-after:avoid'><img width=322 height=166
+<p class=jdwebnormal><img width=322 height=250
 src="navigate_terms_navigation_displayOptions_files/image002.jpg"></p>
 
-<p class=MsoCaption>Figure 2         Navigate Terms Options Dialog Box</p>
+<p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebheading3><a name="_Toc250710602">Maximum to Display</a></p>
 
 <p class=jdwebnormal>The <b>Maximum number</b> <b>of children to display</b> is
-used when the system is retrieving the concepts to be displayed when expanding
-the folder in <b>Navigate Terms View</b>.  Once the maximum number is reached a
+used when the system is retrieving the items to be displayed when expanding the
+folder in <b>Navigate Terms View</b>.  Once the maximum number is reached a
 message will appear informing you that you have reached the maximum defined and
-that continuing to retrieve all the concepts (“nodes”) in the list may affect
+that continuing to retrieve all the items (“nodes”) in the list may affect
 performance. You will have the option to continue or to cancel the action.</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebnormal style='page-break-after:avoid'><img width=329 height=133
 src="navigate_terms_navigation_displayOptions_files/image003.jpg"></p>
-
-<p class=MsoCaption>Figure 3         Maximum Children Message</p>
-
-<p class=jdwebnormal>&nbsp;</p>
-
-<p class=jdwebnormal>&nbsp;</p>
-
-<p class=jdwebnormal>If you choose not to continue then “<i>Over maximum number
-of child nodes</i>” will display instead of the associated concepts.</p>
-
-<p class=jdwebnormal>&nbsp;</p>
-
-<p class=jdwebnormal style='page-break-after:avoid'><img width=299 height=314
-src="navigate_terms_navigation_displayOptions_files/image004.jpg"></p>
-
-<p class=MsoCaption>Figure 4         Over Maximum Displayed in List</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
@@ -786,19 +769,91 @@ src="navigate_terms_navigation_displayOptions_files/image004.jpg"></p>
 <p class=jdwebheading3><a name="_Toc250710603">Show Hiddens</a></p>
 
 <p class=jdwebnormal>In the metadata table, an attribute is set to determine
-whether or not a concept is active, inactive or hidden. If a concept is marked
-as hidden it will not appear in the list of terms.  Selecting <b>Show Hiddens </b>will
-display those concepts marked to be hidden.</p>
+whether or not a term is active, inactive or hidden. If an item is marked as
+hidden it will not appear in the list of terms.  Selecting <b>Show Hiddens </b>will
+display those items marked to be hidden. For easy identification, hidden terms
+will be <span style='color:red'>red</span> when displayed in the hierarchical
+tree.</p>
 
 <p class=jdwebnormal>&nbsp;</p>
 
 <p class=jdwebheading3><a name="_Toc250710604">Show Synonyms</a></p>
 
-<p class=jdwebnormal>Some concepts may be flagged in the metadata table as a
-synonym of another concept.  Selecting <b>Show Synonyms </b>will display both
-the original concept and the synonym in the <b>Navigate Terms View</b>.</p>
+<p class=jdwebnormal>Some terms may be flagged in the metadata table as a
+synonym of another term.  Selecting <b>Show Synonyms </b>will display both the
+original term and the synonym in the <b>Navigate Terms View</b>. For easy
+identification, synonymous terms will be <span style='color:blue'>blue</span>
+when displayed in the hierarchical tree.</p>
 
 <p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3>Show Patient Counts</p>
+
+<p class=jdwebnormal>The <b>Show patient counts</b> option will display the
+total number of patients that have an observation fact entered for that item.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3>Show Short Tooltips</p>
+
+<p class=jdwebnormal>By default, the tooltip that displays when you hover over
+an item will contain the entire path name and the tooltip for that specific
+item. Enabling the <b>Show short tooltips</b> option will only display the
+tooltip information; the path will not be included.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>A <i>checkmark</i> next to <b>Use Short Tooltips</b> means
+this option is <b><i>on</i></b>.  The tooltip will display only the name of the
+concept and not the entire path.</p>
+
+<p class=jdwebnormal><i><u>Example</u>:</i></p>
+
+<p class=jdwebnormal><span style='font-size:9.0pt'>Acute myocardial infarction,
+unspecified site, initial episode of care</span></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal><i>No checkmark</i> next to <b>Use Short Tooltips</b> means
+this option is <b><i>off</i></b> and the tooltips will continue to display the
+path and name of the concept.</p>
+
+<p class=jdwebnormal><i><u>Example</u>:</i></p>
+
+<p class=jdwebnormal><span style='font-size:9.0pt'>Diagnoses\...\Acute
+myocardial infarction\Acute myocardial infarction, unspecified site\Acute
+myocardial infarction, unspecified site, initial episode of care</span></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3>Show Concept Code In Tooltip</p>
+
+<p class=jdwebnormal>In addition to displaying the tooltip, this option will
+also display the concept_cd associated to the item.</p>
+
+<p class=jdwebnormal>A <i>checkmark</i> next to <b>Show Concept Codes in
+Tooltips</b> means this option is <b><i>on</i></b>.  The tooltip will display
+the name of the concept and its associated code.</p>
+
+<p class=jdwebnormal><i><u>Example</u>:</i></p>
+
+<p class=jdwebnormal><span style='font-size:9.0pt'>Acute myocardial infarction,
+unspecified site, initial episode of care (ICD9:410.91)</span></p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebheading3>Disable Display Of Modifiers</p>
+
+<p class=jdwebnormal>The ability to search for modifiers will not be available
+if the <b>Disable display of modifiers</b> option is checked off.</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=jdwebnormal>&nbsp;</p>
+
+<p class=MsoNormal>&nbsp;</p>
 
 </div>
 

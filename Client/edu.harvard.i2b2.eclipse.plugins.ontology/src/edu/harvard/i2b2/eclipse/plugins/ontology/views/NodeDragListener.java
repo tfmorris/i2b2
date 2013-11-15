@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -37,18 +37,29 @@ final class NodeDragListener implements DragSourceListener
 	}
 	
 	public void dragStart(DragSourceEvent event) 
-	{
+	{ 
+		
 		Iterator it = ((IStructuredSelection)this.viewer.getSelection()).iterator();
 		while(it.hasNext())
 		{
 			TreeNode node = (TreeNode) it.next();
 			ConceptType data = node.getData();
-		    if (((data.getVisualattributes().substring(0,1).equals("C"))) ||
-    		((data.getVisualattributes().substring(1,2).equals("I")))){
+			if (((data.getVisualattributes().substring(0,1).equals("C"))) || 
+					((data.getVisualattributes().substring(1,2).equals("I")))){
 				event.doit = false;		
 				event.detail = DND.DROP_NONE;
 				return;
-		    }
+			}
+			else {
+				if(data.getModifier() != null){
+					if (((data.getModifier().getVisualattributes().substring(0,1).equals("O"))) || 
+							((data.getModifier().getVisualattributes().substring(1,2).equals("I")))){
+						event.doit = false;		
+						event.detail = DND.DROP_NONE;
+						return;
+					}
+				}
+			}
 		}
 
 		event.doit = true;		
@@ -121,6 +132,7 @@ final class NodeDragListener implements DragSourceListener
 		while(iterator.hasNext())
 		{
 			TreeNode node = (TreeNode) iterator.next();
+//			TableComposite.getInstance().addModifiers(node);
 			ConceptType data = node.getData();
 		    if ((!(data.getVisualattributes().substring(0,1).equals("C"))) &&
     		(!(data.getVisualattributes().substring(1,2).equals("I"))))

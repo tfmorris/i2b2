@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -40,7 +40,7 @@ public class UpdateOntologyDialog extends Dialog {
 	private Thread runningThread = null;
 	private String operationType = null;
 	
-	private Button update, synch;
+	private Button update, synch, hiddens;
 
 
 	private Log log = LogFactory.getLog(UpdateOntologyDialog.class.getName());	
@@ -108,7 +108,12 @@ public class UpdateOntologyDialog extends Dialog {
 				operationType = "synchronize_all";
 			}
 		});	
-
+		new Label(comp,SWT.NONE);
+		 hiddens = new Button(comp,SWT.CHECK);
+		hiddens.setText("Include hiddens");
+		hiddens.setSelection(true);
+		
+		
 		new Label(comp,SWT.NONE);
 		bar = new ProgressBar(comp, SWT.CENTER);
 
@@ -136,9 +141,8 @@ public class UpdateOntologyDialog extends Dialog {
 	@Override
 	protected void createButtonsForButtonBar(Composite parent){
 		super.createButtonsForButtonBar(parent);
-//		createButton(parent, 0, "Update", true);
-//		createButton(parent, 1, "Cancel/Exit", false);
 		createButton(parent, 2, "Run in Background", false);
+		getOKButton().setText("Run");
 	}
 
 	@Override
@@ -146,20 +150,21 @@ public class UpdateOntologyDialog extends Dialog {
 		// Run in background
 		if(buttonId == 2){
 			log.info("Starting " + operationType + " in background");
-			synchronize(operationType).start();
+			synchronize(operationType, hiddens.getSelection()).start();
 			close();
 		}	
 		// OK
 		else if(buttonId == 0){
 			// run synchronize within processStatus command
 			log.info("Starting " + operationType);
+	
 			this.getButton(0).setEnabled(false);
 			this.getButton(2).setEnabled(false);
 			bar.setSelection(0);	
 			updateStatus.setText("Starting synchronization process");
 
 			//	synchronize().start();
-			runningThread = processStatus(bar, updateStatus, this.getButton(0), this.getButton(2), operationType);
+			runningThread = processStatus(bar, updateStatus, this.getButton(0), this.getButton(2), operationType,hiddens.getSelection());
 			runningThread.start();
 		}
 
@@ -178,13 +183,14 @@ public class UpdateOntologyDialog extends Dialog {
 		}
 	}
 
-	public Thread synchronize(String operationType){
+	public Thread synchronize(String operationType, boolean includeHiddens){
 		final String theOperation = operationType;
+		final boolean hiddens = includeHiddens;
 		return new Thread(){
 			@Override
 			public void run(){
 				try {
-					synchronize(theOperation, null);
+					synchronize(theOperation, hiddens, null);
 				} catch (Exception e) {
 					log.error("Synchronization error");					
 				}
@@ -193,14 +199,14 @@ public class UpdateOntologyDialog extends Dialog {
 		};
 	}
 
-	public void synchronize(final String operationType, final Display theDisplay)
+	public void synchronize(final String operationType, final boolean includeHiddens, final Display theDisplay)
 	{
 		try {
 			OntologyResponseMessage msg = new OntologyResponseMessage();
 			StatusType procStatus = null;	
 			while(procStatus == null || !procStatus.getType().equals("DONE")){
 
-				String response = OntServiceDriver.synchronize(operationType);
+				String response = OntServiceDriver.synchronize(operationType, includeHiddens);
 
 				procStatus = msg.processResult(response);
 				//				else if  other error codes
@@ -234,19 +240,20 @@ public class UpdateOntologyDialog extends Dialog {
 		}
 	}
 
-	public Thread processStatus(ProgressBar bar, Label updateStatus, Button ok, Button background, String operationType){
+	public Thread processStatus(ProgressBar bar, Label updateStatus, Button ok, Button background, String operationType, boolean includeHiddens){
 		final ProgressBar theBar = bar;
 		final Label theStatus = updateStatus;
 		final Button theOkButton = ok;
 		final Button theBackgroundButton = background;
 		final Display theDisplay = Display.getCurrent();
 		final String theOperation = operationType;
+		final boolean hidden = includeHiddens;
 		
 		return new Thread(){
 			@Override
 			public void run(){
 				try {
-					synchronize(theOperation, theDisplay);
+					synchronize(theOperation, hidden, theDisplay);
 					if(this.getName().equals("stop")){
 						System.gc();
 						return;
@@ -432,7 +439,7 @@ public class UpdateOntologyDialog extends Dialog {
 					//			log.error(procStatus.getValue());				
 					return;
 				}	
-				ProcessStatus.getInstance().setStatus(msg.doReadStatus());
+				ProcessStatus.getInstance().setStatus(msg.doReadListStatus());
 				//			System.out.println(ProcessStatus.getInstance().getStatus().getProcessId());
 			}
 

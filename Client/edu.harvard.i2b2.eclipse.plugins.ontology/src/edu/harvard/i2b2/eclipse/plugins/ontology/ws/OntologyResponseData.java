@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -27,6 +27,8 @@ import edu.harvard.i2b2.ontclient.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptsType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.DirtyValueType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.ModifiersType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.OntologyProcessStatusListType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.OntologyProcessStatusType;
 
 abstract public class OntologyResponseData {
@@ -92,11 +94,25 @@ abstract public class OntologyResponseData {
 			BodyType bodyType = respMessageType.getMessageBody();
 			JAXBUnWrapHelper helper = new JAXBUnWrapHelper(); 
 			if(bodyType != null)
+	//			status = (OntologyProcessStatusListType)helper.getObjectByClass(bodyType.getAny(), OntologyProcessStatusListType.class);
 				status = (OntologyProcessStatusType)helper.getObjectByClass(bodyType.getAny(), OntologyProcessStatusType.class);
 		} catch (JAXBUtilException e) {
 			log.error(e.getMessage());;
 		}
 		return status;		
+	}	
+	
+	public OntologyProcessStatusType doReadListStatus(){
+		OntologyProcessStatusListType status = null;
+		try {
+			BodyType bodyType = respMessageType.getMessageBody();
+			JAXBUnWrapHelper helper = new JAXBUnWrapHelper(); 
+			if(bodyType != null)
+				status = (OntologyProcessStatusListType)helper.getObjectByClass(bodyType.getAny(), OntologyProcessStatusListType.class);
+		} catch (JAXBUtilException e) {
+			log.error(e.getMessage());;
+		}
+		return (OntologyProcessStatusType) status.getOntologyProcessStatus().get(0);		
 	}	
 	
 	public DirtyValueType doReadDirtyType(){
@@ -110,6 +126,19 @@ abstract public class OntologyResponseData {
 			log.error(e.getMessage());;
 		}
 		return status;		
+	}	
+	
+	public ModifiersType doReadModifiers(){
+		ModifiersType modifiers = null;
+		try {
+			BodyType bodyType = respMessageType.getMessageBody();
+			JAXBUnWrapHelper helper = new JAXBUnWrapHelper(); 
+			if(bodyType != null)
+				modifiers = (ModifiersType)helper.getObjectByClass(bodyType.getAny(), ModifiersType.class);
+		} catch (JAXBUtilException e) {
+			log.error(e.getMessage());;
+		}
+		return modifiers;		
 	}	
 }
 

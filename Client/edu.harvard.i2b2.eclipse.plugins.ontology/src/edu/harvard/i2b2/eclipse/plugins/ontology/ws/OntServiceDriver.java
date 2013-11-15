@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -39,10 +39,15 @@ import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.MessageUtil;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.DeleteChildType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.GetCategoriesType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetChildrenType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.GetModifierChildrenType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.GetModifierInfoType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.GetModifiersType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetOntProcessStatusType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetReturnType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetTermInfoType;
+import edu.harvard.i2b2.ontclient.datavo.vdo.ModifierType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ModifyChildType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.UpdateCrcConceptType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.VocabRequestType;
@@ -94,6 +99,30 @@ public class OntServiceDriver {
 	private static EndpointReference dirtyStateEPR = new EndpointReference(
 			serviceURL + "getDirtyState");
 	
+	private static EndpointReference modifiersEPR = new EndpointReference(
+			serviceURL + "getModifiers");
+	
+	private static EndpointReference modifierChildrenEPR = new EndpointReference(
+			serviceURL + "getModifierChildren");
+	
+	private static EndpointReference modifierInfoEPR = new EndpointReference(	
+			serviceURL + "getModifierInfo");
+	
+	private static EndpointReference addModifierEPR = new EndpointReference(
+			serviceURL + "addModifier");
+
+	private static EndpointReference excludeModifierEPR = new EndpointReference(
+			serviceURL + "excludeModifier");
+
+	
+	private static EndpointReference modNameInfoEPR = new EndpointReference(
+			serviceURL + "getModifierNameInfo");
+	
+	private static EndpointReference modCodeInfoEPR = new EndpointReference(
+		serviceURL + "getModifierCodeInfo");
+	
+	
+	
     public static OMElement getVersion() {
         OMFactory fac = OMAbstractFactory.getOMFactory();
         OMNamespace omNs = fac.createOMNamespace("http://axisversion.sample/xsd", "tns");
@@ -116,7 +145,7 @@ public class OntServiceDriver {
 			 try {
 				 GetChildrenRequestMessage reqMsg = new GetChildrenRequestMessage();
 
-				 String getChildrenRequestString = reqMsg.doBuildXML(parentNode);
+				 String getChildrenRequestString = reqMsg.doBuildXML(parentNode, type);
 	//			 log.debug(getChildrenRequestString);
 				 				 
 				 if(serviceMethod.equals("SOAP")) {
@@ -135,9 +164,7 @@ public class OntServiceDriver {
 				log.error(e.getMessage());
 				throw new Exception(e);
 			}
-	//		response = response.replace("<ValueMetadata>","<ns6:ValueMetadata xmlns:ns6=\"http://www.i2b2.org/xsd/cell/ont/1.1/\">");
-	//		response = response.replace("</ValueMetadata>","</ns6:ValueMetadata>");
-			return response;
+		return response;
 	}
     
 	/**
@@ -147,7 +174,7 @@ public class OntServiceDriver {
 	 * @return A String containing the ONT web service response 
 	 */
 	
-	public static String getCategories(GetReturnType returnData, String type) throws Exception {
+	public static String getCategories(GetCategoriesType returnData, String type) throws Exception {
 		String response = null;
 			 try {
 				 GetCategoriesRequestMessage reqMsg = new GetCategoriesRequestMessage();
@@ -336,7 +363,7 @@ public class OntServiceDriver {
 		if(UserInfoBean.getInstance().getCellDataUrl("ont") == null){
 			throw new I2B2Exception("Ontology cell (ONT) not configured in PM");
 		}
-		
+//		requestString.replaceAll("\\p{Cntrl}", "");  did not fix illegal control char error
 		OMElement getOnt = getOntPayLoad(requestString);
 
 		if(type != null){
@@ -581,12 +608,12 @@ public class OntServiceDriver {
 	 * @return A String containing the ONT web service response 
 	 */
 	
-	public static String synchronize(String operationType) throws Exception{
+	public static String synchronize(String operationType, boolean includeHiddens) throws Exception{
 		String response = null;
 
 		try {
 			SynchronizeRequestMessage reqMsg = new SynchronizeRequestMessage();
-			UpdateCrcConceptType requestType = reqMsg.getUpdateCrcConceptType(operationType);
+			UpdateCrcConceptType requestType = reqMsg.getUpdateCrcConceptType(operationType, includeHiddens);
 			
 			String requestString = reqMsg.doBuildXML(requestType);
 			log.debug(requestString);
@@ -672,6 +699,262 @@ public class OntServiceDriver {
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
+			}
+		return response;
+	}
+	
+	/**
+	 * Function to send getModifiers requestVdo to ONT web service
+	 * 
+	 * @param GetModifiersType  node we wish to get data for
+	 * @return A String containing the ONT web service response 
+	 */
+	
+	public static String getModifiers(GetModifiersType self, String type) {
+		String response = null;
+
+		try {
+			GetModifiersRequestMessage reqMsg = new GetModifiersRequestMessage();
+
+			String getModifiersRequestString = reqMsg.doBuildXML(self);
+			//			 log.debug(getModifiersRequestString);
+
+			//	 if(serviceMethod.equals("SOAP")) {
+			//		 response = sendSOAP(getChildrenRequestString, "http://rpdr.partners.org/GetChildren", "GetChildren", type );
+			//	 }
+			//	 else {
+			response = sendREST(modifiersEPR, getModifiersRequestString, type);
+			//	 }
+		} catch (AxisFault e) {
+			log.error(e.getMessage());
+			log.error("Unable to make connection to remote server");
+//			throw new AxisFault(e);
+		} catch (I2B2Exception e) {
+			log.error("Not enough memory to display modifiers");
+			log.error(e.getMessage());
+//			throw new I2B2Exception(e.getMessage());
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			log.error("Error returned from remote server");
+//			throw new Exception(e);
+		}
+
+		return response;
+	}
+	/**
+	 * Function to send getChildren requestVdo to ONT web service
+	 * 
+	 * @param GetChildrenType  parentNode we wish to get data for
+	 * @return A String containing the ONT web service response 
+	 */
+	
+	public static String getModifierChildren(GetModifierChildrenType parentNode, String type) {
+		String response = null;
+		
+			 try {
+				 GetModifierChildrenRequestMessage reqMsg = new GetModifierChildrenRequestMessage();
+
+				 String getChildrenRequestString = reqMsg.doBuildXML(parentNode);
+	//			 log.debug(getChildrenRequestString);
+				 				 
+				 if(serviceMethod.equals("SOAP")) {
+					 response = sendSOAP(getChildrenRequestString, "http://rpdr.partners.org/GetChildren", "GetChildren", type );
+				 }
+				 else {
+					 response = sendREST(modifierChildrenEPR, getChildrenRequestString, type);
+				 }
+			} catch (AxisFault e) {
+				log.error(e.getMessage());
+				log.error("Unable to make connection to remote server");
+	//			throw new AxisFault(e);
+			} catch (I2B2Exception e) {
+				log.error("Not enough memory to display modifiers");
+				log.error(e.getMessage());
+	//			throw new I2B2Exception(e.getMessage());
+			} catch (Exception e) {
+				log.error(e.getMessage());
+				log.error("Error returned from remote server");
+	//			throw new Exception(e);
+			}
+	//		response = response.replace("<ValueMetadata>","<ns6:ValueMetadata xmlns:ns6=\"http://www.i2b2.org/xsd/cell/ont/1.1/\">");
+	//		response = response.replace("</ValueMetadata>","</ns6:ValueMetadata>");
+			return response;
+	}
+	/**
+	 * Function to send getModifierInfo requestVdo to ONT web service
+	 * 
+	 * @param GetModifierInfoType  node (self) we wish to get data for
+	 * @return A String containing the ONT web service response 
+	 */
+	
+	public static String getModifierInfo(GetModifierInfoType self, String type) {
+		String response = null;
+			 try {
+				 GetModifierInfoRequestMessage reqMsg = new GetModifierInfoRequestMessage();
+
+				 String getModifierInfoRequestString = reqMsg.doBuildXML(self);		
+
+	//			log.debug(getTermInfoRequestString);
+				
+	//			 if(serviceMethod.equals("SOAP")) {
+	//				 response = sendSOAP(getTermInfoRequestString, "http://rpdr.partners.org/GetTermInfo", "GetTermInfo", type );
+	//			 }
+	//			 else {
+					 response = sendREST(modifierInfoEPR, getModifierInfoRequestString, type);
+		//		 }
+
+//				log.debug("Ont response = " + response);
+			} catch (AxisFault e) {
+				log.error(e.getMessage());
+				log.error("Unable to make connection to remote server");
+	//			throw new AxisFault(e);
+			} catch (Exception e) {
+				log.error(e.getMessage());
+				log.error("Error returned from remote server");
+	//			throw new Exception(e);
+			}
+		return response;
+	}
+	
+	/**
+	 * Function to send addModifier requestVdo to ONT web service
+	 * 
+	 * @param ModifierType  childNode we wish to add
+	 * @return A String containing the ONT web service response 
+	 */
+	
+	public static String addModifier(ModifierType childNode) throws Exception{
+		String response = null;
+
+		try {
+			AddChildRequestMessage reqMsg = new AddChildRequestMessage();
+
+			String addChildRequestString = reqMsg.doBuildXML(childNode);
+			log.debug(addChildRequestString);
+
+			if(serviceMethod.equals("SOAP")) { 
+				//	response = sendSOAP(addChildRequestString,"http://rpdr.partners.org/AddChild", "AddChild", type );
+				log.error("SOAP version of addChild has not been implemented");
+				response = sendREST(addModifierEPR, addChildRequestString, "EDIT");
+			}
+			else {
+				response = sendREST(addModifierEPR, addChildRequestString, "EDIT");
+			}
+		} catch (AxisFault e) {
+			log.error(e.getMessage());
+			throw new AxisFault(e);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			throw new Exception(e);
+		}
+//		System.out.println(response);
+		return response;
+	}
+	
+	/**
+	 * Function to send excludeModifier requestVdo to ONT web service
+	 * 
+	 * @param ModifierType  childNode we wish to add as an exclusion record
+	 * @return A String containing the ONT web service response 
+	 */
+	
+	public static String excludeModifier(ModifierType childNode) throws Exception{
+		String response = null;
+
+		try {
+			// exclusion message body looks like add message body...but sent to exclusionEPR
+			AddChildRequestMessage reqMsg = new AddChildRequestMessage();
+
+			String childRequestString = reqMsg.doBuildXML(childNode);
+			log.debug(childRequestString);
+
+			if(serviceMethod.equals("SOAP")) { 
+				//	response = sendSOAP(addChildRequestString,"http://rpdr.partners.org/AddChild", "AddChild", type );
+				log.error("SOAP version of excludeChild has not been implemented");
+				response = sendREST(excludeModifierEPR, childRequestString, "EDIT");
+			}
+			else {
+				response = sendREST(excludeModifierEPR, childRequestString, "EDIT");
+			}
+		} catch (AxisFault e) {
+			log.error(e.getMessage());
+			throw new AxisFault(e);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			throw new Exception(e);
+		}
+//		System.out.println(response);
+		return response;
+	}
+	
+	/**
+	 * Function to send getModifierInfo requestVdo to ONT web service
+	 * 
+	 * @param GetModifierInfoType  node (self) we wish to get data for
+	 * @return A String containing the ONT web service response 
+	 */
+	
+	public static String getModifierNameInfo(VocabRequestType self, String type) {
+		String response = null;
+			 try {
+				 GetModifierNameInfoRequestMessage reqMsg = new GetModifierNameInfoRequestMessage();
+
+				 String getModifierInfoRequestString = reqMsg.doBuildXML(self);		
+
+	//			log.debug(getTermInfoRequestString);
+				
+	//			 if(serviceMethod.equals("SOAP")) {
+	//				 response = sendSOAP(getTermInfoRequestString, "http://rpdr.partners.org/GetTermInfo", "GetTermInfo", type );
+	//			 }
+	//			 else {
+					 response = sendREST(modNameInfoEPR, getModifierInfoRequestString, type);
+		//		 }
+
+//				log.debug("Ont response = " + response);
+			} catch (AxisFault e) {
+				log.error(e.getMessage());
+				log.error("Unable to make connection to remote server");
+	//			throw new AxisFault(e);
+			} catch (Exception e) {
+				log.error(e.getMessage());
+				log.error("Error returned from remote server");
+	//			throw new Exception(e);
+			}
+		return response;
+	}
+	
+	/**
+	 * Function to send getModifierInfo requestVdo to ONT web service
+	 * 
+	 * @param GetModifierInfoType  node (self) we wish to get data for
+	 * @return A String containing the ONT web service response 
+	 */
+	
+	public static String getModifierCodeInfo(VocabRequestType self, String type) {
+		String response = null;
+			 try {
+				 GetModifierCodeInfoRequestMessage reqMsg = new GetModifierCodeInfoRequestMessage();
+
+				 String getModifierInfoRequestString = reqMsg.doBuildXML(self);		
+
+	//			log.debug(getTermInfoRequestString);
+				
+	//			 if(serviceMethod.equals("SOAP")) {
+	//				 response = sendSOAP(getTermInfoRequestString, "http://rpdr.partners.org/GetTermInfo", "GetTermInfo", type );
+	//			 }
+	//			 else {
+					 response = sendREST(modCodeInfoEPR, getModifierInfoRequestString, type);
+		//		 }
+
+//				log.debug("Ont response = " + response);
+			} catch (AxisFault e) {
+				log.error(e.getMessage());
+				log.error("Unable to make connection to remote server");
+	//			throw new AxisFault(e);
+			} catch (Exception e) {
+				log.error(e.getMessage());
+				log.error("Error returned from remote server");
+	//			throw new Exception(e);
 			}
 		return response;
 	}

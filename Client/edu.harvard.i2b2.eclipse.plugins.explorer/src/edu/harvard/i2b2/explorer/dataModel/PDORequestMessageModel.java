@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -14,7 +14,12 @@ package edu.harvard.i2b2.explorer.dataModel;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,6 +48,7 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.InputOptionListType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.ItemType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.ObjectFactory;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.OutputOptionListType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.OutputOptionNameType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.OutputOptionSelectType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.OutputOptionType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.PanelType;
@@ -50,6 +56,7 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.PatientListType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.PdoQryHeaderType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.PdoRequestTypeType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.ItemType.ConstrainByDate;
+import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.ItemType.ConstrainByModifier;
 
 public class PDORequestMessageModel {
 
@@ -94,7 +101,7 @@ public class PDORequestMessageModel {
 			PDOItem item = items.get(i);
 			// for(int j=0;j<=item.valDisplayProperties.size();j++) {
 			PanelType panelType = new PanelType();
-			panelType.setName(item.fullPath);// +(j>0?""+j:""));
+			panelType.setName(item.panelName());// +(j>0?""+j:""));
 
 			ItemType itemType = new ItemType();
 			itemType.setItemKey(item.fullPath);
@@ -104,29 +111,69 @@ public class PDORequestMessageModel {
 				PDOValueModel valdp = item.valDisplayProperties.get(j);
 				if (!item.queryModel().valueModel().noValue()) {
 					itemType.getConstrainByValue().add(
-							valdp.writeValueConstrain(item.queryModel().valueModel()));
+							valdp.writeValueConstraint(item.queryModel()
+									.valueModel()));
+					//panelType.setName(item.fullPath+getValueName(item.queryModel()
+						     //.valueModel()));
 				}
+			}
+			
+			if(item.queryModel().isModifier()) {
+				ModifierData mdata = (ModifierData)item.queryModel();
+				ConstrainByModifier constrainByModifier = new ConstrainByModifier();
+				constrainByModifier.setAppliedPath(mdata.applied_path());
+				constrainByModifier.setModifierKey(mdata.modifier_key());
+				constrainByModifier.setModifierName(mdata.modifier_name());
+				//panelType.setName(item.panelName()+mdata.modifier_key());
+				
+				ConstrainByModifier.ConstrainByValue value;// = new ConstrainByModifier.ConstrainByValue();
+				for (int k = 0; k < item.modifierValDisplayProperties.size(); k++) {
+					PDOValueModel valdp = item.modifierValDisplayProperties.get(k);
+					if (!mdata.modifierValuePropertyData().noValue()) {
+						value =	valdp.writeModifierValueConstraint(mdata.modifierValuePropertyData());
+						constrainByModifier.getConstrainByValue().add(value);
+						//panelType.setName(item.panelName()+getValueName(mdata.modifierValuePropertyData()));
+					}
+					//panelType.setName(item.panelName()+getValueName(mdata.modifierValuePropertyData()));
+				}
+				itemType.setConstrainByModifier(constrainByModifier);
+				//panelType.setName(item.panelName()+getValueName(mdata.modifierValuePropertyData()));
 			}
 
 			ConstrainByDate timeConstrain = new ConstrainByDate();
 			DTOFactory dtoFactory = new DTOFactory();
-
+			
+			TimeZone tz = Calendar.getInstance().getTimeZone();
+			GregorianCalendar cal = new GregorianCalendar(tz);
+			//cal.get(Calendar.ZONE_OFFSET);
+			int zt_offset = (cal.get(Calendar.ZONE_OFFSET)+cal.get(Calendar.DST_OFFSET))/60000;
+			log.info("Timezone: "+tz.getID()+" : "+zt_offset);
+			
 			if (item.queryModel().startTime() != -1) {
 				ConstrainDateType constraindateType = new ConstrainDateType();
-				constraindateType.setValue(dtoFactory
-						.getXMLGregorianCalendarDate(item.queryModel()
-								.startYear(),
-								item.queryModel().startMonth() + 1, item
-										.queryModel().startDay()));
-
+				XMLGregorianCalendar xmlC = dtoFactory.getXMLGregorianCalendarDate(
+						item.queryModel()
+						.startYear(),
+						item.queryModel().startMonth() + 1, item
+								.queryModel().startDay());
+				xmlC.setTimezone(zt_offset);//0);//-5*60);
+				xmlC.setHour(0);
+				xmlC.setMinute(0);
+				xmlC.setSecond(0);
+				constraindateType.setValue(xmlC);
 				timeConstrain.setDateFrom(constraindateType);
 			}
 			if (item.queryModel().endTime() != -1) {
 				ConstrainDateType constraindateType = new ConstrainDateType();
-				constraindateType.setValue(dtoFactory
-						.getXMLGregorianCalendarDate(item.queryModel()
-								.endYear(), item.queryModel().endMonth() + 1,
-								item.queryModel().endDay()));
+				XMLGregorianCalendar xmlC = dtoFactory.getXMLGregorianCalendarDate(
+						item.queryModel()
+						.endYear(), item.queryModel().endMonth() + 1,
+						item.queryModel().endDay());
+				xmlC.setTimezone(zt_offset);//0);//-5*60);
+				xmlC.setHour(0);
+				xmlC.setMinute(0);
+				xmlC.setSecond(0);
+				constraindateType.setValue(xmlC);
 				timeConstrain.setDateTo(constraindateType);
 			}
 
@@ -164,6 +211,7 @@ public class PDORequestMessageModel {
 		outputOptionListType.setPatientSet(patientOutputOptionType);
 		// outputOptionListType.setVisitDimension(visitOutputOptionType);
 		outputOptionListType.setObservationSet(factOutputOptionType);
+		outputOptionListType.setNames(OutputOptionNameType.ASATTRIBUTES);
 
 		/*
 		 * GetPDOFromPatientSetRequestType requestType = new
@@ -213,7 +261,7 @@ public class PDORequestMessageModel {
 		StringWriter strWriter = new StringWriter();
 		try {
 			edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory();
-			jaxbUtil.marshaller(of.createRequest(reqMsgType), strWriter);
+			jaxbUtil.marshallerWithCDATA(of.createRequest(reqMsgType), strWriter, new String[] {"value_constraint"});
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			e.printStackTrace();
@@ -338,5 +386,29 @@ public class PDORequestMessageModel {
 		}
 		return number;
 
+	}
+	
+	private String getValueName(PSMValueModel model) {
+		String name = "";
+		if (model.noValue()) {
+		    return name;
+		} else if (model.useValueFlag()) {
+		    if (model.valueFlag().equalsIgnoreCase("H")) {
+			name = "=HIGH";
+		    } else {
+			name = "=LOW";
+		    }
+		} else if (model.useNumericValue()) {
+
+		    // deal with between...
+		    if (model.operator().equalsIgnoreCase("between")) {
+			name = "between " + model.lowValue() + " and "
+				+ model.highValue();
+		    } else {
+			name = /* getOperator( */model.operator()/* ) */+ " "
+				+ model.value();
+		    }
+		}
+		return name;
 	}
 }

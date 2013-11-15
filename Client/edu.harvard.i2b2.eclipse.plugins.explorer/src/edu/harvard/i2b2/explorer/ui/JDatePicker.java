@@ -463,9 +463,8 @@ public class JDatePicker extends JComponent {
 	 * popup will automatically hide itself and enter the selection into the
 	 * editable field of the JXDatePicker.
 	 */
-	private class JXDatePickerPopup extends JPopupMenu
-			implements
-				ActionListener {
+	private class JXDatePickerPopup extends JPopupMenu implements
+			ActionListener {
 		private JButton _nextButton;
 		private JButton _previousButton;
 		private JButton _todayButton;

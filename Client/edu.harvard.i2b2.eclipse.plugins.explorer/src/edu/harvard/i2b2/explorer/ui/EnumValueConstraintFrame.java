@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -176,13 +176,13 @@ public class EnumValueConstraintFrame extends javax.swing.JFrame {
 		getContentPane().add(jCancelButton);
 		jCancelButton.setBounds(220, 260, 80, 23);
 
-		jEnumValueTable.setModel(new DefaultTableModel(new Object[][]{
-				{null, "No Detection"}, {null, null}, {null, null},
-				{null, null}}, new String[]{"", ""}) {
+		jEnumValueTable.setModel(new DefaultTableModel(new Object[][] {
+				{ null, "No Detection" }, { null, null }, { null, null },
+				{ null, null } }, new String[] { "", "" }) {
 			@SuppressWarnings("unchecked")
-			Class[] types = new Class[]{java.lang.Boolean.class,
-					java.lang.String.class};
-			boolean[] canEdit = new boolean[]{true, false};
+			Class[] types = new Class[] { java.lang.Boolean.class,
+					java.lang.String.class };
+			boolean[] canEdit = new boolean[] { true, false };
 
 			@SuppressWarnings("unchecked")
 			@Override

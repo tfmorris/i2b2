@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -39,7 +39,7 @@ public class DateConstraintEditorText extends KTableCellEditor {
 		m_Text.setFocus();
 
 		QueryModel ndata = (QueryModel) ((ConceptTableModel) m_Model)
-				.getContentAt(7, row);
+				.getContentAt(8, row);
 		// ((ConceptKTableModel)m_Model).valueMode(m_Row);
 
 		DateConstraintFrame vDialog = new DateConstraintFrame(ndata, m_Table);

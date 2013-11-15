@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -41,7 +41,7 @@ public class NumericValueEditorText extends KTableCellEditor {
 		m_Text.setFocus();
 
 		QueryModel ndata = (QueryModel) ((ConceptTableModel) m_Model)
-				.getContentAt(7, row);
+				.getContentAt(8, row);
 		if (!ndata.hasValue()) {
 			return;
 		}
@@ -55,6 +55,19 @@ public class NumericValueEditorText extends KTableCellEditor {
 			vDialog.setLocation(300, 300);
 			vDialog.setTitle("Choose value ");
 			vDialog.setVisible(true);
+		} else if (ndata.valueModel().hasStringValue()) {
+			StringValueConstraintFrame vDialog = new StringValueConstraintFrame(
+					ndata, m_Table);
+			vDialog.setSize(410, 250);
+			vDialog.setLocation(300, 300);
+			vDialog.setTitle("Choose value ");
+			vDialog.setVisible(true);
+			//ModifierEnumValueConstraintFrame vDialog = new ModifierEnumValueConstraintFrame(
+					//ndata, m_Table);
+			//vDialog.setSize(410, 330);
+			//vDialog.setLocation(300, 300);
+			//vDialog.setTitle("Choose value ");
+			//vDialog.setVisible(true);
 		} else {
 			NumericValueConstraintFrame vDialog = new NumericValueConstraintFrame(
 					ndata, m_Table);

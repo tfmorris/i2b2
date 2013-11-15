@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2010 Massachusetts General Hospital 
+* Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
 * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -76,7 +76,7 @@ import org.eclipse.jface.window.*;
 //import edu.harvard.i2b2.select.soap.SelectService;
 //mport edu.harvard.i2b2.select.soap.SelectServiceLocator;
 
-import edu.harvard.i2b2.explorer.ui.ExplorerComposite;
+import edu.harvard.i2b2.explorer.ui.MainComposite;
 
 public class CRCNavigator extends ApplicationWindow {
 
@@ -183,7 +183,7 @@ public class CRCNavigator extends ApplicationWindow {
 
     public Label statusLabel;
 
-    public ExplorerComposite explorer;
+    public MainComposite explorer;
 
     // public ArrayList<QueryMasterData> previousQueries = null;
     // public QueryPreviousRunsPanel runTreePanel = null;
@@ -819,7 +819,7 @@ public class CRCNavigator extends ApplicationWindow {
     private Control getTabExpControl(TabFolder tabFolder) {
 	Composite composite = new Composite(tabFolder, SWT.NONE);
 	composite.setLayout(new FillLayout());
-	explorer = new ExplorerComposite(composite);
+	explorer = new MainComposite(composite);
 	return composite;
     }
 

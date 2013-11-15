@@ -13,6 +13,7 @@ package edu.harvard.i2b2.timeline.labeling;
 import java.awt.*;
 import java.awt.image.*;
 import java.util.*;
+
 import edu.harvard.i2b2.timeline.lifelines.Record;
 
 public abstract class ImgFilt implements ImageConsumer {

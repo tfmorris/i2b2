@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2010 Massachusetts General Hospital 
+* Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
 * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -18,6 +18,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.io.FileInputStream;
+import edu.harvard.i2b2.eclipse.util.Messages;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -81,7 +84,8 @@ public class UserInfoBean {
 	private static CellDatasType cellDatas;
 
 	private static List<ParamType> globals;
-
+	private static int iDEFAULT_TIMEOUTINMILLISECONDS = 1800000;
+	
 	public static UserInfoBean getInstance() {
 		if (instance == null)
 			instance = new UserInfoBean();
@@ -258,6 +262,7 @@ public class UserInfoBean {
 	}
 
 
+	// these get and set routines work to manage the password, token, and timeout of both
 	
 	public PasswordType getUserPasswordType() {
 		return userPassword;
@@ -269,9 +274,12 @@ public class UserInfoBean {
 	
 	public int getUserPasswordTimeout() {
 		if (userPassword.getTokenMsTimeout() == null)
-			return -1;
-		else	
+			userPassword.setTokenMsTimeout(getWorkbenchTimeoutInMiliseconds());//1800000);
 		return userPassword.getTokenMsTimeout();
+	}
+	
+	public void setUserPasswordTimeout(int iTimeoutInMilliseconds) {
+		userPassword.setTokenMsTimeout(iTimeoutInMilliseconds);
 	}
 	
 	public boolean getUserPasswordIsToken() {
@@ -451,6 +459,30 @@ public class UserInfoBean {
 
 		UserInfoBean.reauthenticateTask = reauthenticateTask;
 
+	}
+	
+	/**
+	 * Method to get the timeout in milliseconds of the workbench token from
+	 * the workbench properties file.
+	 * 
+	 * @return  int TimeoutInMilliseconds
+	 * 
+	 */
+	private int getWorkbenchTimeoutInMiliseconds() {
+		Properties properties = new Properties();
+		String sTimeout=""; //$NON-NLS-1$
+		int iTimeoutInMilliseconds = iDEFAULT_TIMEOUTINMILLISECONDS;
+		String filename=Messages.getString("Application.PropertiesFile"); //$NON-NLS-1$
+		try {
+			properties.load(new FileInputStream(filename));
+			sTimeout=properties.getProperty("TimeoutInMilliseconds"); //$NON-NLS-1$
+			iTimeoutInMilliseconds = Integer.parseInt(sTimeout);
+		} catch (Exception e) {
+			log.info("Could not find TimeoutInMilliseconds in " + filename); 
+			iTimeoutInMilliseconds = iDEFAULT_TIMEOUTINMILLISECONDS;
+		}
+		log.info("workbench timeout in milliseconds set to: " + iTimeoutInMilliseconds); //$NON-NLS-1$
+		return iTimeoutInMilliseconds;
 	}
 
 }

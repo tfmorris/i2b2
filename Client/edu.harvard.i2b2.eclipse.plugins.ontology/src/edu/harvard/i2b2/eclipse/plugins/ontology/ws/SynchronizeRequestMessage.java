@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -38,9 +38,10 @@ public class SynchronizeRequestMessage extends OntologyRequestData {
 	 * 
 	 * @return GetReturnType object
 	 */
-	public UpdateCrcConceptType getUpdateCrcConceptType(String operationType) { 
+	public UpdateCrcConceptType getUpdateCrcConceptType(String operationType, boolean includeHiddens) { 
 		UpdateCrcConceptType returnType = new UpdateCrcConceptType();		
 		returnType.setOperationType(operationType);
+		returnType.setHiddens(includeHiddens);
 		return returnType;
 	}
 	

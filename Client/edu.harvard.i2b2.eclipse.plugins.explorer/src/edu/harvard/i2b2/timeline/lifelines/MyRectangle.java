@@ -14,136 +14,126 @@ import java.awt.*;
 
 public class MyRectangle extends Rectangle {
 
+	private String Cause;
+	private GenRecord theRecord;
+	private Color rectColor;
+	private boolean initFlag;
+	private MyDate startDate;
+	private MyDate endDate;
 
-    private String Cause;
-    private GenRecord theRecord;
-    private Color rectColor;
-    private boolean initFlag;
-    private MyDate startDate;
-    private MyDate endDate;
+	private String theUrl;
+	private String inputLine;
 
-    private String theUrl;
-    private String inputLine;
+	MyRectangle(int a, int b, int c, int d) {
 
-    MyRectangle(int a,int b,int c,int d) {
+		super(a, b, c, d);
 
-        super(a,b,c,d);
+	}
 
-    }
+	public String getUrl() {
 
-    public String getUrl() {
+		return theUrl;
 
-        return theUrl;
+	}
 
-    }
+	public void setUrl(String theUrl) {
 
-    public void setUrl(String theUrl) {
+		this.theUrl = theUrl;
 
-        this.theUrl = theUrl;
+	}
 
-    }
+	public void setInitFlag() {
 
-    public void setInitFlag() {
+		initFlag = true;
 
-        initFlag = true;
+	}
 
-    }
+	public void unSetInitFlag() {
 
-    public void unSetInitFlag() {
+		initFlag = false;
 
-        initFlag = false;
+	}
 
-    }
+	public boolean getInitFlag() {
 
-    public boolean getInitFlag() {
+		return initFlag;
 
-        return initFlag;
+	}
 
-    }
+	public void setColor(Color rectColor) {
 
-    public void setColor(Color rectColor) {
+		this.rectColor = rectColor;
 
-        this.rectColor = rectColor;
+	}
 
-    }
+	public Color getColor() {
 
-    public Color getColor() {
+		return rectColor;
 
-        return rectColor;
+	}
 
-    }
+	public void setStartDate(MyDate startDate) {
 
-    public void setStartDate(MyDate startDate) {
+		this.startDate = startDate;
 
-        this.startDate = startDate;
+	}
 
-    }
+	public MyDate getStartDate() {
 
-    public MyDate getStartDate() {
+		return startDate;
 
-        return startDate;
+	}
 
-    }
+	public void setEndDate(MyDate endDate) {
 
-    public void setEndDate(MyDate endDate) {
+		this.endDate = endDate;
 
-        this.endDate = endDate;
+	}
 
-    }
+	public MyDate getEndDate() {
 
-    public MyDate getEndDate() {
+		return endDate;
 
-        return endDate;
+	}
 
-    }
+	public String getCause() {
 
-    public String getCause() {
+		return new String(Cause);
 
-        return new String(Cause);
+	}
 
-    }
+	public void setCause(String cause) {
 
+		Cause = new String(cause);
 
-    public void setCause(String cause) {
+	}
 
-        Cause = new String(cause);
+	public void setRecord(GenRecord theRecord) {
 
-    }
+		this.theRecord = theRecord;
 
-    public void setRecord(GenRecord theRecord) {
+	}
 
-        this.theRecord = theRecord;
+	public void brighterColor() {
+		rectColor.brighter();
+	}
 
-    }
+	public GenRecord getRecord() {
 
-    public void brighterColor() {
-        rectColor.brighter();
-    }
+		return theRecord;
 
-    public GenRecord getRecord() {
+	}
 
-        return theRecord;
+	public String getInputLine() {
 
-    }
+		return inputLine;
 
-    public String getInputLine() {
+	}
 
-        return inputLine;
+	public void setInputLine(String inputLine) {
 
-    }
+		this.inputLine = inputLine;
 
-    public void setInputLine(String inputLine) {
-
-        this.inputLine = inputLine;
-
-    }
-
+	}
 
 }
-
-
-
-
-
-
-

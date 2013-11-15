@@ -16,17 +16,17 @@ package edu.harvard.i2b2.timeline.external;
  */
 public class NFABuildException extends Exception {
 
-    /**
-     * Constructs a NFABuildException with no detail message.
-     */
-    public NFABuildException() {
-	super();
-    }
+	/**
+	 * Constructs a NFABuildException with no detail message.
+	 */
+	public NFABuildException() {
+		super();
+	}
 
-    /**
-     * Constructs a NFABuildException with the specified detail message.
-     */
-    public NFABuildException(String s) {
-	super(s);
-    }
+	/**
+	 * Constructs a NFABuildException with the specified detail message.
+	 */
+	public NFABuildException(String s) {
+		super(s);
+	}
 }

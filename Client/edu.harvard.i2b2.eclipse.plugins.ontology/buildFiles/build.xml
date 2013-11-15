@@ -11,7 +11,7 @@
 	<!-- =================================================================== -->
 	<!-- 								INIT 								 -->
 	<!-- =================================================================== -->
-	 <target name="gensrcInit">
+	<target name="gensrcInit"  depends="common_init,common-classpath" >
 		<path id="classpath">
 			<path refid="common-classpath" />
 		</path>

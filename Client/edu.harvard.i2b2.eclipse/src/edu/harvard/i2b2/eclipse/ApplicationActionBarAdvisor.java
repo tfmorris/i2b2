@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2010 Massachusetts General Hospital 
+* Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
 * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -14,8 +14,10 @@ package edu.harvard.i2b2.eclipse;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.action.StatusLineContributionItem;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ActionFactory;
@@ -44,6 +46,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private IContributionItem views;
 	private IContributionItem perspectives;
 	private IWorkbenchAction updateAction;
+	private StatusLineContributionItem statusItem;
 	
 	
 	public ApplicationActionBarAdvisor(IActionBarConfigurer configurer) {
@@ -131,4 +134,14 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		menuBar.add(helpMenu);
 	}
 
+	@Override
+	protected void fillStatusLine(IStatusLineManager statusLine) {
+		// TODO Auto-generated method stub
+		//super.fillStatusLine(statusLine);
+		statusItem = new StatusLineContributionItem("Status");
+		statusItem.setText("");
+		statusLine.add(statusItem);
+	}
+
+	
 }

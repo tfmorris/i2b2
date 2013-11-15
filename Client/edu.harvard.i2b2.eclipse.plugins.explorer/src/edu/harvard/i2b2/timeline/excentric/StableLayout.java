@@ -29,47 +29,48 @@
  * THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF LIABILITY, ARISING OUT
  * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-  
+
 package edu.harvard.i2b2.timeline.excentric;
 
 /**
- * A StableLayout tries to layout a list of labels as two left-aligned
- * columns of labels where the vertical order of labels is maintained.
- *
- * @version 	0.1, 08/05/98
- * @author 	Jean-Daniel Fekete
- * @since       JDK1.1.5
+ * A StableLayout tries to layout a list of labels as two left-aligned columns
+ * of labels where the vertical order of labels is maintained.
+ * 
+ * @version 0.1, 08/05/98
+ * @author Jean-Daniel Fekete
+ * @since JDK1.1.5
  */
 
-public
-class StableLayout extends RectLayout {
-  public StableLayout(int width, int height, int column) {
-    super(width, height, column);
-  }
-  public StableLayout(int width, int height, int column, boolean sx) {
-    super(width, height, column, sx);
-  }
+public class StableLayout extends RectLayout {
+	public StableLayout(int width, int height, int column) {
+		super(width, height, column);
+	}
 
-  @Override
-public int do_layout() {
-    int nlabel = v.size();
+	public StableLayout(int width, int height, int column, boolean sx) {
+		super(width, height, column, sx);
+	}
 
-    if (nlabel == 0) return DONT_OVERLAP;
+	@Override
+	public int do_layout() {
+		int nlabel = v.size();
 
-    if (getStableX())
-      record_offsets();
-    double order[] = new double[nlabel+1]; // first is copied in last
-    
-    if (getColumn() == 2)
-        compute_order(order);
-    else
-        compute_order_x(order);
-    sort_labels_vector(order);
-    
-    if (getColumn() == 2)   // Julia
-        return compute_left_right(order);   
-    else 
-        return compute_right(order);
-  }
+		if (nlabel == 0)
+			return DONT_OVERLAP;
+
+		if (getStableX())
+			record_offsets();
+		double order[] = new double[nlabel + 1]; // first is copied in last
+
+		if (getColumn() == 2)
+			compute_order(order);
+		else
+			compute_order_x(order);
+		sort_labels_vector(order);
+
+		if (getColumn() == 2) // Julia
+			return compute_left_right(order);
+		else
+			return compute_right(order);
+	}
 
 }

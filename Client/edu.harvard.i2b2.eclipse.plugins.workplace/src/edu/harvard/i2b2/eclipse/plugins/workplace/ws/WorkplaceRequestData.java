@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -58,7 +58,7 @@ abstract public class WorkplaceRequestData {
 	 * @return MessageHeader object
 	 */
 
-	protected MessageHeaderType getMessageHeader() {
+	public MessageHeaderType getMessageHeader() {
 		MessageHeaderType messageHeader = new MessageHeaderType();
 		
 		messageHeader.setI2B2VersionCompatible(new BigDecimal(Messages.getString("WorkplaceRequestData.i2b2VersionCompatible"))); //$NON-NLS-1$
@@ -76,7 +76,7 @@ abstract public class WorkplaceRequestData {
 		
 		ApplicationType appType2 = new ApplicationType();
 		appType2.setApplicationVersion(Messages.getString("WorkplaceRequestData.ReceivingApplicationVersion")); //$NON-NLS-1$
-		appType2.setApplicationName(Messages.getString("WorkplaceRequestData.ReceivingApplicationVersion"));		 //$NON-NLS-1$
+		appType2.setApplicationName(Messages.getString("WorkplaceRequestData.ReceivingApplicationName"));		 //$NON-NLS-1$
 		messageHeader.setReceivingApplication(appType2);
 	
 		FacilityType facility2 = new FacilityType();

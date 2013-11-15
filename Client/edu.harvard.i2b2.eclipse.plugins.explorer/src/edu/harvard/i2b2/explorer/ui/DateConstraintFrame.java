@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -179,6 +179,8 @@ public class DateConstraintFrame extends javax.swing.JFrame {
 		 * jSecondaryCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 		 * jPanel4.add(jSecondaryCheckBox); jSecondaryCheckBox.setBounds(30, 50,
 		 * 320, 20); jSecondaryCheckBox.setSelected(true);
+		 * 
+		 * 
 		 * 
 		 * 
 		 * 

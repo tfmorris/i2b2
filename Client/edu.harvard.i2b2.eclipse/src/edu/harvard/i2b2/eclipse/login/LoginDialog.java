@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2010 Massachusetts General Hospital 
+* Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
 * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -50,6 +50,8 @@ public class LoginDialog extends Dialog {
 	private static LoginDialog instance = null;
 
 	//private static final String LOGIN_FAILED_MSG = "";
+	
+	private static int iDEFAULT_TIMEOUTINMILLISECONDS = 1800000;
 
 	private String title; // dialog title
 
@@ -216,13 +218,16 @@ public class LoginDialog extends Dialog {
 		Label projectLabel = new Label(shell, SWT.NULL);
 		projectLabel.setText(Messages.getString("LoginDialog.8")); //$NON-NLS-1$
 		projectLabel.setBounds(new Rectangle(18, 42, 85, 18));
-
+		//
+		// The properties are read from the properties file and stored in system properties
+		//
 		String filename=Messages.getString("Application.PropertiesFile"); //$NON-NLS-1$
 		Properties properties = new Properties();
 		//Boolean demoFlag = false;
 		//String[] projectNames = null;
 		//ArrayList<Project> projectName = new ArrayList<Project>();
 		try {
+			// properties are read from the file
 			properties.load(new FileInputStream(filename));
 			appName = properties.getProperty("applicationName"); //$NON-NLS-1$
 
@@ -245,7 +250,17 @@ public class LoginDialog extends Dialog {
 				System.setProperty("demoUser", "no"); //$NON-NLS-1$ //$NON-NLS-2$
 			else
 				System.setProperty("demoUser", demoUserFlag); //$NON-NLS-1$
+			
+			// A new timeout parameter can be read from the properties file here:
 
+			String sTimeoutInMilliseconds = properties.getProperty("timeout");
+			if (sTimeoutInMilliseconds == null)				
+				System.setProperty("iTimeoutInMilliseconds", "1800000");
+			//else if (sTimeoutInMilliseconds  String.valueOf(i) )
+			//	System.setProperty("iTimeoutInMilliseconds", "1800000");				
+			else
+				System.setProperty("iTimeoutInMilliseconds", sTimeoutInMilliseconds);
+			
 			//String projects = properties.propertyNames(); //.getProperty(appName + ".1"); //"projects");
 
 			Enumeration propertyNames = properties.propertyNames();
@@ -453,12 +468,18 @@ public class LoginDialog extends Dialog {
 				//pmAddress = getProject(projectCombo.getText()).getUrl();
 				System.setProperty("webServiceMethod", currentPrj.getMethod()); //$NON-NLS-1$
 				//(String) pmAddresses.get(projectCombo.getText());
+				
+				//
+				// This supplies hardcoded values for a demo login, no actual web
+				// services are called.
+				//
 				if(demoOnly.getSelection() == true) {
 
 					//labelMsg.setText("Logging in ...");
 					PasswordType ptype = new PasswordType();
 					ptype.setValue(textPassword.getText());
 					ptype.setIsToken(false);
+					// ptype.setTokenMsTimeout(System.getProperty(key))
 					
 					LoginThread loginThread = new LoginThread(textUser.getText()
 							.trim(), ptype,
@@ -489,10 +510,20 @@ public class LoginDialog extends Dialog {
 						shell.close();
 					}					
 				}
+				
+				//
+				// This is the actual login process where actual web
+				// services are called.
+				//
 				else {
+					//
+					// #1 = Web Service to get Message Version
+					//
+					// value from i2b2workbench.properties file is returned next...
 					String workbenchversion = getWorkbenchMessageVersion();
+					// web service call to obtain Message version is returned next ...
 					String hiveversion = getHiveMessageVersion();
-
+					// exit if properties file does not have message version
 					if (workbenchversion == null) {
 						MessageBox messageBox =
 							new MessageBox(shell,
@@ -502,51 +533,38 @@ public class LoginDialog extends Dialog {
 						messageBox.open();
 						log.info("messageversion is missing from properties file"); //$NON-NLS-1$
 						System.exit(0);
-
 					}
-
+					// return if the web service didn't work after painting login box with error
 					if (hiveversion == null) {
-						
 						labelMsg.setForeground(labelMsg.getParent().getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
-
 						labelMsg.setText(Messages.getString("LoginDialog.PMServerError"));
-
-						//labelMsg.setText("Unable to connect to server.");
-						//LOGIN_FAILED_MSG + " " +System.getProperty("statusMessage"));
+						// OLD ENGLISH = labelMsg.setText("Unable to connect to server.");
 						textUser.setText(textUser.getText().trim());
-						
 						return;
-						
-						//						labelMsg.setForeground(labelMsg.getParent().getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
-
-						//						labelMsg.setText("PM Cell's getVersion operation is not responding");
-						//						log.info("PM Cell's getVersion operation is not responding");
-						//						return;
+					// only if user wants, exit if the message versions do not match
 					} else 	if(!workbenchversion.equalsIgnoreCase(hiveversion)) {
 						Shell activeShell = shell;
-
 						MessageBox mBox = new MessageBox(activeShell, SWT.ICON_INFORMATION | SWT.ON_TOP | SWT.RETRY | SWT.CANCEL);
 						mBox.setText(Messages.getString("LoginDialog.VersionConflictPopup")); //$NON-NLS-1$
-
 						mBox.setMessage(Messages.getString("LoginDialog.VersionConflictPopupText1") + appName + Messages.getString("LoginDialog.VersionConflictPopupText2") + workbenchversion //$NON-NLS-1$ //$NON-NLS-2$
 								+Messages.getString("LoginDialog.VersionConflictPopupText3") + appName + Messages.getString("LoginDialog.VersionConflictPopupText4")); //$NON-NLS-1$ //$NON-NLS-2$
-
 						int returnVal = mBox.open();		
 						//		log.info(returnVal);
-
 						log.info("Workbench message version " + workbenchversion + " does not match hive message version " + hiveversion); //$NON-NLS-1$ //$NON-NLS-2$
 						if (returnVal == 256){
 							System.exit(0);
 						}
 					} 
-
-
-					//create thread for web call - populates UserInfo object
-					//labelMsg.setText("Logging in ...");
+					//
+					// #2 Create thread for web call - populates UserInfo object
+					//
+					// Password is set from Dialog
 					PasswordType ptype = new PasswordType();
 					ptype.setValue(textPassword.getText());
 					ptype.setIsToken(false);
-					
+					// TimeoutInMiliseconds is set from properties file
+					ptype.setTokenMsTimeout(getWorkbenchTimeoutInMiliseconds());
+					// Login web service is called with user string, passowrd object, and URL of domain
 					LoginThread loginThread = new LoginThread(textUser.getText()
 							.trim(), ptype,
 							currentPrj.getUrl(),
@@ -562,7 +580,7 @@ public class LoginDialog extends Dialog {
 						log.debug("Login Fail for userid="+textUser.getText().trim()); //$NON-NLS-1$
 						//log.info("Login Fail for userid="+textUser.getText().trim());
 						labelMsg.setForeground(labelMsg.getParent().getDisplay().getSystemColor(SWT.COLOR_DARK_RED));
-
+						//labelMsg.setText("Logging in ...");
 						if (loginThread.getMsg() != null)
 							labelMsg.setText(loginThread.getMsg());
 
@@ -634,9 +652,10 @@ public class LoginDialog extends Dialog {
 	}
 
 	/**
-	 * Method to get the message version of the workbench.
+	 * Method to get the message version of the workbench from
+	 * the properties file.
 	 * 
-	 * @return  version
+	 * @return  String version
 	 * 
 	 */
 	private String getWorkbenchMessageVersion() {
@@ -648,9 +667,34 @@ public class LoginDialog extends Dialog {
 			version=properties.getProperty("messageversion"); //$NON-NLS-1$
 		} catch (IOException e) {
 			log.error(e.getMessage());
+			version = "-1.0";
 		}
 		log.info("workbench message version="+version); //$NON-NLS-1$
 		return version;
+	}
+	
+	/**
+	 * Method to get the timeout in milliseconds of the workbench token from
+	 * the workbench properties file.
+	 * 
+	 * @return  int TimeoutInMilliseconds
+	 * 
+	 */
+	private int getWorkbenchTimeoutInMiliseconds() {
+		Properties properties = new Properties();
+		String sTimeout=""; //$NON-NLS-1$
+		int iTimeoutInMilliseconds = iDEFAULT_TIMEOUTINMILLISECONDS;
+		String filename=Messages.getString("Application.PropertiesFile"); //$NON-NLS-1$
+		try {
+			properties.load(new FileInputStream(filename));
+			sTimeout=properties.getProperty("TimeoutInMilliseconds"); //$NON-NLS-1$
+			iTimeoutInMilliseconds = Integer.parseInt(sTimeout);
+		} catch (Exception e) {
+			log.info("Could not find TimeoutInMilliseconds in " + filename); 
+			iTimeoutInMilliseconds = iDEFAULT_TIMEOUTINMILLISECONDS;
+		}
+		log.info("workbench timeout in milliseconds set to: " + iTimeoutInMilliseconds); //$NON-NLS-1$
+		return iTimeoutInMilliseconds;
 	}
 
 	/*

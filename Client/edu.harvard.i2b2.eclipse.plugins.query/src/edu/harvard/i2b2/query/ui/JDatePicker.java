@@ -24,7 +24,7 @@ import org.jdesktop.swing.calendar.*;
  */
 
 /*
- * JXDatePicker.Java
+ * JXDatePicker.Java  
  * 
  * A component that combines a button, an editable field and a JXMonthView
  * component. The user can select a date from the calendar component, which
@@ -463,9 +463,8 @@ public class JDatePicker extends JComponent {
 	 * popup will automatically hide itself and enter the selection into the
 	 * editable field of the JXDatePicker.
 	 */
-	private class JXDatePickerPopup extends JPopupMenu
-			implements
-				ActionListener {
+	private class JXDatePickerPopup extends JPopupMenu implements
+			ActionListener {
 		private JButton _nextButton;
 		private JButton _previousButton;
 		private JButton _todayButton;

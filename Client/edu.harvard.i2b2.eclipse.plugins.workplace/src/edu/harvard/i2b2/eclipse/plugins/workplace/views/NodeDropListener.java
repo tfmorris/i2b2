@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -255,7 +255,14 @@ final class NodeDropListener implements DropTargetListener
 							XmlValueType conceptXml = createWorkXml(concept);
 							if (concept.getVisualattributes().startsWith("FA"))
 								visualAttribute = "ZAF";
-							createWorkplaceNode(workItem, currentTarget, conceptXml, XmlUtil.getName(conceptXml), workXmlI2B2Type, visualAttribute, moveFlag);
+							String cname = concept.getName();
+							if(concept.getModifier() != null)	{
+								cname += " [" + concept.getModifier().getName() + "]";
+							}
+								
+				//			createWorkplaceNode(workItem, currentTarget, conceptXml, XmlUtil.getName(conceptXml), workXmlI2B2Type, visualAttribute, moveFlag);
+							createWorkplaceNode(workItem, currentTarget, conceptXml, cname, workXmlI2B2Type, visualAttribute, moveFlag);
+							
 						}
 					}
 				}catch (JAXBUtilException e) {
@@ -270,12 +277,23 @@ final class NodeDropListener implements DropTargetListener
 				createWorkplaceNode(workItem, currentTarget, xml, name, workXmlI2B2Type, visualAttribute, moveFlag);
 			}
 			
+			else if(XmlUtil.hasEncounterSetTag(xml)) {
+				visualAttribute = "ZA";		
+				workXmlI2B2Type = "ENCOUNTER_COLL";
+				createWorkplaceNode(workItem, currentTarget, xml, name, workXmlI2B2Type, visualAttribute, moveFlag);
+			}
+			
 			else if(XmlUtil.hasPatientCountTag(xml)) {
 				visualAttribute = "ZA";		
 				workXmlI2B2Type = "PATIENT_COUNT_XML";
 				createWorkplaceNode(workItem, currentTarget, xml, name, workXmlI2B2Type, visualAttribute, moveFlag);
 			}
-			
+
+			else if(XmlUtil.hasBreakdownTag(xml)) {
+				visualAttribute = "ZA";		
+				workXmlI2B2Type = XmlUtil.getXmlI2B2Type(xml);
+				createWorkplaceNode(workItem, currentTarget, xml, name, workXmlI2B2Type, visualAttribute, moveFlag);
+			}
 			// this has to be after patient set and patient count tag checks 
 			else if(XmlUtil.hasPrevQueryTag(xml)) {
 				visualAttribute = "ZA";		

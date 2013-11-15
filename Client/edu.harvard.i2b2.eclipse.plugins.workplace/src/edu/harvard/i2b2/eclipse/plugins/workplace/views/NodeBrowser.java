@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1
  * which accompanies this distribution. 
@@ -131,6 +131,8 @@ public class NodeBrowser extends ApplicationWindow
 	  this.imageRegistry.put("patient", imageDescriptor);
 	  imageDescriptor = ImageDescriptor.createFromFile(getClass(), "icons/patient.jpg");
 	  this.imageRegistry.put("pdo", imageDescriptor);
+	  imageDescriptor = ImageDescriptor.createFromFile(getClass(), "icons/morepeople.jpg");
+	  this.imageRegistry.put("encounter_coll", imageDescriptor);
   }
   
   private void createTreeViewer(Composite parent, int style, int inputFlag)
@@ -149,9 +151,11 @@ public class NodeBrowser extends ApplicationWindow
     IAction renameAction = new RenameAction();
     IAction annotateAction = new AnnotateAction();
     IAction deleteAction = new DeleteAction();
+    IAction exportAction = new ExportAction();
     popupMenu.add(renameAction);
     popupMenu.add(annotateAction);
     popupMenu.add(deleteAction);
+    popupMenu.add(exportAction);
     menu = popupMenu.createContextMenu(tree);
     
     MenuManager casePopupMenu = new MenuManager();
@@ -591,7 +595,25 @@ public class NodeBrowser extends ApplicationWindow
 	  }
   }
   
-  
+
+  private class ExportAction extends Action 
+  {
+	  public ExportAction()
+	  {
+		  super("Export");
+	  }
+	  public void run()
+	  {
+		  IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+		    if (selection.size() != 1)
+		      return;
+
+		  TreeNode node =  (TreeNode) selection.getFirstElement();
+		  node.exportNode(viewer).start();
+
+	  }
+  }
+
   
   private class AnnotateAction extends Action 
   {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -1017,13 +1017,14 @@ public class EditWizard extends Wizard {
 		}
 		private boolean invalid(char c){
 			if( (c == '*') || (c == '|') || (c == '/') || 
-					 (c == '\\') || (c == ':') || (c == '"') || 
-					 (c == '<') || (c == '>') || (c == '?')) {
-			
+					 (c == '\\')  || (c == '"') || 
+					 (c == '<') || (c == '%') || (c == '?')) {
+				// the characters ':' and '>' are now allowed (genomic data uses them)
+				
 				MessageBox mBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.ICON_INFORMATION | SWT.OK);
 				mBox.setText("Please Note ...");
-				mBox.setMessage("The following characters are not allowed for this field \n" + 
-				" *   |   \\   /   :   \"   <   >   ? ");
+				mBox.setMessage("The c are not allowed for this field \n" + 
+				" *   |   \\   /    \"   <   ?  %");
 				int result = mBox.open();
 				
 				return true;

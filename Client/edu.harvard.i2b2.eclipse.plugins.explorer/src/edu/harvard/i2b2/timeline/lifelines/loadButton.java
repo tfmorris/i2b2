@@ -11,61 +11,55 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 
+
 public class LoadButton extends Panel {
 
-  Record theApplet;
-  String loadFile;
+	Record theApplet;
+	String loadFile;
 
-  LoadButton(Record theApplet) {
+	LoadButton(Record theApplet) {
 
-        this.theApplet = theApplet;
+		this.theApplet = theApplet;
 
-        setBackground(Color.gray);
+		setBackground(Color.gray);
 
-  }
+	}
 
-  @Override
-public void update(Graphics g) {
+	@Override
+	public void update(Graphics g) {
 
-        paint(g);
+		paint(g);
 
-  }
+	}
 
+	@Override
+	public void paint(Graphics g) {
 
-  @Override
-public void paint(Graphics g) {
+		g.drawString("Load", 3, 10);
 
-        g.drawString("Load",3,10);
+	}
 
-  }
+	public void setLoadFile(String loadFile) {
 
-  public void setLoadFile(String loadFile) {
+		this.loadFile = loadFile;
 
+	}
 
-       this.loadFile = loadFile;
+	public boolean mouseDown(Event e, Object arg) {
 
-  }
+		Record.theData = new LoadRecord(theApplet.getCodeBase() + loadFile,
+				"none");
 
+		theApplet.resetTabPanel();
 
-  public boolean mouseDown(Event e,Object arg) {
+		theApplet.resetPicPanel();
 
-        Record.theData = new LoadRecord(theApplet.getCodeBase() + loadFile,"none");
+		theApplet.resetInfoPanel();
 
-        theApplet.resetTabPanel();
+		theApplet.setWidthHeight(400, 350);
 
-        theApplet.resetPicPanel();
+		return true;
 
-        theApplet.resetInfoPanel();
+	}
 
-        theApplet.setWidthHeight(400,350);
-
-
-        return true;
-
-
-  }
-
-
-
-         
 }

@@ -13,51 +13,52 @@ package edu.harvard.i2b2.timeline.lifelines;
 
 import java.awt.*;
 
+
 public class EnterField extends TextField {
 
-    private Record theApplet;
+	private Record theApplet;
 
-    public void setApplet(Record theApplet) {
+	public void setApplet(Record theApplet) {
 
-	this.theApplet = theApplet;
+		this.theApplet = theApplet;
 
-    }
-
-    @Override
-    public void update(Graphics g) {
-
-	paint(g);
-
-    }
-
-    @Override
-    public boolean keyUp(Event evt, int key) {
-
-	if (key == 10) {
-
-	    Record.theData = new LoadRecord(
-		    theApplet.getCodeBase() + getText(), "none");
-
-	    theApplet.resetTabPanel();
-
-	    theApplet.resetPicPanel();
-
-	    theApplet.resetInfoPanel();
-
-	    theApplet.setWidthHeight(400, 350); /*
-						 * else if(key > 32 && key <
-						 * 126) { setText(char(key) +
-						 * getText()); }
-						 */
-
-	    // 3/28/98
-	    if (theApplet.theCurrPanel.ctrlpanel != null) {
-		theApplet.theCurrPanel.ctrlpanel.hide();
-		theApplet.theCurrPanel.ctrlpanel = null;
-	    }
 	}
-	return true;
 
-    }
+	@Override
+	public void update(Graphics g) {
+
+		paint(g);
+
+	}
+
+	@Override
+	public boolean keyUp(Event evt, int key) {
+
+		if (key == 10) {
+
+			Record.theData = new LoadRecord(
+					theApplet.getCodeBase() + getText(), "none");
+
+			theApplet.resetTabPanel();
+
+			theApplet.resetPicPanel();
+
+			theApplet.resetInfoPanel();
+
+			theApplet.setWidthHeight(400, 350); /*
+												 * else if(key > 32 && key <
+												 * 126) { setText(char(key) +
+												 * getText()); }
+												 */
+
+			// 3/28/98
+			if (theApplet.theCurrPanel.ctrlpanel != null) {
+				theApplet.theCurrPanel.ctrlpanel.hide();
+				theApplet.theCurrPanel.ctrlpanel = null;
+			}
+		}
+		return true;
+
+	}
 
 }

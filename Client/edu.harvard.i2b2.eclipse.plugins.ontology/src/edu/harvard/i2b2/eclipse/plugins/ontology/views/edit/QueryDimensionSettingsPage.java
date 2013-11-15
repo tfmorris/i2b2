@@ -20,7 +20,7 @@ import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
 
 public class QueryDimensionSettingsPage extends WizardPage {
 
-		private Text text1, text2, text3, text4, text5;
+		private Text text1, text2, text3, text4, text5, text6;
 		private Combo dataTypeCombo;
 		public static final String PAGE_NAME = "QueryDimensionSettings"; //$NON-NLS-1$
 		
@@ -54,7 +54,12 @@ public class QueryDimensionSettingsPage extends WizardPage {
 			
 			new Label (settings, SWT.NONE).setText("*Table Name:");			
 			text1 = new Text(settings, SWT.BORDER);
-			text1.setText(MetadataRecord.getInstance().getMetadata().getTablename());
+
+			if((MetadataRecord.getInstance().getParentData().getModifier() == null) ||
+					((MetadataRecord.getInstance().getParentData().getModifier().getName() == null)))
+				text1.setText(MetadataRecord.getInstance().getParentData().getTablename());
+			else 
+				text1.setText(MetadataRecord.getInstance().getParentData().getModifier().getTablename());
 			text1.addModifyListener(new ModifyListener() {
 			      public void modifyText(ModifyEvent event) {	
 				      	// Page is not complete until all required fields have been added
@@ -88,7 +93,12 @@ public class QueryDimensionSettingsPage extends WizardPage {
 			new Label (settings, SWT.NONE).setText("*Column Name:");			
 			text2 = new Text(settings, SWT.BORDER);
 			text2.setLayoutData(textData);
-			text2.setText(MetadataRecord.getInstance().getMetadata().getColumnname());
+			if((MetadataRecord.getInstance().getParentData().getModifier() == null) ||
+					((MetadataRecord.getInstance().getParentData().getModifier().getName() == null)))
+				text2.setText(MetadataRecord.getInstance().getParentData().getColumnname());
+			else 
+				text2.setText(MetadataRecord.getInstance().getParentData().getModifier().getColumnname());
+
 			text2.addModifyListener(new ModifyListener() {
 			      public void modifyText(ModifyEvent event) {	
 			      	// Page is not complete until all required fields have been added
@@ -115,7 +125,13 @@ public class QueryDimensionSettingsPage extends WizardPage {
 			new Label (settings, SWT.NONE).setText("*Fact Table Column Name:");			
 			text3 = new Text(settings, SWT.BORDER);
 			text3.setLayoutData(textData);
-			text3.setText(MetadataRecord.getInstance().getMetadata().getFacttablecolumn());
+
+			if((MetadataRecord.getInstance().getParentData().getModifier() == null) ||
+					((MetadataRecord.getInstance().getParentData().getModifier().getName() == null)))
+				text3.setText(MetadataRecord.getInstance().getParentData().getFacttablecolumn());
+			else 
+				text3.setText(MetadataRecord.getInstance().getParentData().getModifier().getFacttablecolumn());
+
 			text3.addModifyListener(new ModifyListener() {
 			      public void modifyText(ModifyEvent event) {	
 				 /*     	// Page is not complete until all required fields have been added
@@ -144,7 +160,14 @@ public class QueryDimensionSettingsPage extends WizardPage {
 			new Label (settings, SWT.NONE).setText("*Operator:");			
 			text4 = new Text(settings, SWT.BORDER);
 			text4.setLayoutData(textData);
-			text4.setText(MetadataRecord.getInstance().getMetadata().getOperator());
+
+			if((MetadataRecord.getInstance().getParentData().getModifier() == null) ||
+					((MetadataRecord.getInstance().getParentData().getModifier().getName() == null)))
+				text4.setText(MetadataRecord.getInstance().getParentData().getOperator());
+			else 
+				text4.setText(MetadataRecord.getInstance().getParentData().getModifier().getOperator());
+
+			
 			text4.addModifyListener(new ModifyListener() {
 			      public void modifyText(ModifyEvent event) {	
 				      	// Page is not complete until all required fields have been added
@@ -174,12 +197,46 @@ public class QueryDimensionSettingsPage extends WizardPage {
 			dataTypeCombo.add("T");
 			dataTypeCombo.add("N");
 
-			dataTypeCombo.setText(MetadataRecord.getInstance().getMetadata().getColumndatatype());
+			if((MetadataRecord.getInstance().getParentData().getModifier() == null) ||
+					((MetadataRecord.getInstance().getParentData().getModifier().getName() == null)))
+				dataTypeCombo.setText(MetadataRecord.getInstance().getParentData().getColumndatatype());
+			else 
+				dataTypeCombo.setText(MetadataRecord.getInstance().getParentData().getModifier().getColumndatatype());
+/*
+			new Label (settings, SWT.NONE).setText("*Dimension Code:");
+			text6 = new Text(settings, SWT.BORDER);
+			text6.setLayoutData(textData);
+
+			if(MetadataRecord.getInstance().getMetadata().getModifier() == null)
+				text6.setText(MetadataRecord.getInstance().getMetadata().getDimcode());
+			else 
+				text6.setText(MetadataRecord.getInstance().getMetadata().getModifier().getDimcode());
+
 			
+			text6.addModifyListener(new ModifyListener() {
+			      public void modifyText(ModifyEvent event) {	
+			    	  setPageComplete(text6.getText().length()>0);
+			      }
+			    });
+			text6.addVerifyListener(new VerifyListener() {			
+				public void verifyText(VerifyEvent e){
+					if((e.character == '\b') || (e.character == '\u007F')){
+						e.doit = true;
+						return;
+					}
+					if(text6.getText().length() > 699)
+						e.doit = false;
+				}
+			});
+*/			
 			new Label (settings, SWT.NONE);
 			new Label (settings, SWT.NONE);
 			new Label (settings, SWT.NONE).setText("* denotes required field.");			
 			
+			
+
+			
+					
 			
 	//		new Label (settings, SWT.NONE).setText("Tooltip:");			
 	//		text5 = new Text(settings, SWT.BORDER);
@@ -208,13 +265,21 @@ public class QueryDimensionSettingsPage extends WizardPage {
 		public void updateMetadataRecord(){
 			
 			ConceptType metadata = 	MetadataRecord.getInstance().getMetadata();
-			
-			metadata.setTablename(getTableName());
-			metadata.setColumnname(getColumnName());
-			metadata.setFacttablecolumn(getFactTableColumnName());
-			metadata.setOperator(getOperator());
-			metadata.setColumndatatype(getDataType());
-			
+			if(metadata.getModifier() == null){
+
+				metadata.setTablename(getTableName());
+				metadata.setColumnname(getColumnName());
+				metadata.setFacttablecolumn(getFactTableColumnName());
+				metadata.setOperator(getOperator());
+				metadata.setColumndatatype(getDataType());
+			}
+			else{
+				metadata.getModifier().setTablename(getTableName());
+				metadata.getModifier().setColumnname(getColumnName());
+				metadata.getModifier().setFacttablecolumn(getFactTableColumnName());
+				metadata.getModifier().setOperator(getOperator());
+				metadata.getModifier().setColumndatatype(getDataType());
+			}
 	//		metadata.setKey(MetadataRecord.getInstance().getParentData().getKey()+ MetadataRecord.getInstance().getSymbol() + "\\");
 	//		metadata.setDimcode(MetadataRecord.getInstance().getParentData().getDimcode()+ MetadataRecord.getInstance().getSymbol() + "\\");
 		}

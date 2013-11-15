@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -43,7 +43,7 @@ public class FindView extends ViewPart {
 	private Log log = LogFactory.getLog(THIS_CLASS_NAME);
 	public boolean bWantStatusLine = false;
 	private StatusLineManager slm = new StatusLineManager();
-
+	static Composite compositeQueryTree;
 
 	private static TabItem treeTab;
 
@@ -64,24 +64,37 @@ public class FindView extends ViewPart {
 			System.setProperty("OntFindSynonyms",  UserInfoBean.getInstance().getCellDataParam("ont","OntFindSynonyms"));	
 		else
 			System.setProperty("OntFindSynonyms","true");		
+		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntDisableModifiers") != null)
+			System.setProperty("OntDisableModifiers",  UserInfoBean.getInstance().getCellDataParam("ont","OntDisableModifiers"));	
+		else
+			System.setProperty("OntDisableModifiers","false"); 	
 		
 	}
-	
+
 	/**
 	 * This is a callback that will allow us
 	 * to create the viewer and initialize it.
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		log.info("Find Terms plugin version 1.5.0");
+		log.info("Find Terms plugin version 1.6.0");
+		
+		compositeQueryTree = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(1, false);
-		layout.numColumns = 1;
+	//	layout.numColumns = 1;
 		layout.verticalSpacing = 2;
 		layout.marginWidth = 0;
 		layout.marginHeight = 2;
-		parent.setLayout(layout);
+		compositeQueryTree.setLayout(layout);
 		
-		Composite top = new Composite(parent, SWT.NONE);
+		GridData fromTreeGridData = new GridData (GridData.FILL_BOTH);
+	//	fromTreeGridData.widthHint = 300;
+		fromTreeGridData.grabExcessHorizontalSpace = true;
+		fromTreeGridData.grabExcessVerticalSpace = true;
+		compositeQueryTree.setLayoutData(fromTreeGridData);
+
+		
+/*		Composite top = new Composite(parent, SWT.NONE);
 		top.setLayout(new FillLayout(SWT.VERTICAL));
 		
 		GridData layoutData = new GridData();
@@ -90,9 +103,10 @@ public class FindView extends ViewPart {
 		layoutData.grabExcessVerticalSpace = true;
 		layoutData.verticalAlignment = GridData.FILL;
 		top.setLayoutData(layoutData);
-		
+*/		
 	    // Create the tab folder
-		final TabFolder tabFolder = new TabFolder(top, SWT.NONE);
+		final TabFolder tabFolder = new TabFolder(compositeQueryTree, SWT.NONE);
+		tabFolder.setLayoutData(fromTreeGridData);
 //		 Create each tab and set its text, tool tip text,
 	    // image, and control
 	    treeTab = new TabItem(tabFolder, SWT.BOTTOM);
@@ -111,12 +125,14 @@ public class FindView extends ViewPart {
 	    // Select the first tab (index is zero-based)
 	    tabFolder.setSelection(0);
 
+	//	ModifierComposite.setInstance(compositeQueryTree); 
+	    
 		//setup context help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, FIND_VIEW_CONTEXT_ID);
 		addHelpButtonToToolBar();
 	}
 
-	protected Control getFindTabControl(TabFolder tabFolder)
+/*	protected Control getFindTabControl(TabFolder tabFolder)
 	{
 		// Drag "from" tree
 		Composite compositeQueryTree = new Composite(tabFolder, SWT.NULL);
@@ -132,7 +148,7 @@ public class FindView extends ViewPart {
 		gridLayoutTree.numColumns = 1;
 		gridLayoutTree.marginHeight = 0;
 		GridData fromTreeGridData = new GridData (GridData.FILL_BOTH);
-		fromTreeGridData.widthHint = 300;
+	//	fromTreeGridData.widthHint = 300;
 		compositeQueryTree.setLayoutData(fromTreeGridData);
 
 		TreeComposite dragTree = new TreeComposite(compositeQueryTree, 1, slm);
@@ -141,6 +157,16 @@ public class FindView extends ViewPart {
 		
 		return compositeQueryTree;
 	}
+	*/
+	//
+	// Passing the focus request
+	 //
+	@Override
+	public void setFocus() {
+		treeTab.getControl().setFocus();
+	}
+	
+
 	//add help button
 	private void addHelpButtonToToolBar() {
 		final IWorkbenchHelpSystem helpSystem = PlatformUI.getWorkbench().getHelpSystem();
@@ -153,12 +179,6 @@ public class FindView extends ViewPart {
 		helpAction.setImageDescriptor(ImageDescriptor.createFromFile(FindView.class, "/icons/help.png"));
 		getViewSite().getActionBars().getToolBarManager().add(helpAction);
 	}
-	/**
-	 * Passing the focus request
-	 */
-	@Override
-	public void setFocus() {
-		treeTab.getControl().setFocus();
-	}
+
 
 }

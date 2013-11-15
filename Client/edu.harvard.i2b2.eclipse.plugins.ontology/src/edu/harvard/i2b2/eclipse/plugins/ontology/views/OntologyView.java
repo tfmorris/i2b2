@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -48,6 +48,7 @@ public class OntologyView extends ViewPart {
 	public static final String ONTOLOGY_VIEW_CONTEXT_ID = PREFIX + ".navigate_terms_view_help_context";
 	
 	private Composite compositeQueryTree;
+	private Composite modifierComp;
 	private Log log = LogFactory.getLog(THIS_CLASS_NAME);
 	public boolean bWantStatusLine = false;
 	private StatusLineManager slm = new StatusLineManager();	
@@ -69,9 +70,26 @@ public class OntologyView extends ViewPart {
 			System.setProperty("OntSynonyms",  UserInfoBean.getInstance().getCellDataParam("ont","OntSynonyms"));	
 		else
 			System.setProperty("OntSynonyms","false");
+		
+		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntPatientCount") != null)
+			System.setProperty("OntPatientCount",  UserInfoBean.getInstance().getCellDataParam("ont","OntPatientCount"));	
+		else			
+			System.setProperty("OntPatientCount","false");
+		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntShortTooltips") != null)
+			System.setProperty("OntShortTooltips",  UserInfoBean.getInstance().getCellDataParam("ont","OntShortTooltips"));	
+		else
+			System.setProperty("OntShortTooltips","false");
+		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntConceptCode") != null)
+			System.setProperty("OntConceptCode",  UserInfoBean.getInstance().getCellDataParam("ont","OntConceptCode"));	
+		else
+			System.setProperty("OntConceptCode","false"); 		
+		
+		if (UserInfoBean.getInstance().getCellDataParam("ont", "OntDisableModifiers") != null)
+			System.setProperty("OntDisableModifiers",  UserInfoBean.getInstance().getCellDataParam("ont","OntDisableModifiers"));	
+		else
+			System.setProperty("OntDisableModifiers","false"); 	
 		//System.setProperty("user", UserInfoBean.getInstance().getUserName());
 		//System.setProperty("pass", UserInfoBean.getInstance().getUserPassword());
-		System.setProperty("getPatientCount", "false");
 		
 		try {    		
     		String response = null;
@@ -113,7 +131,7 @@ public class OntologyView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		log.info("Navigate Terms version 1.5.0");
+		log.info("Navigate Terms version 1.6.0");
 		// Drag "from" tree
 		compositeQueryTree = new Composite(parent, SWT.NULL);
 		GridLayout gridLayout = new GridLayout();
@@ -134,6 +152,7 @@ public class OntologyView extends ViewPart {
 		TreeComposite dragTree = new TreeComposite(compositeQueryTree, 1, slm);
 		dragTree.setLayoutData(new GridData (GridData.FILL_BOTH));
 		dragTree.setLayout(gridLayout);
+		
 		
 		//setup context help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, ONTOLOGY_VIEW_CONTEXT_ID);

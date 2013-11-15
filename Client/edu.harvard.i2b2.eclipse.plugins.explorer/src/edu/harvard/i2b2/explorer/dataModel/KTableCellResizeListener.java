@@ -12,14 +12,14 @@ package edu.harvard.i2b2.explorer.dataModel;
 
 public interface KTableCellResizeListener {
 
-    /**
-     * Is called when a row is resized.
-     */
-    public void rowResized(int newHeight);
+	/**
+	 * Is called when a row is resized.
+	 */
+	public void rowResized(int newHeight);
 
-    /**
-     * Is called when a column is resized.
-     */
-    public void columnResized(int col, int newWidth);
+	/**
+	 * Is called when a column is resized.
+	 */
+	public void columnResized(int col, int newWidth);
 
 }

@@ -105,6 +105,15 @@
                toolbarPath="additions"
                tooltip="Display the XML message stack">
          </action>
+          <action
+               class="edu.harvard.i2b2.eclipse.plugins.ontology.views.edit.ViewOptionToolbarActionDelegate"
+               icon="icons/options_1.gif"
+               id="edu.harvard.i2b2.eclipse.plugins.ontology.edit.viewOptions"
+               label="Opti&amp;ons"
+               state="false"
+               style="push"
+               toolbarPath="additions"
+               tooltip="Display the options dialog"/>
       </viewContribution>
       </extension>
                   <extension point="org.eclipse.ui.contexts">

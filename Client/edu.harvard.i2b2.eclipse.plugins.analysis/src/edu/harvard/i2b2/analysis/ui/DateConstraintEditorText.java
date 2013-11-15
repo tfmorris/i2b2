@@ -29,86 +29,86 @@ import edu.harvard.i2b2.analysis.dataModel.KTableCellEditor;
 import edu.harvard.i2b2.analysis.dataModel.QueryModel;
 
 public class DateConstraintEditorText extends KTableCellEditor {
-    private Text m_Text;
+	private Text m_Text;
 
-    public void open(KTable table, int col, int row, Rectangle rect) {
-	super.open(table, col, row, rect);
-	m_Text.setText(m_Model.getContentAt(m_Col, m_Row).toString());
-	m_Text.selectAll();
-	m_Text.setVisible(true);
-	m_Text.setFocus();
+	public void open(KTable table, int col, int row, Rectangle rect) {
+		super.open(table, col, row, rect);
+		m_Text.setText(m_Model.getContentAt(m_Col, m_Row).toString());
+		m_Text.selectAll();
+		m_Text.setVisible(true);
+		m_Text.setFocus();
 
-	QueryModel ndata = (QueryModel) ((ConceptTableModel) m_Model)
-		.getContentAt(7, row);
-	// ((ConceptKTableModel)m_Model).valueMode(m_Row);
+		QueryModel ndata = (QueryModel) ((ConceptTableModel) m_Model)
+				.getContentAt(7, row);
+		// ((ConceptKTableModel)m_Model).valueMode(m_Row);
 
-	DateConstraintFrame vDialog = new DateConstraintFrame(ndata, m_Table);
-	vDialog.setSize(430, 230);
-	vDialog.setLocation(300, 300);
-	vDialog.setTitle("Choose time ");
-	vDialog.setVisible(true);
-    }
+		DateConstraintFrame vDialog = new DateConstraintFrame(ndata, m_Table);
+		vDialog.setSize(430, 230);
+		vDialog.setLocation(300, 300);
+		vDialog.setTitle("Choose time ");
+		vDialog.setVisible(true);
+	}
 
-    public void close(boolean save) {
-	if (save)
-	    m_Model.setContentAt(m_Col, m_Row, m_Text.getText());
-	super.close(save);
-	m_Text = null;
-    }
+	public void close(boolean save) {
+		if (save)
+			m_Model.setContentAt(m_Col, m_Row, m_Text.getText());
+		super.close(save);
+		m_Text = null;
+	}
 
-    protected Control createControl() {
-	// log.debug("Created a new one.");
-	m_Text = new Text(m_Table, SWT.NONE);
-	m_Text.addKeyListener(new KeyAdapter() {
-	    public void keyPressed(KeyEvent e) {
-		try {
-		    onKeyPressed(e);
-		} catch (Exception ex) {
-		}
-	    }
-	});
-	m_Text.addTraverseListener(new TraverseListener() {
-	    public void keyTraversed(TraverseEvent arg0) {
-		onTraverse(arg0);
-	    }
-	});
-	m_Text.addMouseListener(new MouseListener() {
+	protected Control createControl() {
+		// log.debug("Created a new one.");
+		m_Text = new Text(m_Table, SWT.NONE);
+		m_Text.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				try {
+					onKeyPressed(e);
+				} catch (Exception ex) {
+				}
+			}
+		});
+		m_Text.addTraverseListener(new TraverseListener() {
+			public void keyTraversed(TraverseEvent arg0) {
+				onTraverse(arg0);
+			}
+		});
+		m_Text.addMouseListener(new MouseListener() {
 
-	    public void mouseDoubleClick(MouseEvent arg0) {
-		/*
-		 * int mode = ((ConceptKTableModel)m_Model).valueMode(0);
-		 * 
-		 * if(mode == 0) { EnumValueConstrainFrame vDialog1 = new
-		 * EnumValueConstrainFrame(); vDialog1.setSize(410, 330);
-		 * vDialog1.setLocation(300, 300);
-		 * vDialog1.setTitle("Choose value"+m_Table.selectedRow);
-		 * vDialog1.setVisible(true); } else if(mode == 1) {
-		 * NumericValueConstrainFrame vDialog1 = new
-		 * NumericValueConstrainFrame(); vDialog1.setSize(410, 330);
-		 * vDialog1.setLocation(300, 300);
-		 * vDialog1.setTitle("Choose value"+m_Table.selectedRow);
-		 * vDialog1.setVisible(true); }
-		 */
+			public void mouseDoubleClick(MouseEvent arg0) {
+				/*
+				 * int mode = ((ConceptKTableModel)m_Model).valueMode(0);
+				 * 
+				 * if(mode == 0) { EnumValueConstrainFrame vDialog1 = new
+				 * EnumValueConstrainFrame(); vDialog1.setSize(410, 330);
+				 * vDialog1.setLocation(300, 300);
+				 * vDialog1.setTitle("Choose value"+m_Table.selectedRow);
+				 * vDialog1.setVisible(true); } else if(mode == 1) {
+				 * NumericValueConstrainFrame vDialog1 = new
+				 * NumericValueConstrainFrame(); vDialog1.setSize(410, 330);
+				 * vDialog1.setLocation(300, 300);
+				 * vDialog1.setTitle("Choose value"+m_Table.selectedRow);
+				 * vDialog1.setVisible(true); }
+				 */
 
-	    }
+			}
 
-	    public void mouseDown(MouseEvent arg0) {
+			public void mouseDown(MouseEvent arg0) {
 
-	    }
+			}
 
-	    public void mouseUp(MouseEvent arg0) {
-	    }
+			public void mouseUp(MouseEvent arg0) {
+			}
 
-	});
-	return m_Text;
-    }
+		});
+		return m_Text;
+	}
 
-    /*
-     * overridden from superclass
-     */
-    public void setBounds(Rectangle rect) {
-	super.setBounds(new Rectangle(rect.x, rect.y + (rect.height - 15) / 2
-		+ 1, rect.width, 15));
-    }
+	/*
+	 * overridden from superclass
+	 */
+	public void setBounds(Rectangle rect) {
+		super.setBounds(new Rectangle(rect.x, rect.y + (rect.height - 15) / 2
+				+ 1, rect.width, 15));
+	}
 
 }

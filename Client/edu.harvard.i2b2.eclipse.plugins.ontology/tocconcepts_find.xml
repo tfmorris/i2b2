@@ -6,6 +6,8 @@
    </topic>
    <topic href="html/concepts_findTerms/find_terms_intro_codingSystems.htm" label="Standard coding systems">
    </topic>
+   <topic href="html/concepts_findTerms/find_terms_intro_layout_mod.htm" label="Layout of the Find Modifiers section">
+   </topic>
    <topic href="html/concepts_findTerms/find_terms_navigation/find_terms_navigation_intro.htm" label="Navigation">
       <topic href="html/concepts_findTerms/find_terms_navigation/find_terms_navigation_folder.htm" label="Expand/Collapse a folder">
       </topic>
@@ -17,6 +19,12 @@
       </topic>
       <topic href="html/concepts_findTerms/find_terms_search/find_terms_search_code.htm" label="Search by code">
       </topic>
+   </topic>
+    <topic href="html/concepts_findTerms/find_terms_search/find_terms_search_mod_intro.htm" label="Searching Modifiers">
+       <topic href="html/concepts_findTerms/find_terms_search/find_terms_search_mod_name.htm" label="Find modifiers by name">
+       </topic>
+       <topic href="html/concepts_findTerms/find_terms_search/find_terms_search_mod_code.htm" label="Find modifiers by code">
+       </topic>
    </topic>
    <topic href="html/concepts_findTerms/find_terms_usingTerms/find_terms_usingTerms_intro.htm" label="Using terms">
       <topic href="html/concepts_findTerms/find_terms_usingTerms/find_terms_usingTerms_dragItems.htm" label="Draggable items">
