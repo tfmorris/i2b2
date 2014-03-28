@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the i2b2 Software License v2.1 
+ * which accompanies this distribution. 
+ * 
+ * Contributors: 
+ *     Rajesh Kuttan
+ *     Mike Mendis
+ *     Bill Wang
+ */
 package edu.harvard.i2b2.fr.delegate;
 
 import java.io.File;
@@ -5,7 +16,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
@@ -22,10 +35,8 @@ import edu.harvard.i2b2.fr.datavo.fr.query.RecvfileResponseType;
 import edu.harvard.i2b2.fr.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.fr.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.fr.datavo.pm.CellDataType;
-import edu.harvard.i2b2.fr.datavo.pm.CellDatasType;
 import edu.harvard.i2b2.fr.datavo.pm.ConfigureType;
 import edu.harvard.i2b2.fr.util.MD5;
-
 
 public class RecvfileRequestHandler extends RequestHandler {
 
@@ -34,11 +45,13 @@ public class RecvfileRequestHandler extends RequestHandler {
 	OMElement requestElement = null;
 
 	String filename = "";
+	String requestedFilename = "";
 	protected ConfigureType pmResponseUserInfo = null;
 
 	public RecvfileRequestHandler(String requestXml)
 	throws I2B2Exception {
 		try {
+			log.debug("RecvfileRequestHandler - RequestXML: " + requestXml);
 			recvFileRequest = (RecvfileRequestType) this.getRequestType(requestXml,
 					edu.harvard.i2b2.fr.datavo.fr.query.RecvfileRequestType.class);
 			messageHeaderType = getMessageHeaderType(requestXml); 
@@ -48,6 +61,7 @@ public class RecvfileRequestHandler extends RequestHandler {
 			throw new I2B2Exception("Error ", jaxbUtilEx);
 		}
 	}
+	
 	@Override
 	public BodyType execute() throws Exception {
 		edu.harvard.i2b2.fr.datavo.fr.query.ObjectFactory objectFactory = new edu.harvard.i2b2.fr.datavo.fr.query.ObjectFactory();
@@ -61,34 +75,37 @@ public class RecvfileRequestHandler extends RequestHandler {
 		} catch (JAXBUtilException jaxbEx) {
 			throw new I2B2Exception("Error in marshalling publishdata request",jaxbEx);
 		}
-		filename = recvFileRequest.getFilename(); //.getLoadId();
+		filename = recvFileRequest.getFilename().trim(); 
+		requestedFilename = filename;
+		
 		log.debug("My filename is :" + filename);
-		String projectId  = messageHeaderType.getProjectId();//.getSecurity();
+		String projectId  = messageHeaderType.getProjectId().trim();//.getSecurity();
 
 		log.debug("My project is :" + projectId);
 
-		if ((filename == null) || (filename.length() == 0))
-				throw new I2B2Exception("Filename is empty");
-
-		if (filename.startsWith(java.io.File.separator))
-		{
+		if ((filename == null) || (filename.length() == 0)) {
+			throw new I2B2Exception("Filename is empty");
+		}
+		
+		if (filename.startsWith(java.io.File.separator)) {
 			filename = filename.substring(1);
 		}
-			
-			
-		CellDatasType celldatas = pmResponseUserInfo.getCellDatas();
 
 		String destDir = getCellDataParam("FRC", "destdir");
 
-		if (destDir == null)
+		if (destDir == null) {
 			throw new I2B2Exception("Unable to get 'destdir' from File Repository Cell(FRC) param data");
+		}
 
-		//Verify file
-		filename = destDir+ java.io.File.separatorChar + projectId + java.io.File.separatorChar + filename;
-		File recvFile = new File(filename);//destDir+ java.io.File.separatorChar + projectId + java.io.File.separatorChar + filename);
+		String canonicalDestDir = new File(destDir).getCanonicalPath();
+		String canonicalProjectDestDir = new File(canonicalDestDir, projectId).getCanonicalPath();
+		String canonicalFilename =new File(canonicalProjectDestDir, filename).getCanonicalPath(); 
+		
+		log.error ("canonicalFilename : " + canonicalFilename);
+		File recvFile = new File(canonicalFilename);
 		if (recvFile.exists())
 		{
-
+			filename = canonicalFilename;
 			
 			RecvfileResponseType response = new RecvfileResponseType();
 			edu.harvard.i2b2.fr.datavo.fr.query.File file = new edu.harvard.i2b2.fr.datavo.fr.query.File(); 
@@ -97,20 +114,18 @@ public class RecvfileRequestHandler extends RequestHandler {
 			file.setDesc(recvFile.getAbsolutePath());
 			file.setSize(BigInteger.valueOf(recvFile.length()));
 			file.setHash(MD5.asHex(MD5.getHash(recvFile)));
-			Date date = new Date (recvFile.lastModified());
-			//file.setDate(new XMLGregorianCalendar (date.getYear(), date.getMonth(), date.getDay(), date.getTimezoneOffset()));
+			Date fileDate = new Date (recvFile.lastModified());
+			GregorianCalendar fileCal = new GregorianCalendar();
+			fileCal.setTime(fileDate);
+			file.setDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(fileCal));
 			response.setRecvfileResponse(file);
-			bodyType.getAny()
-			.add(objectFactory.createRecvfileResponse(response));
+			bodyType.getAny().add(objectFactory.createRecvfileResponse(response));
 
-		} else
-		{
+		} else {
 			filename = "";
 			throw new Exception("File " + filename + " does not exist");
-
 		}
 		return bodyType;
-
 	}
 
 	public ConfigureType getPmResponseUserInfo() {
@@ -134,7 +149,6 @@ public class RecvfileRequestHandler extends RequestHandler {
 		return null;
 	}
 
-	
 	public static OMElement convertStringToOMElement(String requestXmlString) throws Exception { 
 		StringReader strReader = new StringReader(requestXmlString);
 		XMLInputFactory xif = XMLInputFactory.newInstance();
@@ -144,9 +158,12 @@ public class RecvfileRequestHandler extends RequestHandler {
 		OMElement lineItem = builder.getDocumentElement();
 		return lineItem;
 	}
+	
 	public String getFilename() {
 		return filename;
 	}
-
-
+	
+	public String getRequestedFilename() {
+		return requestedFilename;
+	}
 }

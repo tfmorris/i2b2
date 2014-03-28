@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v1.0 
  * which accompanies this distribution. 
@@ -13,9 +13,6 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.fr.datavo.i2b2message.ApplicationType;
 import edu.harvard.i2b2.fr.datavo.i2b2message.BodyType;
@@ -28,8 +25,6 @@ import edu.harvard.i2b2.fr.datavo.i2b2message.RequestMessageType;
 
 abstract public class ProjectManagementRequestData {
 
-	public static final String THIS_CLASS_NAME = ProjectManagementRequestData.class.getName();
-    private Log log = LogFactory.getLog(THIS_CLASS_NAME);
 	public ProjectManagementRequestData() {}
 	
 
@@ -57,7 +52,7 @@ abstract public class ProjectManagementRequestData {
 		
 		ApplicationType appType = new ApplicationType();
 		appType.setApplicationName("i2b2 CRC Cell");
-		appType.setApplicationVersion("1.606"); 
+		appType.setApplicationVersion("1.701"); 
 		messageHeader.setSendingApplication(appType);
 		
 		FacilityType facility = new FacilityType();
@@ -65,7 +60,7 @@ abstract public class ProjectManagementRequestData {
 		messageHeader.setSendingFacility(facility);
 		
 		ApplicationType appType2 = new ApplicationType();
-		appType2.setApplicationVersion("1.606");
+		appType2.setApplicationVersion("1.701");
 		appType2.setApplicationName("Project Management Cell");		
 		messageHeader.setReceivingApplication(appType2);
 	
@@ -125,25 +120,6 @@ abstract public class ProjectManagementRequestData {
 		}
 		return number;
 	}
-//	/**
-//	 * Function to convert Ont Request message type to an XML string
-//	 * 
-//	 * @param reqMessageType   String containing Ont request message to be converted to string
-//	 * @return A String data type containing the Ont RequestMessage in XML format
-//	 */
-//	public String getXMLString(RequestMessageType reqMessageType) throws JAXBUtilException{ 
-//		StringWriter strWriter = null;
-//		try {
-//			strWriter = new StringWriter();
-//			edu.harvard.i2b2.ontology.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.ontology.datavo.i2b2message.ObjectFactory();
-//			OntologyJAXBUtil.getJAXBUtil().marshaller(of.createRequest(reqMessageType), strWriter);
-//		} catch (JAXBUtilException e) {
-//			log.error("Error marshalling PM request message");
-//			throw e;
-//		} 
-//		return strWriter.toString();
-//	}
-
 	
 	
 	/**

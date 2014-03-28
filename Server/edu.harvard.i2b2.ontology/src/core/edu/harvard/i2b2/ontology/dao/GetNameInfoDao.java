@@ -48,7 +48,7 @@ public class GetNameInfoDao extends JdbcDaoSupport {
 	final static String DEFAULT = " c_name ";
 	final static String BLOB = ", c_metadataxml, c_comment ";
 	
-	public List findNameInfo(final VocabRequestType vocabType, List categories, ProjectType projectInfo)throws DataAccessException{
+	public List findNameInfo(final VocabRequestType vocabType, List categories, ProjectType projectInfo, final String dbType)throws DataAccessException{
 		DataSource ds = null;
 		try {
 			ds = OntologyUtil.getInstance().getDataSource("java:OntologyLocalDS");
@@ -153,6 +153,9 @@ public class GetNameInfoDao extends JdbcDaoSupport {
 	            		entry.setComment(null);
 	            	else {
 	            		try {
+							if (dbType.equals("POSTGRESQL"))
+								entry.setComment(rs.getString("c_comment"));
+							else
 	            			entry.setComment(JDBCUtil.getClobString(rs.getClob("c_comment")));
 	            		} catch (IOException e1) {
 	            			log.error(e1.getMessage());
@@ -164,6 +167,9 @@ public class GetNameInfoDao extends JdbcDaoSupport {
 	            	}else {
 	            		String c_xml = null;
 	            		try {
+							if (dbType.equals("POSTGRESQL"))
+								c_xml = rs.getString("c_comment");
+							else
 	            			c_xml = JDBCUtil.getClobString(rs.getClob("c_metadataxml"));
 	            		} catch (IOException e1) {
 	            			log.error(e1.getMessage());

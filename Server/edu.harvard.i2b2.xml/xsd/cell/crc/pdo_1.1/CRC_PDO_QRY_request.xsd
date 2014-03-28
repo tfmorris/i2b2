@@ -188,6 +188,8 @@
             <xs:extension base="crc:output_optionType">
                 <xs:attribute name="before" type="xs:dateTime"/>
                 <xs:attribute name="after" type="xs:dateTime"/>
+                <xs:attribute name="value" type="xs:int"/>
+		        <xs:attribute name="selectionfilter" type="crc:outputOptionSelectionFilterType" />
                 <xs:attribute name="withmodifiers" type="xs:boolean" default="true"/>
             </xs:extension>
         </xs:complexContent>
@@ -382,6 +384,44 @@
                     <xs:documentation>With Zone</xs:documentation>
                 </xs:annotation>
             </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="outputOptionSelectionFilterType">
+        <xs:annotation>
+            <xs:documentation>return value for expression</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="crc:tokenType">
+            <xs:enumeration value="min_value">
+                <xs:annotation>
+                    <xs:documentation>minimum value</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="max_value">
+                <xs:annotation>
+                    <xs:documentation>maximum value</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="first_value">
+                <xs:annotation>
+                    <xs:documentation>first value</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="last_value">
+                <xs:annotation>
+                    <xs:documentation>last value</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="single_observation">
+                <xs:annotation>
+                    <xs:documentation>one item</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>            
+            <xs:enumeration value="last_n_values">
+                <xs:annotation>
+                    <xs:documentation>last n values</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>            
+
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="outputOptionSelectType">

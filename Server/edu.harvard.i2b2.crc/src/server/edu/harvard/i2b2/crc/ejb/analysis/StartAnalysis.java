@@ -3,22 +3,6 @@ package edu.harvard.i2b2.crc.ejb.analysis;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,10 +29,8 @@ import edu.harvard.i2b2.crc.util.I2B2RequestMessageHelper;
 import edu.harvard.i2b2.crc.util.I2B2ResponseMessageHelper;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
-@Stateless
-@TransactionManagement(TransactionManagementType.BEAN)
 public class StartAnalysis implements StartAnalysisLocal {
-
+/*
 	Connection connection = null;
 	@Resource(mappedName = "ConnectionFactory")
 	private static ConnectionFactory connectionFactory;
@@ -59,7 +41,7 @@ public class StartAnalysis implements StartAnalysisLocal {
 	@Resource
 	private UserTransaction utx;
 	// public static ApplicationContext ac;
-
+*/
 	// log
 	private static Log log = LogFactory.getLog(StartAnalysis.class);
 
@@ -68,12 +50,15 @@ public class StartAnalysis implements StartAnalysisLocal {
 		StatusType statusType = new StatusType();
 		String statusName = null, statusMessage = null;
 
+		log.debug("in StartAnalysis: getting getSetFinderDAOFactory");
 		SetFinderDAOFactory sfDAOFactory = daoFactory.getSetFinderDAOFactory();
 
 		MasterInstanceResultResponseType masterInstanceResultResponseType = null;
 
 		String queryMasterId = null, queryInstanceId = null;
 		UserType userType = null;
+
+		log.debug("in StartAnalysis: getting queryMaster");
 
 		QueryMaster queryMaster = new QueryMaster(sfDAOFactory);
 		QueryInstance queryInstance = new QueryInstance(sfDAOFactory);
@@ -86,9 +71,17 @@ public class StartAnalysis implements StartAnalysisLocal {
 					.getAnalysisDefinition();
 			userType = msgHelper.getUserType();
 
+			log.debug("in StartAnalysis: getting analysisPlugin in queryMaster:" + queryMaster);
+
+			log.debug("analysisDefType is " + analysisDefType);
+			log.debug("plugin Name: " + analysisDefType.getAnalysisPluginName());
+			log.debug("plugin version: " +  analysisDefType
+					.getVersion());
+			log.debug("plugin projectid" + msgHelper.getProjectId());
 			QtAnalysisPlugin analysisPlugin = queryMaster.lookupAnalysisPlugin(
 					analysisDefType.getAnalysisPluginName(), analysisDefType
 							.getVersion(), msgHelper.getProjectId());
+			log.debug("in StartAnalysis: my plugin id is " + analysisPlugin.getPluginId());
 
 			String pluginId = analysisPlugin.getPluginId();
 			String domainId = userType.getGroup();
@@ -99,18 +92,18 @@ public class StartAnalysis implements StartAnalysisLocal {
 					projectId, userId, daoFactory);
 
 			authHelper.checkRoleForPluginId(pluginId);
-			System.out.print("query master saved");
-			utx.begin();
+			log.debug("query master saved");
+//			utx.begin();
 			String generatedSql = null;
 			// save the analysis request
 			queryMasterId = queryMaster.saveQuery(requestXml, generatedSql,
 					analysisPlugin);
 
-			utx.commit();
+//			utx.commit();
 			log.debug("query master saved [" + queryMasterId + "]");
 
 			// get run instance
-			utx.begin();
+//			utx.begin();
 			// save the analysis instance
 
 			analysisDefType.getAnalysisPluginName();
@@ -122,7 +115,7 @@ public class StartAnalysis implements StartAnalysisLocal {
 
 			queryInstanceId = queryInstance.saveInstanceAndResultInstance(
 					queryMasterId, userType, "WITHOUT_QUEUE", resultOutputList);
-			utx.commit();
+//			utx.commit();
 
 			// determine which queue it goes and put the jobs in that queue
 			/*
@@ -164,26 +157,6 @@ public class StartAnalysis implements StartAnalysisLocal {
 			statusName = StatusEnum.ERROR.toString();
 			statusMessage = edu.harvard.i2b2.common.exception.StackTraceUtil
 					.getStackTrace(e);
-		} catch (NotSupportedException e) {
-			statusName = StatusEnum.ERROR.toString();
-			statusMessage = edu.harvard.i2b2.common.exception.StackTraceUtil
-					.getStackTrace(e);
-		} catch (SystemException e) {
-			statusName = StatusEnum.ERROR.toString();
-			statusMessage = edu.harvard.i2b2.common.exception.StackTraceUtil
-					.getStackTrace(e);
-		} catch (RollbackException e) {
-			statusName = StatusEnum.ERROR.toString();
-			statusMessage = edu.harvard.i2b2.common.exception.StackTraceUtil
-					.getStackTrace(e);
-		} catch (HeuristicMixedException e) {
-			statusName = StatusEnum.ERROR.toString();
-			statusMessage = edu.harvard.i2b2.common.exception.StackTraceUtil
-					.getStackTrace(e);
-		} catch (HeuristicRollbackException e) {
-			statusName = StatusEnum.ERROR.toString();
-			statusMessage = edu.harvard.i2b2.common.exception.StackTraceUtil
-					.getStackTrace(e);
 		} catch (SchedulerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -215,9 +188,11 @@ public class StartAnalysis implements StartAnalysisLocal {
 	}
 
 	private void waitForProcess(long timeout, String instanceId) {
+		/*
 		MessageConsumer receiver = null;
 		TextMessage message = null;
-		LoadDataResponseType response = null;
+		//TODO removed loaders
+		//LoadDataResponseType response = null;
 		Session session = null;
 		try {
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -243,6 +218,7 @@ public class StartAnalysis implements StartAnalysisLocal {
 			}
 
 		}
+		*/
 	}
 
 	public void queueProcess() {
@@ -263,7 +239,7 @@ public class StartAnalysis implements StartAnalysisLocal {
 	@PostConstruct
 	public void makeConnection() {
 		try {
-			connection = connectionFactory.createConnection();
+		//	connection = connectionFactory.createConnection();
 		} catch (Throwable t) {
 			// JMSException could be thrown
 			log.error("DataMartLoaderAsync.makeConnection:" + "Exception: "
@@ -276,13 +252,13 @@ public class StartAnalysis implements StartAnalysisLocal {
 	 */
 	@PreDestroy
 	public void endConnection() throws RuntimeException {
-		if (connection != null) {
-			try {
-				connection.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+	//	if (connection != null) {
+	//		try {
+	//			connection.close();
+	//		} catch (Exception e) {
+	//			e.printStackTrace();
+	//		}
+	//	}
 	}
 
 }

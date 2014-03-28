@@ -3,6 +3,7 @@ package edu.harvard.i2b2.ontology.delegate.crc;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.exception.StackTraceUtil;
 import edu.harvard.i2b2.ontology.datavo.crcloader.query.LoadDataResponseType;
+import edu.harvard.i2b2.ontology.datavo.i2b2message.SecurityType;
 
 public class UploadStatusRunner implements Runnable {
 
@@ -12,6 +13,8 @@ public class UploadStatusRunner implements Runnable {
 	private String statusType = null;
 	private String exceptionMsg = null;
 	boolean exitFlag = false;
+	private SecurityType securityType = null;
+	private String projectId = null;
 
 	public void setCRCUtil(CallCRCUtil callCRCUtil) {
 		this.callCRCUtil = callCRCUtil;
@@ -45,7 +48,7 @@ public class UploadStatusRunner implements Runnable {
 
 				// send and get message
 				loadDataResponseType = callCRCUtil
-						.callCRCUploadStatus(uploadId);
+						.callCRCUploadStatus(uploadId, securityType, projectId);
 
 				// check if the response is completed or error
 				statusType = loadDataResponseType.getLoadStatus();

@@ -15,12 +15,6 @@ import java.util.Map;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 import javax.xml.bind.JAXBElement;
 
 import org.apache.axis2.AxisFault;
@@ -101,27 +95,20 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 	 * @param sqlString
 	 * @param queryInstanceId
 	 * @return query result instance id
-	 * @throws I2B2DAOException
+	 * @throws JAXBUtilException 
+	 * @throws I2B2Exception 
 	 */
-	public String executeSQL(UserTransaction transaction,
+	public String executeSQL(
 			int transactionTimeout, DataSourceLookup dsLookup,
 			SetFinderDAOFactory sfDAOFactory, String requestXml,
 			String sqlString, String queryInstanceId, String patientSetId,
-			ResultOutputOptionListType resultOutputList, boolean allowLargeTextValueConstrainFlag)
-			throws CRCTimeOutException, I2B2DAOException {
+			ResultOutputOptionListType resultOutputList, boolean allowLargeTextValueConstrainFlag, String pmXml)
+			throws I2B2Exception, JAXBUtilException {
 		// StringTokenizer st = new StringTokenizer(sqlString,"<*>");
 		String singleSql = null;
 		int recordCount = 0;
 		// int patientSetId = 0;
-		javax.transaction.TransactionManager tm = null;
-		UserTransaction ut = transaction;
 
-		try {
-			ut.setTransactionTimeout(transactionTimeout);
-		} catch (SystemException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
 
 		boolean errorFlag = false, timeOutErrorFlag = false;
 		Statement stmt = null;
@@ -138,7 +125,8 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 			TEMP_DX_TABLE = getDbSchemaName() + "#DX";
 
 		} else if (dsLookup.getServerType().equalsIgnoreCase(
-				DAOFactoryHelper.ORACLE)) {
+				DAOFactoryHelper.ORACLE) || dsLookup.getServerType().equalsIgnoreCase(
+						DAOFactoryHelper.POSTGRESQL)) {
 			TEMP_TABLE = getDbSchemaName() + "QUERY_GLOBAL_TEMP";
 			TEMP_DX_TABLE = getDbSchemaName() + "DX";
 		}
@@ -148,17 +136,6 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 		try {
 			context = new InitialContext();
 
-			// Using transaction manager instead of usertransaction
-			// because the usertransaction needs the datasource to be XA.
-			tm = (javax.transaction.TransactionManager) context
-					.lookup("java:/TransactionManager");
-
-			if (tm == null) {
-				log.error("TransactionManager is null");
-			}
-
-			// ut = sessionContext.getUserTransaction();
-			// ut.begin();
 			String processTimingFlag = LogTimingUtil.getPocessTiming(originalDataSourceLookup.getProjectPath(), originalDataSourceLookup.getOwnerId(), 
 					originalDataSourceLookup.getDomainId());
 			if (processTimingFlag == null) { 
@@ -173,13 +150,13 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 				projectParamMap.put(ParamUtil.CRC_ENABLE_UNITCD_CONVERSION, unitConversionFlag.trim());
 			}
 			
-			tm.begin();
+//			tm.begin();
 
 			// change status of result instance to running
 			IQueryResultInstanceDao psResultDao = sfDAOFactory
 					.getPatientSetResultDAO();
 			psResultDao.updatePatientSet(patientSetId, 2, 0);
-			tm.commit();
+//			tm.commit();
 
 			// check if the sql is stored, else generate and store
 			IQueryMasterDao queryMasterDao = sfDAOFactory.getQueryMasterDAO();
@@ -197,6 +174,7 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 			}
 			String missingItemMessage = "", processTimingMessage = "";
 			boolean missingItemFlag = false;
+			String queryType = null;
 			
 			if (generatedSql.trim().length() == 0) {
 				// check if the sql is for patient set or encounter set
@@ -207,6 +185,7 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 				IQueryRequestDao requestDao = sfDAOFactory.getQueryRequestDAO();
 				requestDao.setProjectParam(projectParamMap) ;
 				requestDao.setAllowLargeTextValueConstrainFlag(allowLargeTextValueConstrainFlag);
+				requestDao.setQueryWithoutTempTableFlag(queryWithoutTempTableFlag);
 				
 				String[] sqlResult = null;
 				if (this.queryWithoutTempTableFlag == false) { 
@@ -215,6 +194,8 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 					generatedSql = sqlResult[0];
 					missingItemMessage = sqlResult[1];
 					processTimingMessage = sqlResult[2];
+					if (sqlResult.length>3)
+						queryType = sqlResult[3];
 				} else {
 					//generate sql for each panel
 					try { 
@@ -254,7 +235,7 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 								generatedSql += "\n(" + directQuerySql.buildSqlWithOR(sqlResult[0]) + ")\n";
 								if (i+1 < panelList.length) { 
 									generatedSql += " INTERSECT \n";
-									generatedSql += "select patient_num from " + this.getDbSchemaName()  +"observation_fact where \n";
+									generatedSql += "select patient_num from " + this.getDbSchemaName()  +"observation_fact f where \n";
 								}
 							}
 							
@@ -264,12 +245,15 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 							if (sqlResult[2] != null && sqlResult[2].trim().length()>0) { 
 								processTimingMessage += sqlResult[2];
 							}
+							if (sqlResult[3] != null && sqlResult[3].trim().length()>0) { 
+								queryType = sqlResult[3];
+							}
 							fullSqlGenerated = true;
 						}
 					}
 					//if 
 					if (buildSqlWithOR)  { 
-						generatedSql = "select patient_num from " + this.getDbSchemaName()  +"observation_fact where " + generatedSql;
+						generatedSql = "select patient_num from " + this.getDbSchemaName()  +"observation_fact f where " + generatedSql;
 					}
 					generatedSql = "select count(distinct patient_num) as patient_num_count from ( \n" + generatedSql + " \n ) allitem ";
 					
@@ -285,7 +269,7 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 					log.debug("Setfinder skip temp table process timing message " + processTimingMessage);
 				}
 				
-				
+				//System.out.println(generatedSql);
 				
 				
 				// if (generatedSql == null) {
@@ -297,16 +281,16 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 				// "Database error unable to generate sql from query definition")
 				// ;
 				// }
-				tm.begin();
-				queryMasterDao.updateQuerySQL(masterId, generatedSql);
-				tm.commit();
+//				tm.begin();
+				queryMasterDao.updateQueryAfterRun(masterId, generatedSql, queryType);
+//				tm.commit();
 				
 				
 				if (missingItemMessage != null
 						&& missingItemMessage.trim().length() > 1) {
 					log.debug("Setfinder query missing item message not null" + missingItemMessage);
 					missingItemFlag = true;
-					tm.begin();
+//					tm.begin();
 					queryInstance.setEndDate(new Date(System
 							.currentTimeMillis()));
 					// queryInstance.setMessage(missingItemMessage);
@@ -316,14 +300,14 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 					setQueryResultInstanceStatus(sfDAOFactory, queryInstanceId,
 							4, missingItemMessage);
 					// queryInstaneDao.update(queryInstance, true);
-					tm.commit();
+//					tm.commit();
 				}
 				
 				if (processTimingMessage != null && processTimingMessage.trim().length()>0) {
-					tm.begin();
+//					tm.begin();
 					setQueryInstanceProcessTimingXml(sfDAOFactory,
 							queryInstanceId,   processTimingMessage);
-					tm.commit();
+//					tm.commit();
 				}
 
 			}
@@ -333,19 +317,13 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 						dataSource, dataSourceLookup, originalDataSourceLookup);
 				helperDao.setProcessTimingFlag(processTimingFlag);
 				helperDao.setQueryWithoutTempTableFlag(this.queryWithoutTempTableFlag);
-				helperDao.executeQuery(transaction, transactionTimeout,
+				helperDao.executeQuery( transactionTimeout,
 						dsLookup, sfDAOFactory, requestXml, sqlString,
 						queryInstanceId, patientSetId, resultOutputList,
-						generatedSql, tm, ut);
+						generatedSql, pmXml);
 
 			}
 		} catch (NamingException e) {
-			exception = e;
-			errorFlag = true;
-		} catch (NotSupportedException e) {
-			exception = e;
-			errorFlag = true;
-		} catch (SystemException e) {
 			exception = e;
 			errorFlag = true;
 		} catch (SecurityException e) {
@@ -354,18 +332,17 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 		} catch (IllegalStateException e) {
 			exception = e;
 			errorFlag = true;
-		} catch (RollbackException e) {
-			exception = e;
-			errorFlag = true;
-		} catch (HeuristicMixedException e) {
-			exception = e;
-			errorFlag = true;
-		} catch (HeuristicRollbackException e) {
-			exception = e;
-			errorFlag = true;
 		} catch (CRCTimeOutException e) {
 			throw e;
 		} catch (I2B2DAOException e) {
+			
+			setQueryInstanceStatus(sfDAOFactory, queryInstanceId, 4,
+					e.getMessage());
+			// update the error status to result instance
+			setQueryResultInstanceStatus(sfDAOFactory, queryInstanceId,
+					4, e.getMessage());
+			
+			log.debug("Error in QueryExecutorDAO Throwing: " + e.getMessage());
 			exception = e;
 			errorFlag = true;
 			throw e;
@@ -384,60 +361,6 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 
 			} catch (SQLException sqle) {
 				log.error("Error closing statement/resultset ", sqle);
-			}
-
-			if (tm != null && errorFlag) {
-				try {
-					// tm.rollback();
-					tm.rollback();
-				} catch (IllegalStateException e) {
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (SystemException e) {
-					e.printStackTrace();
-				}
-				if (tm != null) {
-					try {
-						log
-								.info("Trying to update error status to query instance["
-										+ queryInstanceId + "]");
-						if (sfDAOFactory != null) {
-							// update set size and result status
-							// tm.begin();
-							tm.begin();
-							String stacktrace = StackTraceUtil
-									.getStackTrace(exception);
-							if (stacktrace != null) {
-								if (stacktrace.length() > 2000) {
-									stacktrace = stacktrace.substring(0, 1998);
-								} else {
-									stacktrace = stacktrace.substring(0,
-											stacktrace.length());
-								}
-							}
-							setQueryInstanceStatus(sfDAOFactory,
-									queryInstanceId, 4, stacktrace);
-							// update the error status to result instance
-							setQueryResultInstanceStatus(sfDAOFactory,
-									queryInstanceId, 4, stacktrace);
-							// tm.commit();
-							tm.commit();
-							log.info("Updated error status to query instance["
-									+ queryInstanceId + "]");
-						}
-					} catch (Exception e) {
-						log
-								.error(
-										"Error while updating error status to query instance",
-										e);
-						try {
-							tm.rollback();
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
 			}
 		}
 		return patientSetId;
@@ -510,12 +433,16 @@ public class QueryExecutorDao extends CRCDAO implements IQueryExecutorDao {
 
 		SecurityType serviceSecurityType = PMServiceAccountUtil
 				.getServiceSecurityType(origSecurityType.getDomain());
-		EJBPMUtil callPMUtil = new EJBPMUtil(serviceSecurityType, projectId);
+		//EJBPMUtil callPMUtil = new EJBPMUtil(serviceSecurityType, projectId);
 		List<String> roleList = new ArrayList<String>();
 		try {
-			RolesType rolesType = callPMUtil.callGetRole(origSecurityType
-					.getUsername(), projectId);
+			//RolesType rolesType = callPMUtil.callGetRole(origSecurityType
+			//		.getUsername(), projectId);
+			RolesType rolesType = EJBPMUtil.callGetRole(origSecurityType
+					.getUsername(), origSecurityType, projectId, QueryProcessorUtil.getInstance()
+					.getProjectManagementCellUrl());
 
+			
 			RoleType roleType = null;
 			for (java.util.Iterator<RoleType> iterator = rolesType.getRole()
 					.iterator(); iterator.hasNext();) {

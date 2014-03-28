@@ -2,13 +2,11 @@ package edu.harvard.i2b2.crc.ejb.role;
 
 import java.util.List;
 
-import javax.ejb.Local;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.crc.dao.IDAOFactory;
 import edu.harvard.i2b2.crc.datavo.db.QtPriviledge;
 
-@Local
 public interface PriviledgeLocal {
 
 	public QtPriviledge checkPriviledge(IDAOFactory daoFactory,

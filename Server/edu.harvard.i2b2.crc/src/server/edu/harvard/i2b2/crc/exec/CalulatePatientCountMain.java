@@ -81,7 +81,7 @@ public class CalulatePatientCountMain {
 			// spring, the
 			// jboss container datasource will not work
 			DataSource dataSource = QueryProcessorUtil.getInstance()
-					.getSpringDataSource(dataSourceLookup.getDataSource());
+					.getDataSource(dataSourceLookup.getDataSource());
 			DAOFactoryHelper daoHelper = new DAOFactoryHelper(dataSourceLookup,
 					dataSource);
 

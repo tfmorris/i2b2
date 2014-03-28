@@ -14,17 +14,13 @@ import java.rmi.RemoteException;
 import java.util.Date;
 import java.util.Map;
 
-import javax.ejb.CreateException;
-import javax.ejb.EJBException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
-import javax.transaction.UserTransaction;
 import javax.xml.bind.JAXBElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
 
+import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
@@ -52,7 +48,9 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultOutputOptionListType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultOutputOptionType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType.Condition;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.UserType;
+import edu.harvard.i2b2.crc.delegate.pm.CallPMUtil;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 /**
@@ -74,13 +72,13 @@ import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
  * 
  * 
  */
-public class QueryManagerBean implements SessionBean {
+public class QueryManagerBean{ // implements SessionBean {
 	private static Log log = LogFactory.getLog(QueryManagerBean.class);
 	public static String RESPONSE_QUEUE_NAME = "queue/jms.querytool.QueryResponse";
 	// public static String UPLOADPROCESSOR_QUEUE_NAME =
 	// "queue/jms.querytool.QueryExecutor";
 
-	SessionContext context;
+//	SessionContext context;
 
 	/**
 	 * Function to publish patients using publish message format.
@@ -92,17 +90,13 @@ public class QueryManagerBean implements SessionBean {
 	 *            publish request XML fileName
 	 * 
 	 * @return String publish response XML
+	 * @throws Exception 
 	 */
 	public MasterInstanceResultResponseType processQuery(
 			DataSourceLookup dataSourceLookup, String xmlRequest)
-			throws I2B2Exception {
+			throws Exception {
 		String responseXML = null;
-		UserTransaction transaction = context.getUserTransaction();
-		javax.transaction.TransactionManager tm = (javax.transaction.TransactionManager) context
-				.lookup("java:/TransactionManager");
-		if (tm != null) {
-			log.debug("Transaction not null");
-		}
+
 		MasterInstanceResultResponseType masterInstanceResultType = null;
 
 		try {
@@ -114,7 +108,7 @@ public class QueryManagerBean implements SessionBean {
 					.getDataSourceLookupInput(xmlRequest);
 			SetFinderDAOFactory sfDAOFactory = null;
 			// tm.begin();
-			transaction.begin();
+//			transaction.begin();
 			if (dsLookupInput.getProjectPath() == null) {
 				throw new I2B2Exception("project id is missing in the request");
 			}
@@ -138,7 +132,8 @@ public class QueryManagerBean implements SessionBean {
 			String groupId = userType.getGroup();
 			String queryInstanceId = queryInstanceDao.createQueryInstance(
 					queryMasterId, userId, groupId,
-					QueryExecutorMDB.SMALL_QUEUE, 5);
+					"SMALL_QUEUE", 5);
+//					QueryExecutorMDB.SMALL_QUEUE, 5);
 			log.debug("New Query instance id " + queryInstanceId);
 
 			IQueryResultInstanceDao patientSetResultDao = sfDAOFactory
@@ -171,15 +166,16 @@ public class QueryManagerBean implements SessionBean {
 			}
 
 			// tm.commit();
-			transaction.commit();
+//			transaction.commit();
 
+			log.debug("getting responsetype");
 			ResultResponseType responseType = executeSqlInQueue(
 					dsLookupInput.getDomainId(),
 					dsLookupInput.getProjectPath(), dsLookupInput.getOwnerId(),
 					userId, generatedSql, sessionId, queryInstanceId,
 					patientSetId, xmlRequest, timeout);
 
-			transaction.begin();
+//			transaction.begin();
 			// responseXML = qmBeanUtil.buildQueryRequestResponse(xmlRequest,
 			// status,
 			// sessionId,queryMasterId,queryInstanceId,responseType);
@@ -219,18 +215,29 @@ public class QueryManagerBean implements SessionBean {
 			log.debug("Size of result when called thru ejb "
 					+ responseType1.getQueryResultInstance().size());
 
+			//If query result instanace -> query_status_type is processing that set QUEUE
+			if (responseType1.getQueryResultInstance() != null && responseType1.getQueryResultInstance().get(0).getQueryStatusType().getStatusTypeId().equals("2"))
+			{
+				responseType1.getQueryResultInstance().get(0).getQueryStatusType().setStatusTypeId("1");			
+				responseType1.getQueryResultInstance().get(0).getQueryStatusType().setName("QUEUED");
+				responseType1.getQueryResultInstance().get(0).getQueryStatusType().setDescription("WAITING IN QUEUE TO START PROCESS");
+				StatusType stype = new StatusType();
+				Condition e = new Condition();
+				e.setType("RUNNING");
+				e.setValue("RUNNING");
+				stype.getCondition().add(e);
+				responseType1.setStatus(stype);
+			}			
 			// set result instance
 			masterInstanceResultType.getQueryResultInstance().addAll(
 					responseType1.getQueryResultInstance());
-			transaction.commit();
-		} catch (Throwable ex) {
+			
+			
+//			transaction.commit();
+		} catch (I2B2DAOException ex) {
+			log.debug("Got an error in QueryManagerBean, thropwing: " + ex.getMessage());
 			ex.printStackTrace();
 
-			try {
-				transaction.rollback();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 			throw new I2B2Exception(ex.getMessage());
 		}
 
@@ -266,10 +273,13 @@ public class QueryManagerBean implements SessionBean {
 		QueryManagerBeanUtil qmBeanUtil = new QueryManagerBeanUtil();
 
 		// process query in queue
+		log.debug("process query in queue");
 		Map returnValues = qmBeanUtil.testSend(domainId, projectId, ownerId,
 				generatedSql, sessionId, queryInstanceId, patientSetId,
 				xmlRequest, timeout);
 
+		log.debug("My returnValue map is:" + returnValues);
+		log.debug("My mapssize is: " + returnValues.size());
 		// build response message, if query completed before given timeout
 		String status = (String) returnValues
 				.get(QueryManagerBeanUtil.QUERY_STATUS_PARAM);
@@ -312,7 +322,9 @@ public class QueryManagerBean implements SessionBean {
 		queryMaster.setDeleteFlag(QtQueryMaster.DELETE_OFF_FLAG);
 		queryMaster.setGeneratedSql(generatedSql);
 		queryMaster.setName(queryDefType.getQueryName());
-		
+
+		String pmXml = CallPMUtil.callUserResponse(i2b2RequestMsgType.getMessageHeader().getSecurity(), "");
+
 		//remove user password form the request
 		PasswordType passType = i2b2RequestMsgType.getMessageHeader().getSecurity().getPassword();
 		passType.setValue("password not stored"); 
@@ -323,7 +335,7 @@ public class QueryManagerBean implements SessionBean {
 		edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory i2b2ObjFactory = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
 		util.marshaller(i2b2ObjFactory.createRequest(i2b2RequestMsgType), strWriter);
 		String queryMasterId = queryMasterDao.createQueryMaster(queryMaster,
-				strWriter.toString());
+				strWriter.toString(), pmXml);
 
 		return queryMasterId;
 	}
@@ -398,6 +410,7 @@ public class QueryManagerBean implements SessionBean {
 		return response;
 	}
 
+	/*
 	public void setSessionContext(SessionContext context) throws EJBException,
 			RemoteException {
 		this.context = context;
@@ -414,4 +427,5 @@ public class QueryManagerBean implements SessionBean {
 
 	public void ejbPassivate() throws EJBException, RemoteException {
 	}
+	*/
 }

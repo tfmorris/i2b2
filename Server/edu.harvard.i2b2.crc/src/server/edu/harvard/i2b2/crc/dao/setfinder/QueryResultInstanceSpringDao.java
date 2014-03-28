@@ -43,7 +43,7 @@ import edu.harvard.i2b2.crc.datavo.db.StatusEnum;
  * @author rkuttan
  */
 public class QueryResultInstanceSpringDao extends CRCDAO implements
-		IQueryResultInstanceDao {
+IQueryResultInstanceDao {
 
 	JdbcTemplate jdbcTemplate = null;
 	SavePatientSetResult savePatientSetResult = null;
@@ -129,8 +129,8 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 		jdbcTemplate.update(sql, new Object[] { setSize, realSetSize,
 				obsMethod, statusTypeId, endDate, message, resultInstanceId },
 				new int[] { Types.INTEGER, Types.INTEGER, Types.VARCHAR,
-						Types.INTEGER, Types.TIMESTAMP, Types.VARCHAR,
-						Types.INTEGER });
+				Types.INTEGER, Types.TIMESTAMP, Types.VARCHAR,
+				Types.INTEGER });
 	}
 
 	/**
@@ -145,8 +145,8 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 				+ getDbSchemaName()
 				+ "qt_query_result_instance set description = ?  where result_instance_id = ?";
 		jdbcTemplate.update(sql,
-				new Object[] { description, resultInstanceId }, new int[] {
-						Types.VARCHAR, Types.INTEGER });
+				new Object[] { description, Integer.parseInt(resultInstanceId) }, new int[] {
+				Types.VARCHAR, Types.INTEGER });
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 		String sql = "select *  from " + getDbSchemaName()
 				+ "qt_query_result_instance where query_instance_id = ? ";
 		List<QtQueryResultInstance> queryResultInstanceList = jdbcTemplate
-				.query(sql, new Object[] { queryInstanceId }, patientSetMapper);
+				.query(sql, new Object[] { Integer.parseInt(queryInstanceId) }, patientSetMapper);
 		return queryResultInstanceList;
 	}
 
@@ -177,7 +177,7 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 		String sql = "select *  from " + getDbSchemaName()
 				+ "qt_query_result_instance where result_instance_id = ? ";
 		List<QtQueryResultInstance> queryResultInstanceList = jdbcTemplate
-				.query(sql, new Object[] { queryResultId }, patientSetMapper);
+				.query(sql, new Object[] { Integer.parseInt(queryResultId) }, patientSetMapper);
 		if (queryResultInstanceList.size() > 0) {
 			return queryResultInstanceList.get(0);
 		} else {
@@ -204,7 +204,7 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 				+ "qt_query_result_type rt where ri.query_instance_id = ? and ri.result_type_id = rt.result_type_id and rt.name=?";
 		QtQueryResultInstance queryResultInstanceList = (QtQueryResultInstance) jdbcTemplate
 				.queryForObject(sql,
-						new Object[] { queryInstanceId, resultName },
+						new Object[] { Integer.parseInt(queryInstanceId), resultName },
 						patientSetMapper);
 		return queryResultInstanceList;
 	}
@@ -242,14 +242,14 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 	 */
 	public int getResultInstanceCountBySetSize(String userId, int compareDays,
 			int resultTypeId, int setSize, int totalCount)
-			throws I2B2DAOException {
+					throws I2B2DAOException {
 		// int betweenDayValue = compareDays / 2;
 		int startBetweenDayValue = compareDays * -1;
 		int returnSetSize = 0;
 		String queryCountSql = "";
 
 		if (dataSourceLookup.getServerType().equalsIgnoreCase(
-				DAOFactoryHelper.ORACLE)) {
+				DAOFactoryHelper.ORACLE) ) {
 			queryCountSql = " select count(r1.result_instance_id) result_count,r1.real_set_size "
 					+ " from " + this.getDbSchemaName() + "qt_query_result_instance r1 inner join " + this.getDbSchemaName()+ "qt_query_result_instance r2 on "
 					+ " r1.real_set_size = r2.real_set_size, "
@@ -270,6 +270,27 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 					+ " group by r1.real_set_size "
 					+ " having count(r1.result_instance_id) > ? ";
 		} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
+				DAOFactoryHelper.POSTGRESQL) ) {
+			queryCountSql = " select count(r1.result_instance_id) result_count,r1.real_set_size "
+					+ " from " + this.getDbSchemaName() + "qt_query_result_instance r1 inner join " + this.getDbSchemaName()+ "qt_query_result_instance r2 on "
+					+ " r1.real_set_size = r2.real_set_size, "
+					+ this.getDbSchemaName() +"qt_query_instance qi "
+					+ " where "
+					+ "  r1.start_date between LOCALTIMESTAMP - INTERVAL '"
+					+ compareDays
+					+ " days' and LOCALTIMESTAMP "
+					+ " and r2.start_date between LOCALTIMESTAMP - INTERVAL '"
+					+ compareDays
+					+ " days' and LOCALTIMESTAMP "
+					+ " and r1.result_type_id = ?"
+					+ " and r2.result_type_id = ? "
+					+ " and  qi.user_id = ? "
+					+ " and qi.query_instance_id = r1.query_instance_id "
+					+ " and qi.query_instance_id = r2.query_instance_id "
+					+ " and r1.real_set_size = ? "
+					+ " group by r1.real_set_size "
+					+ " having count(r1.result_instance_id) > ? ";
+		} 	else if (dataSourceLookup.getServerType().equalsIgnoreCase(
 				DAOFactoryHelper.SQLSERVER)) {
 			queryCountSql = " select count(r1.result_instance_id) result_count,r1.real_set_size "
 					+ " from " + this.getDbSchemaName() + "qt_query_result_instance r1 inner join " + this.getDbSchemaName() + "qt_query_result_instance r2 on "
@@ -333,10 +354,12 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 
 	private static class SavePatientSetResult extends SqlUpdate {
 
-		private String INSERT_ORACLE = "";
 
+		private String INSERT_ORACLE = "";
 		private String INSERT_SQLSERVER = "";
 		private String SEQUENCE_ORACLE = "";
+		private String SEQUENCE_POSTGRESQL = "";
+		private String INSERT_POSTGRESQL = "";
 		DataSourceLookup dataSourceLookup = null;
 
 		public SavePatientSetResult(DataSource dataSource, String dbSchemaName,
@@ -363,6 +386,19 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 						+ "( QUERY_INSTANCE_ID, RESULT_TYPE_ID, SET_SIZE,START_DATE,END_DATE,STATUS_TYPE_ID,DELETE_FLAG) "
 						+ "VALUES (?,?,?,?,?,?,?)";
 				setSql(INSERT_SQLSERVER);
+			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.POSTGRESQL)) {
+				INSERT_POSTGRESQL = "INSERT INTO "
+						+ dbSchemaName
+						+ "QT_QUERY_RESULT_INSTANCE "
+						+ "(RESULT_INSTANCE_ID, QUERY_INSTANCE_ID, RESULT_TYPE_ID, SET_SIZE,START_DATE,END_DATE,STATUS_TYPE_ID,DELETE_FLAG) "
+						+ "VALUES (?,?,?,?,?,?,?,?)";
+				setSql(INSERT_POSTGRESQL);
+				SEQUENCE_POSTGRESQL = "select " //+ dbSchemaName
+						+ "nextval('qt_query_result_instance_result_instance_id_seq') ";
+				declareParameter(new SqlParameter(Types.INTEGER));
+
+
 			}
 
 			declareParameter(new SqlParameter(Types.INTEGER));
@@ -386,7 +422,7 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 
 				object = new Object[] {
 						resultInstance.getQtQueryInstance()
-								.getQueryInstanceId(),
+						.getQueryInstanceId(),
 
 						resultInstance.getQtQueryResultType().getResultTypeId(),
 						resultInstance.getSetSize(),
@@ -404,7 +440,24 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 				object = new Object[] {
 						resultInstance.getResultInstanceId(),
 						resultInstance.getQtQueryInstance()
-								.getQueryInstanceId(),
+						.getQueryInstanceId(),
+						resultInstance.getQtQueryResultType().getResultTypeId(),
+						resultInstance.getSetSize(),
+						resultInstance.getStartDate(),
+						resultInstance.getEndDate(),
+						resultInstance.getQtQueryStatusType().getStatusTypeId(),
+						resultInstance.getDeleteFlag()
+
+				};
+			} else  if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.POSTGRESQL)) {
+				resultInstanceId = jdbc.queryForInt(SEQUENCE_POSTGRESQL);
+				resultInstance.setResultInstanceId(String
+						.valueOf(resultInstanceId));
+				object = new Object[] {
+						resultInstance.getResultInstanceId(),
+						resultInstance.getQtQueryInstance()
+						.getQueryInstanceId(),
 						resultInstance.getQtQueryResultType().getResultTypeId(),
 						resultInstance.getSetSize(),
 						resultInstance.getStartDate(),
@@ -423,7 +476,7 @@ public class QueryResultInstanceSpringDao extends CRCDAO implements
 
 				resultInstance.setResultInstanceId(String
 						.valueOf(resultInstanceIdentityId));
-				
+
 			}
 
 		}

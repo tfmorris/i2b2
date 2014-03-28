@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 
 import oracle.sql.ArrayDescriptor;
 
-import org.jboss.resource.adapter.jdbc.WrappedConnection;
+//import org.jboss.resource.adapter.jdbc.WrappedConnection;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
@@ -93,8 +93,8 @@ public class PdoQueryEidDao extends CRCDAO implements IPdoQueryEidDao {
 						+ "encounter_mapping em WHERE em.encounter_num IN (SELECT * FROM TABLE (cast (? as QT_PDO_QRY_STRING_ARRAY))) order by em_encounter_num";
 				log.debug("Executing [" + finalSql + "]");
 
-				oracle.jdbc.driver.OracleConnection conn1 = (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
-						.getUnderlyingConnection();
+				oracle.jdbc.driver.OracleConnection conn1 = null;// (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
+					//	.getUnderlyingConnection();
 				query = conn.prepareStatement(finalSql);
 				ArrayDescriptor desc = ArrayDescriptor.createDescriptor(
 						"QT_PDO_QRY_STRING_ARRAY", conn1);
@@ -104,7 +104,8 @@ public class PdoQueryEidDao extends CRCDAO implements IPdoQueryEidDao {
 				query.setArray(1, paramArray);
 				resultSet = query.executeQuery();
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL) ) {
 				// create temp table
 				// load to temp table
 				// execute sql
@@ -488,7 +489,8 @@ public class PdoQueryEidDao extends CRCDAO implements IPdoQueryEidDao {
 			conn = dataSource.getConnection();
 			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
 				tempTable = FactRelatedQueryHandler.TEMP_PARAM_TABLE;
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				tempTable = SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE;

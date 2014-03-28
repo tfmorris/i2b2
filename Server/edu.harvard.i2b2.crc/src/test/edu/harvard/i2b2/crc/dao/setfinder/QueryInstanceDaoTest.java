@@ -38,7 +38,7 @@ public class QueryInstanceDaoTest {
 		queryMaster.setRequestXml("test_request_xml");
 		queryMaster.setDeleteFlag("N");
 		queryMasterId = sfDaoFactory.getQueryMasterDAO().createQueryMaster(
-				queryMaster, "i2b2xml");
+				queryMaster, "i2b2xml", null);
 		System.out.println("Query master id " + queryMasterId);
 		IQueryInstanceDao qiDAO = sfDaoFactory.getQueryInstanceDAO();
 		queryInstanceId = qiDAO.createQueryInstance(queryMasterId,

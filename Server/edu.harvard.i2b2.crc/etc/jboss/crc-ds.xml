@@ -1,43 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<datasources xmlns="http://www.jboss.org/ironjacamar/schema">
+	<datasource jta="false" jndi-name="java:/CRCBootStrapDS"
+		pool-name="CRCBootStrapDS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
+		<driver-class>oracle.jdbc.OracleDriver</driver-class>
+		<driver>ojdbc6.jar</driver>
+		<security>
+			<user-name>i2b2hive</user-name>
+			<password>demouser</password>
+		</security>
+		<validation>
+			<validate-on-match>false</validate-on-match>
+			<background-validation>false</background-validation>
+		</validation>
+		<statement>
+			<share-prepared-statements>false</share-prepared-statements>
+		</statement>
+	</datasource>
+	<datasource jta="false" jndi-name="java:/QueryToolDemoDS"
+		pool-name="QueryToolDemoDS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:oracle:thin:@localhost:1521:XE</connection-url>
+		<driver-class>oracle.jdbc.OracleDriver</driver-class>
+		<driver>ojdbc6.jar</driver>
+		<security>
+			<user-name>i2b2demodata</user-name>
+			<password>demouser</password>
+		</security>
+		<validation>
+			<validate-on-match>false</validate-on-match>
+			<background-validation>false</background-validation>
+		</validation>
+		<statement>
+			<share-prepared-statements>false</share-prepared-statements>
+		</statement>
+	</datasource>
 
-<!-- ===================================================================== -->
-<!--                                                                       -->
-<!--  JBoss Server Configuration                                           -->
-<!--                                                                       -->
-<!-- ===================================================================== -->
+<!-- 
 
-<!-- $Id: crc-ds.xml,v 1.2 2010/02/08 19:37:07 mem61 Exp $ -->
 
-<datasources>
-  
-  <!-- sample oracle data source config  -->
-  <local-tx-datasource>
-    <jndi-name>QueryToolDemoDS</jndi-name>
-    <connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
-    <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>
-    <user-name>i2b2demodata</user-name>
-    <password>demouser</password>
-    <idle-timeout-minutes>1</idle-timeout-minutes>
-    <exception-sorter-class-name>org.jboss.resource.adapter.jdbc.vendor.OracleExceptionSorter</exception-sorter-class-name>
-    <metadata>
-      <type-mapping>Oracle9i</type-mapping>
-    </metadata>
-  </local-tx-datasource>
+	<datasource jta="false" jndi-name="java:/QueryToolDemoDS"
+		pool-name="QueryToolDemoDS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:postgresql://localhost:5432/i2b2</connection-url>
+		<driver-class>org.postgresql.Driver</driver-class>
+		<driver>postgresql-9.2-1002.jdbc4.jar</driver>
+		<security>
+			<user-name>i2b2demodata</user-name>
+			<password>demouser</password>
+		</security>
+		<validation>
+			<validate-on-match>false</validate-on-match>
+			<background-validation>false</background-validation>
+		</validation>
+		<statement>
+			<share-prepared-statements>false</share-prepared-statements>
+		</statement>
+	</datasource>
 
-  <!-- sample sqlserver data source config -->
-  <!-- uncomment this if the data source is sqlserver 
-  <local-tx-datasource>
-    <jndi-name>DefaultSQLDS</jndi-name>
-    <connection-url>jdbc:sqlserver://localhost:1433;DatabaseName=i2b2demodata</connection-url>
-    <driver-class>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver-class>
-    <user-name>i2b2demodata</user-name>
-    <password>demouser</password>
-    <idle-timeout-minutes>1</idle-timeout-minutes>
-    <set-tx-query-timeout>true</set-tx-query-timeout>
-    <metadata>
-      <type-mapping>MS SQLSERVER2000</type-mapping>
-    </metadata>
-  </local-tx-datasource>
-  -->
+
+
+	<datasource jta="false" jndi-name="java:/QueryToolDemoDS"
+		pool-name="QueryToolDemoDS" enabled="true" use-ccm="false">
+		<connection-url>jdbc:sqlserver://localhost:1433</connection-url>
+		<driver-class>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver-class>
+		<driver>sqljdbc4.jar</driver>
+		<security>
+			<user-name>i2b2demodata</user-name>
+			<password>demouser</password>
+		</security>
+		<validation>
+			<valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.mssql.MSSQLValidConnectionChecker"></valid-connection-checker>
+            <validate-on-match>false</validate-on-match>
+		</validation>
+		<statement>
+			<share-prepared-statements>false</share-prepared-statements>
+		</statement>
+	</datasource>
+
+ -->
+
 </datasources>
-

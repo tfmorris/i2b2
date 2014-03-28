@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.Scheduler;
+import org.quartz.impl.SchedulerRepository;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -30,15 +31,14 @@ import org.springframework.core.io.FileSystemResource;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.ServiceLocator;
 import edu.harvard.i2b2.common.util.ServiceLocatorException;
-import edu.harvard.i2b2.crc.ejb.PdoQueryLocalHome;
-import edu.harvard.i2b2.crc.ejb.QueryInfoLocalHome;
-import edu.harvard.i2b2.crc.ejb.QueryManagerLocalHome;
-import edu.harvard.i2b2.crc.ejb.QueryResultLocalHome;
-import edu.harvard.i2b2.crc.ejb.QueryRunLocalHome;
+import edu.harvard.i2b2.crc.ejb.ProcessQueue;
+import edu.harvard.i2b2.crc.ejb.QueryManagerBeanUtil;
 import edu.harvard.i2b2.crc.ejb.analysis.AnalysisPluginInfoLocal;
 import edu.harvard.i2b2.crc.ejb.analysis.CronEjbLocal;
 import edu.harvard.i2b2.crc.ejb.analysis.StartAnalysisLocal;
+import edu.harvard.i2b2.crc.ejb.role.PriviledgeBean;
 import edu.harvard.i2b2.crc.ejb.role.PriviledgeLocal;
+import edu.harvard.i2b2.crc.quartz.QuartzFactory;
 
 /**
  * This is the CRC application's main utility class This utility class provides
@@ -120,11 +120,11 @@ public class QueryProcessorUtil {
 	public static final String ONTOLOGYCELL_GETTERMINFO_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.operation.getterminfo";
 
 	public static final String ONTOLOGYCELL_GETCHILDREN_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.operation.getchildren";
-	
+
 	public static final String ONTOLOGYCELL_GETMODIFIERINFO_URL_PROPERTIES = "edu.harvard.i2b2.crc.delegate.ontology.operation.getmodifierinfo";
-	
+
 	public static final String SINGLEPANEL_SKIPTEMPTABLE_PROPERTIES = "edu.harvard.i2b2.crc.setfinderquery.singlepanel.skiptemptable";
-	
+
 	public static final String SINGLEPANEL_SKIPTEMPTABLE_MAXCONCEPT_PROPERTIES = "edu.harvard.i2b2.crc.setfinderquery.skiptemptable.maxconcept";
 
 	/** spring bean name for datasource **/
@@ -159,10 +159,20 @@ public class QueryProcessorUtil {
 	/** single instance of spring bean factory* */
 	private BeanFactory beanFactory = null;
 
+	private ProcessQueue pqMedium = new ProcessQueue( QueryManagerBeanUtil.MEDIUM_QUEUE);
+	private ProcessQueue pqLarge = new ProcessQueue( QueryManagerBeanUtil.LARGE_QUEUE);
 	/**
 	 * Private constructor to make the class singleton
 	 */
 	private QueryProcessorUtil() {
+
+		log.debug("Starting queue");
+		//Start queues
+		
+		//TURN OFF QUEUE
+		pqMedium.start();
+		pqLarge.start();
+
 	}
 
 	static {
@@ -183,6 +193,8 @@ public class QueryProcessorUtil {
 		if (thisInstance == null) {
 			thisInstance = new QueryProcessorUtil();
 			serviceLocator = ServiceLocator.getInstance();
+
+
 		}
 
 		// start cron job
@@ -203,70 +215,6 @@ public class QueryProcessorUtil {
 
 	}
 
-	/**
-	 * Function to get ejb local home for query manager
-	 * 
-	 * @return QueryManagerLocalHome
-	 * @throws I2B2Exception
-	 * @throws ServiceLocatorException
-	 */
-	public QueryManagerLocalHome getQueryManagerLocalHome()
-			throws I2B2Exception, ServiceLocatorException {
-		return (QueryManagerLocalHome) serviceLocator
-				.getLocalHome(getPropertyValue(EJB_LOCAL_JNDI_QUERYMANAGER_PROPERTIES));
-	}
-
-	/**
-	 * Function to get ejb local home for query info
-	 * 
-	 * @return
-	 * @throws I2B2Exception
-	 * @throws ServiceLocatorException
-	 */
-	public QueryInfoLocalHome getQueryInfoLocalHome() throws I2B2Exception,
-			ServiceLocatorException {
-		return (QueryInfoLocalHome) serviceLocator
-				.getLocalHome(getPropertyValue(EJB_LOCAL_JNDI_QUERYINFO_PROPERTIES));
-	}
-
-	/**
-	 * Function to get ejb local home for query run
-	 * 
-	 * @return
-	 * @throws I2B2Exception
-	 * @throws ServiceLocatorException
-	 */
-	public QueryRunLocalHome getQueryRunLocalHome() throws I2B2Exception,
-			ServiceLocatorException {
-		return (QueryRunLocalHome) serviceLocator
-				.getLocalHome(getPropertyValue(EJB_LOCAL_JNDI_QUERYRUN_PROPERTIES));
-	}
-
-	/**
-	 * Function to get ejb local home for query result
-	 * 
-	 * @return
-	 * @throws I2B2Exception
-	 * @throws ServiceLocatorException
-	 */
-	public QueryResultLocalHome getQueryResultLocalHome() throws I2B2Exception,
-			ServiceLocatorException {
-		return (QueryResultLocalHome) serviceLocator
-				.getLocalHome(getPropertyValue(EJB_LOCAL_JNDI_QUERYRESULT_PROPERTIES));
-	}
-
-	/**
-	 * Function to get ejb local home for pdo query
-	 * 
-	 * @return
-	 * @throws I2B2Exception
-	 * @throws ServiceLocatorException
-	 */
-	public PdoQueryLocalHome getPdoQueryLocalHome() throws I2B2Exception,
-			ServiceLocatorException {
-		return (PdoQueryLocalHome) serviceLocator
-				.getLocalHome(getPropertyValue(EJB_LOCAL_JNDI_PDOQUERY_PROPERTIES));
-	}
 
 	public StartAnalysisLocal getStartAnalysisLocal() throws I2B2Exception {
 		InitialContext ctx;
@@ -274,7 +222,7 @@ public class QueryProcessorUtil {
 			ctx = new InitialContext();
 			return (StartAnalysisLocal) ctx.lookup("QP1/StartAnalysis/local");
 		} catch (NamingException e) {
-			throw new I2B2Exception("Bean lookup error ", e);
+			throw new I2B2Exception("Bean lookup error Analysis ", e);
 		}
 	}
 
@@ -286,7 +234,7 @@ public class QueryProcessorUtil {
 			return (AnalysisPluginInfoLocal) ctx
 					.lookup("QP1/AnalysisPluginInfo/local");
 		} catch (NamingException e) {
-			throw new I2B2Exception("Bean lookup error ", e);
+			throw new I2B2Exception("Bean lookup error Anaylysis Plugin", e);
 		}
 	}
 
@@ -296,28 +244,25 @@ public class QueryProcessorUtil {
 			ctx = new InitialContext();
 			return (CronEjbLocal) ctx.lookup("QP1/CronEjb/local");
 		} catch (NamingException e) {
-			throw new I2B2Exception("Bean lookup error ", e);
+			throw new I2B2Exception("Bean lookup error Cron ", e);
 		}
 	}
 
 	public PriviledgeLocal getPriviledgeLocal() throws I2B2Exception {
+		return new PriviledgeBean();
+		/* removed ejb
 		InitialContext ctx;
 		try {
 			ctx = new InitialContext();
 			return (PriviledgeLocal) ctx.lookup("QP1/PriviledgeBean/local");
 		} catch (NamingException e) {
-			throw new I2B2Exception("Bean lookup error ", e);
+			throw new I2B2Exception("Bean lookup error Priviledge", e);
 		}
+		 */
 	}
 
 	public Scheduler getQuartzScheduler() throws I2B2Exception {
-		InitialContext ctx;
-		try {
-			ctx = new InitialContext();
-			return (Scheduler) ctx.lookup("Quartz");
-		} catch (NamingException e) {
-			throw new I2B2Exception("Bean lookup error ", e);
-		}
+		return QuartzFactory.getInstance().getScheduler();
 	}
 
 	/**
@@ -448,8 +393,8 @@ public class QueryProcessorUtil {
 		return Integer.parseInt(pagingIteration);
 
 	}
-	
-	
+
+
 
 	/**
 	 * Get Project management bypass project role
@@ -494,13 +439,20 @@ public class QueryProcessorUtil {
 	 * @throws I2B2Exception
 	 * @throws SQLException
 	 */
-	public DataSource getSpringDataSource(String dataSourceName)
+	public DataSource getDataSource(String dataSourceName)
 			throws I2B2Exception {
-		DataSource dataSource = (DataSource) getSpringBeanFactory().getBean(
-				dataSourceName);
+
+		dataSource = (DataSource) serviceLocator
+				.getAppServerDataSource(dataSourceName);
+		//		DataSource dataSource = (DataSource) getSpringBeanFactory().getBean(
+		//				dataSourceName);
 
 		return dataSource;
 
+	}
+	public DataSource getSpringDataSource(String dataSourceName)
+			throws I2B2Exception {
+		return getDataSource( dataSourceName);
 	}
 
 	public String getCRCPropertyValue(String propertyName) throws I2B2Exception {

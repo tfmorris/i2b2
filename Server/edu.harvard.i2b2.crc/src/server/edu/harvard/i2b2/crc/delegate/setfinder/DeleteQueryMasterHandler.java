@@ -21,11 +21,9 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterDeleteRequestType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterResponseType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
-import edu.harvard.i2b2.crc.ejb.QueryInfoLocal;
-import edu.harvard.i2b2.crc.ejb.QueryInfoLocalHome;
+import edu.harvard.i2b2.crc.ejb.QueryInfoBean;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
-import javax.ejb.CreateException;
 
 
 /**
@@ -66,27 +64,19 @@ public class DeleteQueryMasterHandler extends RequestHandler {
         BodyType bodyType = new BodyType();
         MasterResponseType masterResponseType = new MasterResponseType();
         try {
-            QueryInfoLocalHome queryInfoLocalHome = qpUtil.getQueryInfoLocalHome();
-            QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
+        	//TODO removed EJBS
+//            QueryInfoLocalHome queryInfoLocalHome = qpUtil.getQueryInfoLocalHome();
+ //           QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
             String userId = masterDeleteRequestType.getUserId();
             String masterId = masterDeleteRequestType.getQueryMasterId();
-            masterResponseType = queryInfoLocal.deleteQueryMaster(getDataSourceLookup(),userId,masterId);
+            QueryInfoBean query = new QueryInfoBean();
+            masterResponseType = query.deleteQueryMaster(getDataSourceLookup(),userId,masterId);
 
             
             masterResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));
-           // edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
-           // bodyType.getAny().add(of.createResponse(masterResponseType));
-           // responseMessageType = new ResponseMessageType();
-           // responseMessageType.setMessageBody(bodyType);
-        } catch (I2B2Exception ex) {
+         } catch (Exception ex) {
             masterResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.ERROR_TYPE, ex.getMessage()));
         	ex.printStackTrace();
-        } catch (ServiceLocatorException e) {
-            log.error(e);
-            throw new I2B2Exception("Servicelocator exception", e);
-        } catch (CreateException e) {
-            log.error(e);
-            throw new I2B2Exception("ejb create exception", e);
         }
         finally { 
         	edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();

@@ -52,6 +52,8 @@ public class I2B2PdoFactory {
 		/** status flag **/
 		boolean obsFactStatusFlag = false;
 
+		String dbType = null;
+
 		/**
 		 * Parameter constructor
 		 * 
@@ -60,10 +62,11 @@ public class I2B2PdoFactory {
 		 * @param statusFlag
 		 */
 		public ObservationFactBuilder(boolean detailFlag, boolean blobFlag,
-				boolean statusFlag) {
+				boolean statusFlag, String dbType) {
 			this.obsFactDetailFlag = detailFlag;
 			this.obsFactBlobFlag = blobFlag;
 			this.obsFactStatusFlag = statusFlag;
+			this.dbType = dbType;
 		}
 
 		/**
@@ -106,9 +109,9 @@ public class I2B2PdoFactory {
 
 			ObservationType.ObserverCd observerCd = new ObservationType.ObserverCd();
 			observerCd
-					.setValue(((rowSet.getString("obs_provider_id") != null) ? rowSet
-							.getString("obs_provider_id")
-							: ""));
+			.setValue(((rowSet.getString("obs_provider_id") != null) ? rowSet
+					.getString("obs_provider_id")
+					: ""));
 			observationFactType.setObserverCd(observerCd);
 
 			if (obsFactDetailFlag) {
@@ -123,7 +126,7 @@ public class I2B2PdoFactory {
 						.getString("obs_valtype_cd"));
 				observationFactType.setTvalChar((rowSet
 						.getString("obs_tval_char") != null) ? rowSet
-						.getString("obs_tval_char") : "");
+								.getString("obs_tval_char") : "");
 
 				ObservationType.NvalNum valNum = new ObservationType.NvalNum();
 				valNum.setValue(rowSet.getBigDecimal("obs_nval_num"));
@@ -137,7 +140,7 @@ public class I2B2PdoFactory {
 						.getBigDecimal("obs_quantity_num"));
 
 				observationFactType
-						.setUnitsCd(rowSet.getString("obs_units_cd"));
+				.setUnitsCd(rowSet.getString("obs_units_cd"));
 
 				ObservationType.LocationCd locationCd = new ObservationType.LocationCd();
 				locationCd.setValue(rowSet.getString("obs_location_cd"));
@@ -149,13 +152,26 @@ public class I2B2PdoFactory {
 			}
 
 			if (obsFactBlobFlag) {
-				Clob observationClob = rowSet.getClob("obs_observation_blob");
+				if (dbType.equalsIgnoreCase("POSTGRESQL"))
+				{
+					String clob = rowSet.getString("obs_observation_blob");
+					if (clob !=null)
+					{
+						BlobType blobType = new BlobType();
+						blobType.getContent().add(clob);
+						observationFactType.setObservationBlob(blobType);
 
-				if (observationClob != null) {
-					BlobType blobType = new BlobType();
-					blobType.getContent().add(
-							JDBCUtil.getClobStringWithLinebreak(observationClob));
-					observationFactType.setObservationBlob(blobType);
+					}
+
+				} else {
+					Clob observationClob = rowSet.getClob("obs_observation_blob");
+
+					if (observationClob != null) {
+						BlobType blobType = new BlobType();
+						blobType.getContent().add(
+								JDBCUtil.getClobStringWithLinebreak(observationClob));
+						observationFactType.setObservationBlob(blobType);
+					}
 				}
 			}
 
@@ -195,6 +211,7 @@ public class I2B2PdoFactory {
 		boolean patientDetailFlag = false;
 		boolean patientBlobFlag = false;
 		boolean patientStatusFlag = false;
+		String dbType = null;
 
 		/**
 		 * Patameter constructor
@@ -204,10 +221,11 @@ public class I2B2PdoFactory {
 		 * @param statusFlag
 		 */
 		public PatientBuilder(boolean detailFlag, boolean blobFlag,
-				boolean statusFlag) {
+				boolean statusFlag, String dbType) {
 			this.patientDetailFlag = detailFlag;
 			this.patientBlobFlag = blobFlag;
 			this.patientStatusFlag = statusFlag;
+			this.dbType = dbType;
 		}
 
 		/**
@@ -229,27 +247,40 @@ public class I2B2PdoFactory {
 			List<ParamType> paramTypeList = patientDimensionType.getParam();
 			ParamType paramType = null;
 			if (patientDetailFlag) {
-				
 
-				
+
+
 				for (Iterator<ParamType> metaParamIterator = metaDataParamList.iterator(); metaParamIterator.hasNext();) { 
 					ParamType metaParamType = metaParamIterator.next();
 					ParamTypeValueBuilder paramValBuilder = new ParamTypeValueBuilder();
 					paramTypeList.add(paramValBuilder.buildParamType(metaParamType,"patient_",null,rowSet));
 				}
 			}
-			
-			
-			
+
+
+
 
 			if (patientBlobFlag) {
-				Clob patientClob = rowSet.getClob("patient_patient_blob");
+				if (dbType.equalsIgnoreCase("POSTGRESQL"))
+				{
+					String clob = rowSet.getString("patient_patient_blob");
+					if (clob !=null)
+					{
+						BlobType blobType = new BlobType();
+						blobType.getContent().add(clob);
+						patientDimensionType.setPatientBlob(blobType);
 
-				if (patientClob != null) {
-					BlobType patientBlobType = new BlobType();
-					patientBlobType.getContent().add(
-							JDBCUtil.getClobStringWithLinebreak(patientClob));
-					patientDimensionType.setPatientBlob(patientBlobType);
+					}
+
+				} else {
+					Clob patientClob = rowSet.getClob("patient_patient_blob");
+
+					if (patientClob != null) {
+						BlobType patientBlobType = new BlobType();
+						patientBlobType.getContent().add(
+								JDBCUtil.getClobStringWithLinebreak(patientClob));
+						patientDimensionType.setPatientBlob(patientBlobType);
+					}
 				}
 			}
 
@@ -289,6 +320,7 @@ public class I2B2PdoFactory {
 		boolean providerDetailFlag = false;
 		boolean providerBlobFlag = false;
 		boolean providerStatusFlag = false;
+		String dbType = null;
 
 		/**
 		 * Parameter constructor
@@ -298,10 +330,11 @@ public class I2B2PdoFactory {
 		 * @param statusFlag
 		 */
 		public ProviderBuilder(boolean detailFlag, boolean blobFlag,
-				boolean statusFlag) {
+				boolean statusFlag, String dbType) {
 			this.providerDetailFlag = detailFlag;
 			this.providerBlobFlag = blobFlag;
 			this.providerStatusFlag = statusFlag;
+			this.dbType = dbType;
 		}
 
 		/**
@@ -326,13 +359,26 @@ public class I2B2PdoFactory {
 			}
 
 			if (providerBlobFlag) {
-				Clob providerClob = rowSet.getClob("provider_provider_blob");
+				if (dbType.equalsIgnoreCase("POSTGRESQL"))
+				{
+					String clob = rowSet.getString("provider_provider_blob");
+					if (clob !=null)
+					{
+						BlobType blobType = new BlobType();
+						blobType.getContent().add(clob);
+						providerDimensionType.setObserverBlob(blobType);
 
-				if (providerClob != null) {
-					BlobType providerBlobType = new BlobType();
-					providerBlobType.getContent().add(
-							JDBCUtil.getClobStringWithLinebreak(providerClob));
-					providerDimensionType.setObserverBlob(providerBlobType);
+					}
+
+				} else {
+					Clob providerClob = rowSet.getClob("provider_provider_blob");
+
+					if (providerClob != null) {
+						BlobType providerBlobType = new BlobType();
+						providerBlobType.getContent().add(
+								JDBCUtil.getClobStringWithLinebreak(providerClob));
+						providerDimensionType.setObserverBlob(providerBlobType);
+					}
 				}
 			}
 
@@ -372,7 +418,7 @@ public class I2B2PdoFactory {
 		boolean conceptDetailFlag = false;
 		boolean conceptBlobFlag = false;
 		boolean conceptStatusFlag = false;
-
+		String dbType = null;
 		/**
 		 * Parameter Constuctor
 		 * 
@@ -381,10 +427,11 @@ public class I2B2PdoFactory {
 		 * @param statusFlag
 		 */
 		public ConceptBuilder(boolean detailFlag, boolean blobFlag,
-				boolean statusFlag) {
+				boolean statusFlag, String dbType) {
 			this.conceptDetailFlag = detailFlag;
 			this.conceptBlobFlag = blobFlag;
 			this.conceptStatusFlag = statusFlag;
+			this.dbType = dbType;
 		}
 
 		/**
@@ -412,13 +459,27 @@ public class I2B2PdoFactory {
 			}
 
 			if (conceptBlobFlag) {
-				Clob conceptClob = rowSet.getClob("concept_concept_blob");
+				if (dbType.equalsIgnoreCase("POSTGRESQL"))
+				{
+					String clob = rowSet.getString("concept_concept_blob");
+					if (clob !=null)
+					{
+						BlobType blobType = new BlobType();
+						blobType.getContent().add(clob);
+						conceptDimensionType.setConceptBlob(blobType);
 
-				if (conceptClob != null) {
-					BlobType conceptBlobType = new BlobType();
-					conceptBlobType.getContent().add(
-							JDBCUtil.getClobStringWithLinebreak(conceptClob));
-					conceptDimensionType.setConceptBlob(conceptBlobType);
+					}
+
+				} else {
+
+					Clob conceptClob = rowSet.getClob("concept_concept_blob");
+
+					if (conceptClob != null) {
+						BlobType conceptBlobType = new BlobType();
+						conceptBlobType.getContent().add(
+								JDBCUtil.getClobStringWithLinebreak(conceptClob));
+						conceptDimensionType.setConceptBlob(conceptBlobType);
+					}
 				}
 			}
 
@@ -459,6 +520,7 @@ public class I2B2PdoFactory {
 		boolean modifierDetailFlag = false;
 		boolean modifierBlobFlag = false;
 		boolean modifierStatusFlag = false;
+		String dbType = null;
 
 		/**
 		 * Parameter Constuctor
@@ -468,10 +530,11 @@ public class I2B2PdoFactory {
 		 * @param statusFlag
 		 */
 		public ModifierBuilder(boolean detailFlag, boolean blobFlag,
-				boolean statusFlag) {
+				boolean statusFlag, String dbType) {
 			this.modifierDetailFlag = detailFlag;
 			this.modifierBlobFlag = blobFlag;
 			this.modifierStatusFlag = statusFlag;
+			this.dbType = dbType;
 		}
 
 		/**
@@ -499,13 +562,27 @@ public class I2B2PdoFactory {
 			}
 
 			if (modifierBlobFlag) {
-				Clob modifierClob = rowSet.getClob("modifier_modifier_blob");
+				if (dbType.equalsIgnoreCase("POSTGRESQL"))
+				{
+					String clob = rowSet.getString("modifier_modifier_blob");
+					if (clob !=null)
+					{
+						BlobType blobType = new BlobType();
+						blobType.getContent().add(clob);
+						modifierDimensionType.setModifierBlob(blobType);
 
-				if (modifierClob != null) {
-					BlobType modifierBlobType = new BlobType();
-					modifierBlobType.getContent().add(
-							JDBCUtil.getClobStringWithLinebreak(modifierClob));
-					modifierDimensionType.setModifierBlob(modifierBlobType);
+					}
+
+				} else {
+
+					Clob modifierClob = rowSet.getClob("modifier_modifier_blob");
+
+					if (modifierClob != null) {
+						BlobType modifierBlobType = new BlobType();
+						modifierBlobType.getContent().add(
+								JDBCUtil.getClobStringWithLinebreak(modifierClob));
+						modifierDimensionType.setModifierBlob(modifierBlobType);
+					}
 				}
 			}
 
@@ -537,7 +614,7 @@ public class I2B2PdoFactory {
 			return modifierDimensionType;
 		}
 	}
-	
+
 	/**
 	 * Inner class to build visit dimension in plain pdo format
 	 */
@@ -545,12 +622,14 @@ public class I2B2PdoFactory {
 		boolean eventDetailFlag = false;
 		boolean eventBlobFlag = false;
 		boolean eventStatusFlag = false;
+		String dbType = null;
 
 		public EventBuilder(boolean detailFlag, boolean blobFlag,
-				boolean statusFlag) {
+				boolean statusFlag, String dbType) {
 			this.eventDetailFlag = detailFlag;
 			this.eventBlobFlag = blobFlag;
 			this.eventStatusFlag = statusFlag;
+			this.dbType = dbType;
 		}
 
 		/**
@@ -562,7 +641,7 @@ public class I2B2PdoFactory {
 		 * @throws IOException
 		 */
 		public EventType buildEventSet(ResultSet rowSet,List<ParamType> metaDataParamList) throws SQLException,
-				IOException {
+		IOException {
 			EventType visitDimensionType = new EventType();
 
 			PatientIdType patientIdType = new PatientIdType();
@@ -574,7 +653,7 @@ public class I2B2PdoFactory {
 
 			if (eventDetailFlag) {
 
-				
+
 				Date startDate = rowSet.getTimestamp("visit_start_date");
 
 				if (startDate != null) {
@@ -593,22 +672,36 @@ public class I2B2PdoFactory {
 					ParamTypeValueBuilder paramValBuilder = new ParamTypeValueBuilder();
 					visitDimensionType.getParam().add(paramValBuilder.buildParamType(metaParamType,"visit_",null,rowSet));
 				}
-				
+
 			}
 
 			if (eventBlobFlag) {
-				Clob visitClob = rowSet.getClob("visit_visit_blob");
+				if (dbType.equalsIgnoreCase("POSTGRESQL"))
+				{
+					String clob = rowSet.getString("visit_visit_blob");
+					if (clob !=null)
+					{
+						BlobType blobType = new BlobType();
+						blobType.getContent().add(clob);
+						visitDimensionType.setEventBlob(blobType);
 
-				if (visitClob != null) {
-					BlobType visitBlobType = new BlobType();
-					visitBlobType.getContent().add(
-							JDBCUtil.getClobStringWithLinebreak(visitClob));
-					visitDimensionType.setEventBlob(visitBlobType);
+					}
+
+				} else {
+
+					Clob visitClob = rowSet.getClob("visit_visit_blob");
+
+					if (visitClob != null) {
+						BlobType visitBlobType = new BlobType();
+						visitBlobType.getContent().add(
+								JDBCUtil.getClobStringWithLinebreak(visitClob));
+						visitDimensionType.setEventBlob(visitBlobType);
+					}
 				}
 			}
-			
-			
-			
+
+
+
 
 			if (eventStatusFlag) {
 				if (rowSet.getTimestamp("visit_update_date") != null) {

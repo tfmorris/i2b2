@@ -9,13 +9,19 @@
     <xs:element name="add_map" type="map:hierarchyMapType"/>
 	<xs:element name="delete_map" type="map:hierarchyMapType"/>
    	<xs:element name="move_map" type="map:hierarchyMapType"/>
+   	   	<xs:element name="verify_map" type="map:hierarchyMapType"/>
     <xs:element name="get_unmapped_terms" type="map:getTermsType"/>
      <xs:element name="get_unmapped_terms_by_name" type="map:getUnmappedTermsByNameType"/>
     <xs:element name="get_unmapped_terms_by_code" type="map:getUnmappedTermsByCodeType"/>
-    <xs:element name="get_mapped_terms" type="map:getTermsType"/>
+    <xs:element name="get_mapped_terms" type="map:getOntologyType"/>
      <xs:element name="get_mapped_terms_by_name" type="map:getMappedTermsByNameType"/>
     <xs:element name="get_mapped_terms_by_code" type="map:getMappedTermsByCodeType"/>
- 
+
+     <xs:element name="integrate_mapped_data" type="map:integrationType"/>
+     <xs:element name="get_integration_status" type="map:getStatusType"/>
+     <xs:element name="get_mapped_ontology" type="map:getOntologyType"/>
+     <xs:element name="get_mapped_ontology_size" type="map:getOntologyType"/>
+  
     
     <xs:complexType name="getMappingsType">
         <xs:sequence>
@@ -27,6 +33,8 @@
         <xs:sequence>               
             <xs:element name="coding_system_type" type="xs:string" default = "ALL"/> 
             <xs:element name="coding_system" type="xs:string" default = "ALL"/>
+            <xs:element name="number_of_terms" type="xs:int"/>
+            <xs:element name="number_of_verified_terms" type="xs:int"/>
         </xs:sequence>
     </xs:complexType>
     
@@ -71,6 +79,9 @@
  			 <xs:element name="destination_coding_system" type="xs:string"/>
  			 <xs:element name="destination_basecode" type="xs:string"/>
  			 <xs:element name="destination_name" type="xs:string"/>
+ 			 <xs:element name="source_tooltip" type="xs:string"/>
+ 			 <xs:element name="flag" type="xs:string"/>
+ 			 <xs:element name="totalnum" nillable="true" type="xs:int" />
         </xs:sequence>
     </xs:complexType>
     
@@ -92,6 +103,10 @@
 	 		 <xs:element name="destination_name" type="xs:string"/>
  			 <xs:element name="destination_basecode" type="xs:string"/>
  			 <xs:element name="destination_coding_system" type="xs:string"/>
+ 			 <xs:element name="source_tooltip" type="xs:string"/>
+ 			 <xs:element name="flag" type="xs:string"/>
+ 			 <xs:element name="status_code" type="xs:string"/>
+ 			  <xs:element name="totalnum" nillable="true" type="xs:int" />
         </xs:sequence>
     </xs:complexType>
  
@@ -113,5 +128,28 @@
         </xs:simpleContent>
     </xs:complexType>
  
+ <xs:complexType name="integrationType">
+        <xs:all>
+            <xs:element name="pathFormat" type="xs:string" default = "M"/>
+            <xs:element name="cancelProcess" type="xs:string" default = "false"/>
+        </xs:all>
+    </xs:complexType> 
+    
+   	<xs:complexType name="getStatusType">
+        <xs:all>
+            <xs:element name="process_id" type="xs:int"/>
+            <xs:element name="user_id" type="xs:string"/>
+        </xs:all>
+    </xs:complexType> 
+    
+    <xs:complexType name="getOntologyType">
+        <xs:all>
+	        <xs:element name="type" type="xs:string"/>
+            <xs:element name="start" type="xs:long"/>
+            <xs:element name="end" type="xs:long"/>
+        </xs:all>
+    </xs:complexType> 
+    
+    
  
 </xs:schema>

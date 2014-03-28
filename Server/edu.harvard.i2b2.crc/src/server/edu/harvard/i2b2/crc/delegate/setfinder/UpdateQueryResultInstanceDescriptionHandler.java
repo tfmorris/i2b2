@@ -9,7 +9,6 @@
  */
 package edu.harvard.i2b2.crc.delegate.setfinder;
 
-import javax.ejb.CreateException;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.ServiceLocatorException;
@@ -21,8 +20,7 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultRequestType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultResponseType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
-import edu.harvard.i2b2.crc.ejb.QueryInfoLocal;
-import edu.harvard.i2b2.crc.ejb.QueryInfoLocalHome;
+import edu.harvard.i2b2.crc.ejb.QueryInfoBean;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 /**
@@ -68,30 +66,26 @@ public class UpdateQueryResultInstanceDescriptionHandler extends RequestHandler 
 		ResultResponseType resultResponseType = null;
 		BodyType bodyType = new BodyType();
 		try {
-			QueryInfoLocalHome queryInfoLocalHome = qpUtil
-					.getQueryInfoLocalHome();
-			QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
+        	//TODO removed ejbs
+//			QueryInfoLocalHome queryInfoLocalHome = qpUtil
+//					.getQueryInfoLocalHome();
+//			QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
 			String resultInstanceId = resultRequestType
 					.getQueryResultInstanceId();
 			String description = resultRequestType.getDescription();
+			QueryInfoBean query = new QueryInfoBean();
 
-			resultResponseType = queryInfoLocal
+			resultResponseType = query
 					.updateResultInstanceDescription(
 							this.getDataSourceLookup(), resultInstanceId,
 							description);
 			resultResponseType.setStatus(this.buildCRCStausType(
 					RequestHandlerDelegate.DONE_TYPE, "DONE"));
 
-		} catch (I2B2Exception e) {
+		} catch (Exception e) {
 			resultResponseType = new ResultResponseType();
 			resultResponseType.setStatus(this.buildCRCStausType(
 					RequestHandlerDelegate.ERROR_TYPE, e.getMessage()));
-		} catch (ServiceLocatorException e) {
-			log.error(e);
-			statusType = buildStatusType("ERROR", e.getMessage());
-		} catch (CreateException e) {
-			log.error(e);
-			statusType = buildStatusType("ERROR", e.getMessage());
 		} finally {
 			edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
 			bodyType.getAny().add(of.createResponse(resultResponseType));

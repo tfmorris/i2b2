@@ -17,13 +17,19 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.Options;
-import org.apache.axis2.client.ServiceClient;
+import edu.harvard.i2b2.common.util.axis2.ServiceClient;
+import org.apache.axis2.context.ServiceContext;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.exception.StackTraceUtil;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
@@ -44,67 +50,60 @@ import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 public class CallPMUtil {
 
-	private SecurityType securityType = null;
-	private String projectId = null;
-	private String ontologyUrl = null;
-
+	private static JAXBUtil jaxbUtil =   CRCJAXBUtil.getJAXBUtil();
 	private static Log log = LogFactory.getLog(CallPMUtil.class);
 
-	public CallPMUtil(String requestXml) throws JAXBUtilException,
-			I2B2Exception {
-		this(QueryProcessorUtil.getInstance().getOntologyUrl(), requestXml);
+	public static String callUserResponse(SecurityType securityType,  String projectId ) throws AxisFault, I2B2Exception {
+		RequestMessageType requestMessageType = getI2B2RequestMessage(securityType, projectId);
+		OMElement requestElement = null;
+		String response =  null;
+		try {
+			requestElement = buildOMElement(requestMessageType);
+			log.debug("CRC PM call's request xml " + requestElement);
+			 response = ServiceClient.sendREST(QueryProcessorUtil.getInstance()
+					.getProjectManagementCellUrl(), requestElement);
+			log.debug("Got Response");
+		} catch (XMLStreamException e) {
+			e.printStackTrace();
+			throw new I2B2Exception("" + StackTraceUtil.getStackTrace(e));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new I2B2Exception("" + StackTraceUtil.getStackTrace(e));
+		} 
+
+		log.debug("Returning ProjectType");
+		return response;
 	}
 
-	public CallPMUtil(String ontologyUrl, String requestXml)
-			throws JAXBUtilException, I2B2Exception {
-		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
-				.unMashallFromString(requestXml);
-		RequestMessageType request = (RequestMessageType) responseJaxb
-				.getValue();
-		this.securityType = request.getMessageHeader().getSecurity();
-		this.projectId = request.getMessageHeader().getProjectId();
-		this.ontologyUrl = ontologyUrl;
-	}
-
-	public CallPMUtil(SecurityType securityType, String projectId)
-			throws I2B2Exception {
-		this.securityType = securityType;
-		this.projectId = projectId;
-		this.ontologyUrl = QueryProcessorUtil.getInstance()
-				.getProjectManagementCellUrl();
-		log.debug("CRC PM call url" + ontologyUrl);
-	}
-
-	public CallPMUtil(String ontologyUrl, SecurityType securityType,
-			String projectId) throws I2B2Exception {
-		this.securityType = securityType;
-		this.projectId = projectId;
-		this.ontologyUrl = ontologyUrl;
-	}
-
-	public ProjectType callUserProject() throws AxisFault, I2B2Exception {
-		RequestMessageType requestMessageType = getI2B2RequestMessage();
+	public static ProjectType callUserProject(SecurityType securityType,  String projectId ) throws AxisFault, I2B2Exception {
+		RequestMessageType requestMessageType = getI2B2RequestMessage(securityType, projectId);
 		OMElement requestElement = null;
 		ProjectType projectType = null;
 		try {
 			requestElement = buildOMElement(requestMessageType);
 			log.debug("CRC PM call's request xml " + requestElement);
-			OMElement response = getServiceClient().sendReceive(requestElement);
-			projectType = getUserProjectFromResponse(response.toString());
+			String response = ServiceClient.sendREST(QueryProcessorUtil.getInstance()
+					.getProjectManagementCellUrl(), requestElement);
+			log.debug("Got Response");
+			projectType = getUserProjectFromResponse(response, securityType, projectId);
+			log.debug("Parsed Projcet Type: " + projectType.getName());
 		} catch (XMLStreamException e) {
 			e.printStackTrace();
 			throw new I2B2Exception("" + StackTraceUtil.getStackTrace(e));
-		} catch (JAXBUtilException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new I2B2Exception("" + StackTraceUtil.getStackTrace(e));
-		}
+		} 
+
+		log.debug("Returning ProjectType");
 		return projectType;
 	}
 
-	private ProjectType getUserProjectFromResponse(String responseXml)
+	public static ProjectType getUserProjectFromResponse(String responseXml, SecurityType securityType,  String projectId)
 			throws JAXBUtilException, I2B2Exception {
-		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
-				.unMashallFromString(responseXml);
+		JAXBElement responseJaxb = jaxbUtil.unMashallFromString(responseXml);
+
+		//CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseXml);
 		ResponseMessageType pmRespMessageType = (ResponseMessageType) responseJaxb
 				.getValue();
 		log.debug("CRC's PM call response xml" + responseXml);
@@ -150,11 +149,12 @@ public class CallPMUtil {
 		return projectType;
 	}
 
-	private OMElement buildOMElement(RequestMessageType requestMessageType)
+	private static OMElement buildOMElement(RequestMessageType requestMessageType)
 			throws XMLStreamException, JAXBUtilException {
 		StringWriter strWriter = new StringWriter();
 		edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory hiveof = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
-		CRCJAXBUtil.getJAXBUtil().marshaller(
+		//CRCJAXBUtil.getJAXBUtil()
+		jaxbUtil.marshaller(
 				hiveof.createRequest(requestMessageType), strWriter);
 		// getOMElement from message
 		OMFactory fac = OMAbstractFactory.getOMFactory();
@@ -167,7 +167,7 @@ public class CallPMUtil {
 		return request;
 	}
 
-	private RequestMessageType getI2B2RequestMessage() {
+	private static RequestMessageType getI2B2RequestMessage(SecurityType securityType,  String projectId) {
 		QueryProcessorUtil queryUtil = QueryProcessorUtil.getInstance();
 		MessageHeaderType messageHeaderType = (MessageHeaderType) queryUtil
 				.getSpringBeanFactory().getBean("message_header");
@@ -201,19 +201,5 @@ public class CallPMUtil {
 
 	}
 
-	private ServiceClient getServiceClient() {
-		// call
-		ServiceClient serviceClient = PMServiceClient.getServiceClient();
-
-		Options options = new Options();
-		options.setTo(new EndpointReference(ontologyUrl));
-		options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-		options.setProperty(Constants.Configuration.ENABLE_REST,
-				Constants.VALUE_TRUE);
-		options.setTimeOutInMilliSeconds(50000);
-		serviceClient.setOptions(options);
-		return serviceClient;
-
-	}
 
 }

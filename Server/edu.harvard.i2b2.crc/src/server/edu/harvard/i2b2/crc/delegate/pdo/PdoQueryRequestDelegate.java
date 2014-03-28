@@ -16,7 +16,6 @@ import javax.xml.bind.JAXBElement;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.cache.Node;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.exception.StackTraceUtil;
@@ -124,8 +123,12 @@ public class PdoQueryRequestDelegate extends RequestHandlerDelegate {
 					this.putRoles(projectId, securityType.getUsername(),
 							securityType.getDomain(), projectType.getRole());
 
-					Node rootNode = CacheUtil.getCache().getRoot();
-					List<String> roles = (List<String>) rootNode
+					//TODO removed cache
+					//Node rootNode = CacheUtil.getCache().getRoot();
+					//List<String> roles = (List<String>) rootNode
+					//		.get(securityType.getDomain() + "/" + projectId
+					//				+ "/" + securityType.getUsername());
+					List<String> roles = (List<String>) CacheUtil
 							.get(securityType.getDomain() + "/" + projectId
 									+ "/" + securityType.getUsername());
 					if (roles != null) {

@@ -34,6 +34,7 @@
             <xs:element name="name" type="xs:string" />
             <xs:element name="user_id" type="xs:string" />
             <xs:element name="group_id" type="xs:string" />
+            <xs:element name="protected_access" type="xs:string" />
             <xs:element name="share_id" type="xs:string" />
             <xs:element name="index" type="xs:string" />
             <xs:element name="parent_index" type="xs:string" />

@@ -93,7 +93,8 @@ public class ObservationFactDao extends CRCDAO implements IObservationFactDao {
 				sql += (" AND obs.start_date = to_date('"
 						+ sqlFormatedStartDate + " ', 'DD-MON-YYYY HH24:MI:SS') ");
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL)) {
 				SimpleDateFormat dateFormat = new SimpleDateFormat(
 						"yyyy-MM-dd'T'HH:mm:ss");
 				sqlFormatedStartDate = dateFormat.format(gc.getTime());
@@ -136,6 +137,7 @@ public class ObservationFactDao extends CRCDAO implements IObservationFactDao {
 			// if modifier cd is not null add it to sql parameter
 			if (factPrimaryKey.getModifierCd() != null) {
 				stmt.setString(i, factPrimaryKey.getModifierCd());
+				i++;
 			}
 
 			if (factPrimaryKey.getInstanceNum() != null) {
@@ -149,7 +151,7 @@ public class ObservationFactDao extends CRCDAO implements IObservationFactDao {
 
 			I2B2PdoFactory.ObservationFactBuilder observationFactBuilder = new I2B2PdoFactory().new ObservationFactBuilder(
 					factRelated.isSelectDetail(), factRelated.isSelectBlob(),
-					factRelated.isSelectStatus());
+					factRelated.isSelectStatus(), dataSourceLookup.getServerType());
 			while (resultSet.next()) {
 				ObservationType observationFactType = observationFactBuilder
 						.buildObservationSet(resultSet);

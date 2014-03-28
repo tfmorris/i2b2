@@ -7,13 +7,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.TransactionManager;
-
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
@@ -26,6 +19,7 @@ import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryBreakdownType;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryResultType;
+import edu.harvard.i2b2.crc.datavo.i2b2message.SecurityType;
 import edu.harvard.i2b2.crc.datavo.i2b2result.BodyType;
 import edu.harvard.i2b2.crc.datavo.i2b2result.DataType;
 import edu.harvard.i2b2.crc.datavo.i2b2result.ResultEnvelopeType;
@@ -72,15 +66,13 @@ public class QueryResultGenerator extends CRCDAO implements IResultGenerator {
 		int transactionTimeout = (Integer) param.get("TransactionTimeout");
 		boolean obfscDataRoleFlag = (Boolean)param.get("ObfuscatedRoleFlag");
 		
-		TransactionManager tm = (TransactionManager) param
-				.get("TransactionManager");
 		this
 				.setDbSchemaName(sfDAOFactory.getDataSourceLookup()
 						.getFullSchema());
 		Map ontologyKeyMap = (Map) param.get("setFinderResultOntologyKeyMap");
 		String serverType = (String) param.get("ServerType");
-		CallOntologyUtil ontologyUtil = (CallOntologyUtil) param
-				.get("CallOntologyUtil");
+//		CallOntologyUtil ontologyUtil = (CallOntologyUtil) param
+//				.get("CallOntologyUtil");
 		List<String> roles = (List<String>) param.get("Roles");
 		String tempTableName = "";
 		PreparedStatement stmt = null;
@@ -99,7 +91,7 @@ public class QueryResultGenerator extends CRCDAO implements IResultGenerator {
 			
 			LogTimingUtil subLogTimingUtil = new LogTimingUtil();
 			subLogTimingUtil.setStartTime();
-			ConceptsType conceptsType = ontologyUtil.callGetChildren(itemKey);
+			ConceptsType conceptsType = CallOntologyUtil.callGetChildren(itemKey, (SecurityType) param.get("securityType"), (String) param.get("projectId"),  (String) param.get("ontologyGetChildrenUrl"));
 			if (conceptsType != null && conceptsType.getConcept().size()<1) { 
 				throw new I2B2DAOException("Could not fetch children result type " + resultTypeName + " item key [ " + itemKey + " ]" );
 			}
@@ -210,7 +202,7 @@ public class QueryResultGenerator extends CRCDAO implements IResultGenerator {
 			jaxbUtil.marshaller(of.createI2B2ResultEnvelope(resultEnvelop),
 					strWriter);
 			subLogTimingUtil.setEndTime();
-			tm.begin();
+			//tm.begin();
 			IXmlResultDao xmlResultDao = sfDAOFactory.getXmlResultDao();
 			xmlResultDao.createQueryXmlResult(resultInstanceId, strWriter
 					.toString());
@@ -225,7 +217,7 @@ public class QueryResultGenerator extends CRCDAO implements IResultGenerator {
 					ptrUtil.logProcessTimingMessage(queryInstanceId, ptrUtil.buildProcessTiming(logTimingUtil, "BUILD - " + resultTypeName , ""));
 				}
 			}
-			tm.commit();
+			//tm.commit();
 		} catch (com.microsoft.sqlserver.jdbc.SQLServerException sqlServerEx) {
 			// if the setQueryTimeout worked, then the message would be timed
 			// out
@@ -284,7 +276,7 @@ public class QueryResultGenerator extends CRCDAO implements IResultGenerator {
 				// the user role is obfuscated
 				if (timeoutFlag == false) { // check if the query completed
 					try {
-						tm.begin();
+					//	tm.begin();
 
 						String obfusMethod = "", description = null;
 						if (obfscDataRoleFlag) {
@@ -319,15 +311,7 @@ public class QueryResultGenerator extends CRCDAO implements IResultGenerator {
 						// set the result instance description
 						resultInstanceDao.updateResultInstanceDescription(
 								resultInstanceId, description);
-						tm.commit();
-					} catch (NotSupportedException e) {
-						throw new I2B2DAOException(
-								"Failed to write obfuscated description "
-										+ e.getMessage(), e);
-					} catch (SystemException e) {
-						throw new I2B2DAOException(
-								"Failed to write obfuscated description "
-										+ e.getMessage(), e);
+					//	tm.commit();
 					} catch (SecurityException e) {
 						throw new I2B2DAOException(
 								"Failed to write obfuscated description "
@@ -336,21 +320,7 @@ public class QueryResultGenerator extends CRCDAO implements IResultGenerator {
 						throw new I2B2DAOException(
 								"Failed to write obfuscated description "
 										+ e.getMessage(), e);
-					} catch (RollbackException e) {
-						throw new I2B2DAOException(
-								"Failed to write obfuscated description "
-										+ e.getMessage(), e);
-					} catch (HeuristicMixedException e) {
-						throw new I2B2DAOException(
-								"Failed to write obfuscated description "
-										+ e.getMessage(), e);
-					} catch (HeuristicRollbackException e) {
-						throw new I2B2DAOException(
-								"Failed to write obfuscated description "
-										+ e.getMessage(), e);
-
 					}
-
 				}
 			}
 		}

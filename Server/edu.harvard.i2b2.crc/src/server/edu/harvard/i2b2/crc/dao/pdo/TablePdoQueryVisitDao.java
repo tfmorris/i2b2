@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 
 import oracle.sql.ArrayDescriptor;
 
-import org.jboss.resource.adapter.jdbc.WrappedConnection;
+//import org.jboss.resource.adapter.jdbc.WrappedConnection;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
@@ -100,8 +100,8 @@ public class TablePdoQueryVisitDao extends CRCDAO implements
 			String serverType = dataSourceLookup.getServerType();
 
 			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
-				oracle.jdbc.driver.OracleConnection conn1 = (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
-						.getUnderlyingConnection();
+				oracle.jdbc.driver.OracleConnection conn1 = null;//(oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
+		//				.getUnderlyingConnection();
 				String finalSql = "SELECT "
 						+ selectClause
 						+ " FROM "
@@ -117,7 +117,8 @@ public class TablePdoQueryVisitDao extends CRCDAO implements
 				oracle.sql.ARRAY paramArray = new oracle.sql.ARRAY(desc, conn1,
 						encounterNumList.toArray(new String[] {}));
 				query.setArray(1, paramArray);
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				tempTableName = getDbSchemaName()
@@ -471,7 +472,8 @@ public class TablePdoQueryVisitDao extends CRCDAO implements
 			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
 				factTempTable = getDbSchemaName()
 						+ FactRelatedQueryHandler.TEMP_FACT_PARAM_TABLE;
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				factTempTable = getDbSchemaName()

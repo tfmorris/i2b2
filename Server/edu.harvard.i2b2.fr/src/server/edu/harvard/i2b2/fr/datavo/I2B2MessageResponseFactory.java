@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v1.0 
  * which accompanies this distribution. 
@@ -56,7 +56,7 @@ public class I2B2MessageResponseFactory {
 		MessageHeaderType messageHeader = new MessageHeaderType();
 		ApplicationType appType = new ApplicationType();
 		appType.setApplicationName("FRC Cell");
-		appType.setApplicationVersion("1.606");
+		appType.setApplicationVersion("1.7");
 		
 		
 		if (requestXml != null) {
@@ -113,8 +113,12 @@ public class I2B2MessageResponseFactory {
 
 		edu.harvard.i2b2.fr.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.fr.datavo.i2b2message.ObjectFactory();
 		StringWriter strWriter = new StringWriter();
-		util.marshaller(of.createResponse(responseMessageType), strWriter,
-				splCharFilterFlag);
+		util.marshaller(of.createResponse(responseMessageType), strWriter);//,
+//				splCharFilterFlag);
+		
+		
+
+		
 		return strWriter.toString();
 	}
 

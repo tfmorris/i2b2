@@ -11,7 +11,7 @@
 	
 	<!-- ========== Executable Targets ======================================== -->
 	<property name="Name" value="Workplace" />
-	<import file="../edu.harvard.i2b2.common/common_build.xml" />
+	<import file="../edu.harvard.i2b2.server-common/common_build.xml" />
 
 	<!-- =================================================================== -->
 	<!-- 								INIT 								 -->
@@ -129,24 +129,24 @@
 	<!-- =================================================================== -->
 	<target name="deploy"  description="Deployment step:copy distribution jar files to app server">
 			<echo message="${Name}: Copying archive package to app server ${jboss.home}" />
-			<copy todir="${jboss.home}/server/default/deploy">
-				<fileset dir="${dist}">
-					<exclude name="**/**.aar" />
-					<exclude name="**/*client.jar"/>
-				</fileset>
-			</copy>
+		<copy todir="${jboss.home}/standalone/deployments/${axis2.war.name}/WEB-INF/lib">
+			<fileset dir="${dist}">
+				<exclude name="**/**.aar" />
+				<exclude name="**/*client.jar"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${jboss.home}/standalone/deployments/${axis2.war.name}/WEB-INF/services">
+			<fileset dir="${dist}">
+				<include name="**/**.aar" />
+			</fileset>
+		</copy>
 			
-	<copy todir="${jboss.home}/server/default/deploy">
-		<fileset dir="${etc}/jboss">
-		<!--	<exclude name="**/jboss.xml" /> -->
-		</fileset>
-	</copy>
-			
-			<copy todir="${jboss.home}/server/default/deploy/${axis2.war.name}/WEB-INF/services">
-				<fileset dir="${dist}">
-					<include name="**/**.aar" />
-				</fileset>
-			</copy>
+		<copy todir="${jboss.home}/standalone/deployments">
+			<fileset dir="${etc}/jboss">
+			<!--	<exclude name="**/jboss.xml" /> -->
+			</fileset>
+		</copy>
 			
 			<echo message="copying property files to ${edu.harvard.i2b2.workplace.applicationdir}"/>
 			<copy todir="${edu.harvard.i2b2.workplace.applicationdir}">
@@ -158,16 +158,17 @@
 
 	<!-- =================================================================== -->
 	<!-- 								JBOSS DEPLOY ARCHIVE ONLY						 -->
-	<!-- =================================================================== -->	<target name="service_deploy">
+	<!-- =================================================================== -->	
+	<target name="service_deploy">
 		<echo message="${Name}: Copying archive package to app server ${jboss.home}" />
-		<copy todir="${jboss.home}/server/default/deploy">
+		<copy todir="${jboss.home}/standalone/deployments/${axis2.war.name}/WEB-INF/lib">
 			<fileset dir="${dist}">
 				<exclude name="**/**.aar" />
 				<exclude name="**/*client.jar"/>
 			</fileset>
 		</copy>
-		<!-- copy axis archive files to axis directory -->
-		<copy todir="${jboss.home}/server/default/deploy/${axis2.war.name}/WEB-INF/services">
+		
+		<copy todir="${jboss.home}/standalone/deployments/${axis2.war.name}/WEB-INF/services">
 			<fileset dir="${dist}">
 				<include name="**/**.aar" />
 			</fileset>

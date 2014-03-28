@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v1.0 
  * which accompanies this distribution. 
@@ -22,9 +22,6 @@ import edu.harvard.i2b2.fr.datavo.i2b2message.ResponseHeaderType;
 import edu.harvard.i2b2.fr.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.fr.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.fr.datavo.pm.ConfigureType;
-
-
-
 
 public class PMResponseMessage {
 

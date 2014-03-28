@@ -27,5 +27,11 @@
     <operation name="renameChild">
         <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
     </operation>
+    <operation name="getNameInfo">
+        <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+    </operation>
+    <operation name="setProtectedAccess">
+        <messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/>
+    </operation>
     <parameter name="ServiceClass">edu.harvard.i2b2.workplace.ws.WorkplaceService</parameter>
 </service>

@@ -10,8 +10,6 @@
 
 package edu.harvard.i2b2.crc.datavo.db;
 
-import org.hibernate.HibernateException;
-import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
 import java.sql.PreparedStatement;
@@ -34,7 +32,7 @@ but escapes by a keyword.
  * 
  * @author rkuttan
  */
-public class IntegerStringUserType implements UserType {
+public class IntegerStringUserType { //implements UserType {
     private static final int[] SQL_TYPES = { Types.INTEGER };
 
     public int[] sqlTypes() {
@@ -44,7 +42,7 @@ public class IntegerStringUserType implements UserType {
     public Class returnedClass() {
         return String.class;
     }
-
+/*
     public boolean equals(Object x, Object y) throws HibernateException {
         if (x == y) {
             return true;
@@ -101,4 +99,5 @@ public class IntegerStringUserType implements UserType {
 	public Object replace(Object arg0, Object arg1, Object arg2) throws HibernateException {
 		return deepCopy(arg0);
 	}
+	*/
 }

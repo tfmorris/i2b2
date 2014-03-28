@@ -44,7 +44,7 @@ public class QueryMasterDaoTest {
 		queryMaster.setCreateDate(new Date(System.currentTimeMillis()));
 		queryMaster.setRequestXml("test_request_xml");
 		queryMaster.setDeleteFlag("N");
-		queryMasterId = qmDAO.createQueryMaster(queryMaster, "i2b2xml");
+		queryMasterId = qmDAO.createQueryMaster(queryMaster, "i2b2xml", null);
 		System.out.println("Query master id " + queryMasterId);
 	}
 

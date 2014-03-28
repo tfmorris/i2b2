@@ -9,7 +9,6 @@
  */
 package edu.harvard.i2b2.crc.delegate.pdo;
 
-import javax.ejb.CreateException;
 
 import edu.harvard.i2b2.crc.datavo.pdo.PatientDataType;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
@@ -18,8 +17,9 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.GetObservationFactByPrimaryKeyRequestType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
-import edu.harvard.i2b2.crc.ejb.PdoQueryLocal;
-import edu.harvard.i2b2.crc.ejb.PdoQueryLocalHome;
+import edu.harvard.i2b2.crc.ejb.PdoQueryBean;
+//import edu.harvard.i2b2.crc.ejb.PdoQueryLocal;
+//import edu.harvard.i2b2.crc.ejb.PdoQueryLocalHome;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 
@@ -59,16 +59,13 @@ public class GetObservationFactFromPrimaryKeyHandler extends RequestHandler {
         BodyType bodyType = new BodyType();
         PatientDataType patientDataType = null;
         try {
-            PdoQueryLocalHome pdoQueryLocalHome = qpUtil.getPdoQueryLocalHome();
-            PdoQueryLocal pdoQueryInfoLocal = pdoQueryLocalHome.create();
-            patientDataType = pdoQueryInfoLocal.getObservationFactByPrimaryKey(getDataSourceLookup(),getObservationFactByPrimaryKeyRequestType);
+        	//TODO mm removed EJBs
+  //          PdoQueryLocalHome pdoQueryLocalHome = qpUtil.getPdoQueryLocalHome();
+  //         PdoQueryLocal pdoQueryInfoLocal = pdoQueryLocalHome.create();
+        	PdoQueryBean query = new PdoQueryBean();
+            patientDataType = query.getObservationFactByPrimaryKey(getDataSourceLookup(),getObservationFactByPrimaryKeyRequestType);
             
-            //ResponseMessageType responseMessageType = new ResponseMessageType();
-            //responseMessageType.setMessageBody(bodyType);
-            //responseString = this.getResponseString(responseMessageType);
-       } catch (ServiceLocatorException e) {
-            throw new I2B2Exception("", e);
-        } catch (CreateException e) {
+       } catch (Exception e) {
             throw new I2B2Exception("", e);
         } finally { 
         	edu.harvard.i2b2.crc.datavo.pdo.query.PatientDataResponseType pdoResponseType = new edu.harvard.i2b2.crc.datavo.pdo.query.PatientDataResponseType();

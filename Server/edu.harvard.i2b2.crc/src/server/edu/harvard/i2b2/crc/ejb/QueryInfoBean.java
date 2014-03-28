@@ -13,10 +13,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ejb.CreateException;
-import javax.ejb.EJBException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,6 +34,8 @@ import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryResultInstance;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryResultType;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType;
+import edu.harvard.i2b2.crc.datavo.i2b2message.SecurityType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.FindByChildType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.InstanceResultResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterRequestType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterResponseType;
@@ -68,7 +66,7 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.UserRequestType;
  * 
  * 
  */
-public class QueryInfoBean implements SessionBean {
+public class QueryInfoBean { //implements SessionBean {
 	private static Log log = LogFactory.getLog(QueryInfoBean.class);
 
 	/**
@@ -98,6 +96,35 @@ public class QueryInfoBean implements SessionBean {
 		return masterResponseType;
 	}
 
+	
+	/**
+	 * Function to return master query list for the give group id
+	 * 
+	 * @ejb.interface-method view-type="both"
+	 * @ejb.transaction type="Required"
+	 * 
+	 * @param userRequestType
+	 *            group_id
+	 * 
+	 * @return String publish response XML
+	 * @throws I2B2Exception 
+	 */
+	public MasterResponseType getQueryMasterListFromNameInfo(
+			DataSourceLookup dataSourceLookup, SecurityType userRequestType, FindByChildType findChildType)
+			throws I2B2Exception {
+		//String groupId = userRequestType.getGroupId();
+		//int fetchSize = userRequestType.getFetchSize();
+		SetFinderDAOFactory sfDaoFactory = this.getSetFinderDaoFactory(
+				dataSourceLookup.getDomainId(), dataSourceLookup
+						.getProjectPath(), dataSourceLookup.getOwnerId());
+		IQueryMasterDao queryMasterDao = sfDaoFactory.getQueryMasterDAO();
+		List<QtQueryMaster> masterList = queryMasterDao
+				.getQueryMasterByNameInfo(userRequestType, findChildType);
+		MasterResponseType masterResponseType = buildMasterResponseType(masterList);
+		return masterResponseType;
+	}
+
+	
 	/**
 	 * Function to return master query list for the give group id
 	 * 
@@ -415,6 +442,7 @@ public class QueryInfoBean implements SessionBean {
 			queryMasterType.setName(queryMaster.getName());
 			queryMasterType.setGroupId(queryMaster.getGroupId());
 			queryMasterType.setUserId(queryMaster.getUserId());
+			queryMasterType.setMasterTypeCd(queryMaster.getMasterTypeCd());
 			masterResponseType.getQueryMaster().add(queryMasterType);
 		}
 		return masterResponseType;
@@ -429,22 +457,4 @@ public class QueryInfoBean implements SessionBean {
 		return sfDaoFactory;
 	}
 
-	// --------------------------------
-	// ejb functions
-	// --------------------------------
-	public void ejbCreate() throws CreateException {
-	}
-
-	public void ejbActivate() throws EJBException, RemoteException {
-	}
-
-	public void ejbPassivate() throws EJBException, RemoteException {
-	}
-
-	public void ejbRemove() throws EJBException, RemoteException {
-	}
-
-	public void setSessionContext(SessionContext arg0) throws EJBException,
-			RemoteException {
-	}
 }

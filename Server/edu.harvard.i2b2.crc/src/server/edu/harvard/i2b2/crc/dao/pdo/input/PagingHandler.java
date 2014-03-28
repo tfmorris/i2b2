@@ -86,7 +86,8 @@ public class PagingHandler extends CRCDAO {
 		String countSqlFrom = " ";
 		String countClause = " COUNT(*) ";
 		if (dataSourceLookup.getServerType().equalsIgnoreCase(
-				DAOFactoryHelper.ORACLE)) {
+				DAOFactoryHelper.ORACLE) || dataSourceLookup.getServerType().equalsIgnoreCase(
+						DAOFactoryHelper.POSTGRESQL)) {
 			factRelatedHandler = new FactRelatedQueryHandler(dataSourceLookup,
 					inputList, filterList, outputOptionList);
 		} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
@@ -150,7 +151,8 @@ public class PagingHandler extends CRCDAO {
 		IFactRelatedQueryHandler factRelatedHandler = null;
 		String countSqlFrom = " ";
 		if (dataSourceLookup.getServerType().equalsIgnoreCase(
-				DAOFactoryHelper.ORACLE)) {
+				DAOFactoryHelper.ORACLE) || dataSourceLookup.getServerType().equalsIgnoreCase(
+						DAOFactoryHelper.POSTGRESQL)) {
 			factRelatedHandler = new FactRelatedQueryHandler(dataSourceLookup,
 					inputList, filterList, outputOptionList);
 		} else if (dataSourceLookup.getServerType().equalsIgnoreCase(

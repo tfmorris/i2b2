@@ -2,7 +2,6 @@ package edu.harvard.i2b2.crc.ejb.analysis;
 
 import java.util.List;
 
-import javax.ejb.Stateless;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
@@ -20,7 +19,7 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.AnalysisPluginMetadataTypeTyp
 /**
  * Bean class to return analysis plugin metadata info
  */
-@Stateless
+//@Stateless
 public class AnalysisPluginInfo implements AnalysisPluginInfoLocal {
 
 	/**

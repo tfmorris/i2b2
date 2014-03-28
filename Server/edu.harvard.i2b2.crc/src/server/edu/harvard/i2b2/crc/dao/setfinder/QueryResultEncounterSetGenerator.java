@@ -86,7 +86,8 @@ public class QueryResultEncounterSetGenerator extends CRCDAO implements
 						+ " (patient_enc_coll_id, result_instance_id, set_index, patient_num, encounter_num) "
 						+ "SELECT " + dbSchemaName + "QT_SQ_QPER_PECID.nextval AS patient_set_coll_id, ? AS result_instance_id, rownum AS set_index, t.patient_num, t.encounter_num "
 						+ "FROM (" + encounterSql + ") t";
-			} else if (sfDAOFactory.getDataSourceLookup().getServerType().equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (sfDAOFactory.getDataSourceLookup().getServerType().equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					sfDAOFactory.getDataSourceLookup().getServerType().equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				sql = "INSERT INTO " + dbSchemaName + "qt_patient_enc_collection"
 						+ " (result_instance_id, set_index, patient_num, encounter_num) "
 						+ "SELECT ? AS result_instance_id, ROW_NUMBER() OVER(ORDER BY patient_num) AS set_index, t.patient_num, t.encounter_num "
@@ -109,10 +110,10 @@ public class QueryResultEncounterSetGenerator extends CRCDAO implements
 			}
 		} catch (SQLException sqlEx) {
 			exception = sqlEx;
-			log.error("QueryResultEncounterSetGenerator.generateResult:"
+			log.error("QueryResultPatientSetGenerator.generateResult:"
 					+ sqlEx.getMessage(), sqlEx);
 			throw new I2B2DAOException(
-					"QueryResultEncounterSetGenerator.generateResult:"
+					"QueryResultPatientSetGenerator.generateResult:"
 							+ sqlEx.getMessage(), sqlEx);
 
 		} catch (Throwable throwable) {
@@ -155,8 +156,9 @@ public class QueryResultEncounterSetGenerator extends CRCDAO implements
 		// call timing helper to find if timing is samevisit
 
 		String encounterSetSql = " select encounter_num,patient_num from "
-				+ TEMP_DX_TABLE; // + " order by  patient_num,encounter_num ";
-		if (queryGeneratorVersion.equals("1.6")) {
+				+ TEMP_DX_TABLE;
+		if (queryGeneratorVersion.equals("1.6")||
+				queryGeneratorVersion.equals("1.7")) {
 			IQueryInstanceDao queryInstanceDao = sfDAOFactory
 					.getQueryInstanceDAO();
 			QtQueryInstance queryInstance = queryInstanceDao

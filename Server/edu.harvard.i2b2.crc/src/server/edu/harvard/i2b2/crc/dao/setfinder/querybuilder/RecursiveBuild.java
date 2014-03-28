@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBElement;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
+import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crc.dao.CRCDAO;
@@ -109,10 +110,11 @@ public class RecursiveBuild extends CRCDAO {
 		return ignoredItemBuffer.toString();
 	}
 	
-	public void startSqlBuild() throws I2B2DAOException  { 
+	public void startSqlBuild() throws JAXBUtilException, I2B2Exception  { 
 		LogTimingUtil logTimingUtil = new LogTimingUtil();
 		logTimingUtil.setStartTime();
 		execQuery(this.queryXML,null,0);
+		
 		logTimingUtil.setEndTime();
 		if (processTimingFlag.equalsIgnoreCase(ProcessTimingReportUtil.INFO) || processTimingFlag.equalsIgnoreCase(ProcessTimingReportUtil.DEBUG) ) {
 			ProcessTimingReportUtil ptrUtil = new ProcessTimingReportUtil(this.dataSourceLookup);
@@ -120,7 +122,7 @@ public class RecursiveBuild extends CRCDAO {
 		 }
 	}
 	
-	private String[] execQuery(String requestXML, String itemName, int level) throws I2B2DAOException {
+	private String[] execQuery(String requestXML, String itemName, int level) throws JAXBUtilException, I2B2Exception {
 		String returnTempTableName = "";
 		//ExecSql execSql = new ExecSql(conn);
 		QueryToolUtilNew queryTool = null;
@@ -133,6 +135,12 @@ public class RecursiveBuild extends CRCDAO {
 			for (ItemType singleItem : itemList) { 
 				if (singleItem.getItemKey().toLowerCase().startsWith(ItemKeyUtil.ITEM_KEY_MASTERID)) {
 					
+					if ((singlePanel.getPanelDateTo() != null) || (singlePanel.getPanelDateFrom() != null))
+						throw new I2B2DAOException("Date Contraints is not supported with Query in Query");
+					log.debug("In RecursiveBuild, total occurrences: " + singlePanel.getTotalItemOccurrences().getValue());
+					if (singlePanel.getTotalItemOccurrences().getValue() > 1)
+						throw new I2B2DAOException("Total Occurances greater than 0 is not supported with Query in Query.");
+				
 					String requestXml = getQueryDefinitionRequestXml(singleItem.getItemKey());
 					String[] sql = execQuery(requestXml,singleItem.getItemKey(), level+1);
 					QueryDefinitionType masterQueryDef = getQueryDefinitionType(requestXml);
@@ -168,10 +176,11 @@ public class RecursiveBuild extends CRCDAO {
 		queryTool.setAllowLargeTextValueConstrainFlag(allowLargeTextValueConstrainFlag);
 		
 		
-		
-		
-		String sql = queryTool.getSetfinderSqlForQueryDefinition();
-		String maxPanelNum = String.valueOf(queryTool.getMaxPanelNumber());
+		String sql = "";
+		String maxPanelNum = "";
+		//if (itemName != null) {
+		 sql = queryTool.getSetfinderSqlForQueryDefinition();
+		 maxPanelNum = String.valueOf(queryTool.getMaxPanelNumber());
 		
 		ignoredItemBuffer.append(queryTool.getIgnoredItemMessage());
 		if (this.processTimingFlag.equalsIgnoreCase(ProcessTimingReportUtil.DEBUG)) {
@@ -181,7 +190,7 @@ public class RecursiveBuild extends CRCDAO {
 		//execute sql
 		log.debug("generated sql " + sql);
 		sqlBuffer.append(sql);
-		
+	//	}
 		
 		
 		if (itemName != null && itemName.startsWith("masterid")) {
@@ -268,7 +277,7 @@ public class RecursiveBuild extends CRCDAO {
 	
 
 	public String deleteTempMaster(String masterId,int level) {
-		return "\n <*> delete " + this.getDbSchemaName() + tempTableNameMap.getTempMasterTable() +" where master_id = '" + masterId + "' and level_no >= " + level + "\n<*>";
+		return "\n <*> \n delete " + this.getDbSchemaName() + tempTableNameMap.getTempMasterTable() +" where master_id = '" + masterId + "' and level_no >= " + level + "\n<*>";
 	}
 	
 	

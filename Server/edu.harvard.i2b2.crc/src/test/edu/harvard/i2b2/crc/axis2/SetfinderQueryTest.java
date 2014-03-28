@@ -13,7 +13,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.xml.bind.JAXBElement;
 
@@ -50,13 +56,9 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 
 	private static  String setfinderUrl = 
 			//System.getProperty("testhost") 
-			"http://localhost:9090/i2b2/rest"
+			"http://localhost:9090/i2b2/services"
 			+ "/QueryToolService/request";	
 
-	private static  String pmrUrl = 
-			//System.getProperty("testhost") 
-			"http://localhost:9090/i2b2/rest"
-			+ "/PMService/getServices";	
 
 	@BeforeClass
 	public static void setUp() throws Exception {
@@ -84,127 +86,505 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 		return reqHeaderType;
 	}
 
+
+
+
 	@Test
-	public void CheckUsingTempTable() throws Exception {
-		String filename = testFileDir + "/CDC_Enable_Debug.xml";
-		String requestString = getQueryString(filename);
-		OMElement requestElement = convertStringToOMElement(requestString); 
-		OMElement responseElement = getServiceClient(pmrUrl).sendReceive(requestElement);
+	public void QueryInQueryCKMB_OR() throws Exception {
+		String filename = testFileDir + "/4Q_CK-MB_OR_CPKGT120_[38].xml";
+		try { 
+			DataInputStream   dataStream = new DataInputStream(new FileInputStream(
+					filename));
+			OMElement requestElement = convertStringToOMElement(dataStream); 
+			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
 
-		//read test file and store query instance ;
-		//unmarshall this response string 
-		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
-		ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
-		JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
 
-		//MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
 
-		assertNotNull(r);			
-		assertEquals(r.getResponseHeader().getResultStatus().getStatus().getType(), "DONE");
+			assertNotNull(masterInstanceResult);
+			String queryMasterId = masterInstanceResult.getQueryMaster().getQueryMasterId();
+
+			// First Query In Query
+			String requestString = getQueryString(testFileDir + "/QIQ_4Q_MALE_[28].xml");
+			requestString = requestString.replace("masterid:431", "masterid:"+queryMasterId);
+
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
+
+			masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 28);
+				else
+					assertTrue(false);
+			}
 
 
-		//This is a simple Circulatory run, it should NOT create a temp table
-		filename = testFileDir + "/SQP1I1_Circulatory_[66]_3016ms.xml";
-		requestString = getQueryString(filename);
-		requestElement = convertStringToOMElement(requestString); 
-		responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+			// Second Query In Query
+			requestString = getQueryString(testFileDir + "/QIQ_4Q_FEMALE_[10].xml");
+			requestString = requestString.replace("masterid:431", "masterid:"+queryMasterId);
 
-		//read test file and store query instance ;
-		//unmarshall this response string 
-		responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
-		r = (ResponseMessageType)responseJaxb.getValue();
-		helper = new  JAXBUnWrapHelper();
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
 
-		MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
 
-		assertNotNull(masterInstanceResult);
-		for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
-		{
-			if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-				assertEquals(results.getSetSize(), 66);
-			else
-				assertTrue(false);
-		}
-		if (responseElement.toString().equalsIgnoreCase("QUERY_GLOBAL_TEMP"))
+			masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 10);
+				else
+					assertTrue(false);
+			}
+
+
+
+		} catch (Exception e) { 
+			e.printStackTrace();
 			assertTrue(false);
-
-		//This is a simple Circulatory run, the query mode is not specified, should use Temp Table
-		filename = testFileDir + "/SQP1I1_Circulatory_no_QM[66]_3016ms.xml";
-		requestString = getQueryString(filename);
-		requestElement = convertStringToOMElement(requestString); 
-		responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
-
-		//read test file and store query instance ;
-		//unmarshall this response string 
-		responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
-		r = (ResponseMessageType)responseJaxb.getValue();
-		helper = new  JAXBUnWrapHelper();
-
-		masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
-
-		assertNotNull(masterInstanceResult);
-		for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
-		{
-			if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-				assertEquals(results.getSetSize(), 66);
-			else
-				assertTrue(false);
 		}
-		if (responseElement.toString().equalsIgnoreCase("QUERY_GLOBAL_TEMP"))
-			assertTrue(true);
+	}
 
-		//This is a complex query that should temp tables
-		filename = testFileDir + "/MQP1I1P2I1_[48]_6658ms.xml";		
-		requestString = getQueryString(filename);
-		requestElement = convertStringToOMElement(requestString); 
-		responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
 
-		//read test file and store query instance ;
-		//unmarshall this response string 
-		responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
-		r = (ResponseMessageType)responseJaxb.getValue();
-		helper = new  JAXBUnWrapHelper();
+	@Test
+	public void QueryInQueryCKMB() throws Exception {
+		String filename = testFileDir + "/3Q_CK-MB_AND_CPKGT120_[16].xml";
+		try { 
+			DataInputStream   dataStream = new DataInputStream(new FileInputStream(
+					filename));
+			OMElement requestElement = convertStringToOMElement(dataStream); 
+			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
 
-		masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
 
-		assertNotNull(masterInstanceResult);
-		for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
-		{
-			if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-				assertEquals(results.getSetSize(), 48);
-			else
-				assertTrue(false);
-		}		
-		if (responseElement.toString().equalsIgnoreCase("QUERY_GLOBAL_TEMP"))
-			assertTrue(true);
+			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
 
-		//This is a complex query that should temp tables even if asked to
-		filename = testFileDir + "/MQP1I1P2I1_with_QM_[48]_6658ms.xml";		
-		requestString = getQueryString(filename);
-		requestElement = convertStringToOMElement(requestString); 
-		responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+			assertNotNull(masterInstanceResult);
+			String queryMasterId = masterInstanceResult.getQueryMaster().getQueryMasterId();
 
-		//read test file and store query instance ;
-		//unmarshall this response string 
-		responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
-		r = (ResponseMessageType)responseJaxb.getValue();
-		helper = new  JAXBUnWrapHelper();
+			// First Query In Query
+			String requestString = getQueryString(testFileDir + "/QIQ_3Q_MALE_[12].xml");
+			requestString = requestString.replace("masterid:427", "masterid:"+queryMasterId);
 
-		masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
 
-		assertNotNull(masterInstanceResult);
-		for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
-		{
-			if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-				assertEquals(results.getSetSize(), 48);
-			else
-				assertTrue(false);
-		}		
-		if (responseElement.toString().equalsIgnoreCase("QUERY_GLOBAL_TEMP"))
-			assertTrue(true);
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
 
-		r=null;
-	}	
+			masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 12);
+				else
+					assertTrue(false);
+			}
+
+
+			// Second Query In Query
+			requestString = getQueryString(testFileDir + "/QIQ_3Q_FEMALE_[4].xml");
+			requestString = requestString.replace("masterid:427", "masterid:"+queryMasterId);
+
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
+
+			masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 4);
+				else
+					assertTrue(false);
+			}
+
+
+
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
+
+	@Test
+	public void QueryInQueryHypertensionOR() throws Exception {
+		String filename = testFileDir + "/2Q_HYP_OR_ISCH_[44].xml";
+		try { 
+			DataInputStream   dataStream = new DataInputStream(new FileInputStream(
+					filename));
+			OMElement requestElement = convertStringToOMElement(dataStream); 
+			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+
+			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			String queryMasterId = masterInstanceResult.getQueryMaster().getQueryMasterId();
+
+			// First Query In Query
+			String requestString = getQueryString(testFileDir + "/QIQ_2Q_MALE_[26].xml");
+			requestString = requestString.replace("masterid:424", "masterid:"+queryMasterId);
+
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
+
+			masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 26);
+				else
+					assertTrue(false);
+			}
+
+
+			// Second Query In Query
+			requestString = getQueryString(testFileDir + "/QIQ_2Q_FEMALE_[18].xml");
+			requestString = requestString.replace("masterid:424", "masterid:"+queryMasterId);
+
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
+
+			masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 18);
+				else
+					assertTrue(false);
+			}
+
+
+
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
+
+	@Test
+	public void QueryInQueryHypertension() throws Exception {
+		String filename = testFileDir + "/1Q_HYP_AND_ISCH_[13].xml";
+		try { 
+			DataInputStream   dataStream = new DataInputStream(new FileInputStream(
+					filename));
+			OMElement requestElement = convertStringToOMElement(dataStream); 
+			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+
+			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			String queryMasterId = masterInstanceResult.getQueryMaster().getQueryMasterId();
+
+			// First Query In Query
+			String requestString = getQueryString(testFileDir + "/QIQ_1Q_MALE_[6].xml");
+			requestString = requestString.replace("masterid:421", "masterid:"+queryMasterId);
+
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
+
+			masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 6);
+				else
+					assertTrue(false);
+			}
+
+
+			// Second Query In Query
+			requestString = getQueryString(testFileDir + "/QIQ_1Q_FEMALE_[7].xml");
+			requestString = requestString.replace("masterid:421", "masterid:"+queryMasterId);
+
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
+
+			masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 7);
+				else
+					assertTrue(false);
+			}
+
+
+
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
+
+	@Test
+	public void ExcludeOccurancesMultiplePanelsSame() throws Exception {
+		String filename = testFileDir + "/setfinder_exclude_and_occurances_same_[63]_1432ms.xml";
+		try { 
+			String requestString = getQueryString(filename);
+			OMElement requestElement = convertStringToOMElement(requestString); 
+			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+
+			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 99);
+				else
+					assertTrue(false);
+			}
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
+
+	@Test
+	public void ExcludeOccurancesMultiplePanelsAny() throws Exception {
+		String filename = testFileDir + "/setfinder_exclude_and_occurances_any_[63]_1432ms.xml";
+		try { 
+			String requestString = getQueryString(filename);
+			OMElement requestElement = convertStringToOMElement(requestString); 
+			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+
+			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 63);
+				else
+					assertTrue(false);
+			}
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
+
+	@Test
+	public void TestOObfuscatedLoockout() throws Exception {
+		String filename = testFileDir + "/obfuscated_lockout.xml";
+		try { 
+			String requestString = getQueryString(filename);
+			OMElement requestElement = convertStringToOMElement(requestString); 
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			String lockout = "";
+			ArrayList list = new ArrayList();
+			for (int i=0; i < 14; i++) {
+				OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+				JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+				ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+				JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+
+				//MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+				System.out.println("Query:"+ i);
+				//assertNotNull(masterInstanceResult);
+
+				//if (r.getResponseHeader().getResultStatus().getStatus().getType().equals("ERROR"))
+				//{
+				//	lockout = r.getResponseHeader().getResultStatus().getStatus().getValue();
+				//} else 
+
+				if (r != null) {
+					//	assertNotNull(masterInstanceResult);
+					//		for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+					//		{
+					if (r.getResponseHeader().getResultStatus().getStatus().getType().equals("ERROR"))
+					{
+						lockout = r.getResponseHeader().getResultStatus().getStatus().getValue();
+						break;
+					}
+
+					//		if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					//		{
+					//			if (!list.contains(results.getSetSize()))
+					//				list.add(results.getSetSize());
+					//		}
+					//	}
+				}
+			}
+			//assertTrue(list.size() > 3);
+			assertTrue(lockout.startsWith("LOCKEDOUT"));
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}		
+
+	/*
+	@Test
+	public void Panel1Item3Missing() throws Exception {
+		String filename = testFileDir + "/setfinder_panel_1_item_3_missing_[Error].xml";
+		try { 
+			String requestString = getQueryString(filename);
+			OMElement requestElement = convertStringToOMElement(requestString); 
+			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+
+			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+
+
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 1);
+				else
+					assertTrue(false);
+			}
+
+		} catch (Exception e) { 
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	 */
+	/*
+	@Test
+	public void QueryOver50000() throws Exception {
+		String filename = testFileDir + "/SQP1I1_Circulatory_[66]_3016ms.xml";
+		try { 
+			for (int i=0; i < 50000; i++) {
+			String requestString = getQueryString(filename);
+			OMElement requestElement = convertStringToOMElement(requestString); 
+			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+
+			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 66);
+				else
+					assertTrue(false);
+				System.out.println("Query number: " + i + " total number is " +results.getSetSize());
+			}
+			}
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	 */
+
 
 	@Test
 	public void QueryLargeTextConstaintwithSpace() throws Exception {
@@ -464,40 +844,6 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 
 
 	@Test
-	public void Panel1Item3Missing() throws Exception {
-		String filename = testFileDir + "/setfinder_panel_1_item_3_missing_[Error].xml";
-		try { 
-			String requestString = getQueryString(filename);
-			OMElement requestElement = convertStringToOMElement(requestString); 
-			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
-
-			//read test file and store query instance ;
-			//unmarshall this response string 
-			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
-			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
-			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
-
-			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
-
-			assertNotNull(masterInstanceResult);
-
-			int size = -2;
-			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
-			{
-				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-					size = results.getSetSize();
-			}
-			assertEquals(size, -1);
-
-		} catch (Exception e) { 
-			e.printStackTrace();
-			throw e;
-		}
-	}
-
-
-
-	@Test
 	public void TQQAPASI() throws Exception {
 		String filename = testFileDir + "/TQQAPASI_[Error]_659ms.xml";
 		String requestString = getQueryString(filename);
@@ -512,17 +858,16 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 
 		MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
 
-
 		assertNotNull(masterInstanceResult);
-		assertEquals(masterInstanceResult.getStatus().getCondition().get(0).getType(), "ERROR");
-
-		int size = -2;
 		for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
 		{
+
+
 			if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-				size = results.getSetSize();
+				assertEquals(results.getSetSize(), 7);
+			else
+				assertTrue(false);
 		}
-		assertEquals(size, -1);
 	}
 
 
@@ -823,16 +1168,17 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 		JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
 
 		MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
-
-		assertNotNull(masterInstanceResult);			
-		assertEquals(masterInstanceResult.getStatus().getCondition().get(0).getType(), "ERROR");
-		int size = -2;
+		assertNotNull(masterInstanceResult);
 		for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
 		{
+
+
 			if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-				size = results.getSetSize();
+				assertEquals(results.getSetSize(), 18);
+			else
+				assertTrue(false);
 		}
-		assertEquals(size, -1);
+
 	}	
 
 	@Test
@@ -881,15 +1227,17 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 
 		MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
 
-		assertNotNull(masterInstanceResult);			
-		assertEquals(masterInstanceResult.getStatus().getCondition().get(0).getType(), "ERROR");
-		int size = -2;
+		assertNotNull(masterInstanceResult);
 		for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
 		{
+
+
 			if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-				size = results.getSetSize();
+				assertEquals(results.getSetSize(), 0);
+			else
+				assertTrue(false);
 		}
-		assertEquals(size, -1);
+
 	}	
 
 	@Test
@@ -1015,7 +1363,7 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 
 	@Test
 	public void MQDtBtw2() throws Exception {
-		String filename = testFileDir + "/MQDtBtw2_[3]_3006ms.xml";
+		String filename = testFileDir + "/MQDtBtw2_[4]_3006ms.xml";
 		try { 
 			String requestString = getQueryString(filename);
 			OMElement requestElement = convertStringToOMElement(requestString); 
@@ -1033,7 +1381,7 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
 			{
 				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-					assertEquals(results.getSetSize(), 3);
+					assertEquals(results.getSetSize(), 4);
 				else
 					assertTrue(false);
 			}
@@ -3093,26 +3441,20 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 		JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
 
 		MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
-
 		assertNotNull(masterInstanceResult);
-		assertEquals(masterInstanceResult.getStatus().getCondition().get(0).getType(), "ERROR");
-
-		int size = -2;
 		for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
 		{
-			if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-				size = results.getSetSize();
-		}
-		assertEquals(size, -1);
 
-		//		} catch (Exception e) { 
-		//			e.printStackTrace();
-		//			throw e;
-		//		}
+
+			if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+				assertEquals(results.getSetSize(), 18);
+			else
+				assertTrue(false);
+		}
 	}
 
 
-
+	/*
 	@Test
 	public void PanelTimingSameInstancenumMissingQueryTiming() throws Exception {
 		// Will default to ANY and should cause a error
@@ -3131,15 +3473,15 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 		MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
 
 		assertNotNull(masterInstanceResult);
-		assertEquals(masterInstanceResult.getStatus().getCondition().get(0).getType(), "ERROR");
-
-		int size = -2;
 		for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
 		{
+
+
 			if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-				size = results.getSetSize();
+				assertEquals(results.getSetSize(), 133);
+			else
+				assertTrue(false);
 		}
-		assertEquals(size, -1);
 
 		//		} catch (Exception e) { 
 		//			e.printStackTrace();
@@ -3147,7 +3489,7 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 		//		}
 	}
 
-
+	 */
 	@Test
 	public void QueryTimingSame() throws Exception {
 		String filename = testFileDir + "/setfinder_querytiming_same_[133].xml";
@@ -3203,16 +3545,9 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 			assertNotNull(masterInstanceResult);			
 			assertEquals(masterInstanceResult.getStatus().getCondition().get(0).getType(), "ERROR");
 
-			int size = -2;
-			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
-			{
-				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-					size = results.getSetSize();
-			}
-			assertEquals(size, -1);
 		} catch (Exception e) { 
 			e.printStackTrace();
-			throw e;
+			assertTrue(false);
 		}
 	}
 
@@ -4069,7 +4404,7 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
 			{
 				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-					assertEquals(results.getSetSize(), 20);
+					assertEquals(results.getSetSize(), 17);
 				else
 					assertTrue(false);
 			}
@@ -4081,7 +4416,7 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 
 	@Test
 	public void AgePanel1Item1b() throws Exception {
-		String filename = testFileDir + "/setfinder_age_panel_1_item_1_[13]_5500ms.xml";
+		String filename = testFileDir + "/setfinder_age_panel_1_item_1_[14]_5500ms.xml";
 		try { 
 			String requestString = getQueryString(filename);
 			OMElement requestElement = convertStringToOMElement(requestString); 
@@ -4099,7 +4434,7 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
 			{
 				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-					assertEquals(results.getSetSize(), 13);
+					assertEquals(results.getSetSize(), 15);
 				else
 					assertTrue(false);
 			}
@@ -4128,7 +4463,7 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
 			{
 				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-					assertEquals(results.getSetSize(), 20);
+					assertEquals(results.getSetSize(), 17);
 				else
 					assertTrue(false);
 			}
@@ -4157,7 +4492,7 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
 			{
 				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-					assertEquals(results.getSetSize(), 20);
+					assertEquals(results.getSetSize(), 17);
 				else
 					assertTrue(false);
 			}
@@ -4186,7 +4521,7 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
 			{
 				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-					assertEquals(results.getSetSize(), 3);
+					assertEquals(results.getSetSize(), 2);
 				else
 					assertTrue(false);
 			}
@@ -4344,49 +4679,6 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 
 
 	@Test
-	public void TestOObfuscatedLoockout() throws Exception {
-		String filename = testFileDir + "/obfuscated_lockout.xml";
-		try { 
-			String requestString = getQueryString(filename);
-			OMElement requestElement = convertStringToOMElement(requestString); 
-
-			//read test file and store query instance ;
-			//unmarshall this response string 
-			String lockout = "";
-			ArrayList list = new ArrayList();
-			for (int i=0; i < 8; i++) {
-				OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
-				JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
-				ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
-				JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
-
-				MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
-
-				System.out.println("Query:"+ i);
-				assertNotNull(masterInstanceResult);
-				for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
-				{
-					if (r.getResponseHeader().getResultStatus().getStatus().getType().equals("ERROR"))
-					{
-						lockout = r.getResponseHeader().getResultStatus().getStatus().getValue();
-					}
-
-					if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
-					{
-						if (!list.contains(results.getSetSize()))
-							list.add(results.getSetSize());
-					}
-				}
-			}
-			assertTrue(list.size() > 3);
-			assertTrue(lockout.startsWith("LOCKEDOUT"));
-		} catch (Exception e) { 
-			e.printStackTrace();
-			assertTrue(false);
-		}
-	}		
-
-	@Test
 	public void SQP1I1_DxMI() throws Exception {
 		String filename = testFileDir + "/SQP1I1_DxMI_[7]_1625ms.xml";
 		try { 
@@ -4536,7 +4828,35 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 			assertTrue(false);
 		}
 	}	
+	@Test
+	public void SQP1I1_Circulatory() throws Exception {
+		String filename = testFileDir + "/SQP1I1_Circulatory_[66]_3016ms.xml";
+		try { 
+			String requestString = getQueryString(filename);
+			OMElement requestElement = convertStringToOMElement(requestString); 
+			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
 
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+
+			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 66);
+				else
+					assertTrue(false);
+			}
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}		
 	@Test
 	public void CQValFlgH_CPK() throws Exception {
 		String filename = testFileDir + "/CQValFlgH_CPK_[0]_1657ms.xml";
@@ -6735,6 +7055,112 @@ public class SetfinderQueryTest  extends CRCAxisAbstract {
 		}
 	}
 
+	@Test
+	public void SQP1I1_Circulatory4TemporalAny() throws Exception {
+		String filename = testFileDir + "/SQP1I1_Circulatory_Any_[66]_3016ms.xml";
+		try { 
+			String requestString = getQueryString(filename);
+			OMElement requestElement = convertStringToOMElement(requestString); 
+			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+
+			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 66);
+				else if (results.getQueryResultType().getName().equals("PATIENTSET"))
+					assertEquals(results.getSetSize(), 66);
+				else if (results.getQueryResultType().getName().equals("PATIENT_ENCOUNTER_SET"))
+					assertEquals(results.getSetSize(), 66);
+				else
+					assertTrue(false);
+			}
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	@Test
+	public void SQP1I1_Circulatory4TemporalSame() throws Exception {
+		String filename = testFileDir + "/SQP1I1_Circulatory_Same_[66]_3016ms.xml";
+		try { 
+			String requestString = getQueryString(filename);
+			OMElement requestElement = convertStringToOMElement(requestString); 
+			OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+			//read test file and store query instance ;
+			//unmarshall this response string 
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+			JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+
+			MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+			assertNotNull(masterInstanceResult);
+			for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+			{
+				if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+					assertEquals(results.getSetSize(), 66);
+				else if (results.getQueryResultType().getName().equals("PATIENTSET"))
+					assertEquals(results.getSetSize(), 66);
+				else if (results.getQueryResultType().getName().equals("PATIENT_ENCOUNTER_SET"))
+					assertEquals(results.getSetSize(), 66);
+				else
+					assertTrue(false);
+			}
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+
+
+	@Test
+	public void AllTemporalTests() throws Exception {
+		//		String filename = testFileDir + "/SQP1I1_Circulatory_Same_[66]_3016ms.xml";
+		try { 
+			File f = new File(testFileDir + "/temporal");
+			ArrayList<String> names = new ArrayList<String>(Arrays.asList(f.list()));
+
+			for (String filename: names) {
+				if (filename.startsWith("QT_SI_P")) {
+					int result = Integer.parseInt(filename.substring(filename.indexOf('[')+1,filename.indexOf(']') ));
+					filename = testFileDir + "/temporal/" + filename;
+					String requestString = getQueryString(filename);
+					OMElement requestElement = convertStringToOMElement(requestString); 
+					OMElement responseElement = getServiceClient(setfinderUrl).sendReceive(requestElement);
+
+					//read test file and store query instance ;
+					//unmarshall this response string 
+					JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+					ResponseMessageType r = (ResponseMessageType)responseJaxb.getValue();
+					JAXBUnWrapHelper helper = new  JAXBUnWrapHelper();
+
+					MasterInstanceResultResponseType masterInstanceResult = (MasterInstanceResultResponseType)helper.getObjectByClass(r.getMessageBody().getAny(),MasterInstanceResultResponseType.class);
+
+					assertNotNull(masterInstanceResult);
+					for (QueryResultInstanceType results :masterInstanceResult.getQueryResultInstance() )
+					{
+						if (results.getQueryResultType().getName().equals("PATIENT_COUNT_XML"))
+							assertEquals("Working on: " + filename, results.getSetSize(), result);
+						else
+							assertTrue(false);
+					}
+				}
+			}
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
 	public static RequestMessageType buildRequestMessage(PsmQryHeaderType requestHeaderType, RequestType requestType) {
 		//create body type
 		BodyType bodyType = new BodyType();

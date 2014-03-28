@@ -43,7 +43,6 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.ConstrainOperatorType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ConstrainValueType;
 import edu.harvard.i2b2.crc.delegate.ontology.CallOntologyUtil;
 import edu.harvard.i2b2.crc.util.SqlClauseUtil;
-import edu.harvard.i2b2.crc.util.StringUtil;
 
 /**
  * Main class to generate setfinder sql from query definition xml. $Id:
@@ -117,7 +116,8 @@ public class QueryToolUtil extends CRCDAO {
 		SetQueryDatabaseConstants(dbType);
 		this.dataSourceLookup = dataSourceLookup;
 		if (dataSourceLookup.getServerType().equalsIgnoreCase(
-				DAOFactoryHelper.ORACLE)) {
+				DAOFactoryHelper.ORACLE) || dataSourceLookup.getServerType().equalsIgnoreCase(
+						DAOFactoryHelper.POSTGRESQL)) {
 			TEMP_TABLE = "QUERY_GLOBAL_TEMP";
 			TEMP_RETURN_TABLE = "DX";
 			dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
@@ -135,7 +135,7 @@ public class QueryToolUtil extends CRCDAO {
 		try {
 			this.conn = conn;
 
-			ontologyUtil = new CallOntologyUtil(queryXML);
+		//	ontologyUtil = new CallOntologyUtil(queryXML);
 
 			org.jdom.Document controlDoc = getDocument(queryXML);
 			String dataRequested = " ";
@@ -146,8 +146,8 @@ public class QueryToolUtil extends CRCDAO {
 			Integer iteration = new Integer(0);
 			sql = ProcessControlFileI2B2("", controlDoc, dataRequested,
 					iteration);
-		} catch (JAXBUtilException jEx) {
-			throw new I2B2DAOException(jEx.getMessage() + jEx);
+	//	} catch (JAXBUtilException jEx) {
+	//		throw new I2B2DAOException(jEx.getMessage() + jEx);
 		} catch (I2B2Exception iEx) {
 			iEx.printStackTrace();
 			throw new I2B2DAOException(iEx.getMessage() + iEx);
@@ -170,9 +170,9 @@ public class QueryToolUtil extends CRCDAO {
 			throws I2B2DAOException {
 		SAXBuilder parser = new SAXBuilder();
 		parser
-		.setFeature(
-				"http://apache.org/xml/features/standard-uri-conformant",
-				false);
+				.setFeature(
+						"http://apache.org/xml/features/standard-uri-conformant",
+						false);
 
 		StringReader strReader = new StringReader(queryXML);
 		StreamSource s = new StreamSource(strReader);
@@ -407,9 +407,9 @@ public class QueryToolUtil extends CRCDAO {
 			String dataRequested, // type of data requested: either "P" for
 			// patient or "PE" for patient and encounter
 			Integer iteration // number of calls into ProcessControlFile, used
-			// by query in query to uniquely identify temp
-			// tables
-			) throws I2B2DAOException {
+	// by query in query to uniquely identify temp
+	// tables
+	) throws I2B2DAOException {
 		try {
 			String querySQL = "";
 			String tableSuffix = "";
@@ -476,8 +476,8 @@ public class QueryToolUtil extends CRCDAO {
 					dataSourceLookup);
 			// sort panel based on item total num
 			SortPanel sortPanel = new SortPanel();
-			List<Element> sortPanelList = sortPanel.getSortedPanelList(
-					panelList, ontologyUtil);
+			List<Element> sortPanelList = null; //sortPanel.getSortedPanelList(
+	//				panelList, ontologyUtil);
 
 			for (Iterator itr = sortPanelList.iterator(); itr.hasNext();) {
 				i++;
@@ -505,7 +505,7 @@ public class QueryToolUtil extends CRCDAO {
 							.getAttributeValue("time");
 					if (thePanelDateFromTime != null
 							&& thePanelDateFromTime
-							.equalsIgnoreCase("end_date")) {
+									.equalsIgnoreCase("end_date")) {
 						thePanelDateFromTime = this.FACT_END_DATE;
 					} else {
 						thePanelDateFromTime = this.FACT_START_DATE;
@@ -631,8 +631,9 @@ public class QueryToolUtil extends CRCDAO {
 						}
 					} else {
 						String itemClass = itemXml.getChildText("class");
-						ConceptType conceptType = ontologyUtil
-								.callOntology(itemKey);
+						ConceptType conceptType = null;
+						//ontologyUtil
+						//		.callOntology(itemKey);
 
 						itemMeta = new ItemMetaData();
 
@@ -655,22 +656,13 @@ public class QueryToolUtil extends CRCDAO {
 							if ((itemMeta.QueryOp != null)
 									&& (itemMeta.QueryOp.toUpperCase()
 											.equals("LIKE"))) {
-
-								if(this.dataSourceLookup.getServerType().toUpperCase().equals("SQLSERVER")){
-									itemMeta.QueryCode = StringUtil.escapeSQLSERVER(itemMeta.QueryCode);
-								}
-
-								else if(this.dataSourceLookup.getServerType().toUpperCase().equals("ORACLE")){
-									itemMeta.QueryCode = StringUtil.escapeORACLE(itemMeta.QueryCode);
-								}
-
 								if (itemMeta.QueryCode.lastIndexOf('\\') == itemMeta.QueryCode
 										.length() - 1) {
 									itemMeta.QueryCode = itemMeta.QueryCode
 											+ "%";
 								} else {
 									log
-									.debug("Adding \\ at the end of the Concept path ");
+											.debug("Adding \\ at the end of the Concept path ");
 									itemMeta.QueryCode = itemMeta.QueryCode
 											+ "\\%";
 								}
@@ -707,7 +699,6 @@ public class QueryToolUtil extends CRCDAO {
 						sql0 = "";
 						sql1 = "";
 
-						
 						if (theOperator.toUpperCase().equals("IN")) {
 							if (itemMeta.QueryColumnDataType
 									.equalsIgnoreCase("T")) {
@@ -746,16 +737,8 @@ public class QueryToolUtil extends CRCDAO {
 								+ getDbSchemaName() + itemMeta.QueryTable
 								+ " c " + noLockSqlServer + " where "
 								+ itemMeta.QueryColumn + " " + itemMeta.QueryOp
-								+ " " + theData;
-						if ((itemMeta.QueryOp != null) && (itemMeta.QueryOp.equals("LIKE")))
-							sql0 += " {ESCAPE '?'} ";
-						sql0 += ")";
-						
-						log.debug("~~~~~~~~~~~MM~~~~~~~");
-
+								+ " " + theData + ")";
 					}
-					log.debug("~~~~~~~~~~~MM~2~~~~~~" + sql0);
-
 					// date constraint start
 					String itemDateConstrain = "";
 					List children = itemXml.getChildren("constrain_by_date");
@@ -776,7 +759,7 @@ public class QueryToolUtil extends CRCDAO {
 										.getAttributeValue("time");
 								if (dateFromTime != null
 										&& dateFromTime
-										.equalsIgnoreCase("end_date")) {
+												.equalsIgnoreCase("end_date")) {
 									dateFromTime = this.FACT_END_DATE;
 								} else {
 									dateFromTime = this.FACT_START_DATE;
@@ -806,7 +789,7 @@ public class QueryToolUtil extends CRCDAO {
 
 								if (dateToTime != null
 										&& dateToTime
-										.equalsIgnoreCase("end_date")) {
+												.equalsIgnoreCase("end_date")) {
 									dateToTime = this.FACT_END_DATE;
 								} else {
 									dateToTime = this.FACT_START_DATE;
@@ -893,8 +876,8 @@ public class QueryToolUtil extends CRCDAO {
 
 							if (theValueType.equalsIgnoreCase("T")
 									|| theValueType
-									.equalsIgnoreCase(ConstrainValueType.TEXT
-											.value())) {
+											.equalsIgnoreCase(ConstrainValueType.TEXT
+													.value())) {
 								if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.EQ
 												.value())) {
@@ -904,7 +887,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " = '"
 											+ theValueCons
-											.replaceAll("'", "''")
+													.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.NE
@@ -915,7 +898,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " <> '"
 											+ theValueCons
-											.replaceAll("'", "''")
+													.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.LIKE
@@ -926,7 +909,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " LIKE  '"
 											+ theValueCons
-											.replaceAll("'", "''")
+													.replaceAll("'", "''")
 											+ "%'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.IN
@@ -958,7 +941,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_FLAG_VAL
 											+ " = '"
 											+ theValueCons
-											.replaceAll("'", "''")
+													.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.NE
@@ -967,7 +950,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_FLAG_VAL
 											+ " <> '"
 											+ theValueCons
-											.replaceAll("'", "''")
+													.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.IN
@@ -1099,7 +1082,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " = '"
 											+ theValueCons
-											.replaceAll("'", "''")
+													.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.NE
@@ -1109,7 +1092,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " <> '"
 											+ theValueCons
-											.replaceAll("'", "''")
+													.replaceAll("'", "''")
 											+ "'");
 								} else if (theValueOp
 										.equalsIgnoreCase(ConstrainOperatorType.IN
@@ -1128,7 +1111,7 @@ public class QueryToolUtil extends CRCDAO {
 											+ FACT_TEXT_VAL
 											+ " LIKE '"
 											+ theValueCons
-											.replaceAll("'", "''")
+													.replaceAll("'", "''")
 											+ "%'");
 								}
 							}
@@ -1364,11 +1347,11 @@ public class QueryToolUtil extends CRCDAO {
 								String queryHint = " ";
 								if (theTable.equals(PROVIDER_TABLE)) {
 									log
-									.debug("Join table is provider_dimension");
+											.debug("Join table is provider_dimension");
 									queryHint = "/*+ index(observation_fact observation_fact_pk) */";
 								} else {
 									log
-									.debug("Join table is concept_dimension");
+											.debug("Join table is concept_dimension");
 									queryHint = "/*+ index(observation_fact fact_cnpt_pat_enct_idx) */";
 								}
 								String unLockSql = " ";
@@ -1473,18 +1456,18 @@ public class QueryToolUtil extends CRCDAO {
 												"<\\|>",
 												" group by encounter_num,patient_num having count(*) "
 														+ totalItemOccurrenceOperator[i]
-																+ totalItemOccurance[i]
-																		+ "\r\n" + "UNION ALL"
-																		+ "<\\|>\r\n");
+														+ totalItemOccurance[i]
+														+ "\r\n" + "UNION ALL"
+														+ "<\\|>\r\n");
 							} else {
 								querySQL = panelSQL[0]
 										.replaceAll(
 												"<\\|>",
 												" group by patient_num having count(*) "
 														+ totalItemOccurrenceOperator[i]
-																+ totalItemOccurance[i]
-																		+ "\r\n" + "UNION ALL"
-																		+ "<\\|>\r\n");
+														+ totalItemOccurance[i]
+														+ "\r\n" + "UNION ALL"
+														+ "<\\|>\r\n");
 
 							}
 
@@ -1540,7 +1523,7 @@ public class QueryToolUtil extends CRCDAO {
 						} else if (sameVisit) {
 							String occuranceSql = " group by  encounter_num,patient_num having count(*) "
 									+ totalItemOccurrenceOperator[i]
-											+ totalItemOccurance[i];
+									+ totalItemOccurance[i];
 
 							querySQL = "INSERT INTO " + getDbSchemaName()
 									+ TEMP_TABLE + tableSuffix + " " + "("
@@ -1593,11 +1576,11 @@ public class QueryToolUtil extends CRCDAO {
 								if (sameVisit || dataRequested.equals("PE")) {
 									occuranceSql = " group by encounter_num,patient_num having count(*) "
 											+ totalItemOccurrenceOperator[i]
-													+ totalItemOccurance[i];
+											+ totalItemOccurance[i];
 								} else {
 									occuranceSql = " group by patient_num having count(*) "
 											+ totalItemOccurrenceOperator[i]
-													+ totalItemOccurance[i];
+											+ totalItemOccurance[i];
 								}
 
 							}
@@ -1712,14 +1695,14 @@ public class QueryToolUtil extends CRCDAO {
 										if (totalItemOccurance[i] > 0) {
 											if (sameVisit
 													|| dataRequested
-													.equals("PE")) {
+															.equals("PE")) {
 												occuranceSql = " group by encounter_num,patient_num having count(*) "
 														+ totalItemOccurrenceOperator[i]
-																+ totalItemOccurance[i];
+														+ totalItemOccurance[i];
 											} else {
 												occuranceSql = " group by patient_num having count(*) "
 														+ totalItemOccurrenceOperator[i]
-																+ totalItemOccurance[i];
+														+ totalItemOccurance[i];
 											}
 
 										}
@@ -1733,16 +1716,16 @@ public class QueryToolUtil extends CRCDAO {
 												+ " WHERE EXISTS ( SELECT 1 FROM ( "
 												+ "\r\n"
 												+ panelItemsSQL[j]
-														+
-														// RAJ OCCURANCE CHANGE BEGIN
-														occuranceSql
-														+ // RAJ OCCURANCE CHANGE END
-														") v " + " WHERE "
-														+ getDbSchemaName()
-														+ TEMP_TABLE + "."
-														+ TEMP_TABLE_PATIENT_ID
-														+ " = v."
-														+ TEMP_TABLE_PATIENT_ID + " ";
+												+
+												// RAJ OCCURANCE CHANGE BEGIN
+												occuranceSql
+												+ // RAJ OCCURANCE CHANGE END
+												") v " + " WHERE "
+												+ getDbSchemaName()
+												+ TEMP_TABLE + "."
+												+ TEMP_TABLE_PATIENT_ID
+												+ " = v."
+												+ TEMP_TABLE_PATIENT_ID + " ";
 
 										if (sameVisit
 												|| dataRequested.equals("PE")) {

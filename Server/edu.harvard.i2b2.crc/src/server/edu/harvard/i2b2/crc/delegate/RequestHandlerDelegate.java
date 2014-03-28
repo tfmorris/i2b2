@@ -17,8 +17,8 @@ import javax.xml.bind.JAXBElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.cache.Cache;
-import org.jboss.cache.Node;
+//import org.jboss.cache.Cache;
+//import org.jboss.cache.Node;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
@@ -99,14 +99,14 @@ public abstract class RequestHandlerDelegate {
 			List<String> roles) {
 		// get cache
 		try {
-			Cache cache = CacheUtil.getCache();
-			Node rootNode = cache.getRoot();
+			//TODO removed cache
+			//Cache cache = CacheUtil.getCache();
+			//Node rootNode = cache.getRoot();
 			String roleTree = domainId + "/" + projectId + "/" + userId;
-			rootNode.put(roleTree, roles);
+			//rootNode.put(roleTree, roles);
+			CacheUtil.put(roleTree, roles);
 
-		} catch (MalformedObjectNameException e) {
-			e.printStackTrace();
-		} catch (NullPointerException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -115,14 +115,14 @@ public abstract class RequestHandlerDelegate {
 			ParamType paramType) {
 		// get cache
 		try {
-			Cache cache = CacheUtil.getCache();
-			Node rootNode = cache.getRoot();
+			//TODO removed cache
+			//Cache cache = CacheUtil.getCache();
+			//Node rootNode = cache.getRoot();
 			String roleTree = domainId + "/" + projectId + "/" + userId + "/" + paramType.getName();
-			rootNode.put(roleTree, paramType.getValue());
+			//rootNode.put(roleTree, paramType.getValue());
+			CacheUtil.put(roleTree,  paramType.getValue());
 
-		} catch (MalformedObjectNameException e) {
-			e.printStackTrace();
-		} catch (NullPointerException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

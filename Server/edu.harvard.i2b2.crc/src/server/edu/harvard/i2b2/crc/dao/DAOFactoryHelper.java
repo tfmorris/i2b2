@@ -10,6 +10,7 @@ public class DAOFactoryHelper {
 
 	public static final String ORACLE = "ORACLE";
 	public static final String SQLSERVER = "SQLSERVER";
+	public static final String POSTGRESQL = "POSTGRESQL";
 	DataSourceLookup dataSourceLookup = null;
 	DataSource dataSource = null;
 	DataSourceLookup originalDataSourceLookup = null;
@@ -60,6 +61,13 @@ public class DAOFactoryHelper {
 						originalDataSourceLookup);
 			}
 		} else if (dataSourceName.equalsIgnoreCase(SQLSERVER)) {
+			if (dataSource != null) {
+				return new OracleDAOFactory(dataSourceLookup, dataSource);
+			} else {
+				return new OracleDAOFactory(dataSourceLookup,
+						originalDataSourceLookup);
+			}
+		} else if (dataSourceName.equalsIgnoreCase(POSTGRESQL)) {
 			if (dataSource != null) {
 				return new OracleDAOFactory(dataSourceLookup, dataSource);
 			} else {

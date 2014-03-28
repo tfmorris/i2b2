@@ -23,7 +23,7 @@ import oracle.sql.ArrayDescriptor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.resource.adapter.jdbc.WrappedConnection;
+//import org.jboss.resource.adapter.jdbc.WrappedConnection;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
@@ -91,8 +91,8 @@ public class PdoQueryModifierDao extends CRCDAO implements IPdoQueryModifierDao 
 				// get oracle connection from jboss wrapped connection
 				// Otherwise Jboss wrapped connection fails when using oracle
 				// Arrays
-				oracle.jdbc.driver.OracleConnection conn1 = (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
-						.getUnderlyingConnection();
+				oracle.jdbc.driver.OracleConnection conn1 = null;// (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
+					//	.getUnderlyingConnection();
 				String finalSql = "SELECT "
 						+ selectClause
 						+ "  FROM "
@@ -107,7 +107,8 @@ public class PdoQueryModifierDao extends CRCDAO implements IPdoQueryModifierDao 
 				oracle.sql.ARRAY paramArray = new oracle.sql.ARRAY(desc, conn1,
 						modifierCdList.toArray(new String[] {}));
 				query.setArray(1, paramArray);
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				tempTableName = SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE;
@@ -132,7 +133,7 @@ public class PdoQueryModifierDao extends CRCDAO implements IPdoQueryModifierDao 
 			ResultSet resultSet = query.executeQuery();
 
 			I2B2PdoFactory.ModifierBuilder modifierBuilder = new I2B2PdoFactory().new ModifierBuilder(
-					detailFlag, blobFlag, statusFlag);
+					detailFlag, blobFlag, statusFlag, dataSourceLookup.getServerType());
 			while (resultSet.next()) {
 				ModifierType modifierDimensionType = modifierBuilder
 						.buildModifierSet(resultSet);
@@ -197,7 +198,7 @@ public class PdoQueryModifierDao extends CRCDAO implements IPdoQueryModifierDao 
 
 		ModifierSet modifierSet = new ModifierSet();
 		I2B2PdoFactory.ModifierBuilder modifierBuilder = new I2B2PdoFactory().new ModifierBuilder(
-				detailFlag, blobFlag, statusFlag);
+				detailFlag, blobFlag, statusFlag, dataSourceLookup.getServerType());
 		ModifierFactRelated modifierFactRelated = new ModifierFactRelated(
 				buildOutputOptionType(detailFlag, blobFlag, statusFlag));
 		String selectClause = modifierFactRelated.getSelectClause();
@@ -209,7 +210,8 @@ public class PdoQueryModifierDao extends CRCDAO implements IPdoQueryModifierDao 
 			conn = dataSource.getConnection();
 			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
 				tempTable = FactRelatedQueryHandler.TEMP_FACT_PARAM_TABLE;
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				tempTable = SQLServerFactRelatedQueryHandler.TEMP_FACT_PARAM_TABLE;

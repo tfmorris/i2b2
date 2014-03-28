@@ -3,7 +3,11 @@ package edu.harvard.i2b2.crc.dao.setfinder;
 import java.util.List;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
+import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
+import edu.harvard.i2b2.crc.datavo.i2b2message.SecurityType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.FindByChildType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.UserRequestType;
 
 public interface IQueryMasterDao {
 
@@ -14,7 +18,7 @@ public interface IQueryMasterDao {
 	 * @return query master id
 	 */
 	public String createQueryMaster(QtQueryMaster queryMaster,
-			String i2b2RequestXml);
+			String i2b2RequestXml, String pmXml);
 
 	/**
 	 * Write query sql for the master id
@@ -22,7 +26,7 @@ public interface IQueryMasterDao {
 	 * @param masterId
 	 * @param generatedSql
 	 */
-	public void updateQuerySQL(String masterId, String generatedSql);
+	public void updateQueryAfterRun(String masterId, String generatedSql, String masterType);
 
 	/**
 	 * Returns list of query master by user id
@@ -34,6 +38,16 @@ public interface IQueryMasterDao {
 	public List<QtQueryMaster> getQueryMasterByUserId(String userId,
 			int fetchSize);
 
+	/**
+	 * Returns list of query master by find search
+	 * 
+	 * @param groupId
+	 * @return List<QtQueryMaster>
+	 * @throws I2B2Exception 
+	 */
+	@SuppressWarnings("unchecked")
+	public List<QtQueryMaster> getQueryMasterByNameInfo(SecurityType userRequestType, FindByChildType find) throws I2B2Exception;
+	
 	/**
 	 * Returns list of query master by group id
 	 * 

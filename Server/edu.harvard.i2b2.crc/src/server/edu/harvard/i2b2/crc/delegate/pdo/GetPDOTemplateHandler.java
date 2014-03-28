@@ -15,7 +15,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import javax.ejb.CreateException;
 import javax.xml.bind.JAXBElement;
 
 import org.apache.commons.logging.Log;
@@ -32,8 +31,7 @@ import edu.harvard.i2b2.crc.datavo.pdo.PatientDataType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.GetPDOTemplateRequestType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.PatientDataResponseType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
-import edu.harvard.i2b2.crc.ejb.PdoQueryLocal;
-import edu.harvard.i2b2.crc.ejb.PdoQueryLocalHome;
+import edu.harvard.i2b2.crc.ejb.PdoQueryBean;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 /**
@@ -98,14 +96,16 @@ public class GetPDOTemplateHandler extends RequestHandler {
 			PatientDataType patientDataType = (PatientDataType) pdoJaxb
 					.getValue();
 			
-			PdoQueryLocalHome pdoQueryLocalHome = qpUtil.getPdoQueryLocalHome();
-			PdoQueryLocal pdoQueryInfoLocal = pdoQueryLocalHome.create();
-			List<ParamType> patientParamList = pdoQueryInfoLocal.getPDOTemplate("patient_dimension",this.getDataSourceLookup(),false);
+			//TODO removed EJBs
+			//PdoQueryLocalHome pdoQueryLocalHome = qpUtil.getPdoQueryLocalHome();
+			//PdoQueryLocal pdoQueryInfoLocal = pdoQueryLocalHome.create();
+			PdoQueryBean query = new PdoQueryBean();
+			List<ParamType> patientParamList = query.getPDOTemplate("patient_dimension",this.getDataSourceLookup(),false);
 			patientDataType.getPatientSet().getPatient().get(0).getParam().clear();
 			patientDataType.getPatientSet().getPatient().get(0).getParam().addAll(patientParamList);
 			
 			
-			List<ParamType> visitParamList = pdoQueryInfoLocal.getPDOTemplate("visit_dimension",this.getDataSourceLookup(),false);
+			List<ParamType> visitParamList = query.getPDOTemplate("visit_dimension",this.getDataSourceLookup(),false);
 			patientDataType.getEventSet().getEvent().get(0).getParam().clear();
 			patientDataType.getEventSet().getEvent().get(0).getParam().addAll(visitParamList);
 			
@@ -115,17 +115,15 @@ public class GetPDOTemplateHandler extends RequestHandler {
 
 			bodyType.getAny().add(
 					objectFactory.createResponse(patientDataResponseType));
+		
 
 		} catch (JAXBUtilException e) {
 			log.error("", e);
 			throw new I2B2Exception("", e);
-		} catch (ServiceLocatorException e) {
+		} catch (Exception e) {
 			log.error("", e);
 			throw new I2B2Exception("", e);
-		} catch (CreateException e) {
-			log.error("", e);
-			throw new I2B2Exception("", e);
-		}
+		} 
 		return bodyType;
 	}
 

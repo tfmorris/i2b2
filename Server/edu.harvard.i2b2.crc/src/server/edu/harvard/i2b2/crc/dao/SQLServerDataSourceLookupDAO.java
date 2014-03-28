@@ -20,6 +20,13 @@ public class SQLServerDataSourceLookupDAO extends DataSourceLookupDAO {
 	}
 
 	@Override
+	public List<DataSourceLookup> getDbLookupByHive(String hiveId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
+	@Override
 	public List<DataSourceLookup> getDbLookupByHiveProjectOwner(String hiveId,
 			String projectId, String ownerId) {
 		// TODO Auto-generated method stub

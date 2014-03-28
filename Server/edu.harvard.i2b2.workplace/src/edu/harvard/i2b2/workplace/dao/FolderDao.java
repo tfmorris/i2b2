@@ -52,7 +52,9 @@ import edu.harvard.i2b2.workplace.datavo.wdo.ExportChildType;
 import edu.harvard.i2b2.workplace.datavo.wdo.FolderType;
 import edu.harvard.i2b2.workplace.datavo.wdo.GetChildrenType;
 import edu.harvard.i2b2.workplace.datavo.wdo.GetReturnType;
+import edu.harvard.i2b2.workplace.datavo.wdo.ProtectedType;
 import edu.harvard.i2b2.workplace.datavo.wdo.RenameChildType;
+import edu.harvard.i2b2.workplace.datavo.wdo.FindByChildType;
 import edu.harvard.i2b2.workplace.datavo.wdo.XmlValueType;
 import edu.harvard.i2b2.workplace.delegate.crc.CallCRCUtil;
 import edu.harvard.i2b2.workplace.ejb.DBInfoType;
@@ -65,8 +67,8 @@ public class FolderDao extends JdbcDaoSupport {
 	private static Log log = LogFactory.getLog(FolderDao.class);
 	//    final static String CORE = " c_hierarchy, c_hlevel, c_name, c_user_id, c_group_id, c_share_id, c_index, c_parent_index, c_visualattributes, c_tooltip";
 	//	final static String DEFAULT = " c_name, c_hierarchy";
-	final static String CORE = " c_name, c_user_id, c_group_id, c_share_id, c_index, c_parent_index, c_visualattributes, c_tooltip";
-	final static String DEFAULT = " c_name, c_index ";
+	final static String CORE = " c_name, c_user_id, c_group_id, c_protected_access, c_share_id, c_index, c_parent_index, c_visualattributes, c_tooltip";
+	final static String DEFAULT = " c_name, c_index, c_protected_access ";
 	final static String ALL = CORE + ", c_entry_date, c_change_date, c_status_cd";
 	final static String BLOB = ", c_work_xml, c_work_xml_schema, c_work_xml_i2b2_type ";
 
@@ -117,17 +119,17 @@ public class FolderDao extends JdbcDaoSupport {
 			throw e;
 		}
 
-		Boolean protectedAccess = false;
+		boolean protectedAccess = false;
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			String role = (String) it.next();
-			if(role.toLowerCase().equals("protected_access")) {
+			if(role.toLowerCase().equalsIgnoreCase("DATA_PROT")) {
 				protectedAccess = true;
 				break;
 			}
 		}
 
-		ParameterizedRowMapper<FolderType> mapper = getMapper(returnType.getType(), false, null);
+		ParameterizedRowMapper<FolderType> mapper = getMapper(returnType.getType(), false, null, dbInfo.getDb_serverType());
 
 		List queryResult = null;		
 		if (!protectedAccess){
@@ -184,18 +186,18 @@ public class FolderDao extends JdbcDaoSupport {
 			throw e;
 		}
 
-		Boolean protectedAccess = false;
+		boolean protectedAccess = false;
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			String role = (String) it.next();
-			if(role.toLowerCase().equals("protected_access")) {
+			if(role.toLowerCase().equalsIgnoreCase("DATA_PROT")) {
 				protectedAccess = true;
 				break;
 			}
 		}
 
 
-		ParameterizedRowMapper<FolderType> mapper = getMapper(returnType.getType(), false, null);		
+		ParameterizedRowMapper<FolderType> mapper = getMapper(returnType.getType(), false, null, dbInfo.getDb_serverType());		
 
 		List queryResult = null;		
 		if (!protectedAccess){
@@ -343,11 +345,11 @@ public class FolderDao extends JdbcDaoSupport {
 			throw e;
 		}
 
-		Boolean protectedAccess = false;
+		boolean protectedAccess = false;
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			String role = (String) it.next();
-			if(role.toLowerCase().equals("protected_access")) {
+			if(role.toLowerCase().equalsIgnoreCase("DATA_PROT")) {
 				protectedAccess = true;
 				break;
 			}
@@ -358,9 +360,9 @@ public class FolderDao extends JdbcDaoSupport {
 		if (childrenType.getType().equalsIgnoreCase("QM")) {
 			try {
 				log.debug("Start to get QM results from CRC");
-				CallCRCUtil callCRC = new CallCRCUtil(securityType, projectInfo.getId());
+				//CallCRCUtil callCRC = new CallCRCUtil(securityType, projectInfo.getId());
 				log.debug("getting Response");
-				queryResult =  callCRC.callCRCQueryRequestXML(childrenType.getNode());
+				queryResult =  CallCRCUtil.callCRCQueryRequestXML(childrenType.getNode(), securityType, projectInfo.getId());
 				log.debug("got response: " + queryResult);
 				//if (masterInstanceResultResponseType != null && masterInstanceResultResponseType.getQueryMaster().size() > 0)
 				//	queryResult =XMLUtil.convertDOMElementToString((Element) masterInstanceResultResponseType.getQueryMaster().get(0).getRequestXml().getContent().get(0)); ;  //respoonseType.getQueryResultInstance();
@@ -373,9 +375,9 @@ public class FolderDao extends JdbcDaoSupport {
 		} else 	if (childrenType.getType().equalsIgnoreCase("QR")) {
 			try {
 				log.debug("Start to get QR results from CRC");
-				CallCRCUtil callCRC = new CallCRCUtil(securityType, projectInfo.getId());
+				//CallCRCUtil callCRC = new CallCRCUtil(securityType, projectInfo.getId());
 				log.debug("getting Response");
-				queryResult =  callCRC.callCRCResultInstanceXML(childrenType.getNode());
+				queryResult =  CallCRCUtil.callCRCResultInstanceXML(childrenType.getNode(), securityType, projectInfo.getId());
 				log.debug("got response: " + queryResult);
 				//if (masterInstanceResultResponseType != null)
 				//	queryResult = (String) masterInstanceResultResponseType.getCrcXmlResult().getXmlValue().getContent().get(0);
@@ -414,11 +416,11 @@ public class FolderDao extends JdbcDaoSupport {
 			throw e;
 		}
 
-		Boolean protectedAccess = false;
+		boolean protectedAccess = false;
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			String role = (String) it.next();
-			if(role.toLowerCase().equals("protected_access")) {
+			if(role.toLowerCase().equalsIgnoreCase("DATA_PROT")) {
 				protectedAccess = true;
 				break;
 			}
@@ -466,7 +468,7 @@ public class FolderDao extends JdbcDaoSupport {
 		log.debug(sql + " " + parentIndex);
 		//		log.info(type + " " + tableCd );
 
-		ParameterizedRowMapper<FolderType> mapper = getMapper(type, childrenType.isBlob(), tableCd);
+		ParameterizedRowMapper<FolderType> mapper = getMapper(type, childrenType.isBlob(), tableCd, dbInfo.getDb_serverType());
 
 		List queryResult = null;
 		try {
@@ -490,6 +492,405 @@ public class FolderDao extends JdbcDaoSupport {
 		//   <parent>\\testrpdr\RPDR\HealthHistory\PHY\Health Maintenance\Mammogram\Mammogram - Deferred</parent> 
 	}
 
+	/**
+	 * This method finds the workplace with a given keyword. It first searches the WORKPLACE ACCESS table
+	 * to find the table where the workplace contents are stored. And then it searches the resulting table
+	 * for any content with given name and other parameters
+	 * 
+	 * @param returnType
+	 * @param userId
+	 * @param projectInfo
+	 * @param dbInfo
+	 * @return
+	 * @throws DataAccessException
+	 * @throws I2B2Exception
+	 * 
+	 * @author Neha Patel
+	 */
+	public List findWorkplaceByKeyword(final FindByChildType returnType, String userId, final ProjectType projectInfo, final DBInfoType dbInfo) throws DataAccessException, I2B2Exception{
+
+		// find return parameters
+		String type = "core"; // Default Type is core
+		String parameters = CORE; // parameters to be used in select statement 
+		String category = "";
+		String hiddenStr = "";
+		String maxString = "";
+		String searchWord = "";
+		
+		if (returnType!=null){ 
+
+			// determines which columns should be used in select statement
+			if(returnType.getType().equals("all")){
+				parameters = ALL;
+				type = "all";
+			}
+		
+			// if request parameter blob is set to true then include 
+			// columns with xml info in select statement :-
+			// c_work_xml, c_work_xml_schema, c_work_xml_i2b2_type
+			if(returnType.isBlob() == true)
+				parameters = parameters + BLOB;
+			
+			// category is the directory where user is looking for the content
+			category= returnType.getCategory();
+			
+			// request parameter hidden indicates to display hidden files or not
+			if(returnType.isHiddens() == false)
+				hiddenStr = " and c_visualattributes not like '_H%'";			
+			
+			// get strategy if content name starts with given word
+			// or it contains given word or it ends with given word
+			if(returnType.getMatchStr().getStrategy().equals("exact")) {
+			  	searchWord = returnType.getMatchStr().getValue().toLowerCase();
+			}
+			    
+			else if(returnType.getMatchStr().getStrategy().equals("left")){
+				searchWord = returnType.getMatchStr().getValue().toLowerCase()+ "%";
+			}
+			    
+			else if(returnType.getMatchStr().getStrategy().equals("right")) {
+			   	searchWord ="%"+ returnType.getMatchStr().getValue().toLowerCase();
+			}
+			    
+			else if(returnType.getMatchStr().getStrategy().equals("contains")) {
+			 		searchWord =  "%" +	returnType.getMatchStr().getValue().toLowerCase() + "%";
+			}
+		
+			try {
+				// setting max number of rows to be returned
+				if(returnType.getMax() !=null && returnType.getMax()>0){
+					if(dbInfo!=null){
+						int fetchSize = returnType.getMax() +1 ;
+						
+						// if server is oracle then use rownum to return max number of rows
+						if(dbInfo.getDb_serverType().toUpperCase().equals("ORACLE"))				
+							maxString = " and rownum>0 and rownum <=" + fetchSize; 
+						
+						// if server is SQL SERVER then use 'TOP' clause to return max number of rows 
+						else if(dbInfo.getDb_serverType().toUpperCase().equals("SQLSERVER")){
+							maxString = "TOP " + fetchSize + " "; 
+							parameters = maxString + parameters; // appended maxstring infront of parameters
+							maxString = "";
+						} 
+						//else 	if(dbInfo.getDb_serverType().toUpperCase().equals("POSTGRESQL"))				
+						//	maxString = " limit " + fetchSize; 
+
+					}
+				}
+			}
+			catch( Exception e){
+				log.error(e);
+			}
+		}
+		
+		if (projectInfo.getRole().size() == 0)
+		{
+			log.error("no role found for this user in project: " + projectInfo.getName());
+			I2B2Exception e = new I2B2Exception("No role found for user");
+			throw e;
+		}
+
+		boolean protectedAccess = false;
+		Iterator it = projectInfo.getRole().iterator();
+		while (it.hasNext()){
+			String role = (String) it.next();
+			if(role.toLowerCase().equalsIgnoreCase("DATA_PROT")) {
+				protectedAccess = true;
+				break;
+			}
+		}
+				
+		if(returnType.getCategory().trim().equalsIgnoreCase("@")){
+			return findInAll(returnType, projectInfo, type, parameters, hiddenStr, maxString, searchWord, protectedAccess, dbInfo, userId );
+		}
+		else {
+			return findInCategory(returnType, projectInfo, type, parameters, category, hiddenStr, maxString, searchWord, dbInfo, protectedAccess);
+		}
+		
+	}
+
+	/**
+	 * This method finds the search word in the given category.
+	 *  
+	 * @param returnType
+	 * @param projectInfo
+	 * @param type - parameters to be used in the select statement. Can have two values core or all
+	 * @param parameters
+	 * @param category
+	 * @param hiddenStr - string to be used in where clause
+	 * @param maxString - string to be used in select or where clause
+	 * @param searchWord 
+	 * @param dbInfo
+	 * @param protectedAccess
+	 * @return
+	 * @throws I2B2DAOException
+	 * 
+	 * @author Neha Patel
+	 */
+	private List findInCategory(final FindByChildType returnType, final ProjectType projectInfo, String type, String parameters, String category, String hiddenStr, String maxString,
+			String searchWord,  final DBInfoType dbInfo, boolean protectedAccess) throws I2B2DAOException {
+		
+		String metadataSchema = dbInfo.getDb_fullSchema();
+		setDataSource(dbInfo.getDb_dataSource());
+		
+		ParameterizedRowMapper<String> map = new ParameterizedRowMapper<String>() {
+			public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+				String name = "\\\\" + rs.getString("c_table_cd") + "\\" + rs.getString("c_table_name");
+				return name;
+			}
+		};
+		
+		// Getting tablename where the content is saved from table 'WORKPLACE'
+		List queryResult = null;
+	
+		String resultStr=null;
+		StringBuilder sqlToRetreiveTableNm = new StringBuilder( "select distinct c_table_cd, c_table_name from " + metadataSchema + "workplace_access where LOWER(c_user_id) = ? and LOWER(c_group_id) = ?");
+		if (!protectedAccess){
+
+			sqlToRetreiveTableNm.append(" and c_protected_access = ? ");
+			try {
+				queryResult = jt.query(sqlToRetreiveTableNm.toString(), map, category.toLowerCase(), projectInfo.getId().toLowerCase(), "N");	
+				resultStr = (String)queryResult.get(0);
+			} catch (DataAccessException e) {
+				log.error(e.getMessage());
+				throw new I2B2DAOException("findWorkplaceByKeyword(): Database Error while accessing workplace_access table with protected access");
+			}
+		}else {
+			try {
+				queryResult = jt.query(sqlToRetreiveTableNm.toString(), map, category.toLowerCase(), projectInfo.getId().toLowerCase());	
+				resultStr = (String)queryResult.get(0);
+			} catch (DataAccessException e) {
+				log.error(e.getMessage());
+				throw new I2B2DAOException("findWorkplaceByKeyword(): Database Error while accessing workplace_access table");
+			}
+		}
+		
+		String tableCd = StringUtil.getTableCd(resultStr);
+		String tableName = StringUtil.getIndex(resultStr);
+				
+		StringBuilder sql = new StringBuilder ("select " + parameters +" from " + metadataSchema+tableName  + " where LOWER(c_user_id) = ? and LOWER(c_group_id) = ? and LOWER(c_name) like ? and (c_status_cd != 'D' or c_status_cd is null) "); 
+		sql.append( hiddenStr + maxString );
+		
+		ParameterizedRowMapper<FolderType> mapper = getMapper(type, returnType.isBlob(), tableCd, dbInfo.getDb_serverType());
+	
+		
+		/*
+		 * commenting out protectedAcess code from workplace table for now
+		 * 		
+		if (!protectedAccess){
+			sql.append(" and (c_protected_access != 'Y' or c_protected_access is null) ");
+		}
+		*/
+
+		sql.append( " order by c_name ");
+		
+		// Executing the query to find the workplace content with the given name 
+		queryResult=null;
+		
+		try {
+			queryResult = jt.query(sql.toString(), mapper, category.toLowerCase(), projectInfo.getId().toLowerCase(), searchWord );
+		} catch (DataAccessException e) {
+			log.error(e.getMessage());
+			log.error("findWorkplaceByKeyword(): Database Error while accessing workplace table");
+			throw new I2B2DAOException("findWorkplaceByKeyword(): Database Error while accessing workplace table");
+		}
+	
+		log.debug("result size = " + queryResult.size());
+
+		return queryResult;
+	}
+	
+	/**
+	 * This method searches for the word in the whole project. If the user has a manager role then it searches in the whole project
+	 * if the user doesn't have manager role then it searches with the condition of userid or share = Y
+	 * 
+	 * @param returnType
+	 * @param projectInfo
+	 * @param type
+	 * @param parameters
+	 * @param hiddenStr
+	 * @param maxString
+	 * @param searchWord
+	 * @param protectedAccess
+	 * @param dbInfo
+	 * @param userId
+	 * @return
+	 * @throws DataAccessException
+	 * @throws I2B2Exception
+	 * 
+	 * @author Neha Patel
+	 */
+	private List findInAll(final FindByChildType returnType, final ProjectType projectInfo, String type, String parameters, String hiddenStr, String maxString,
+			String searchWord, boolean protectedAccess, final DBInfoType dbInfo, final String userId) throws DataAccessException, I2B2Exception{
+
+
+		// Check if user is a manager
+		boolean managerRole = false;
+		for(String param :projectInfo.getRole()) {
+			if(param.equalsIgnoreCase("manager")) {
+				managerRole = true;
+				break;
+			}
+		}		
+
+		String metadataSchema = dbInfo.getDb_fullSchema();
+		setDataSource(dbInfo.getDb_dataSource());
+		
+		ParameterizedRowMapper<String> map = new ParameterizedRowMapper<String>() {
+			public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+				String name = "\\\\" + rs.getString("c_table_cd") + "\\" + rs.getString("c_table_name");
+				return name;
+			}
+		};
+
+		// Getting tablename where the content is saved from table 'WORKPLACE'
+		List queryResult = null;
+	
+		String resultStr=null;
+		StringBuilder sqlToRetreiveTableNm = new StringBuilder( "select distinct c_table_cd, c_table_name from " + metadataSchema + "workplace_access where ");
+		
+		// if user is a manager then search in the whole project
+		if(managerRole){
+			sqlToRetreiveTableNm.append("LOWER(c_group_id) = ? ");
+		}
+		else {
+		// if user is not a manager then user should be able to search only in his folder or shared folder of the project 	
+			sqlToRetreiveTableNm.append("(LOWER(c_user_id) = ? and LOWER(c_group_id) = ?) or (LOWER(c_group_id) = ? and c_share_id = 'Y') ");
+		}
+		
+		if (!protectedAccess){
+			sqlToRetreiveTableNm.append(" and (c_protected_access = 'N' or c_protected_access is null) ");
+		}
+		
+		try {
+			if(managerRole){
+				queryResult = jt.query(sqlToRetreiveTableNm.toString(), map, projectInfo.getId().toLowerCase());
+			}
+			else {
+				queryResult = jt.query(sqlToRetreiveTableNm.toString(), map, userId.toLowerCase(), projectInfo.getId().toLowerCase(),  projectInfo.getId().toLowerCase());
+			}
+			resultStr = (String)queryResult.get(0);
+		} catch (DataAccessException e) {
+			log.error(e.getMessage());
+			throw new I2B2DAOException("findWorkplaceByKeyword(): Database Error while accessing workplace_access table with protected access");
+		}
+
+		String tableCd = "";
+		String tableName = "";
+		List returnResult = null;
+		
+		// Run the query for each tablename. There could be more than one table where workplace content is stored
+		if(queryResult != null && !queryResult.isEmpty()){
+			Iterator itr = queryResult.iterator();
+			while(itr.hasNext()){
+				resultStr = (String)itr.next();
+				tableCd = StringUtil.getTableCd(resultStr);
+				tableName = StringUtil.getIndex(resultStr);
+				
+				StringBuilder sql = new StringBuilder ("select " + parameters +" from " + metadataSchema+tableName  + " where LOWER(c_name) like ? and (c_status_cd != 'D' or c_status_cd is null) "); 
+				
+				if(managerRole){
+					sql.append("and LOWER(c_group_id) = ? ");
+				}
+				else {
+					sql.append("and ((LOWER(c_user_id) = ? and LOWER(c_group_id) = ?) or (LOWER(c_group_id) = ? and c_share_id = 'Y')) ");
+				}
+				
+				sql.append( hiddenStr + maxString );
+				
+				ParameterizedRowMapper<FolderType> mapper = getMapper(type, returnType.isBlob(), tableCd, dbInfo.getDb_serverType());
+				
+				/*
+				 * commenting out protectedAcess code from workplace table for now
+				 * 		
+				if (!protectedAccess){
+					sql.append(" and (c_protected_access != 'Y' or c_protected_access is null) ");
+				}
+				*/
+				
+				sql.append( " order by c_name ");
+				
+				// Executing the query to find the workplace content with the given name 
+				List workplaceResult=null;
+				
+				try {
+					if(managerRole){
+						workplaceResult = jt.query(sql.toString(), mapper, searchWord, projectInfo.getId().toLowerCase() );
+					}
+					else {
+						workplaceResult = jt.query(sql.toString(), mapper, searchWord, userId.toLowerCase(), projectInfo.getId().toLowerCase(), projectInfo.getId().toLowerCase() );
+					}
+				} catch (DataAccessException e) {
+					log.error(e.getMessage());
+					log.error("findWorkplaceByKeyword(): Database Error while accessing workplace table");
+					throw new I2B2DAOException("findWorkplaceByKeyword(): Database Error while accessing workplace table");
+				}
+				
+				if(returnResult==null){
+					returnResult=workplaceResult;
+				}
+				else {
+					returnResult.addAll(workplaceResult);
+				}
+			} // end while (itr.hasNext())
+			
+		}
+		log.debug("result size = " + returnResult.size());
+
+		return returnResult;
+	}
+	
+	/**
+	 * This method determines if the given category(workplace root folder name) is shared or not by 
+	 * checking c_share_id parameter in workplace_access table
+	 * 
+	 * @param category - the root folder name which is in question if its shared or not
+	 * @param projectInfo 
+	 * @param dbInfo
+	 * @return
+	 * @throws DataAccessException
+	 * @throws I2B2Exception
+	 * 
+	 * @author Neha Patel
+	 */
+	public boolean isShared(String category, final ProjectType projectInfo, final DBInfoType dbInfo) throws DataAccessException, I2B2Exception{
+
+		boolean isSharedBool= false;
+		String metadataSchema = dbInfo.getDb_fullSchema();
+		setDataSource(dbInfo.getDb_dataSource());
+		
+		ParameterizedRowMapper<String> map = new ParameterizedRowMapper<String>() {
+			public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+				String name = rs.getString("c_share_id") ;
+				return name;
+			}
+		};
+		
+		// Getting column 'c_share_id' to check if the given category/folder is shared
+		List queryResult = null;
+		String resultStr="";
+		
+		String sqlForCheckingShared = "select c_share_id from " + metadataSchema + "workplace_access where LOWER(c_user_id) = ? and LOWER(c_group_id) = ? and (c_status_cd != 'D' or c_status_cd is null)";
+	
+		try {
+			queryResult = jt.query(sqlForCheckingShared.toString(), map, category.toLowerCase(), projectInfo.getId().toLowerCase());	
+		
+			if(queryResult !=null && !queryResult.isEmpty()){
+				resultStr = (String)queryResult.get(0);
+			}
+		} catch (DataAccessException e) {
+			log.error(e.getMessage());
+			throw new I2B2DAOException("isShared(): Database Error while accessing workplace_access table");
+		}
+		
+		if(resultStr!=null && resultStr.toUpperCase().trim().equals("Y")){
+			isSharedBool = true;
+		}
+		else 
+			isSharedBool = false;
+		
+		return isSharedBool;
+	}
 
 	public int renameNode(final RenameChildType renameChildType, ProjectType projectInfo, DBInfoType dbInfo) throws I2B2DAOException, I2B2Exception{
 
@@ -503,11 +904,11 @@ public class FolderDao extends JdbcDaoSupport {
 			throw e;
 		}
 
-		Boolean protectedAccess = false;
+		boolean protectedAccess = false;
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			String role = (String) it.next();
-			if(role.toLowerCase().equals("protected_access")) {
+			if(role.toLowerCase().equalsIgnoreCase("DATA_PROT")) {
 				protectedAccess = true;
 				break;
 			}
@@ -628,8 +1029,9 @@ public class FolderDao extends JdbcDaoSupport {
 			}
 		}
 		else {
-			String updateSql = "update " + metadataSchema+tableName  + " set c_name = ?, c_work_xml = ? where c_index = ? ";
+			String updateSql = "update " + metadataSchema+tableName  + " set c_name = ? where c_index = ? ";
 
+			/*
 			String newXml = null;
 			//			Element newXmlElement = node.getWorkXml().getAny().get(0);
 			Element newXmlElement = renameChildType.getWorkXml().getAny().get(0);
@@ -637,8 +1039,9 @@ public class FolderDao extends JdbcDaoSupport {
 				newXml = XMLUtil.convertDOMElementToString(newXmlElement);
 				//				log.debug(newXml);				
 			}
+			*/
 			try {
-				numRowsRenamed = jt.update(updateSql, renameChildType.getName(), newXml, index);
+				numRowsRenamed = jt.update(updateSql, renameChildType.getName(), index);
 			} catch (DataAccessException e) {
 				log.error("Dao renameChild failed");
 				log.error(e.getMessage());
@@ -662,11 +1065,11 @@ public class FolderDao extends JdbcDaoSupport {
 			throw e;
 		}
 
-		Boolean protectedAccess = false;
+		boolean protectedAccess = false;
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			String role = (String) it.next();
-			if(role.toLowerCase().equals("protected_access")) {
+			if(role.toLowerCase().equalsIgnoreCase("DATA_PROT")) {
 				protectedAccess = true;
 				break;
 			}
@@ -730,11 +1133,11 @@ public class FolderDao extends JdbcDaoSupport {
 			throw e;
 		}
 
-		Boolean protectedAccess = false;
+		boolean protectedAccess = false;
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			String role = (String) it.next();
-			if(role.toLowerCase().equals("protected_access")) {
+			if(role.toLowerCase().equalsIgnoreCase("DATA_PROT")) {
 				protectedAccess = true;
 				break;
 			}
@@ -799,11 +1202,11 @@ public class FolderDao extends JdbcDaoSupport {
 			throw e;
 		}
 
-		Boolean protectedAccess = false;
+		boolean protectedAccess = false;
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			String role = (String) it.next();
-			if(role.toLowerCase().equals("protected_access")) {
+			if(role.toLowerCase().equalsIgnoreCase("DATA_PROT")) {
 				protectedAccess = true;
 				break;
 			}
@@ -888,11 +1291,11 @@ public class FolderDao extends JdbcDaoSupport {
 			throw e;
 		}
 
-		Boolean protectedAccess = false;
+		boolean protectedAccess = false;
 		Iterator it = projectInfo.getRole().iterator();
 		while (it.hasNext()){
 			String role = (String) it.next();
-			if(role.toLowerCase().equals("protected_access")) {
+			if(role.toLowerCase().equalsIgnoreCase("DATA_PROT")) {
 				protectedAccess = true;
 				break;
 			}
@@ -945,6 +1348,274 @@ public class FolderDao extends JdbcDaoSupport {
 
 	}
 
+	/**
+	 * This method is to set protected access on a file/folder in workplace
+	 * It first checks if user has correct privileges to the file, that is
+	 * either he she is manager or the file is shared or the file belongs
+	 * to him/her. The it searches for all the folders under the given 
+	 * index. if folders are found then it runs the update query atleast
+	 * 3 times to update the root folder in workplace_access table, all the
+	 * child folders in workplace table and all the child content in workplace
+	 * table.  
+	 * 
+	 * @param requestType
+	 * @param projectInfo
+	 * @param dbInfo
+	 * @param userId
+	 * @return
+	 * @throws I2B2DAOException
+	 * @throws I2B2Exception
+	 * 
+	 * @author Neha Patel
+	 */
+	public int setProtectedAccess(final ProtectedType requestType, final ProjectType projectInfo, final DBInfoType dbInfo, String userId) throws I2B2DAOException, I2B2Exception{
+
+		boolean settingRoot = false;
+		int numRowsSet = -1;
+		int numParentUpdated = -1;
+		int numWorkAccUpdated =-1;
+		String sharedStr ="";
+		String contentUserId = "";
+		String tableName = "";
+		boolean managerRole = false;
+		boolean isFolder = true;
+		
+		String metadataSchema = dbInfo.getDb_fullSchema();
+		setDataSource(dbInfo.getDb_dataSource());
+
+		if (projectInfo.getRole().size() == 0)
+		{
+			log.error("no role found for this user in project: " + projectInfo.getName());
+			I2B2Exception e = new I2B2Exception("No role found for user");
+			throw e;
+		}
+		
+		// Check if user is a manager
+		for(String param :projectInfo.getRole()) {
+			if(param.equalsIgnoreCase("manager")) {
+				managerRole = true;
+				break;
+			}
+		}
+				
+		ParameterizedRowMapper<String> map = new ParameterizedRowMapper<String>() {
+			public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+							
+				String resultRow = "\\tablename=" +  rs.getString("c_table_name") + "\\share_id=" + rs.getString("c_share_id") + "\\user_id=" + rs.getString("c_user_id") ;
+				
+				return resultRow;
+			}
+		};
+
+		//extract table code and index
+		String tableCd = StringUtil.getTableCd(requestType.getIndex());
+		String index = StringUtil.getIndex(requestType.getIndex());
+		
+		List resultString = null;
+		StringBuilder sqlToRetrieveTableName = new StringBuilder("select distinct c_table_name, c_share_id, c_user_id from " 	+ metadataSchema 
+											+ "workplace_access where LOWER(c_group_id) = ?");	
+		
+		// Check if the user is setting access for root directory
+		// by looking for index in the current table
+		try {
+			sqlToRetrieveTableName.append(" and c_index = ? ");
+			resultString = jt.query(sqlToRetrieveTableName.toString(), map,projectInfo.getId().toLowerCase(), index);	    
+		} catch (DataAccessException e) {
+			log.error(e.getMessage());
+			throw new I2B2DAOException("Database Error");
+		}
+				
+		String resultToSplit= "";
+		// if the above query returned any result
+		// that means user was setting access for root directory
+		if(resultString!=null && !resultString.isEmpty()){
+			
+			settingRoot = true;
+			isFolder = true;
+			
+			// getting tablename, share_id, user_id from the result string
+			resultToSplit = (String) resultString.get(0);
+			int indexofShared = resultToSplit.indexOf("\\share_id=");
+			int indexofUser = resultToSplit.indexOf("\\user_id=");
+			tableName = resultToSplit.substring(11, indexofShared);
+			
+			// if its not manager check if the file/folder is shared
+			// if not shared either, then verify that user is setting
+			// privilege for his/her file/folder
+			if(managerRole == false){
+				sharedStr = resultToSplit.substring(indexofShared+10, indexofUser);
+				contentUserId = resultToSplit.substring(indexofUser+9);
+				
+				if(!sharedStr.equalsIgnoreCase("Y")){
+					if(!contentUserId.equalsIgnoreCase(userId)){
+						log.debug( "User does not have privileges to set protected access for this content");
+						return -11111;
+					}
+				} // if (sharedStr==null || !sharedStr.equalsIgnoreCase("Y"))
+			} // if managerRole == false
+		} //if(resultString!=null && !resultString.isEmpty())			
+		// query result is null that means item doesn't exist in workplace_access table
+		// or user is not setting access for root directory
+		// Get tablename using the tablecd given as part of indexString in the request
+		else if(resultString == null || resultString.isEmpty()){
+			
+			// replace the last condition of 'and c_index=?' with 'and c_table_cd'
+			sqlToRetrieveTableName.replace(sqlToRetrieveTableName.lastIndexOf("and"), sqlToRetrieveTableName.length()-1, " and LOWER(c_table_cd) = ? ");
+
+			try {
+				resultString = jt.query(sqlToRetrieveTableName.toString(), map, projectInfo.getId().toLowerCase(), tableCd.toLowerCase());	    
+			} catch (DataAccessException e) {
+				log.error(e.getMessage());
+				throw new I2B2DAOException("Database Error");
+			}
+		
+			resultToSplit = (String) resultString.get(0);
+			
+			// getting tablename from the query result
+			tableName = resultToSplit.substring(11, resultToSplit.indexOf("\\share_id="));
+			
+			List result;
+			ParameterizedRowMapper<String> mapTocheckAccess = new ParameterizedRowMapper<String>() {
+				public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+								
+					String resultRow = "\\share_id=" + rs.getString("c_share_id") + "\\user_id=" + rs.getString("c_user_id") + "\\type=" + rs.getString("c_work_xml_i2b2_type") ;
+					
+					return resultRow;
+				}
+			};
+			
+			// Run query in table workplace to find out if the content is shared or does it belong to user
+			// Also find the type of the file
+			String sql = "select  c_share_id, c_user_id, c_work_xml_i2b2_type from " + metadataSchema + tableName + " where c_index = ? and LOWER(c_group_id) = ?";
+			try{	
+				result = jt.query(sql, mapTocheckAccess, index, projectInfo.getId().toLowerCase());
+			} catch (DataAccessException e) {
+				log.error(e.getMessage());
+				throw new I2B2DAOException("Database Error");
+			}
+			
+			// get the user id and share_id from result string
+			resultToSplit = (String) result.get(0);
+			String type = resultToSplit.substring(resultToSplit.lastIndexOf("\\")+6);
+			
+			if(!type.equalsIgnoreCase("FOLDER")){
+				isFolder= false;
+			}
+			else 
+				isFolder=true;
+
+			// if user is not a manager
+			// then check if file/folder is shared
+			// if not shared then verify file/folder belongs to user
+			if(managerRole == false){
+				
+				sharedStr = resultToSplit.substring(10, resultToSplit.indexOf("\\user_id="));
+				contentUserId = resultToSplit.substring(resultToSplit.indexOf("\\user_id=")+9, resultToSplit.lastIndexOf("\\"));	
+				
+				if(sharedStr!=null && !sharedStr.equalsIgnoreCase("Y")){
+					if(!contentUserId.equalsIgnoreCase(userId)){
+						log.debug( "User does not have privileges to set protected access for this content");
+						return -11111;
+					}
+				} // if (sharedStr==null || !sharedStr.equalsIgnoreCase("Y"))
+			} // if managerRole == false		
+		}
+
+		StringBuilder indexStr = new StringBuilder();
+		String protectedAccVal= "";
+		
+		if(requestType.getProtectedAccess().trim().equalsIgnoreCase("true"))
+			protectedAccVal = "Y";
+		else
+			protectedAccVal = "N";
+		
+		ArrayList<String> parentIdxList = new ArrayList<String>();
+		parentIdxList.add(index);
+		indexStr.append("'" + index + "'");
+				
+		// if initial request was for a folder only
+		// then run this part 
+		if(isFolder){
+			
+			List resultingIndx;
+			ParameterizedRowMapper<String> mapForIndexes = new ParameterizedRowMapper<String>() {
+				public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+					String name = (rs.getString("c_index"));
+					return name;
+				}
+			};
+			
+			// Get all the parent indexes (folder indexes under the top level directory)
+			// and store it in an arraylist
+			String parentIdx = "";
+			for (int i = 0; i < parentIdxList.size(); i ++){
+				try {
+					parentIdx = parentIdxList.get(i);
+					if(i>0){
+						indexStr.append(", '" + parentIdx + "'");
+					}
+					String sqlToCollectIndex = "select c_index from " + metadataSchema + tableName + " where c_parent_index = ? and LOWER(c_group_id) = ? and c_work_xml_i2b2_type = 'FOLDER'";
+					resultingIndx = jt.query(sqlToCollectIndex, mapForIndexes, parentIdx, projectInfo.getId().toLowerCase());	    
+				} catch (DataAccessException e) {
+					log.error(e.getMessage());
+					throw new I2B2DAOException("Database Error");
+				}
+				if(resultingIndx != null)
+					parentIdxList.addAll(resultingIndx);	
+			}
+		
+			// set the protected access for all the content found under the 
+			// parent indexes stored in the arraylist
+			numParentUpdated = updateProtectedAccess(metadataSchema,tableName, "c_parent_index" , indexStr.toString(), protectedAccVal);
+		}
+		
+		if(settingRoot){
+			// set the protected access for root directory which is in workplace_access table
+			numWorkAccUpdated = updateProtectedAccess(metadataSchema,"workplace_access", "c_index",indexStr.toString(), protectedAccVal);
+		}
+								
+		// If setting root folder, then set all the folders to protected access
+		// if setting one item then still use the same query to set that item to protected_access
+		numRowsSet = updateProtectedAccess(metadataSchema,tableName, "c_index",indexStr.toString(), protectedAccVal);
+		
+		// Return the correct number of updated rows 
+		if(isFolder)
+			numRowsSet += numParentUpdated;
+		
+		if(settingRoot)
+			numRowsSet += numWorkAccUpdated;
+		
+		return numRowsSet;
+	}
+
+	/**
+	 * @param numRowsSet
+	 * @param metadataSchema
+	 * @param tableName
+	 * @param indexStr
+	 * @param protectedAccVal
+	 * @return
+	 * @throws I2B2DAOException
+	 * 
+	 * @author Neha Patel
+	 */
+	private int updateProtectedAccess(String metadataSchema,String tableName, String columnName, String indexStr, String protectedAccVal)
+			throws I2B2DAOException {
+		
+		String updateSql = "update " + metadataSchema+tableName  + " set c_protected_access = ? where " + columnName + " in ( " + indexStr + " )";
+		int numRowsSet=-1;
+		
+		try {
+			numRowsSet = jt.update(updateSql, protectedAccVal);
+		} catch (DataAccessException e) {
+			log.error("Dao updateProtectedAccess failed");
+			log.error(e.getMessage());
+			throw new I2B2DAOException("Data access error " , e);
+		}
+		return numRowsSet;
+	}
+
+
 	private void checkForChildrenDeletion(String nodeIndex, String tableName, String metadataSchema) throws DataAccessException {
 
 		// mark children for deletion
@@ -987,7 +1658,7 @@ public class FolderDao extends JdbcDaoSupport {
 
 	}
 
-	private ParameterizedRowMapper<FolderType> getMapper(final String type, final Boolean isBlob, final String tableCd){
+	private ParameterizedRowMapper<FolderType> getMapper(final String type, final boolean isBlob, final String tableCd, final String dbType){
 
 		ParameterizedRowMapper<FolderType> mapper = new ParameterizedRowMapper<FolderType>() {
 			public FolderType mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -1003,6 +1674,9 @@ public class FolderDao extends JdbcDaoSupport {
 				}
 				//      log.debug("getMapper: " + child.getIndex());
 				child.setName(rs.getString("c_name"));
+				
+				child.setProtectedAccess(rs.getString("c_protected_access"));
+				
 				if(!(type.equals("default"))) {
 					child.setUserId(rs.getString("c_user_id"));
 					//         	child.setHlevel(rs.getInt("c_hlevel"));
@@ -1011,15 +1685,31 @@ public class FolderDao extends JdbcDaoSupport {
 					//         	child.setIndex(rs.getString("c_index"));
 					child.setParentIndex(rs.getString("c_parent_index"));
 					child.setShareId(rs.getString("c_share_id" ));
-					child.setTooltip(rs.getString("c_tooltip"));
+					
+					// Building tooltip for the response 
+					// eg. project name - cname \n tooltip from db
+					String toolTip = rs.getString("c_group_id") + " - " + rs.getString("c_name") ;
+					if(rs.getString("c_tooltip")!=null && !rs.getString("c_tooltip").isEmpty()){
+						toolTip = toolTip + "\n" + rs.getString("c_tooltip"); 
+					}
+					
+					//child.setTooltip(rs.getString("c_tooltip"));
+					child.setTooltip(toolTip);
+					
 				}if(isBlob == true){
 					child.setWorkXmlI2B2Type(rs.getString("c_work_xml_i2b2_type"));
 
 					String c_xml = null;
 					try {
-						Clob xml_clob = rs.getClob("c_work_xml");
-						if (xml_clob != null){
-							c_xml = JDBCUtil.getClobString(xml_clob);
+						if (dbType.equals("POSTGRESQL"))
+						{
+							c_xml = rs.getString("c_work_xml");
+						} else
+						{
+						c_xml = JDBCUtil.getClobString(rs.getClob("c_work_xml"));
+						}
+						if (c_xml != null){
+							//c_xml = JDBCUtil.getClobString(xml_clob);
 							if ((c_xml!=null)&&(c_xml.trim().length()>0)&&(!c_xml.equals("(null)")))
 							{
 								SAXBuilder parser = new SAXBuilder();

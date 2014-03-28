@@ -116,7 +116,8 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 					
 					}
 				});*/
-			} else if (this.dbInfoType.getDb_serverType().equals("SQLSERVER")) {
+			} else if (this.dbInfoType.getDb_serverType().equals("SQLSERVER")
+					|| this.dbInfoType.getDb_serverType().equals("POSTGRESQL")) {
 				addSql = "insert into "
 						+ this.dbInfoType.getDb_fullSchema()
 						+ "ONT_PROCESS_STATUS"
@@ -243,6 +244,9 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 		}
 		sql += " order by process_id ";
 		
+		if (this.dbInfoType.getDb_serverType().equalsIgnoreCase("POSTGRESQL")) { 
+			sql += " limit " + maxReturnRow ;
+		}
 		if (this.dbInfoType.getDb_serverType().equalsIgnoreCase("ORACLE")) { 
 			sql = " select * from (" + sql + " ) where rownum <= " + maxReturnRow ;
 		}
@@ -390,7 +394,8 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 				+ "ONT_PROCESS_STATUS where (process_type_cd = ? or process_type_cd = ?)"+
 						"and start_date > to_date('" + sqlFormatedStartDate +  "', 'DD-MM-YYYY HH24:MI:SS') ";
 			}
-			else if(dbInfoType.getDb_serverType().equalsIgnoreCase("SQLSERVER")){ 
+			else if(dbInfoType.getDb_serverType().equalsIgnoreCase("SQLSERVER")
+					|| dbInfoType.getDb_serverType().equalsIgnoreCase("POSTGRESQL")){ 
 				SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
 				String sqlFormatedStartDate = dateFormat.format(date2.getTime());
@@ -447,7 +452,8 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 				+ "ONT_PROCESS_STATUS where process_type_cd = ? and start_date > " +
 				" to_date('" + sqlFormatedStartDate +  "', 'DD-MM-YYYY HH24:MI:SS') ";
 			}
-			else if(dbInfoType.getDb_serverType().equalsIgnoreCase("SQLSERVER")){ 
+			else if(dbInfoType.getDb_serverType().equalsIgnoreCase("SQLSERVER") ||
+					dbInfoType.getDb_serverType().equalsIgnoreCase("POSTGRESQL")){ 
 				SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
 				String sqlFormatedStartDate = dateFormat.format(date2.getTime());
@@ -483,7 +489,8 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 			
 				numRowsAdded = jt.update(addSql, String.valueOf(processId), ontProcessType, 
 						 today, userId, "COMPLETED", "C", today, today);
-			} else if (this.dbInfoType.getDb_serverType().equals("SQLSERVER")) {
+			} else if (this.dbInfoType.getDb_serverType().equals("SQLSERVER") ||
+					dbInfoType.getDb_serverType().equalsIgnoreCase("POSTGRESQL")) {
 				addSql = "insert into "
 						+ this.dbInfoType.getDb_fullSchema()
 						+ "ONT_PROCESS_STATUS"
@@ -534,7 +541,7 @@ public class OntProcessStatusDao extends JdbcDaoSupport {
 				declareParameter(new SqlParameter(Types.INTEGER));
 
 			} else if (dbInfo.getDb_serverType().equalsIgnoreCase(
-			"SQLSERVER")) {
+			"SQLSERVER") || dbInfo.getDb_serverType().equalsIgnoreCase("POSTGRESQL")) {
 				INSERT_SQLSERVER = "insert into "
 					+ dbInfo.getDb_fullSchema()
 					+ "ONT_PROCESS_STATUS"

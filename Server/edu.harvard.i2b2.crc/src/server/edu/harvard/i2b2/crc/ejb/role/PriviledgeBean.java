@@ -2,7 +2,6 @@ package edu.harvard.i2b2.crc.ejb.role;
 
 import java.util.List;
 
-import javax.ejb.Stateless;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,7 +11,6 @@ import edu.harvard.i2b2.crc.dao.IDAOFactory;
 import edu.harvard.i2b2.crc.dao.role.IPriviledgeDao;
 import edu.harvard.i2b2.crc.datavo.db.QtPriviledge;
 
-@Stateless
 public class PriviledgeBean implements PriviledgeLocal {
 
 	// public static ApplicationContext ac;

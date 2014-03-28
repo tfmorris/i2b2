@@ -73,13 +73,13 @@ import edu.harvard.i2b2.crc.util.ParamUtil;
  * @see ObservationFactRelated
  */
 public class FactRelatedQueryHandler extends CRCDAO implements
-		IFactRelatedQueryHandler {
+IFactRelatedQueryHandler {
 	/** Input option list from pdo request* */
 	private InputOptionListType inputList = null;
 
 	/** filter list from pdo request * */
 	private FilterListType filterList = null;
-	
+
 	private OutputOptionListType outputOptionList = null; 
 
 	/** helper class for visit/event in pdo * */
@@ -136,7 +136,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 	public static final String TEMP_FACT_PARAM_TABLE = "GLOBAL_TEMP_FACT_PARAM_TABLE";
 
 	private List<String> panelSqlList = new ArrayList<String>();
-	
+
 	private Map projectParamMap = null;
 	private Map<String,XmlValueType> modifierMetadataXmlMap = null;
 	private String requestVersion = "";
@@ -177,19 +177,19 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 			checkFilter = true;
 		}
 	}
-	
+
 	public void setProjectParamMap(Map projectParamMap) {
 		this.projectParamMap = projectParamMap;
 	}
-	
+
 	public void setModifierMetadataXmlMap(Map<String,XmlValueType> modifierMetadataXmlMap) {
 		this.modifierMetadataXmlMap = modifierMetadataXmlMap;
 	}
-	
+
 	public void setRequestVersion(String requestVersion) { 
 		this.requestVersion = requestVersion;
 	}
-	
+
 
 	public List<String> getPanelSqlList() {
 		return this.panelSqlList;
@@ -222,7 +222,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 				if (createTempTable) {
 					if (inputOptionListHandler.isEnumerationSet()) {
 						inputOptionListHandler
-								.uploadEnumerationValueToTempTable(conn);
+						.uploadEnumerationValueToTempTable(conn);
 					}
 				}
 				// execute fullsql
@@ -247,7 +247,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 					if (createTempTable) {
 						if (inputOptionListHandler.isEnumerationSet()) {
 							inputOptionListHandler
-									.uploadEnumerationValueToTempTable(conn);
+							.uploadEnumerationValueToTempTable(conn);
 						}
 					}
 					resultSet = executeQuery(conn, querySql, sqlParamCount);
@@ -305,13 +305,13 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 				// generate sql
 				String querySql = buildQuery(null,
 						PdoQueryHandler.PLAIN_PDO_TYPE);
-				
+
 				log.debug("Executing sql[" + querySql + "]");
 				panelSqlList.add(querySql);
 				if (createTempTable) {
 					if (inputOptionListHandler.isEnumerationSet()) {
 						inputOptionListHandler
-								.uploadEnumerationValueToTempTable(conn);
+						.uploadEnumerationValueToTempTable(conn);
 					}
 				}
 				// execute fullsql
@@ -320,7 +320,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 				observationSetList.add(buildPDOFact(resultSet, ""));
 			} else {
 				for (PanelType panel : filterList.getPanel()) {
-					
+
 					// generate sql
 					String querySql = buildQuery(panel,
 							PdoQueryHandler.TABLE_PDO_TYPE);
@@ -336,7 +336,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 					if (createTempTable) {
 						if (inputOptionListHandler.isEnumerationSet()) {
 							inputOptionListHandler
-									.uploadEnumerationValueToTempTable(conn);
+							.uploadEnumerationValueToTempTable(conn);
 						}
 					}
 					// execute fullsql
@@ -398,7 +398,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 	public List<String> getModifierFactList() {
 		return modifierFactList;
 	}
-	
+
 	/**
 	 * Returns patient number belong to the facts
 	 * 
@@ -527,16 +527,54 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 						totOccuranceOperator = ">=";
 					}
 				}
-	
+
 				mainQuerySql += " AND seqNumber " + totOccuranceOperator
 						+ totOcurranceValue;
 			}
-			
+
 			//check for version 1.5, if so return the fact without the duplicates in modifier_cd and instance num
-			//if (this.requestVersion.startsWith("1.5")) { 
-			//mainQuerySql = " select * from (select *, rank() over(partition by obs_encounter_num, obs_patient_num,obs_concept_cd,obs_start_date,obs_provider_id order by obs_modifier_cd,obs_instance_num ) ordernum " +
-			//		" from ( " + mainQuerySql + ") ordersql   ) ordersql1 where ordernum = 1 ";
-			//}
+			//TODO Removed because not working in 1.6.05
+			/*
+			if (this.requestVersion.startsWith("1.5")) { 
+			mainQuerySql = " select * from (select *, rank() over(partition by obs_encounter_num, obs_patient_num,obs_concept_cd,obs_start_date,obs_provider_id order by obs_modifier_cd,obs_instance_num ) ordernum " +
+					" from ( " + mainQuerySql + ") ordersql   ) ordersql1 where ordernum = 1 ";
+			}
+			 */
+		}
+
+		if (this.outputOptionList.getObservationSet().getSelectionfilter()!= null)
+		{
+			//mainQuerySql = "with f as (" + mainQuerySql + ") select * from  f where f.NVAL_NUM in (select min(nval_num) from OBSERVATION_FACT f2 where f2.PATIENT_NUM = f.PATIENT_NUM)";			
+			mainQuerySql = "with main_query as (" + mainQuerySql + ") select * from (select f1.*, " +
+					" rank() over(partition by obs_patient_num, obs_concept_cd order by ";
+			if (this.outputOptionList.getObservationSet().getSelectionfilter().value().equalsIgnoreCase("min_value"))
+				mainQuerySql += " obs_nval_num ";
+			else if (this.outputOptionList.getObservationSet().getSelectionfilter().value().equalsIgnoreCase("max_value"))
+				mainQuerySql += " obs_nval_num desc ";
+			else if (this.outputOptionList.getObservationSet().getSelectionfilter().value().equalsIgnoreCase("first_value"))
+				mainQuerySql += " obs_start_date ";
+			else if (this.outputOptionList.getObservationSet().getSelectionfilter().value().equalsIgnoreCase("last_value"))
+				mainQuerySql += " obs_start_date desc ";
+			else if (this.outputOptionList.getObservationSet().getSelectionfilter().value().equalsIgnoreCase("single_observation"))
+				mainQuerySql += " case when obs_modifier_cd = '@' then 1 else 0 end, obs_modifier_cd ";
+			else
+				mainQuerySql += " obs_start_date desc ";
+
+			mainQuerySql += " ) rank " +
+					" from  main_query f1 " ; 
+
+			if ((this.outputOptionList.getObservationSet().getSelectionfilter().value().equalsIgnoreCase("min_value")) ||
+					(this.outputOptionList.getObservationSet().getSelectionfilter().value().equalsIgnoreCase("max_value")) )
+				mainQuerySql +=	" where obs_nval_num is not null ";
+
+			
+			if (this.outputOptionList.getObservationSet().getSelectionfilter().value().equalsIgnoreCase("last_n_values"))
+			{
+				mainQuerySql +=	") f where f.rank <  " + this.outputOptionList.getObservationSet().getValue();
+			} else {
+				mainQuerySql +=	") f where f.rank = 1 ";
+			}
+				
 		}
 
 		return mainQuerySql;
@@ -564,8 +602,8 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 		DateConstrainHandler dateConstrainHandler = new DateConstrainHandler(
 				dataSourceLookup);
 
-	
-		
+
+
 		if (panel.getName() != null) {
 			panelName = JDBCUtil.escapeSingleQuote(panel.getName());
 		}
@@ -575,7 +613,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 		if (panel.getTotalItemOccurrences() != null) {
 			totalItemOccurance = panel.getTotalItemOccurrences().getValue();
 		}
-		
+
 		int panelAccuracyScale = panel.getPanelAccuracyScale();
 		//ignore panel accuracy scale value bcos the function is reverted
 		panelAccuracyScale = 0;
@@ -585,21 +623,21 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 		if (panel.getPanelDateFrom() != null || panel.getPanelDateTo() != null) {
 			panelDateConstrain = generatePanelDateConstrain(
 					dateConstrainHandler, panel.getPanelDateFrom(), panel
-							.getPanelDateTo());
+					.getPanelDateTo());
 		}
 
 		for (ItemType item : panel.getItem()) {
-			
+
 			if (item.getFacttablecolumn() != null
 					|| item.getDimColumnname() != null || item.getItemKey().toLowerCase().startsWith(ItemKeyUtil.ITEM_KEY_MASTERID)) {
 
 				if (item.getDimTablename() != null) {
-						if (item.getDimTablename().equalsIgnoreCase("patient_dimension") ||
-								item.getDimTablename().equalsIgnoreCase("visit_dimension")) { 
+					if (item.getDimTablename().equalsIgnoreCase("patient_dimension") ||
+							item.getDimTablename().equalsIgnoreCase("visit_dimension")) { 
 						continue;
 					}
 				}
-					
+
 				// read the first item
 				// ItemType item = panel.getItem().get(0);
 
@@ -645,7 +683,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 					item.setFacttablecolumn("encount_num");
 				} else {
 					DimensionFilter providerFilter = new DimensionFilter(item,
-							this.getDbSchemaName());
+							this.getDbSchemaName(), dataSourceLookup);
 					factByProviderSql += (" "
 							+ providerFilter.getFromSqlString() + "  \n");
 
@@ -655,7 +693,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 						+ "observation_FACT obs \n";
 
 				String tempSqlClause = "",containsJoinSql = "";
-				
+
 				String fullWhereClause1 = fullWhereClause
 						+ (" AND obs." + item.getFacttablecolumn()
 								+ " = dimension." + item.getFacttablecolumn());
@@ -665,13 +703,13 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 
 				//factByProviderSql += (" WHERE \n" + fullWhereClause1 + "\n");
 				tempSqlClause += (" WHERE \n" + fullWhereClause1 + "\n");
-						
+
 				//if output option has modifier option false, then select modifier_cd = '@'
 				if (outputOptionList.getObservationSet() != null && outputOptionList.getObservationSet().isWithmodifiers() == false) {
 					//factByProviderSql += (" AND  obs.modifier_cd = '@' \n");
 					tempSqlClause += (" AND  obs.modifier_cd = '@' \n");
 				}
-			
+
 				boolean itemConstrainValueFlag = false, modifierConstrainValueFlag = false;
 				//if modifier constrain is present in the request, then generate modifier constrain sql
 				ItemType.ConstrainByModifier modifierConstrain = item.getConstrainByModifier();
@@ -691,16 +729,16 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 				}
 				if (item.getConstrainByValue() != null
 						&& item.getConstrainByValue().size() > 0) { 
-							itemConstrainValueFlag = true;
+					itemConstrainValueFlag = true;
 				}
-				
+
 				String unitCdSwitchClause = "", unitCdInClause = "";
 				String modifierUnitCdSwitchClause = "", modifierUnitCdInClause = "";
 				// if value constrain is given, generate value constrain sql
 				if (itemConstrainValueFlag ||  modifierConstrainValueFlag ) {
-					
+
 					//generate sql for unit_cd conversion
-				
+
 					if ( projectParamMap != null && projectParamMap.get(ParamUtil.CRC_ENABLE_UNITCD_CONVERSION) != null) {
 						String unitCdConversionFlag = (String)projectParamMap.get(ParamUtil.CRC_ENABLE_UNITCD_CONVERSION);
 						if (unitCdConversionFlag != null && unitCdConversionFlag.equalsIgnoreCase("ON")) { 
@@ -724,41 +762,41 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 						}
 					}
 				}
-					
-					ValueConstrainsHandler vh = new ValueConstrainsHandler();
-					
-					if (unitCdSwitchClause.length()>0) {
-						vh.setUnitCdConversionFlag(true, unitCdInClause, unitCdSwitchClause);
-					}
-					String[] valueConstrainSql = new String[] {"",""} ;
-					if (itemConstrainValueFlag) { 
-						valueConstrainSql = vh
+
+				ValueConstrainsHandler vh = new ValueConstrainsHandler();
+
+				if (unitCdSwitchClause.length()>0) {
+					vh.setUnitCdConversionFlag(true, unitCdInClause, unitCdSwitchClause);
+				}
+				String[] valueConstrainSql = new String[] {"",""} ;
+				if (itemConstrainValueFlag) { 
+					valueConstrainSql = vh
 							.constructValueConstainClause(item.getConstrainByValue(),this.dataSourceLookup.getServerType(),this.getDbSchemaName(),panelAccuracyScale);
-						if (panelAccuracyScale>0) { 
-							containsJoinSql = valueConstrainSql[1];
-						}
+					if (panelAccuracyScale>0) { 
+						containsJoinSql = valueConstrainSql[1];
 					}
-					String[] modifierConstrainValueSql = new String[]{"",""};
-					if (modifierConstrainValueFlag) { 
-						if (modifierUnitCdInClause.length()>0) { 
-							vh.setUnitCdConversionFlag(true, modifierUnitCdInClause, modifierUnitCdSwitchClause);
-						}
-						modifierConstrainValueSql = vh.constructValueConstainClause(buildItemValueConstrain(modifierConstrain.getConstrainByValue()),this.dataSourceLookup.getServerType(),this.getDbSchemaName(),panelAccuracyScale);
-						if (panelAccuracyScale>0) { 
-							containsJoinSql += modifierConstrainValueSql[1];
-						}
+				}
+				String[] modifierConstrainValueSql = new String[]{"",""};
+				if (modifierConstrainValueFlag) { 
+					if (modifierUnitCdInClause.length()>0) { 
+						vh.setUnitCdConversionFlag(true, modifierUnitCdInClause, modifierUnitCdSwitchClause);
 					}
-					
-					if ((valueConstrainSql[0] != null
-							&& valueConstrainSql[0].length() > 0) || (modifierConstrainValueSql[0] != null
-									&& modifierConstrainValueSql[0].length() > 0)) {
-						// factByProviderSql += (" AND (" + valueConstrainSql + modifierConstrainValueSql +  ")\n");
-						tempSqlClause += (" AND (" + valueConstrainSql[0] + modifierConstrainValueSql[0] +  ")\n");
+					modifierConstrainValueSql = vh.constructValueConstainClause(buildItemValueConstrain(modifierConstrain.getConstrainByValue()),this.dataSourceLookup.getServerType(),this.getDbSchemaName(),panelAccuracyScale);
+					if (panelAccuracyScale>0) { 
+						containsJoinSql += modifierConstrainValueSql[1];
 					}
-				
-					factByProviderSql += containsJoinSql;
-					
-					factByProviderSql += tempSqlClause;
+				}
+
+				if ((valueConstrainSql[0] != null
+						&& valueConstrainSql[0].length() > 0) || (modifierConstrainValueSql[0] != null
+						&& modifierConstrainValueSql[0].length() > 0)) {
+					// factByProviderSql += (" AND (" + valueConstrainSql + modifierConstrainValueSql +  ")\n");
+					tempSqlClause += (" AND (" + valueConstrainSql[0] + modifierConstrainValueSql[0] +  ")\n");
+				}
+
+				factByProviderSql += containsJoinSql;
+
+				factByProviderSql += tempSqlClause;
 
 				// add start and end date constrains
 
@@ -781,9 +819,9 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 							if (dateFrom.getTime() != null
 									&& dateFrom.getTime().name() != null
 									&& dateFrom.getTime().name()
-											.equalsIgnoreCase(
-													dateFrom.getTime().END_DATE
-															.name())) {
+									.equalsIgnoreCase(
+											dateFrom.getTime().END_DATE
+											.name())) {
 								dateFromColumn = "obs.end_date";
 							} else {
 								dateFromColumn = "obs.start_date";
@@ -797,9 +835,9 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 							if (dateTo.getTime() != null
 									&& dateTo.getTime().name() != null
 									&& dateTo.getTime().name()
-											.equalsIgnoreCase(
-													dateTo.getTime().END_DATE
-															.name())) {
+									.equalsIgnoreCase(
+											dateTo.getTime().END_DATE
+											.name())) {
 								dateToColumn = "obs.end_date";
 							} else {
 								dateToColumn = "obs.start_date";
@@ -829,7 +867,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 		if (factByProviderSql.trim().length()<10) { 
 			return "";
 		}
-		
+
 		int invert = panel.getInvert();
 
 		if (invert == 1) {
@@ -954,7 +992,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 				conceptFactList.add(conceptCd);
 			}
 		}
-		
+
 		if (modifierFactRelated.isSelected()) {
 			if (!modifierFactList.contains(modifierCd)) {
 				modifierFactList.add(modifierCd);
@@ -1004,7 +1042,7 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 
 		I2B2PdoFactory.ObservationFactBuilder observationFactBuilder = new I2B2PdoFactory().new ObservationFactBuilder(
 				obsFactFactRelated.isSelectDetail(), obsFactFactRelated
-						.isSelectBlob(), obsFactFactRelated.isSelectStatus());
+				.isSelectBlob(), obsFactFactRelated.isSelectStatus(), dataSourceLookup.getServerType());
 
 		while (rowSet.next()) {
 			ObservationType obsFactType = null;
@@ -1072,11 +1110,11 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 		}
 		return itemValueConstrainList;
 	}
-	
+
 	private String generatePanelDateConstrain(
 			DateConstrainHandler dateConstrainHandler,
 			ConstrainDateType dateFrom, ConstrainDateType dateTo)
-			throws I2B2Exception {
+					throws I2B2Exception {
 
 		String dateFromColumn = null, dateToColumn = null;
 		InclusiveType dateFromInclusive = null, dateToInclusive = null;
@@ -1120,6 +1158,6 @@ public class FactRelatedQueryHandler extends CRCDAO implements
 		return dateConstrainSql;
 	}
 
-	
+
 
 }

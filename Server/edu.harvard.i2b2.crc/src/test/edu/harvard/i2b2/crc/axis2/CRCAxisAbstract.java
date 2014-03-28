@@ -11,6 +11,7 @@ package edu.harvard.i2b2.crc.axis2;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -87,8 +88,9 @@ public abstract class CRCAxisAbstract {
 		options.setTo(endpointReference);
 		options.setTimeOutInMilliSeconds(2700000);
 		options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-		options.setProperty(Constants.Configuration.ENABLE_REST,
-				Constants.VALUE_TRUE);
+	//	options.setProperty(Constants.Configuration.CONTENT_TYPE,Constants.MIME_CT_TEXT_XML);
+		options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
+		options.setProperty(Constants.Configuration.HTTP_METHOD, Constants.Configuration.HTTP_METHOD_PUT);
 		ServiceClient sender = new ServiceClient();
 		sender.setOptions(options);
 		return sender;
@@ -105,4 +107,14 @@ public abstract class CRCAxisAbstract {
 		return lineItem;
 	}
 
+	public static OMElement convertStringToOMElement(InputStream requestXmlString)
+			throws Exception {
+		XMLInputFactory xif = XMLInputFactory.newInstance();
+		XMLStreamReader reader = xif.createXMLStreamReader(requestXmlString);
+
+		StAXOMBuilder builder = new StAXOMBuilder(reader);
+		OMElement lineItem = builder.getDocumentElement();
+		return lineItem;
+	}
+	
 }

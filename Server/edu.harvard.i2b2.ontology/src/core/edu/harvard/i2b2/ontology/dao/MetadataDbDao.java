@@ -35,7 +35,7 @@ public class MetadataDbDao extends JdbcDaoSupport {
     public MetadataDbDao() throws I2B2Exception{
 		DataSource ds = null;
 		try {
-			ds = OntologyUtil.getInstance().getDataSource("java:OntologyBootStrapDS");
+			ds = OntologyUtil.getInstance().getDataSource("java:/OntologyBootStrapDS");
 	//		log.info(ds.toString());
 		} catch (I2B2Exception e2) {
 			log.error("bootstrap ds failure: " + e2.getMessage());

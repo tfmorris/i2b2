@@ -20,10 +20,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crc.dao.CRCDAO;
 import edu.harvard.i2b2.crc.dao.setfinder.querybuilder.QueryToolUtil;
 import edu.harvard.i2b2.crc.dao.setfinder.querybuilder.QueryToolUtilNew;
 import edu.harvard.i2b2.crc.dao.setfinder.querybuilder.RecursiveBuild;
+import edu.harvard.i2b2.crc.dao.setfinder.querybuilder.temporal.TemporalQueryBuilder;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.util.ParamUtil;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
@@ -47,6 +49,7 @@ public class QueryRequestSpringDao extends CRCDAO implements IQueryRequestDao {
 	String processTimingFlag = "NONE";
 	Map projectParamMap = null;
 	boolean allowLargeTextValueConstrainFlag = true;
+	boolean queryWithoutTempTableFlag = false;
 	
 	
 	public QueryRequestSpringDao(DataSource dataSource,
@@ -78,20 +81,21 @@ public class QueryRequestSpringDao extends CRCDAO implements IQueryRequestDao {
 	 * 
 	 * @param queryRequestXml
 	 * @return sql string
-	 * @throws I2B2DAOException
+	 * @throws I2B2Exception 
+	 * @throws JAXBUtilException 
 	 */
-	public String[] buildSql(String queryRequestXml, boolean encounterSetFlag)
-			throws I2B2DAOException {
+	public String[] buildSql(String queryRequestXml, boolean encounterSetFlag) throws I2B2Exception, JAXBUtilException {
 		String sql = null, ignoredItemMessage = null, processTimingMessage = null;
 		Connection conn = null;
 
+		String queryType = null;
 		try {
 			// conn = getConnection();
 			conn = dataSource.getConnection();
 
 			// check to switch between the old and new setfinder query
 			// generator.
-			String queryGeneratorVersion = "1.6";
+			String queryGeneratorVersion = "1.7";
 			try {
 				QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
 				queryGeneratorVersion = qpUtil
@@ -99,12 +103,24 @@ public class QueryRequestSpringDao extends CRCDAO implements IQueryRequestDao {
 			} catch (I2B2Exception e) {
 				// ignore this default will be 1.6
 			}
-			if (queryGeneratorVersion.equals("1.6")) {
+			if (queryGeneratorVersion.equals("1.7")) {
+				TemporalQueryBuilder temporalBuild = new TemporalQueryBuilder(dataSourceLookup,queryRequestXml);
+				temporalBuild.setProjectParamMap(this.projectParamMap);
+				temporalBuild.setAllowLargeTextValueConstrainFlag(allowLargeTextValueConstrainFlag);
+				temporalBuild.setQueryWithoutTempTableFlag(queryWithoutTempTableFlag);
+				
+				temporalBuild.startSqlBuild();
+				sql = temporalBuild.getSql();
+				ignoredItemMessage = temporalBuild.getIgnoredItemMessage();
+				processTimingMessage = temporalBuild.getProcessTimingMessage();
+				queryType = (temporalBuild.isTemporalQuery()?"TEMPORAL":null);
+			}
+			else if (queryGeneratorVersion.equals("1.6")) {
 				RecursiveBuild recursiveBuild = new RecursiveBuild(dataSourceLookup,queryRequestXml,encounterSetFlag);
 				recursiveBuild.setProjectParamMap(this.projectParamMap);
 				recursiveBuild.setAllowLargeTextValueConstrainFlag(allowLargeTextValueConstrainFlag);
 				
-				recursiveBuild.startSqlBuild();
+					recursiveBuild.startSqlBuild();
 				sql = recursiveBuild.getSql();
 				ignoredItemMessage = recursiveBuild.getIgnoredItemMessage();
 				processTimingMessage = recursiveBuild.getProcessTimingMessage();
@@ -123,7 +139,14 @@ public class QueryRequestSpringDao extends CRCDAO implements IQueryRequestDao {
 
 		} catch (SQLException ex) {
 			log.error("Error while building sql", ex);
-			throw new I2B2DAOException("Error while building sql ", ex);
+			//throw new Exception("Error while building sql ", ex);
+		} catch (I2B2Exception e) {
+			log.error("QuieryRequestSptingDAO: Error while building sql I2b2 Error ", e);
+			// TODO Auto-generated catch block
+			throw e;
+		//	e.printStackTrace();
+		} catch (JAXBUtilException e) {
+			throw e;
 		} finally {
 			try {
 				JDBCUtil.closeJdbcResource(null, null, conn);
@@ -131,8 +154,16 @@ public class QueryRequestSpringDao extends CRCDAO implements IQueryRequestDao {
 				e.printStackTrace();
 			}
 		}
+		
+		return new String[] { sql, ignoredItemMessage, processTimingMessage, queryType};
+	}
 
-		return new String[] { sql, ignoredItemMessage, processTimingMessage };
+
+
+
+	@Override
+	public void setQueryWithoutTempTableFlag(boolean queryWithoutTempTableFlag) {
+		this.queryWithoutTempTableFlag = queryWithoutTempTableFlag;
 	}
 
 	

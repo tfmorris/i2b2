@@ -71,7 +71,12 @@ import javax.xml.stream.XMLStreamReader;
  */
 public class MessageFactory {
     private static Log log = LogFactory.getLog(MessageFactory.class);
-
+    private static JAXBUtil jaxbUtil = new JAXBUtil(JAXBConstant.DEFAULT_PACKAGE_NAME);
+    
+    public static JAXBUtil getJAXBUtil()
+    {
+    	return jaxbUtil;
+    }
     /**
      * Function creates PFT response OMElement from xml string
      * @param xmlString
@@ -170,7 +175,7 @@ public class MessageFactory {
 
         ApplicationType appType = new ApplicationType();
         appType.setApplicationName("PM Cell");
-        appType.setApplicationVersion("1.608");
+        appType.setApplicationVersion("1.700");
         messageHeader.setSendingApplication(appType);
 
         FacilityType facility = new FacilityType();
@@ -247,7 +252,7 @@ public class MessageFactory {
         StringWriter strWriter = null;
 
         try {
-            JAXBUtil jaxbUtil = new JAXBUtil(JAXBConstant.DEFAULT_PACKAGE_NAME);
+           // JAXBUtil jaxbUtil = new JAXBUtil(JAXBConstant.DEFAULT_PACKAGE_NAME);
             strWriter = new StringWriter();
 
             edu.harvard.i2b2.pm.datavo.i2b2message.ObjectFactory objectFactory = new edu.harvard.i2b2.pm.datavo.i2b2message.ObjectFactory();

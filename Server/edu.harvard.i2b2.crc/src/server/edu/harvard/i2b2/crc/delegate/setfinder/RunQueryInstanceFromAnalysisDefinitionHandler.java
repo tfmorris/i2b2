@@ -18,6 +18,7 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.AnalysisDefinitionRequestType
 import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterInstanceResultResponseType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
+import edu.harvard.i2b2.crc.ejb.analysis.StartAnalysis;
 import edu.harvard.i2b2.crc.ejb.analysis.StartAnalysisLocal;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
@@ -65,8 +66,10 @@ public class RunQueryInstanceFromAnalysisDefinitionHandler extends
 		BodyType bodyType = new BodyType();
 		MasterInstanceResultResponseType masterInstanceResponse = null;
 		try {
-			StartAnalysisLocal startAnalysisLocal = qpUtil
-					.getStartAnalysisLocal();
+			//StartAnalysisLocal startAnalysisLocal = qpUtil
+		//			.getStartAnalysisLocal();
+			
+			StartAnalysisLocal startAnalysisLocal = new StartAnalysis();
 
 			DAOFactoryHelper daoFactoryHelper = new DAOFactoryHelper(this
 					.getDataSourceLookup().getDomainId(), getDataSourceLookup()

@@ -2,10 +2,10 @@ package edu.harvard.i2b2.crc.util;
 
 import java.util.List;
 
-import javax.management.MalformedObjectNameException;
+//import javax.management.MalformedObjectNameException;
 
-import org.jboss.cache.Cache;
-import org.jboss.cache.Node;
+//import org.jboss.cache.Cache;
+//import org.jboss.cache.Node;
 
 import edu.harvard.i2b2.crc.datavo.pm.ParamType;
 
@@ -40,14 +40,14 @@ public class LogTimingUtil {
 				ParamType paramType) {
 			// get cache
 			try {
-				Cache cache = CacheUtil.getCache();
-				Node rootNode = cache.getRoot();
+				//TODO removed cache
+				//Cache cache = CacheUtil.getCache();
+				//Node rootNode = cache.getRoot();
 				String roleTree = domainId + "/" + projectId + "/" + userId + "/" + PM_ENABLE_PROCESS_TIMING;
-				rootNode.put(roleTree, paramType.getValue());
-
-			} catch (MalformedObjectNameException e) {
-				e.printStackTrace();
-			} catch (NullPointerException e) {
+				//rootNode.put(roleTree, paramType.getValue());
+				CacheUtil.put(roleTree, paramType.getValue());
+				
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -56,14 +56,14 @@ public class LogTimingUtil {
 			String processTimingPMFlag = "NONE";
 			// get cache
 			try {
-				
-				Node rootNode = CacheUtil.getCache().getRoot();
-				processTimingPMFlag = (String) rootNode
-						.get(domainId + "/" + projectId
-								+ "/" + userId + "/" + PM_ENABLE_PROCESS_TIMING );
-			} catch (MalformedObjectNameException e) {
-				e.printStackTrace();
-			} catch (NullPointerException e) {
+				//TODO removed cache
+		//		Node rootNode = CacheUtil.getCache().getRoot();
+		//		processTimingPMFlag = (String) rootNode
+		//				.get(domainId + "/" + projectId
+		//						+ "/" + userId + "/" + PM_ENABLE_PROCESS_TIMING );
+				processTimingPMFlag = (String) CacheUtil.get(domainId + "/" + projectId
+												+ "/" + userId + "/" + PM_ENABLE_PROCESS_TIMING );
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			return processTimingPMFlag;
@@ -73,14 +73,16 @@ public class LogTimingUtil {
 			String processTimingPMFlag = "NONE";
 			// get cache
 			try {
+				//TODO removed cache
+
+				//Node rootNode = CacheUtil.getCache().getRoot();
+				// processTimingPMFlag = (String) rootNode
+				//		.put(domainId + "/" + projectId
+				//				+ "/" + userId + "/" + PM_ENABLE_PROCESS_TIMING, null );
 				
-				Node rootNode = CacheUtil.getCache().getRoot();
-				processTimingPMFlag = (String) rootNode
-						.put(domainId + "/" + projectId
-								+ "/" + userId + "/" + PM_ENABLE_PROCESS_TIMING, null );
-			} catch (MalformedObjectNameException e) {
-				e.printStackTrace();
-			} catch (NullPointerException e) {
+				 CacheUtil.remove(domainId + "/" + projectId
+										+ "/" + userId + "/" + PM_ENABLE_PROCESS_TIMING );
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			return processTimingPMFlag;

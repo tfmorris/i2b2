@@ -126,7 +126,7 @@ public class MessageFactory {
 
         ApplicationType appType = new ApplicationType();
         appType.setApplicationName("Workplace Cell");
-        appType.setApplicationVersion("1.608");
+        appType.setApplicationVersion("1.700");
         messageHeader.setSendingApplication(appType);
 
         FacilityType facility = new FacilityType();
@@ -242,8 +242,8 @@ public class MessageFactory {
         if(folders != null)
         	bodyType = createBodyType(folders);
         
-        else
-        	log.error("creating response with null body type ");
+       // else
+       // 	log.error("creating response with null body type ");
         
         respMessageType = createResponseMessageType(messageHeaderType, respHeader,
                 bodyType);
@@ -263,8 +263,8 @@ public class MessageFactory {
             if(folders != null)
             	bodyType = createBodyType(folders);
             
-            else
-            	log.error("creating response with null body type ");
+  //          else
+   //         	log.error("creating response with null body type ");
             
             respMessageType = createResponseMessageType(messageHeaderType, respHeader,
                     bodyType);

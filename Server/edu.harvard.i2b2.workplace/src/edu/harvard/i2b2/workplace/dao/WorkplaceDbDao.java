@@ -53,7 +53,7 @@ public class WorkplaceDbDao extends JdbcDaoSupport {
     public WorkplaceDbDao() throws I2B2Exception{
 		DataSource ds = null;
 		try {
-			ds = WorkplaceUtil.getInstance().getDataSource("java:WorkplaceBootStrapDS");
+			ds = WorkplaceUtil.getInstance().getDataSource("java:/WorkplaceBootStrapDS");
 	//		log.info(ds.toString());
 		} catch (I2B2Exception e2) {
 			log.error("bootstrap ds failure: " + e2.getMessage());

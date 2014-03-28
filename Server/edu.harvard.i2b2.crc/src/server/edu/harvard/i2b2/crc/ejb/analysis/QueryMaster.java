@@ -28,8 +28,10 @@ public class QueryMaster {
 
 	public QtAnalysisPlugin lookupAnalysisPlugin(String analysisName,
 			String version, String projectId) throws I2B2Exception {
+		log.debug("looking for: " + analysisName +":" + version + ":" + projectId);
 		IAnalysisPluginDao analysisPluginDao = sfDAOFactory
 				.getAnalysisPluginDao();
+		log.debug("getting QtAnalysisPlugin");
 		QtAnalysisPlugin analysisPlugin = analysisPluginDao
 				.lookupAnalysisPluginByNameVersionProject(analysisName,
 						version, projectId);
@@ -66,7 +68,7 @@ public class QueryMaster {
 			queryMaster.setMasterTypeCd(analysisPlugin.getPluginName());
 
 			queryMasterId = queryMasterDao.createQueryMaster(queryMaster,
-					requestXml);
+					requestXml, null);
 		} catch (JAXBUtilException e) {
 
 			throw new I2B2Exception("Failed to save query definition: ["

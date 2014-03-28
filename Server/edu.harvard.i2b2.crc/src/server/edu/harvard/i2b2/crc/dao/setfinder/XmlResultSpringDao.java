@@ -62,8 +62,10 @@ public class XmlResultSpringDao extends CRCDAO implements IXmlResultDao  {
 	 */
 	public String createQueryXmlResult(String resultInstanceId, String xmlValue) {
 		String ORACLE_SQL = "INSERT INTO " + getDbSchemaName() + "QT_XML_RESULT(xml_result_id,result_instance_id,xml_value) VALUES(?,?,?)"; 
+		String POSTGRESQL_SQL = "INSERT INTO " + getDbSchemaName() + "QT_XML_RESULT(xml_result_id,result_instance_id,xml_value) VALUES(?,?,?)"; 
 		String SQLSERVER_SQL = "INSERT INTO " + getDbSchemaName() + "QT_XML_RESULT(result_instance_id,xml_value) VALUES(?,?)";
 		String SEQUENCE_ORACLE = "SELECT "+ dbSchemaName +"QT_SQ_QXR_XRID.nextval from dual";
+		String SEQUENCE_POSTGRESQL = "SELECT nextval('qt_xml_result_xml_result_id_seq') ";
 		int xmlResultId = 0;
 		if (dataSourceLookup.getServerType().equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
 			xmlResultId = jdbcTemplate.queryForInt(SEQUENCE_ORACLE);
@@ -71,8 +73,11 @@ public class XmlResultSpringDao extends CRCDAO implements IXmlResultDao  {
 		} else if (dataSourceLookup.getServerType().equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) { 
 			jdbcTemplate.update(SQLSERVER_SQL, new Object[]{resultInstanceId,xmlValue});
 			xmlResultId = jdbcTemplate.queryForInt("SELECT @@IDENTITY");
+		} else 		if (dataSourceLookup.getServerType().equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
+			xmlResultId = jdbcTemplate.queryForInt(SEQUENCE_POSTGRESQL);
+			jdbcTemplate.update(POSTGRESQL_SQL, new Object[]{xmlResultId,Integer.parseInt(resultInstanceId),xmlValue});
+
 		}
-		
 		return String.valueOf(xmlResultId);
 	}
 
@@ -87,7 +92,7 @@ public class XmlResultSpringDao extends CRCDAO implements IXmlResultDao  {
 		String sql = "select *  from " + getDbSchemaName()
 				+ "qt_xml_result where result_instance_id = ?";
 		List<QtXmlResult> queryXmlResult = jdbcTemplate.query(sql,
-				new Object[] { resultInstanceId }, xmlResultMapper);
+				new Object[] { Integer.parseInt(resultInstanceId) }, xmlResultMapper);
 		if (queryXmlResult != null && queryXmlResult.size()>0) { 
 			return queryXmlResult.get(0);
 		} else { 

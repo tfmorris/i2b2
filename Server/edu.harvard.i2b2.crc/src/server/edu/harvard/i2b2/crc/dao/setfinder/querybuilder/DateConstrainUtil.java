@@ -20,18 +20,30 @@ public class DateConstrainUtil {
 
 	}
 
-	public String buildPanelDateSql(PanelType panelType) {
+	public String buildPanelDateSql(PanelType panelType){
+		return buildPanelDateSql(panelType, "");
+	}
+	
+	public String buildPanelDateSql(PanelType panelType, String tableAlias) {
 		String panelDateConstrain = " ";
 		if (panelType.getPanelDateFrom() != null
 				|| panelType.getPanelDateTo() != null) {
 			panelDateConstrain = generatePanelDateConstrain(
 					dateConstrainHandler, panelType.getPanelDateFrom(),
-					panelType.getPanelDateTo());
+					panelType.getPanelDateTo(), tableAlias);
 		}
 		return panelDateConstrain;
 	}
+	
+	public String buildItemDateSql(ItemType item){
+		return buildItemDateSql(item, "");
+	}
 
-	public String buildItemDateSql(ItemType item) {
+	public String buildItemDateSql(ItemType item, String tableAlias) {
+		if (tableAlias==null)
+			tableAlias = "";
+		if (tableAlias.trim().length()>0&&!tableAlias.endsWith("."))
+			tableAlias = tableAlias + ".";
 		String dateConstrainSql = null;
 		String fullItemDateSql = "";
 		List<ConstrainByDate> constrainByDateList = item.getConstrainByDate();
@@ -53,9 +65,9 @@ public class DateConstrainUtil {
 							&& dateFrom.getTime().name() != null
 							&& dateFrom.getTime().name().equalsIgnoreCase(
 									dateFrom.getTime().END_DATE.name())) {
-						dateFromColumn = "end_date";
+						dateFromColumn = tableAlias + "end_date";
 					} else {
-						dateFromColumn = "start_date";
+						dateFromColumn = tableAlias + "start_date";
 					}
 
 				}
@@ -67,9 +79,9 @@ public class DateConstrainUtil {
 							&& dateTo.getTime().name() != null
 							&& dateTo.getTime().name().equalsIgnoreCase(
 									dateTo.getTime().END_DATE.name())) {
-						dateToColumn = "end_date";
+						dateToColumn = tableAlias + "end_date";
 					} else {
-						dateToColumn = "start_date";
+						dateToColumn = tableAlias + "start_date";
 					}
 				}
 
@@ -96,8 +108,13 @@ public class DateConstrainUtil {
 
 	private String generatePanelDateConstrain(
 			DateConstrainHandler dateConstrainHandler,
-			ConstrainDateType dateFrom, ConstrainDateType dateTo) {
-
+			ConstrainDateType dateFrom, ConstrainDateType dateTo,
+			String tableAlias) {
+		if (tableAlias==null)
+			tableAlias = "";
+		if (tableAlias.trim().length()>0&&!tableAlias.endsWith("."))
+			tableAlias = tableAlias + ".";
+		
 		String dateFromColumn = null, dateToColumn = null;
 		InclusiveType dateFromInclusive = null, dateToInclusive = null;
 		XMLGregorianCalendar dateFromValue = null, dateToValue = null;
@@ -113,10 +130,10 @@ public class DateConstrainUtil {
 						&& dateFrom.getTime().name() != null
 						&& dateFrom.getTime().name().equalsIgnoreCase(
 								dateFrom.getTime().END_DATE.name())) {
-					dateFromColumn = "end_date";
+					dateFromColumn = tableAlias + "end_date";
 				} else {
 
-					dateFromColumn = "start_date";
+					dateFromColumn = tableAlias + "start_date";
 				}
 
 			}
@@ -129,10 +146,10 @@ public class DateConstrainUtil {
 						&& dateTo.getTime().name() != null
 						&& dateTo.getTime().name().equalsIgnoreCase(
 								dateTo.getTime().END_DATE.name())) {
-					dateToColumn = "end_date";
+					dateToColumn = tableAlias + "end_date";
 				} else {
 
-					dateToColumn = "start_date";
+					dateToColumn = tableAlias + "start_date";
 				}
 
 			}

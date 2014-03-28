@@ -103,7 +103,7 @@ public class CalulatePatientCountMainFromItemKey extends CRCDAO {
 			// spring, the
 			// jboss container datasource will not work
 			QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
-			DataSource dataSource = qpUtil.getSpringDataSource(dataSourceLookup
+			DataSource dataSource = qpUtil.getDataSource(dataSourceLookup
 					.getDataSource());
 			DAOFactoryHelper daoHelper = new DAOFactoryHelper(dataSourceLookup,
 					dataSource);
@@ -144,13 +144,15 @@ public class CalulatePatientCountMainFromItemKey extends CRCDAO {
 			conceptPath = conceptPathParam.getValue();
 
 			// call ontology to get children
-			CallOntologyUtil callOntologyUtil = buildOntologyUtil(requestXml,
-					projectId, securityType);
-			// ConceptsType conceptsType = callOntologyUtil
-			// .callGetChildren(conceptPath);
-
-			ConceptsType conceptsType = callOntologyUtil
-					.callGetChildrenWithHttpClient(conceptPath);
+	//		CallOntologyUtil callOntologyUtil = buildOntologyUtil(requestXml,
+	//				projectId, securityType);
+	
+	//		ConceptsType conceptsType = callOntologyUtil
+	//				.callGetChildrenWithHttpClient(conceptPath);
+			
+			
+			ConceptsType conceptsType = CallOntologyUtil.callGetChildrenWithHttpClient(conceptPath, securityType, projectId);
+			
 			// build result xml
 			String resultXml = buildXmlResult(dataSource, conceptsType,
 					setfinderDaoFactory);
@@ -264,9 +266,10 @@ public class CalulatePatientCountMainFromItemKey extends CRCDAO {
 
 	}
 
-	private CallOntologyUtil buildOntologyUtil(String requestXml,
+	/*
+	private CallOntologyUtil buildOntologyUtils(String requestXml,
 			String projectId, SecurityType securityType) {
-		CallOntologyUtil callOntologyUtil = null;
+		//CallOntologyUtil callOntologyUtil = null;
 		try {
 			QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
 			String ontologyUrl = qpUtil
@@ -288,4 +291,5 @@ public class CalulatePatientCountMainFromItemKey extends CRCDAO {
 		}
 		return callOntologyUtil;
 	}
+	*/
 }

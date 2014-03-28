@@ -79,7 +79,6 @@ public class MetadataDao extends CRCDAO implements IMetadataDao {
 	 * 
 	 * @see edu.harvard.i2b2.crc.dao.pdo.IMetadataDao#blah(java.lang.String)
 	 */
-	@Override
 	public Map getMetadataForOptionalField(String tableName)
 			throws I2B2DAOException {
 

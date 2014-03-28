@@ -34,7 +34,7 @@ import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryMaster;
 import edu.harvard.i2b2.crc.datavo.db.QtQueryStatusType;
-import edu.harvard.i2b2.crc.loader.dao.DataSourceLookupDAOFactory;
+import edu.harvard.i2b2.crc.dao.DataSourceLookupDAOFactory;
 
 /**
  * Class to handle persistance operation of Query instance i.e. each run of
@@ -111,7 +111,7 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 		String sql = "select *  from " + getDbSchemaName()
 				+ "qt_query_instance where query_master_id = ?";
 		List<QtQueryInstance> queryInstanceList = jdbcTemplate.query(sql,
-				new Object[] { queryMasterId }, queryInstanceMapper);
+				new Object[] { Integer.parseInt(queryMasterId) }, queryInstanceMapper);
 		return queryInstanceList;
 	}
 
@@ -126,7 +126,7 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 				+ "qt_query_instance  where query_instance_id =?";
 
 		QtQueryInstance queryInstance = (QtQueryInstance) jdbcTemplate
-				.queryForObject(sql, new Object[] { queryInstanceId },
+				.queryForObject(sql, new Object[] { Integer.parseInt(queryInstanceId ) },
 						queryInstanceMapper);
 
 		return queryInstance;
@@ -154,7 +154,8 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 				messageUpdate = " MESSAGE = nvl(MESSAGE,'') " + concatOperator
 						+ " ? ";
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL)) {
 				//concatOperator = "+";
 				// messageUpdate = " MESSAGE = isnull(Cast(MESSAGE as nvarchar(4000)),'') "
 				//		+ concatOperator + " ? ";
@@ -176,7 +177,7 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 					queryInstance.getBatchMode(),
 					queryInstance.getEndDate(),
 					statusTypeId,
-					 queryInstance.getQueryInstanceId() });
+					Integer.parseInt( queryInstance.getQueryInstanceId()) });
 				} else { 
 					//update rest of the fields
 					String sql = "UPDATE "
@@ -189,7 +190,7 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 						queryInstance.getGroupId(),
 						queryInstance.getBatchMode(),
 						statusTypeId,
-						 queryInstance.getQueryInstanceId() });
+						Integer.parseInt(queryInstance.getQueryInstanceId()) });
 				}
 				return queryInstance;
 			}
@@ -224,7 +225,7 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 				queryInstance.getBatchMode(),
 				statusTypeId,
 				(queryInstance.getMessage() == null) ? "" : queryInstance
-						.getMessage(), queryInstance.getQueryInstanceId() });
+						.getMessage(), Integer.parseInt(queryInstance.getQueryInstanceId()) });
 		}
 		return queryInstance;
 	}
@@ -245,10 +246,15 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 		if (appendMessageFlag) {
 			String concatOperator = "";
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.ORACLE)) {
+					DAOFactoryHelper.ORACLE)  ) {
 				concatOperator = "||";
 				messageUpdate = " MESSAGE = nvl(MESSAGE,'') " + concatOperator
 						+ " ? ";
+			} else 	if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.POSTGRESQL)  ) {
+				concatOperator = "||";
+				messageUpdate = " MESSAGE = ? ";
+	
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.SQLSERVER)) {
 				// Cast(notes as nvarchar(4000))
@@ -298,7 +304,7 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 		jdbcTemplate.update(sql, new Object[] {
 				
 				(message == null) ? "" : 
-						message, queryInstanceId });
+						message, Integer.parseInt(queryInstanceId) });
 		
 	}
 	
@@ -307,6 +313,10 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 		private String INSERT_ORACLE = "";
 		private String INSERT_SQLSERVER = "";
 		private String SEQUENCE_ORACLE = "";
+		private String SEQUENCE_POSTGRESQL = "";
+		private String INSERT_POSTGRESQL = "";
+
+		
 		private DataSourceLookup dataSourceLookup = null;
 
 		public SaveQueryInstance(DataSource dataSource, String dbSchemaName,
@@ -336,7 +346,19 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 						+ "( QUERY_MASTER_ID, USER_ID, GROUP_ID,BATCH_MODE,START_DATE,END_DATE,STATUS_TYPE_ID,DELETE_FLAG) "
 						+ "VALUES (?,?,?,?,?,?,?,?)";
 				setSql(INSERT_SQLSERVER);
-			}
+			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.POSTGRESQL)) {
+				INSERT_POSTGRESQL = "INSERT INTO "
+						+ dbSchemaName
+						+ "QT_QUERY_INSTANCE "
+						+ "(QUERY_INSTANCE_ID, QUERY_MASTER_ID, USER_ID, GROUP_ID,BATCH_MODE,START_DATE,END_DATE,STATUS_TYPE_ID,DELETE_FLAG) "
+						+ "VALUES (?,?,?,?,?,?,?,?,?)";
+				setSql(INSERT_POSTGRESQL);
+				SEQUENCE_POSTGRESQL = "select " // + dbSchemaName
+						+ "nextval('qt_query_instance_query_instance_id_seq') ";
+				declareParameter(new SqlParameter(Types.INTEGER));
+
+			} 
 
 			declareParameter(new SqlParameter(Types.INTEGER));
 			declareParameter(new SqlParameter(Types.VARCHAR));
@@ -354,7 +376,7 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 			int queryInstanceId = 0;
 			Object[] object = null;
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) ) {
 				object = new Object[] {
 
 				queryInstance.getQtQueryMaster().getQueryMasterId(),
@@ -368,6 +390,19 @@ public class QueryInstanceSpringDao extends CRCDAO implements IQueryInstanceDao 
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.ORACLE)) {
 				queryInstanceId = jdbc.queryForInt(SEQUENCE_ORACLE);
+				queryInstance.setQueryInstanceId(String
+						.valueOf(queryInstanceId));
+				object = new Object[] { queryInstance.getQueryInstanceId(),
+						queryInstance.getQtQueryMaster().getQueryMasterId(),
+						queryInstance.getUserId(), queryInstance.getGroupId(),
+						queryInstance.getBatchMode(),
+						queryInstance.getStartDate(),
+						queryInstance.getEndDate(),
+						queryInstance.getQtQueryStatusType().getStatusTypeId(),
+						queryInstance.getDeleteFlag() };
+			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.POSTGRESQL)) {
+				queryInstanceId = jdbc.queryForInt(SEQUENCE_POSTGRESQL);
 				queryInstance.setQueryInstanceId(String
 						.valueOf(queryInstanceId));
 				object = new Object[] { queryInstance.getQueryInstanceId(),

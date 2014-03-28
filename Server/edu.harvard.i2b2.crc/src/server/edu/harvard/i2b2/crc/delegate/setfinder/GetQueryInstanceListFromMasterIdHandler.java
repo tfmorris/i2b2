@@ -20,11 +20,9 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.PsmQryHeaderType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.UserType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
-import edu.harvard.i2b2.crc.ejb.QueryRunLocal;
-import edu.harvard.i2b2.crc.ejb.QueryRunLocalHome;
+import edu.harvard.i2b2.crc.ejb.QueryInfoBean;
+import edu.harvard.i2b2.crc.ejb.QueryRunBean;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
-
-import javax.ejb.CreateException;
 
 
 /**
@@ -68,30 +66,21 @@ public class GetQueryInstanceListFromMasterIdHandler extends RequestHandler {
         BodyType bodyType = new BodyType();
         InstanceResponseType instanceResponseType = null;
         try {
-            QueryRunLocalHome queryRunLocalHome = qpUtil.getQueryRunLocalHome();
-            QueryRunLocal queryRunLocal = queryRunLocalHome.create();
+        	//TODO removed ejbs
+ //           QueryRunLocalHome queryRunLocalHome = qpUtil.getQueryRunLocalHome();
+  //          QueryRunLocal queryRunLocal = queryRunLocalHome.create();
             UserType userType = headerType.getUser();
             String userId = null;
 
             if (userType != null) {
                 userId = userType.getLogin();
             }
-
-            instanceResponseType = queryRunLocal.getQueryInstanceFromMasterId(getDataSourceLookup(),userId,masterRequestType);
+            QueryRunBean query = new QueryRunBean();
+            instanceResponseType = query.getQueryInstanceFromMasterId(getDataSourceLookup(),userId,masterRequestType);
             instanceResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));
-
-//            ResponseMessageType responseMessageType = new ResponseMessageType();
-//            responseMessageType.setMessageBody(bodyType);
-//            responseString = getResponseString(responseMessageType);
-        } catch (I2B2Exception e) { 
+        } catch (Exception e) { 
         	instanceResponseType = new InstanceResponseType();
         	instanceResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.ERROR_TYPE, e.getMessage()));
-        } catch (ServiceLocatorException e) {
-            log.error(e);
-            throw new I2B2Exception("Servicelocator exception", e);
-        } catch (CreateException e) {
-            log.error(e);
-            throw new I2B2Exception("Ejb create exception", e);
         } finally { 
         	 edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
              bodyType.getAny().add(of.createResponse(instanceResponseType));

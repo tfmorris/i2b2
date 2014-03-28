@@ -1,5 +1,6 @@
 package edu.harvard.i2b2.crc.dao.setfinder.querybuilder;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.axis2.AxisFault;
@@ -9,9 +10,13 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.exception.StackTraceUtil;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
+import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
+import edu.harvard.i2b2.crc.datavo.i2b2message.RequestMessageType;
+import edu.harvard.i2b2.crc.datavo.i2b2message.SecurityType;
 import edu.harvard.i2b2.crc.datavo.ontology.ConceptType;
 import edu.harvard.i2b2.crc.datavo.ontology.ModifierType;
 import edu.harvard.i2b2.crc.delegate.ontology.CallOntologyUtil;
+import edu.harvard.i2b2.crc.util.PMServiceAccountUtil;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 import edu.harvard.i2b2.crc.util.SqlClauseUtil;
 import edu.harvard.i2b2.crc.util.StringUtil;
@@ -30,9 +35,20 @@ public class ItemMetaDataHandler {
 		ConceptType conceptType = null;
 		CallOntologyUtil ontologyUtil;
 		try {
-			ontologyUtil = new CallOntologyUtil(queryXML);
+		//	ontologyUtil = new CallOntologyUtil(queryXML);
 			// if regular concepts
-			conceptType = ontologyUtil.callOntology(itemKey);
+		//	conceptType = ontologyUtil.callOntology(itemKey);
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
+					.unMashallFromString(queryXML);
+			RequestMessageType request = (RequestMessageType) responseJaxb
+					.getValue();
+			String projectId = request.getMessageHeader().getProjectId();
+			SecurityType tempSecurityType = request.getMessageHeader()
+					.getSecurity();
+			SecurityType securityType = PMServiceAccountUtil
+					.getServiceSecurityType(tempSecurityType.getDomain());
+			
+			conceptType = CallOntologyUtil.callOntology(itemKey, securityType, projectId, QueryProcessorUtil.getInstance().getOntologyUrl());
 		} catch (JAXBUtilException e) {
 
 			log.error("Error while fetching metadata [" + itemKey
@@ -68,13 +84,15 @@ public class ItemMetaDataHandler {
 			if (conceptType.getColumndatatype() != null
 					&& conceptType.getColumndatatype().equalsIgnoreCase("T")) {
 				
+				
 				if(dbType.toUpperCase().equals("SQLSERVER")){
 					conceptType.setDimcode(StringUtil.escapeSQLSERVER(conceptType.getDimcode()));
 				}
 
 				else if(dbType.toUpperCase().equals("ORACLE")){
 					conceptType.setDimcode(StringUtil.escapeORACLE(conceptType.getDimcode()));
-				}				
+				}
+
 				
 				theData = SqlClauseUtil.handleMetaDataTextValue(
 						conceptType.getOperator(), conceptType.getDimcode());
@@ -106,9 +124,22 @@ public class ItemMetaDataHandler {
 			String ontologyGetModifierInfoUrl = ontologyUrl
 			+ getModifierOperationName;
 			log.debug("Ontology getModifierinfo url from property file ["+ ontologyGetModifierInfoUrl + "]");
-			ontologyUtil = new CallOntologyUtil(ontologyGetModifierInfoUrl,queryXML);
+			//ontologyUtil = new CallOntologyUtil(ontologyGetModifierInfoUrl,queryXML);
 			// if regular concepts
-			modifierType = ontologyUtil.callGetModifierInfo(modifierKey,appliedPath);
+			//modifierType = ontologyUtil.callGetModifierInfo(modifierKey,appliedPath);
+			
+			JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
+					.unMashallFromString(queryXML);
+			RequestMessageType request = (RequestMessageType) responseJaxb
+					.getValue();
+			String projectId = request.getMessageHeader().getProjectId();
+			SecurityType tempSecurityType = request.getMessageHeader()
+					.getSecurity();
+			SecurityType securityType = PMServiceAccountUtil
+					.getServiceSecurityType(tempSecurityType.getDomain());
+
+			modifierType = CallOntologyUtil.callGetModifierInfo(modifierKey,appliedPath, securityType, projectId, ontologyGetModifierInfoUrl);
+			
 		} catch (JAXBUtilException e) {
 
 			log.error("Error while fetching metadata [" + modifierKey
@@ -150,7 +181,7 @@ public class ItemMetaDataHandler {
 
 				else if(dbType.toUpperCase().equals("ORACLE")){
 					modifierType.setDimcode(StringUtil.escapeORACLE(modifierType.getDimcode()));
-				}				
+				}	
 				theData = SqlClauseUtil.handleMetaDataTextValue(
 						modifierType.getOperator(), modifierType.getDimcode());
 			} else if (modifierType.getColumndatatype() != null

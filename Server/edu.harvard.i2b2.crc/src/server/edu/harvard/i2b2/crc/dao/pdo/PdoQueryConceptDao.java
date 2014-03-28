@@ -23,7 +23,7 @@ import oracle.sql.ArrayDescriptor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.resource.adapter.jdbc.WrappedConnection;
+//import org.jboss.resource.adapter.jdbc.WrappedConnection;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
@@ -88,8 +88,9 @@ public class PdoQueryConceptDao extends CRCDAO implements IPdoQueryConceptDao {
 				// get oracle connection from jboss wrapped connection
 				// Otherwise Jboss wrapped connection fails when using oracle
 				// Arrays
-				oracle.jdbc.driver.OracleConnection conn1 = (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
-						.getUnderlyingConnection();
+				oracle.jdbc.driver.OracleConnection conn1 =null;
+				//(oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
+				//		.getUnderlyingConnection();
 				String finalSql = "SELECT "
 						+ selectClause
 						+ "  FROM "
@@ -104,7 +105,8 @@ public class PdoQueryConceptDao extends CRCDAO implements IPdoQueryConceptDao {
 				oracle.sql.ARRAY paramArray = new oracle.sql.ARRAY(desc, conn1,
 						conceptCdList.toArray(new String[] {}));
 				query.setArray(1, paramArray);
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) || 
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				tempTableName = SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE;
@@ -129,7 +131,7 @@ public class PdoQueryConceptDao extends CRCDAO implements IPdoQueryConceptDao {
 			ResultSet resultSet = query.executeQuery();
 
 			I2B2PdoFactory.ConceptBuilder conceptBuilder = new I2B2PdoFactory().new ConceptBuilder(
-					detailFlag, blobFlag, statusFlag);
+					detailFlag, blobFlag, statusFlag, dataSourceLookup.getServerType());
 			while (resultSet.next()) {
 				ConceptType conceptDimensionType = conceptBuilder
 						.buildConceptSet(resultSet);
@@ -205,15 +207,22 @@ public class PdoQueryConceptDao extends CRCDAO implements IPdoQueryConceptDao {
 						+ getDbSchemaName()
 						+ "concept_dimension concept WHERE concept_path LIKE ? order by concept_path) ";
 
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
+				finalSql = "Select * from ( SELECT "
+						+ selectClause
+						+ " ROW_NUMBER() OVER (ORDER BY concept_path) AS RowNum"
+						+ "  FROM "
+						+ getDbSchemaName()
+						+ "concept_dimension concept WHERE concept_path LIKE ? order by concept_path) ";
+				itemKey = itemKey.replaceAll("\\\\", "\\\\\\\\");
 			}
-
 			log.debug("Pdo Concept sql [" + finalSql + "]");
 			query = conn.prepareStatement(finalSql);
 			query.setString(1, itemKey);
 			ResultSet resultSet = query.executeQuery();
 
 			I2B2PdoFactory.ConceptBuilder conceptBuilder = new I2B2PdoFactory().new ConceptBuilder(
-					detailFlag, blobFlag, statusFlag);
+					detailFlag, blobFlag, statusFlag, dataSourceLookup.getServerType());
 			while (resultSet.next()) {
 				ConceptType conceptDimensionType = conceptBuilder
 						.buildConceptSet(resultSet);
@@ -272,7 +281,7 @@ public class PdoQueryConceptDao extends CRCDAO implements IPdoQueryConceptDao {
 
 		ConceptSet conceptSet = new ConceptSet();
 		I2B2PdoFactory.ConceptBuilder conceptBuilder = new I2B2PdoFactory().new ConceptBuilder(
-				detailFlag, blobFlag, statusFlag);
+				detailFlag, blobFlag, statusFlag, dataSourceLookup.getServerType());
 		ConceptFactRelated conceptFactRelated = new ConceptFactRelated(
 				buildOutputOptionType(detailFlag, blobFlag, statusFlag));
 		String selectClause = conceptFactRelated.getSelectClause();
@@ -284,7 +293,8 @@ public class PdoQueryConceptDao extends CRCDAO implements IPdoQueryConceptDao {
 			conn = dataSource.getConnection();
 			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
 				tempTable = FactRelatedQueryHandler.TEMP_FACT_PARAM_TABLE;
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				tempTable = SQLServerFactRelatedQueryHandler.TEMP_FACT_PARAM_TABLE;

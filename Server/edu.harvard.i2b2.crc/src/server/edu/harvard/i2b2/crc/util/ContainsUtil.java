@@ -94,17 +94,19 @@ public class ContainsUtil {
 			StringTokenizer accumTokenizer = new StringTokenizer(finalStr);
 			while(accumTokenizer.hasMoreTokens()) {
 				singleToken = accumTokenizer.nextToken();
-				if (dbServerType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
+				if (dbServerType.equalsIgnoreCase(DAOFactoryHelper.ORACLE) || dbServerType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 					defaultAccumStr += singleToken;
-				} else { 
+				} else if (dbServerType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) { 
 					defaultAccumStr += "\"" + singleToken + "\"";
 				}
 				
 				if (accumTokenizer.hasMoreTokens()) { 
 					if (dbServerType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) { 
 						defaultAccumStr += " ACCUM ";
-					} else { 
+					} else if (dbServerType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) { 
 						defaultAccumStr += " OR ";
+					} else if  (dbServerType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
+						defaultAccumStr += " | ";
 					}
 				}
 			}

@@ -52,6 +52,11 @@ public class PageTotalDao extends CRCDAO implements IPageDao {
 					DAOFactoryHelper.ORACLE)
 					&& inputOptionListHandler.isEnumerationSet()) {
 				inputOptionListHandler.uploadEnumerationValueToTempTable(conn);
+			} else 		if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.POSTGRESQL)
+					&& inputOptionListHandler.isEnumerationSet()) {
+				inputOptionListHandler.uploadEnumerationValueToTempTable(conn);
+				// sqlserverLoadTempTable(conn, inputOptionListHandler);
 			}
 			long startTime = System.currentTimeMillis();
 
@@ -115,6 +120,12 @@ public class PageTotalDao extends CRCDAO implements IPageDao {
 					DAOFactoryHelper.ORACLE)
 					&& inputOptionListHandler.isEnumerationSet()) {
 				// oracleLoadTempTable(conn, inputOptionListHandler);
+				inputOptionListHandler.uploadEnumerationValueToTempTable(conn);
+			} else 		if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.POSTGRESQL)
+					&& inputOptionListHandler.isEnumerationSet()) {
+				// upLoadTempTableForMin(conn, inputOptionListHandler);
+				// sqlserverLoadTempTable(conn, inputOptionListHandler);
 				inputOptionListHandler.uploadEnumerationValueToTempTable(conn);
 			}
 

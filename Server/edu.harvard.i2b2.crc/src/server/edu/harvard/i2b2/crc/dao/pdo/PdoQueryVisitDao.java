@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 
 import oracle.sql.ArrayDescriptor;
 
-import org.jboss.resource.adapter.jdbc.WrappedConnection;
+//import org.jboss.resource.adapter.jdbc.WrappedConnection;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
@@ -86,8 +86,8 @@ public class PdoQueryVisitDao extends CRCDAO implements IPdoQueryVisitDao {
 			String selectClause = visitRelated.getSelectClause();
 			String serverType = dataSourceLookup.getServerType();
 			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
-				oracle.jdbc.driver.OracleConnection conn1 = (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
-						.getUnderlyingConnection();
+				oracle.jdbc.driver.OracleConnection conn1 = null;//(oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
+					//	.getUnderlyingConnection();
 				String finalSql = "SELECT "
 						+ selectClause
 						+ " FROM "
@@ -101,7 +101,8 @@ public class PdoQueryVisitDao extends CRCDAO implements IPdoQueryVisitDao {
 				oracle.sql.ARRAY paramArray = new oracle.sql.ARRAY(desc, conn1,
 						encounterNumList.toArray(new String[] {}));
 				query.setArray(1, paramArray);
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				tempTableName = this.getDbSchemaName()
 						+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE;
@@ -127,7 +128,7 @@ public class PdoQueryVisitDao extends CRCDAO implements IPdoQueryVisitDao {
 			}
 			ResultSet resultSet = query.executeQuery();
 			I2B2PdoFactory.EventBuilder eventBuilder = new I2B2PdoFactory().new EventBuilder(
-					detailFlag, blobFlag, statusFlag);
+					detailFlag, blobFlag, statusFlag, dataSourceLookup.getServerType());
 			while (resultSet.next()) {
 				EventType visitDimensionType = eventBuilder
 						.buildEventSet(resultSet,this.metaDataParamList);
@@ -208,7 +209,7 @@ public class PdoQueryVisitDao extends CRCDAO implements IPdoQueryVisitDao {
 
 			ResultSet resultSet = preparedStmt.executeQuery();
 			I2B2PdoFactory.EventBuilder eventBuilder = new I2B2PdoFactory().new EventBuilder(
-					detailFlag, blobFlag, statusFlag);
+					detailFlag, blobFlag, statusFlag, dataSourceLookup.getServerType());
 			while (resultSet.next()) {
 				// VisitDimensionType visitDimensionType =
 				// getVisitDimensionType(resultSet);
@@ -292,7 +293,7 @@ public class PdoQueryVisitDao extends CRCDAO implements IPdoQueryVisitDao {
 
 			ResultSet resultSet = preparedStmt.executeQuery();
 			I2B2PdoFactory.EventBuilder eventBuilder = new I2B2PdoFactory().new EventBuilder(
-					detailFlag, blobFlag, statusFlag);
+					detailFlag, blobFlag, statusFlag, dataSourceLookup.getServerType());
 			while (resultSet.next()) {
 				// VisitDimensionType visitDimensionType =
 				// getVisitDimensionType(resultSet);
@@ -360,7 +361,7 @@ public class PdoQueryVisitDao extends CRCDAO implements IPdoQueryVisitDao {
 
 		EventSet eventSet = new EventSet();
 		I2B2PdoFactory.EventBuilder eventBuilder = new I2B2PdoFactory().new EventBuilder(
-				detailFlag, blobFlag, statusFlag);
+				detailFlag, blobFlag, statusFlag, dataSourceLookup.getServerType());
 		VisitFactRelated eventFactRelated = new VisitFactRelated(
 				buildOutputOptionType(detailFlag, blobFlag, statusFlag));
 		eventFactRelated.setMetaDataParamList(this.metaDataParamList);
@@ -375,7 +376,8 @@ public class PdoQueryVisitDao extends CRCDAO implements IPdoQueryVisitDao {
 			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
 				factTempTable = getDbSchemaName()
 						+ FactRelatedQueryHandler.TEMP_FACT_PARAM_TABLE;
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				factTempTable = getDbSchemaName()

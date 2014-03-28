@@ -146,8 +146,8 @@ public class CRCConceptTotalNumUpdateDao extends JdbcDaoSupport {
 				 resultSet = pStmt.executeQuery();
 				 
 				 updatePStmt = conn.prepareStatement("update "+ metadataSchema + tableAccessType.getTableName().trim() +" set c_totalnum = ? where c_fullname = ? ");
-					CallCRCUtil crcUtil = new CallCRCUtil(
-							securityType, projectId);
+				//	CallCRCUtil crcUtil = new CallCRCUtil(
+				//			securityType, projectId);
 				String cFullName = "";
 				boolean conceptSkipFlag = false;
 				while (resultSet.next()) {
@@ -165,7 +165,7 @@ public class CRCConceptTotalNumUpdateDao extends JdbcDaoSupport {
 					log.debug("Begin Setfinder query to CRC [" + cFullName + "]");
 					conceptSkipFlag = false;
 					try { 
-						masterInstanceResultResponse = crcUtil.callSetfinderQuery("\\\\" + tableAccessType.getTableCd().trim() + cFullName);
+						masterInstanceResultResponse = CallCRCUtil.callSetfinderQuery("\\\\" + tableAccessType.getTableCd().trim() + cFullName, securityType, projectId);
 					} catch (Throwable  i2b2Ex) { 
 						log.info("Patient count caught the exception " + i2b2Ex.getMessage());
 						i2b2Ex.printStackTrace();
@@ -179,7 +179,7 @@ public class CRCConceptTotalNumUpdateDao extends JdbcDaoSupport {
 						int totalNum = 0;
 						if (queryStatusType.getName().equalsIgnoreCase("PROCESSING")) { 
 							log.info("Setfinder request status is processing query instance id [ " + queryInstanceId + " ]");
-							resultResponse = crcUtil.pollQueryStatus(queryInstanceId); 
+							resultResponse = CallCRCUtil.pollQueryStatus(queryInstanceId, securityType, projectId); 
 							totalNum = resultResponse.getQueryResultInstance().get(0).getSetSize();
 						} else { 
 							totalNum = masterInstanceResultResponse.getQueryResultInstance().get(0).getSetSize();
@@ -193,7 +193,7 @@ public class CRCConceptTotalNumUpdateDao extends JdbcDaoSupport {
 				    
 				    //delete the setfinder query
 					log.debug("Delete query for master id [ " + masterInstanceResultResponse.getQueryMaster().getQueryMasterId() + " ]");
-				    masterResponseType =crcUtil.callDeleteMasterQuery(securityType.getUsername(), masterInstanceResultResponse.getQueryMaster().getQueryMasterId());
+				    masterResponseType =CallCRCUtil.callDeleteMasterQuery(securityType.getUsername(), masterInstanceResultResponse.getQueryMaster().getQueryMasterId(), securityType, projectId);
 				    log.debug("Deleted query for master id [ " + masterInstanceResultResponse.getQueryMaster().getQueryMasterId() + " ]");
 					
 					//update processed record count

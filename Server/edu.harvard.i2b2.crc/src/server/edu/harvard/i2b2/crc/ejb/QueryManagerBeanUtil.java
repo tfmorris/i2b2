@@ -17,22 +17,26 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueReceiver;
-import javax.jms.QueueSender;
-import javax.jms.QueueSession;
+
+import javax.sql.DataSource;
 import javax.xml.bind.JAXBElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.harvard.i2b2.common.exception.I2B2DAOException;
+import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.ServiceLocator;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
+import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
+import edu.harvard.i2b2.crc.dao.IDAOFactory;
+import edu.harvard.i2b2.crc.dao.SetFinderDAOFactory;
+import edu.harvard.i2b2.crc.dao.setfinder.CheckSkipTempTable;
+import edu.harvard.i2b2.crc.dao.setfinder.IQueryInstanceDao;
+import edu.harvard.i2b2.crc.dao.setfinder.QueryExecutorDao;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
 import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
+import edu.harvard.i2b2.crc.datavo.db.QtQueryInstance;
 import edu.harvard.i2b2.crc.datavo.i2b2message.InfoType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.PollingUrlType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.RequestHeaderType;
@@ -41,6 +45,10 @@ import edu.harvard.i2b2.crc.datavo.i2b2message.ResponseHeaderType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.ResultStatusType;
 import edu.harvard.i2b2.crc.datavo.i2b2message.StatusType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.PsmQryHeaderType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionRequestType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryModeType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.ResultOutputOptionListType;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 public class QueryManagerBeanUtil {
@@ -60,14 +68,20 @@ public class QueryManagerBeanUtil {
 
 	public final static String QUERY_MASTER_GENERATED_SQL_PARAM = "QUERY_MASTER_GENERATED_SQL_PARAM";
 	public final static String QUERY_INSTANCE_ID_PARAM = "QUERY_INSTANCE_ID_PARAM";
-	public final static String QUERY_STATUS_PARAM = "QUERY_STATUS_PARAM";
-	public final static String QT_QUERY_RESULT_INSTANCE_ID_PARAM = "QT_QUERY_RESULT_INSTANCE_ID_PARAM";
 	public final static String QUERY_PATIENT_SET_ID_PARAM = "QUERY_PATIENT_SET_ID_PARAM";
 	public final static String XML_REQUEST_PARAM = "XML_REQUEST_PARAM";
 
 	public final static String DS_LOOKUP_DOMAIN_ID = "DS_LOOKUP_DOMAIN_ID";
 	public final static String DS_LOOKUP_PROJECT_ID = "DS_LOOKUP_PROJECT_ID";
 	public final static String DS_LOOKUP_OWNER_ID = "DS_LOOKUP_OWNER_ID";
+
+	public static final String QUEUED = "QUEUED";
+	public static final String SMALL_QUEUE = "SMALL_QUEUE";
+	public static final String MEDIUM_QUEUE = "MEDIUM_QUEUE";
+	public static final String LARGE_QUEUE = "LARGE_QUEUE";
+	public final static String QUERY_STATUS_PARAM = "QUERY_STATUS_PARAM";
+	public final static String QT_QUERY_RESULT_INSTANCE_ID_PARAM = "QT_QUERY_RESULT_INSTANCE_ID_PARAM";
+
 
 	public QueryManagerBeanUtil() {
 
@@ -76,11 +90,14 @@ public class QueryManagerBeanUtil {
 	public Map testSend(String domainId, String projectId, String ownerId,
 			String generatedSql, String sessionId, String queryInstanceId,
 			String patientSetId, String xmlRequest, long timeout)
-			throws Exception {
+					throws Exception {
 		String status = null;
+		int queryResultInstanceId = 0;
 
+		log.debug("in testSend");
 		QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
 		ServiceLocator serviceLocator = ServiceLocator.getInstance();
+		/*
 		QueueConnection conn = serviceLocator.getQueueConnectionFactory(
 				QUEUE_CONN_FACTORY_NAME).createQueueConnection();
 		Queue sendQueue = serviceLocator.getQueue(SMALL_QUEUE_NAME);
@@ -106,6 +123,7 @@ public class QueryManagerBeanUtil {
 		QueueConnection conn1 = serviceLocator.getQueueConnectionFactory(
 				QUEUE_CONN_FACTORY_NAME).createQueueConnection();
 		conn1.start();
+
 		QueueSession recvSession = conn1.createQueueSession(false,
 				javax.jms.Session.AUTO_ACKNOWLEDGE);
 
@@ -113,7 +131,7 @@ public class QueryManagerBeanUtil {
 				.createReceiver(responseQueue, selector);
 		MapMessage receivedMsg = (MapMessage) rcvr.receive(timeout);
 
-		int queryResultInstanceId = 0;
+
 		if (receivedMsg == null) {
 			status = "RUNNING";
 			log.info("STATUS IS RUNNING " + status);
@@ -132,14 +150,105 @@ public class QueryManagerBeanUtil {
 					.getInt(QT_QUERY_RESULT_INSTANCE_ID_PARAM);
 			log.info("RESULT INSTANCE ID " + queryResultInstanceId);
 		}
-		closeAll(sender, null, conn, session);
-		closeAll(null, rcvr, conn1, recvSession);
+		 */
+		//TODO mm bypass JMS and call directly
+
+
+
+		long waitTime = getTimeout(xmlRequest);
+
+		ExecRunnable exec = new ExecRunnable();
+
+
+
+
+		exec.execute(generatedSql, queryInstanceId, patientSetId, xmlRequest,
+				domainId, projectId, ownerId);
+
+		Thread t = new Thread(exec);
+
+
+		synchronized (t) {
+			t.start();
+
+			try {
+				//if (waitTime > 0) {
+				//	t.wait(waitTime);
+				//} else {
+				//	t.wait();
+				//}
+
+				long startTime = System.currentTimeMillis(); 
+				long deltaTime = -1; 
+				while((exec.isJobCompleteFlag() == false)&& (deltaTime < waitTime)){ 
+					if (waitTime > 0) { 
+						t.wait(waitTime - deltaTime); 
+						deltaTime = System.currentTimeMillis() - startTime; 
+					} else { 
+						t.wait(); 
+					} 
+				} 
+				
+				if (exec.isJobCompleteFlag() == false) {
+					String timeOuterror = "Result waittime millisecond <result_waittime_ms> :" +
+					waitTime +
+					" elapsed, setting to next queue";
+					log.debug(timeOuterror);
+					
+					DAOFactoryHelper daoFactoryHelper = new DAOFactoryHelper(
+    						domainId, projectId, ownerId);
+
+					IDAOFactory daoFactory = daoFactoryHelper.getDAOFactory();
+
+    				SetFinderDAOFactory sfDAOFactory = daoFactory
+    						.getSetFinderDAOFactory();
+    				//DataSourceLookup dsLookup = sfDAOFactory.getDataSourceLookup();
+    	
+    				// check if the status is cancelled
+					IQueryInstanceDao queryInstanceDao = sfDAOFactory
+							.getQueryInstanceDAO();
+    				QtQueryInstance queryInstance = queryInstanceDao
+							.getQueryInstanceByInstanceId(queryInstanceId);
+		
+    				queryInstance.setBatchMode(MEDIUM_QUEUE);
+					//queryInstance.setEndDate(new Date(System
+					//		.currentTimeMillis()));
+					queryInstanceDao.update(queryInstance, false);
+					
+					log.debug("Set to MEDIUM Queue");
+							Map returnMap = new HashMap();
+							returnMap.put(QUERY_STATUS_PARAM, "RUNNING");
+							int id =  Integer.parseInt(queryInstanceId);
+							returnMap.put(QT_QUERY_RESULT_INSTANCE_ID_PARAM, id);
+							return returnMap;
+    				//throw new Exception("Timed Out, setting to MEDIUM Queue");
+				} 
+			}
+			catch (InterruptedException e) {
+				log.error("Error in thread: " + e.getMessage());
+
+				e.printStackTrace();
+				throw new I2B2Exception("Thread error while running CRC job " 
+						, e);
+			} finally {
+				t.interrupt();
+				//exec = null;
+				t = null;
+			}
+		}
+
+		//		closeAll(sender, null, conn, session);
+		//		closeAll(null, rcvr, conn1, recvSession);
 		// closeAllTopic(rcvr,conn1,recvSession);
-		Map returnMap = new HashMap();
-		returnMap.put(QUERY_STATUS_PARAM, status);
-		returnMap.put(QT_QUERY_RESULT_INSTANCE_ID_PARAM, queryResultInstanceId);
-		return returnMap;
+		//MM 
+		//		Map returnMap = new HashMap();
+		//		returnMap.put(QUERY_STATUS_PARAM, status);
+		//		returnMap.put(QT_QUERY_RESULT_INSTANCE_ID_PARAM, queryResultInstanceId);
+		//		return returnMap;
+		return exec.getResult();
 	}
+
+
 
 	/*
 	 * public String buildQueryRequestResponse(String requestXml, String
@@ -199,14 +308,16 @@ public class QueryManagerBeanUtil {
 		if (file.exists()) {
 			status = "DONE";
 		} else {
-			QueueConnection conn1 = null;
-			Queue responseQueue = null;
-			QueueSession recvSession = null;
-			QueueReceiver rcvr = null;
+			//TODO removed JMS
+			//			QueueConnection conn1 = null;
+			//			Queue responseQueue = null;
+			//			QueueSession recvSession = null;
+			//			QueueReceiver rcvr = null;
 			try {
 				// check jms
 				QueryProcessorUtil qpUtil = QueryProcessorUtil.getInstance();
 				ServiceLocator serviceLocator = ServiceLocator.getInstance();
+				/*
 				conn1 = serviceLocator.getQueueConnectionFactory(
 						"ConnectionFactory").createQueueConnection();
 				conn1.start();
@@ -232,11 +343,12 @@ public class QueryManagerBeanUtil {
 					log.debug("got back response from executor " + responseObj);
 					status = "DONE";
 				}
+				 */
 			} catch (Exception e) {
 				status = "ERROR";
 				e.printStackTrace();
 			} finally {
-				closeAll(null, rcvr, conn1, recvSession);
+				//	closeAll(null, rcvr, conn1, recvSession);
 			}
 
 		}
@@ -259,7 +371,7 @@ public class QueryManagerBeanUtil {
 
 		PollingUrlType pollUrlType = new PollingUrlType();
 		pollUrlType
-				.setValue("http://localhost:9093/queryProcessor/checkStatus");
+		.setValue("http://localhost:9093/queryProcessor/checkStatus");
 		rsType.setPollingUrl(pollUrlType);
 
 		// MessageType messageType = dtoFactory.buildMessageType(infoType,
@@ -281,7 +393,7 @@ public class QueryManagerBeanUtil {
 		}
 		return strWriter.toString();
 	}
-
+	/*
 	public void closeAll(QueueSender send, QueueReceiver recv,
 			QueueConnection conn, QueueSession session) {
 		try {
@@ -308,5 +420,5 @@ public class QueryManagerBeanUtil {
 		}
 
 	}
-
+	 */
 }

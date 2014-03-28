@@ -99,6 +99,8 @@ public class GetChildrenHandler extends RequestHandler {
 				while (it.hasNext())
 				{
 					FolderType node = (FolderType)it.next();
+					if (node.getProtectedAccess() == null)
+						node.setProtectedAccess("N");
 					folders.getFolder().add(node);
 				}
 				MessageHeaderType messageHeader = MessageFactory.createResponseMessageHeader(getChildrenMsg.getMessageHeaderType());          

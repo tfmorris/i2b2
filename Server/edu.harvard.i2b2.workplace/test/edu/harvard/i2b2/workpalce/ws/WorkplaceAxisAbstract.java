@@ -77,17 +77,7 @@ public abstract class WorkplaceAxisAbstract {
 
 
 
-	public static String getQueryString(String filename) throws Exception {
 
-
-	StringBuffer queryStr = new StringBuffer();
-		DataInputStream dataStream = new DataInputStream(new FileInputStream(
-				filename));
-		while (dataStream.available() > 0) {
-			queryStr.append(dataStream.readLine() + "\n");
-		}
-		return queryStr.toString();
-}	
 
 
 public static MessageHeaderType generateMessageHeader() {

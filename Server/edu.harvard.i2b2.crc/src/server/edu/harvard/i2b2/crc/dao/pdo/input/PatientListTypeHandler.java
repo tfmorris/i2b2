@@ -118,7 +118,8 @@ public class PatientListTypeHandler extends CRCDAO implements
 				tempTableName = FactRelatedQueryHandler.TEMP_PARAM_TABLE;
 				asClause = " ";
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL)) {
 				tempTableName = SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE;
 			}
 			sqlString = " select min(set_index), count(*) from "
@@ -152,7 +153,8 @@ public class PatientListTypeHandler extends CRCDAO implements
 						+ " ) where  rnum>="
 						+ minIndex;
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL)) {
 				sqlString = "	select patient_num from (select *, ROW_number() over (order by patient_num asc) as  rnum "
 						+ " from "
 						+ this.getDbSchemaName()
@@ -208,7 +210,8 @@ public class PatientListTypeHandler extends CRCDAO implements
 						+ " ) where  rnum>="
 						+ minIndex;
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL)) {
 				sqlString = "	select patient_num from (select *, ROW_number() over (order by patient_num asc) as  rnum "
 						+ " from "
 						+ this.getDbSchemaName()
@@ -392,7 +395,8 @@ public class PatientListTypeHandler extends CRCDAO implements
 			deleteStmt = conn.createStatement();
 
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL)) {
 				conn.createStatement().executeUpdate(
 						"drop table " + getTempTableName());
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(

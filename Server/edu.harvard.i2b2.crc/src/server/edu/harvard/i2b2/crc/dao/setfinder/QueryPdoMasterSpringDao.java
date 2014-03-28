@@ -66,6 +66,8 @@ public class QueryPdoMasterSpringDao extends CRCDAO implements
 		private String INSERT_ORACLE = "";
 		private String INSERT_SQLSERVER = "";
 		private String SEQUENCE_ORACLE = "";
+		private String SEQUENCE_POSTGRESQL = "";
+		private String INSERT_POSTGRESQL = "";
 
 		private DataSourceLookup dataSourceLookup = null;
 
@@ -86,13 +88,25 @@ public class QueryPdoMasterSpringDao extends CRCDAO implements
 						+ "QT_SQ_PQM_QMID.nextval from dual";
 				declareParameter(new SqlParameter(Types.INTEGER));
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) ) {
 				INSERT_SQLSERVER = "INSERT INTO "
 						+ dbSchemaName
 						+ "QT_PDO_QUERY_MASTER "
 						+ "( USER_ID, GROUP_ID,CREATE_DATE,REQUEST_XML,I2B2_REQUEST_XML) "
 						+ "VALUES (?,?,?,?,?)";
 				this.setSql(INSERT_SQLSERVER);
+			} else if ( dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.POSTGRESQL)) {
+				this.setReturnGeneratedKeys(true);
+				INSERT_POSTGRESQL = "INSERT INTO "
+						+ dbSchemaName
+						+ "QT_PDO_QUERY_MASTER "
+						+ "(QUERY_MASTER_ID,  USER_ID, GROUP_ID,CREATE_DATE,REQUEST_XML,I2B2_REQUEST_XML) "
+						+ "VALUES (?,?,?,?,?,?)";
+				setSql(INSERT_POSTGRESQL);
+				SEQUENCE_POSTGRESQL = "select "// + dbSchemaName
+						+ "nextval('qt_pdo_query_master_query_master_id_seq') ";
+				declareParameter(new SqlParameter(Types.INTEGER));
 			}
 			this.dataSourceLookup = dataSourceLookup;
 
@@ -122,6 +136,15 @@ public class QueryPdoMasterSpringDao extends CRCDAO implements
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.ORACLE)) {
 				queryMasterIdentityId = jdbc.queryForInt(SEQUENCE_ORACLE);
+				object = new Object[] { queryMasterIdentityId,
+						queryMaster.getUserId(), queryMaster.getGroupId(),
+						queryMaster.getCreateDate(),
+						queryMaster.getRequestXml(), i2b2RequestXml };
+				update(object);
+
+			} else  if (dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.POSTGRESQL)) {
+				queryMasterIdentityId = jdbc.queryForInt(SEQUENCE_POSTGRESQL);
 				object = new Object[] { queryMasterIdentityId,
 						queryMaster.getUserId(), queryMaster.getGroupId(),
 						queryMaster.getCreateDate(),

@@ -19,10 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ejb.CreateException;
-import javax.ejb.EJBException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
+//import javax.ejb.CreateException;
+//import javax.ejb.EJBException;
+//import javax.ejb.SessionBean;
+//import javax.ejb.SessionContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.axis2.AxisFault;
@@ -78,6 +79,7 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionType;
 import edu.harvard.i2b2.crc.delegate.ontology.CallOntologyUtil;
 import edu.harvard.i2b2.crc.role.AuthrizationHelper;
 import edu.harvard.i2b2.crc.util.I2B2RequestMessageHelper;
+import edu.harvard.i2b2.crc.util.PMServiceAccountUtil;
 import edu.harvard.i2b2.crc.util.ParamUtil;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
@@ -96,7 +98,7 @@ import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
  * 
  * @author rkuttan
  */
-public class PdoQueryBean implements SessionBean {
+public class PdoQueryBean { //implements SessionBean {
 	// RunQuery
 	/** log **/
 	protected final Log log = LogFactory.getLog(getClass());
@@ -156,14 +158,25 @@ public class PdoQueryBean implements SessionBean {
 		Map<String,XmlValueType> modifierMetadataXmlMap = new HashMap<String,XmlValueType>(); 
 		if (filterList != null) { 
 			try {
-				CallOntologyUtil ontologyUtil = new CallOntologyUtil(requestXml);
+				//CallOntologyUtil ontologyUtil = new CallOntologyUtil(requestXml);
+
 				
+				JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
+						.unMashallFromString(requestXml);
+				RequestMessageType request = (RequestMessageType) responseJaxb
+						.getValue();
+				String projectId = request.getMessageHeader().getProjectId();
+				SecurityType tempSecurityType = request.getMessageHeader()
+						.getSecurity();
+				SecurityType securityType = PMServiceAccountUtil
+						.getServiceSecurityType(tempSecurityType.getDomain());
 				
 				// if regular concepts
 				for (PanelType panel : filterList.getPanel()) {
 					for (ItemType item : panel.getItem()) {
-						ConceptType conceptType = ontologyUtil.callOntology(item
-								.getItemKey());
+						//ConceptType conceptType = ontologyUtil.callOntology(item.getItemKey());
+						ConceptType conceptType = CallOntologyUtil.callOntology(item.getItemKey(), securityType, projectId,  QueryProcessorUtil.getInstance().getOntologyUrl());
+						
 						log
 								.debug("fetching the metadata information from ontology ["
 										+ item.getItemKey() + "]");
@@ -193,7 +206,7 @@ public class PdoQueryBean implements SessionBean {
 								ItemMetaDataHandler itemMetaDataHandler = new ItemMetaDataHandler(requestXml);
 								String modifierKey = modifierConstrain.getModifierKey();
 								String modifierAppliedPath = modifierConstrain.getAppliedPath();
-								ModifierType modifierType = itemMetaDataHandler.getModifierDataFromOntologyCell(modifierKey, modifierAppliedPath, helper.getDataSourceLookup().getServerType());
+								ModifierType modifierType = itemMetaDataHandler.getModifierDataFromOntologyCell(modifierKey, modifierAppliedPath,   helper.getDataSourceLookup().getServerType());
 								copyModifierToItem(item,modifierType);
 								
 								//cache the modifier metadat in the map
@@ -627,19 +640,5 @@ public class PdoQueryBean implements SessionBean {
 		modifierConstrain.setModifierName(modifierType.getName()); 
 	}
 
-	public void ejbCreate() throws CreateException {
-	}
 
-	public void ejbActivate() throws EJBException, RemoteException {
-	}
-
-	public void ejbPassivate() throws EJBException, RemoteException {
-	}
-
-	public void ejbRemove() throws EJBException, RemoteException {
-	}
-
-	public void setSessionContext(SessionContext arg0) throws EJBException,
-			RemoteException {
-	}
 }

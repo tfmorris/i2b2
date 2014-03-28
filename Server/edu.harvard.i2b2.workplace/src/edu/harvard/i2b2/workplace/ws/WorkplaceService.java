@@ -14,6 +14,8 @@ import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.workplace.delegate.RequestHandler;
 import edu.harvard.i2b2.workplace.ws.ExecutorRunnable;
 import edu.harvard.i2b2.workplace.ws.MessageFactory;
+import edu.harvard.i2b2.workplace.datavo.i2b2message.MessageHeaderType;
+import edu.harvard.i2b2.workplace.datavo.i2b2message.ResponseHeaderType;
 import edu.harvard.i2b2.workplace.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.workplace.delegate.AddChildHandler;
 import edu.harvard.i2b2.workplace.delegate.AnnotateChildHandler;
@@ -24,6 +26,8 @@ import edu.harvard.i2b2.workplace.delegate.GetFoldersByUserIdHandler;
 import edu.harvard.i2b2.workplace.delegate.GetChildrenHandler;
 import edu.harvard.i2b2.workplace.delegate.RenameChildHandler;
 import edu.harvard.i2b2.workplace.delegate.MoveChildHandler;
+import edu.harvard.i2b2.workplace.delegate.GetNameInfoHandler;
+import edu.harvard.i2b2.workplace.delegate.SetProtectedAcessHandler;
 
 import org.apache.axiom.om.OMElement;
 
@@ -185,6 +189,61 @@ public class WorkplaceService {
         return execute(new GetFoldersByUserIdHandler(foldersDataMsg), waitTime);
         
     }
+    
+	/**
+	 *   
+     * This method is for finding the workplace item with the given keyword
+     * It uses AXIOM elements(OMElement) to conveniently parse
+     * xml messages.
+     *
+     * It excepts incoming request in i2b2 message format, which wraps an Workplace
+     * query inside a work query request object. The response is also will be in i2b2
+     * message format, which will wrap work data object. Work data object will
+     * have all the results returned by the query.
+     *
+
+	 * @param requestElement
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @author Neha Patel
+	 */
+	public OMElement getNameInfo(OMElement requestElement)
+	throws Exception	{
+
+			//OMElement requestElement = null;
+	    	String workplaceDataResponse = null;
+	    	String unknownErrorMessage = "Error message delivered from the remote server \n" +  
+	    	   	"You may wish to retry your last action";
+	    	
+	    	if (requestElement == null) {
+	    		log.error("Incoming Find Workplace request is null");
+
+	    	    ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+	    	    				unknownErrorMessage);
+	    	    workplaceDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+	    	    return MessageFactory.createResponseOMElementFromString(workplaceDataResponse);
+	    	}
+
+	    	GetNameInfoDataMessage foldersDataMsg = new GetNameInfoDataMessage();
+	    	String requestElementString = requestElement.toString();
+	    	log.debug(requestElementString);
+	    	foldersDataMsg.setRequestMessageType(requestElementString);
+	    	
+	    	long waitTime = 0;
+	    	if (foldersDataMsg.getRequestMessageType() != null) {
+	    		if (foldersDataMsg.getRequestMessageType().getRequestHeader() != null) {
+	    		
+	    			waitTime = foldersDataMsg.getRequestMessageType()
+	    					.getRequestHeader()
+	    					.getResultWaittimeMs();
+	    		
+	    	 	}
+	    	}
+     
+	    	return execute(new GetNameInfoHandler(foldersDataMsg), waitTime);  	
+	}
+
     
     public OMElement deleteChild(OMElement deleteNodeElement)throws Exception {
     	OMElement returnElement = null;
@@ -405,6 +464,40 @@ public class WorkplaceService {
         return execute(new AddChildHandler(addDataMsg), waitTime);
         
     }    
+    
+    public OMElement setProtectedAccess(OMElement requestElement) throws Exception {
+    	    	
+    	OMElement returnElement = null;
+    	String workplaceDataResponse = null;
+    	String unknownErrorMessage = "Error message delivered from the remote server \n" +  
+    			"You may wish to retry your last action";
+    	
+    	if (requestElement == null) {
+    		log.error("Incoming Workplace request is null");
+    		
+			ResponseMessageType responseMsgType = MessageFactory.doBuildErrorResponse(null,
+					unknownErrorMessage);
+			workplaceDataResponse = MessageFactory.convertToXMLString(responseMsgType);
+    		return MessageFactory.createResponseOMElementFromString(workplaceDataResponse);
+    	}
+    	
+    	ProtectedDataMessage protectedDataMsg = new ProtectedDataMessage();
+    	String requestElementString = requestElement.toString();
+
+    	protectedDataMsg.setRequestMessageType(requestElementString);
+    	
+    	long waitTime = 0;
+    	if (protectedDataMsg.getRequestMessageType() != null) {
+    		if (protectedDataMsg.getRequestMessageType().getRequestHeader() != null) {
+    			waitTime = protectedDataMsg.getRequestMessageType()
+    			.getRequestHeader()
+    			.getResultWaittimeMs();
+    		}
+    	}
+  	
+        return execute(new SetProtectedAcessHandler(protectedDataMsg), waitTime);  
+    }    
+    
     private OMElement execute(RequestHandler handler, long waitTime)throws I2B2Exception{
         //do workplace processing inside thread, so that  
         // service could send back message with timeout error.  

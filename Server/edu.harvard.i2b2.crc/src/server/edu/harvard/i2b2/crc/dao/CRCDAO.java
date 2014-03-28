@@ -13,13 +13,12 @@ import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.ServiceLocator;
 import edu.harvard.i2b2.crc.datavo.pdo.query.OutputOptionType;
-import edu.harvard.i2b2.crc.util.HibernateUtil;
+//import edu.harvard.i2b2.crc.util.HibernateUtil;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.hibernate.Session;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -99,9 +98,9 @@ public abstract class CRCDAO {
 	 * 
 	 * @return Session
 	 */
-	protected Session getSession() {
-		return HibernateUtil.getSession();
-	}
+//	protected Session getSession() {
+//		return HibernateUtil.getSession();
+//	}
 
 	public DataSource getDataSource() {
 		return dataSource;

@@ -12,10 +12,6 @@ package edu.harvard.i2b2.crc.ejb;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import javax.ejb.CreateException;
-import javax.ejb.EJBException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
@@ -46,7 +42,7 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryInstanceType;
  * 
  * 
  */
-public class QueryRunBean implements SessionBean {
+public class QueryRunBean  { //implements SessionBean {
 	// RunQuery
 
 	/**
@@ -86,30 +82,6 @@ public class QueryRunBean implements SessionBean {
 		SetFinderDAOFactory sfDaoFactory = helper.getDAOFactory()
 				.getSetFinderDAOFactory();
 		return sfDaoFactory;
-	}
-
-	public void ejbCreate() throws CreateException {
-	}
-
-	public void ejbActivate() throws EJBException, RemoteException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void ejbPassivate() throws EJBException, RemoteException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void ejbRemove() throws EJBException, RemoteException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void setSessionContext(SessionContext arg0) throws EJBException,
-			RemoteException {
-		// TODO Auto-generated method stub
-
 	}
 
 }

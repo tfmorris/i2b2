@@ -9,7 +9,6 @@
  */
 package edu.harvard.i2b2.crc.delegate.setfinder;
 
-import javax.ejb.CreateException;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.ServiceLocatorException;
@@ -21,8 +20,7 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.InstanceRequestType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.InstanceResultResponseType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
-import edu.harvard.i2b2.crc.ejb.QueryInfoLocal;
-import edu.harvard.i2b2.crc.ejb.QueryInfoLocalHome;
+import edu.harvard.i2b2.crc.ejb.QueryInfoBean;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 /**
@@ -67,26 +65,23 @@ public class CancelQueryInstanceHandler extends RequestHandler {
 		InstanceResultResponseType instanceResultResponseType = null;
 		BodyType bodyType = new BodyType();
 		try {
-			QueryInfoLocalHome queryInfoLocalHome = qpUtil
-					.getQueryInfoLocalHome();
-			QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
+			//TODO removed ejbs
+	//		QueryInfoLocalHome queryInfoLocalHome = qpUtil
+	//				.getQueryInfoLocalHome();
+	//		QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
 			String instanceId = instanceRequestType.getQueryInstanceId();
 
-			instanceResultResponseType = queryInfoLocal.cancelQueryInstance(
+			QueryInfoBean query = new QueryInfoBean();
+
+			instanceResultResponseType = query.cancelQueryInstance(
 					this.getDataSourceLookup(), instanceId);
 			instanceResultResponseType.setStatus(this.buildCRCStausType(
 					RequestHandlerDelegate.DONE_TYPE, "DONE"));
 
-		} catch (I2B2Exception e) {
+		} catch (Exception e) {
 			instanceResultResponseType = new InstanceResultResponseType();
 			instanceResultResponseType.setStatus(this.buildCRCStausType(
 					RequestHandlerDelegate.ERROR_TYPE, e.getMessage()));
-		} catch (ServiceLocatorException e) {
-			log.error(e);
-			statusType = buildStatusType("ERROR", e.getMessage());
-		} catch (CreateException e) {
-			log.error(e);
-			statusType = buildStatusType("ERROR", e.getMessage());
 		} finally {
 			edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
 			bodyType.getAny()

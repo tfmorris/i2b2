@@ -3,10 +3,6 @@ package edu.harvard.i2b2.crc.ejb.analysis;
 import java.util.Iterator;
 
 import javax.annotation.Resource;
-import javax.ejb.Stateless;
-import javax.ejb.Timeout;
-import javax.ejb.Timer;
-import javax.ejb.TimerService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,16 +14,15 @@ import edu.harvard.i2b2.crc.quartz.CronJob;
 import edu.harvard.i2b2.crc.util.AnalysisPropertyUtil;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
-@Stateless
 public class LargeCronEjb implements LargeCronEjbLocal {
 
 	/** log **/
 	protected final static Log log = LogFactory.getLog(LargeCronEjb.class);
 
-	@Resource
-	TimerService timerService;
+//	TimerService timerService;
 
 	public void start() {
+		/*
 		for (Iterator iterator = timerService.getTimers().iterator(); iterator
 				.hasNext();) {
 			Timer timer = (Timer) iterator.next();
@@ -50,10 +45,10 @@ public class LargeCronEjb implements LargeCronEjbLocal {
 			jobCheckTimeMills = 2L * 60L * 1000L;
 		}
 		timerService.createTimer(jobCheckTimeMills, jobCheckTimeMills, "lcj");
+		*/
 	}
 
-	@Timeout
-	public void someMethodToInvoke(Timer timer) {
+	public void someMethodToInvoke() { //Timer timer) {
 
 		Scheduler sch;
 		try {

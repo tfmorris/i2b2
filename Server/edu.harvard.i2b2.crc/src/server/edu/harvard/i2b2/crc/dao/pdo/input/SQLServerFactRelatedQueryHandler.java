@@ -134,8 +134,8 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 	private DataSourceLookup dataSourceLookup = null;
 
 	// public static final String TEMP_PDO_OBSFACT_TABLE = "#TEMP_PDO_OBSFACT";
-	public static final String TEMP_PDO_INPUTLIST_TABLE = "#TEMP_PDO_INPUTLIST";
-	public static final String TEMP_FACT_PARAM_TABLE = "#TEMP_FACT_PARAM_TABLE";
+	public static  String TEMP_PDO_INPUTLIST_TABLE = "#TEMP_PDO_INPUTLIST";
+	public static  String TEMP_FACT_PARAM_TABLE = "#TEMP_FACT_PARAM_TABLE";
 	// public static final String TEMP_PDO_INPUTLIST_TABLE1 =
 	// "#TEMP_PDO_INPUTLIST1";
 
@@ -174,6 +174,12 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 		pidFactRelated = new PidFactRelated(outputOptionList.getPidSet());
 		eidFactRelated = new EidFactRelated(outputOptionList.getEidSet());
 
+		// If postgresql change temp table name
+		if (dataSourceLookup.getServerType().equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
+			 TEMP_PDO_INPUTLIST_TABLE = "TEMP_PDO_INPUTLIST";
+			 TEMP_FACT_PARAM_TABLE = "TEMP_FACT_PARAM_TABLE";
+
+		}
 		// check if concept filter present
 		if ((filterList != null) && (filterList.getPanel() != null)
 				&& (filterList.getPanel().size() > 0)) {
@@ -595,12 +601,14 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 			return "";
 		}
 		//check for version 1.5, if so return the fact without the duplicates in modifier_cd and instance num
-		 
-		 //if (this.requestVersion.startsWith("1.5")) { 	
-		//	 mainQuerySql = " select * from (select *, rank() over(partition by obs_encounter_num, obs_patient_num,obs_concept_cd,obs_start_date,obs_provider_id order by obs_modifier_cd,obs_instance_num ) ordernum " +
-		//		" from ( " + mainQuerySql + ") ordersql   ) ordersql1 where ordernum = 1 ";
+		//TODO Removed because not working in 1.6.05
+		/*
+		 if (this.requestVersion.startsWith("1.5")) { 	
+			 mainQuerySql = " select * from (select *, rank() over(partition by obs_encounter_num, obs_patient_num,obs_concept_cd,obs_start_date,obs_provider_id order by obs_modifier_cd,obs_instance_num ) ordernum " +
+				" from ( " + mainQuerySql + ") ordersql   ) ordersql1 where ordernum = 1 ";
 			 
-		// } 
+		 }
+		 */ 
 		 mainQuerySql += " ORDER BY obs_patient_num,obs_start_date,obs_concept_cd,obs_instance_num,obs_modifier_cd,rnum";
 		
 		return mainQuerySql;
@@ -706,7 +714,7 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 					item.setFacttablecolumn("encount_num");
 				} else {
 					DimensionFilter providerFilter = new DimensionFilter(item,
-							this.getDbSchemaName());
+							this.getDbSchemaName(), dataSourceLookup);
 					factByProviderSql += (" "
 							+ providerFilter.getFromSqlString() + "  \n");
 
@@ -1098,7 +1106,7 @@ public class SQLServerFactRelatedQueryHandler extends CRCDAO implements
 
 		I2B2PdoFactory.ObservationFactBuilder observationFactBuilder = new I2B2PdoFactory().new ObservationFactBuilder(
 				obsFactFactRelated.isSelectDetail(), obsFactFactRelated
-						.isSelectBlob(), obsFactFactRelated.isSelectStatus());
+						.isSelectBlob(), obsFactFactRelated.isSelectStatus(), dataSourceLookup.getServerType());
 
 		while (rowSet.next()) {
 			ObservationType obsFactType = null;

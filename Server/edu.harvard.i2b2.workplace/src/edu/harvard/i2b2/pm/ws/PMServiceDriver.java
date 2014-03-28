@@ -15,6 +15,7 @@ import java.io.StringReader;
 
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.axiom.om.OMAbstractFactory;
@@ -29,20 +30,26 @@ import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.OperationClient;
 import org.apache.axis2.client.Options;
-import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.MessageContext;
+import org.apache.axis2.context.ServiceContext;
 import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.common.exception.StackTraceUtil;
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
+import edu.harvard.i2b2.common.util.axis2.ServiceClient;
 import edu.harvard.i2b2.workplace.datavo.i2b2message.MessageHeaderType;
 import edu.harvard.i2b2.workplace.datavo.pm.GetUserConfigurationType;
 import edu.harvard.i2b2.workplace.util.WorkplaceUtil;
 
 public class PMServiceDriver {
 	private static Log log = LogFactory.getLog(PMServiceDriver.class.getName());
-
+	//private static ServiceClient serviceClient = null;
 	/**
 	 * Function to convert pm requestVdo to OMElement
 	 * 
@@ -91,10 +98,10 @@ public class PMServiceDriver {
 				throw e1;
 			}
 			 if(pmMethod.equals("SOAP")) {
-				 response = sendSOAP(pmEPR, getRolesRequestString, "http://rpdr.partners.org/GetUserConfiguration", "GetUserConfiguration" );
+				 response = ServiceClient.sendSOAP(pmEPR, getRolesRequestString, "http://rpdr.partners.org/GetUserConfiguration", "GetUserConfiguration" );
 			 }
 			 else {
-				 response = sendREST(pmEPR, getRolesRequestString);
+				 response = ServiceClient.sendREST(pmEPR, getRolesRequestString);
 			 }
 
 		} catch (AxisFault e) {
@@ -103,96 +110,8 @@ public class PMServiceDriver {
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw e;
-		}
+		} 
 		return response;
-	}
-	
-	public static String sendREST(String restEPR, String requestString) throws Exception{	
-		String response = null;
-		OMElement getPm = getPmPayLoad(requestString);
-
-		Options options = new Options();
-		log.debug(restEPR);
-		options.setTo(new EndpointReference(restEPR));
-		options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-
-		options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
-		options.setProperty(HTTPConstants.SO_TIMEOUT,new Integer(125000));
-		options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,new Integer(125000));
-
-		ServiceClient sender = PMServiceClient.getServiceClient();
-		sender.setOptions(options);
-
-		OMElement result = sender.sendReceive(getPm);
-		if (result != null) {
-			response = result.toString();
-			log.debug(response);
-		}
-		sender.cleanup();
-		return response;
-	}
-	
-	public static String sendSOAP(String soapEPR, String requestString, String action, String operation) throws Exception{	
-
-		ServiceClient sender = PMServiceClient.getServiceClient();
-		OperationClient operationClient = sender
-				.createClient(ServiceClient.ANON_OUT_IN_OP);
-
-		// creating message context
-		MessageContext outMsgCtx = new MessageContext();
-		// assigning message context's option object into instance variable
-		Options opts = outMsgCtx.getOptions();
-		// setting properties into option
-//		log.debug(soapEPR);
-		opts.setTo(new EndpointReference(soapEPR));
-		opts.setAction(action);
-		opts.setTimeOutInMilliSeconds(180000);
-		
-		log.debug(requestString);
-
-		SOAPEnvelope envelope = null;
-		
-		try {
-			SOAPFactory fac = OMAbstractFactory.getSOAP11Factory();
-			envelope = fac.getDefaultEnvelope();
-			OMNamespace omNs = fac.createOMNamespace(
-					"http://rpdr.partners.org/",                                   
-					"rpdr");
-
-			
-			// creating the SOAP payload
-			OMElement method = fac.createOMElement(operation, omNs);
-			OMElement value = fac.createOMElement("RequestXmlString", omNs);
-			value.setText(requestString);
-			method.addChild(value);
-			envelope.getBody().addChild(method);
-		}
-		catch (FactoryConfigurationError e) {
-			log.error(e.getMessage());
-			throw new Exception(e);
-		}
- 
-		outMsgCtx.setEnvelope(envelope);
-		
-		
-		operationClient.addMessageContext(outMsgCtx);
-		operationClient.execute(true);
-		
-		
-		MessageContext inMsgtCtx = operationClient.getMessageContext("In");
-		SOAPEnvelope responseEnv = inMsgtCtx.getEnvelope();
-		
-		OMElement soapResponse = responseEnv.getBody().getFirstElement();
-		
-		
-//		System.out.println("Sresponse: "+ soapResponse.toString());
-		OMElement soapResult = soapResponse.getFirstElement();
-//		System.out.println("Sresult: "+ soapResult.toString());
-
-		String i2b2Response = soapResult.getText();
-		log.debug(i2b2Response);
-
-		return i2b2Response;		
 	}
 	
 	

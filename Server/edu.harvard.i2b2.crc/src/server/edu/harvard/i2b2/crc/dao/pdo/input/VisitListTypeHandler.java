@@ -146,7 +146,8 @@ public class VisitListTypeHandler extends CRCDAO implements
 						+ " ) where  rnum>="
 						+ minIndex;
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL)) {
 				sqlString = " select encounter_num from ( select encounter_num,row_number() over(order by encounter_num) as rnum  from "
 						+ this.getDbSchemaName()
 						+ "visit_dimension ) as v "
@@ -322,7 +323,8 @@ public class VisitListTypeHandler extends CRCDAO implements
 			deleteStmt = conn.createStatement();
 
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL)) {
 				conn.createStatement().executeUpdate(
 						"drop table " + getTempTableName());
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(

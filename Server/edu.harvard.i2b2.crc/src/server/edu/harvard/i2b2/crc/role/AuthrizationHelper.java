@@ -2,11 +2,9 @@ package edu.harvard.i2b2.crc.role;
 
 import java.util.List;
 
-import javax.management.MalformedObjectNameException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.cache.Cache;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.exception.StackTraceUtil;
@@ -76,6 +74,8 @@ public class AuthrizationHelper {
 	}
 
 	private List<String> getRolesFromCache() throws I2B2Exception {
+		//TODO removed cache
+		/*
 		Cache cache = null;
 		try {
 			cache = CacheUtil.getCache();
@@ -90,9 +90,11 @@ public class AuthrizationHelper {
 			throw new I2B2Exception("Unable to get cache object "
 					+ StackTraceUtil.getStackTrace(e));
 		}
+		*/
 		// domainId + "/" + projectId + "/" + userId;
 		String rolePath = domainId + "/" + projectId + "/" + userId;
-		List<String> roles = (List<String>) cache.getRoot().get(rolePath);
+		//List<String> roles = (List<String>) cache.getRoot().get(rolePath);
+		List<String> roles = (List<String>) CacheUtil.get(rolePath);
 
 		log.debug("Roles from get " + rolePath);
 		if (roles != null) {

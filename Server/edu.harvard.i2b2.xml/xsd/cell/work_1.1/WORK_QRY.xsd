@@ -25,6 +25,8 @@
     <xs:element name="rename_child" type="work:rename_childType"/>
     <xs:element name="annotate_child" type="work:annotate_childType"/>
     <xs:element name="export_child" type="work:export_childType"/>
+    <xs:element name="get_name_info" type="work:findBy_childType" />
+    <xs:element name="set_protected_access" type="work:protectedType" />
     
     <xs:complexType name="get_childrenType">
         <xs:sequence>
@@ -101,4 +103,56 @@
         </xs:sequence>
     </xs:complexType>
     
+    <xs:complexType name="findBy_childType">
+        <xs:sequence>
+            <xs:element name="match_str" type="work:match_strType" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="category" type="xs:string" use="required"/>
+        <xs:attributeGroup ref="work:return_attributeGroupWithoutSynonyms"/>
+    </xs:complexType>
+    
+    <xs:attributeGroup name="return_attributeGroupWithoutSynonyms">
+        <xs:attribute name="hiddens" type="xs:boolean" default="false"/>
+        <xs:attribute name="max">
+	 		<xs:simpleType>
+	   			<xs:restriction base="xs:int">
+      					<xs:minInclusive value="1"/>
+    			</xs:restriction>
+	  		</xs:simpleType>
+		</xs:attribute>
+        <xs:attribute name="type" default="core">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="core"/>
+                    <xs:enumeration value="all"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="blob" type="xs:boolean" default="true"/>
+    </xs:attributeGroup>
+    
+        <xs:complexType name="match_strType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="strategy" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="exact"/>
+                            <xs:enumeration value="left"/>
+                            <xs:enumeration value="right"/>
+                            <xs:enumeration value="contains"/>
+                           
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <xs:complexType name="protectedType">
+  		<xs:sequence>
+            <xs:element name="index" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="protectedAccess" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
 </xs:schema>

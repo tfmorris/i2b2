@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 
 import oracle.sql.ArrayDescriptor;
 
-import org.jboss.resource.adapter.jdbc.WrappedConnection;
+//import org.jboss.resource.adapter.jdbc.WrappedConnection;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
@@ -69,7 +69,7 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 	 */
 	public PidSet getPidByPatientNum(List<String> patientNumList,
 			boolean detailFlag, boolean blobFlag, boolean statusFlag)
-			throws I2B2DAOException {
+					throws I2B2DAOException {
 
 		Connection conn = null;
 		PreparedStatement query = null;
@@ -92,8 +92,8 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 						+ "patient_mapping pm WHERE pm.patient_num IN (SELECT * FROM TABLE (cast (? as QT_PDO_QRY_STRING_ARRAY))) order by pm_patient_num";
 				log.debug("Executing [" + finalSql + "]");
 
-				oracle.jdbc.driver.OracleConnection conn1 = (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
-						.getUnderlyingConnection();
+				oracle.jdbc.driver.OracleConnection conn1 = null;// (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
+				//	.getUnderlyingConnection();
 				query = conn.prepareStatement(finalSql);
 				ArrayDescriptor desc = ArrayDescriptor.createDescriptor(
 						"QT_PDO_QRY_STRING_ARRAY", conn1);
@@ -122,6 +122,28 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 
 				query = conn.prepareStatement(finalSql);
 				resultSet = query.executeQuery();
+			} else  if 
+			(dataSourceLookup.getServerType().equalsIgnoreCase(
+					DAOFactoryHelper.POSTGRESQL))
+			{
+				// create temp table
+				// load to temp table
+				// execute sql
+				log.debug("creating temp table");
+				java.sql.Statement tempStmt = conn.createStatement();
+
+				uploadTempTable(tempStmt, patientNumList);
+				String finalSql = "SELECT "
+						+ selectClause
+						+ " FROM "
+						+ getDbSchemaName()
+						+ "patient_mapping pm WHERE pm.patient_num IN (select distinct char_param1 FROM "
+						+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE.substring(1)
+						+ ") order by pm_patient_num";
+				log.debug("Executing [" + finalSql + "]");
+
+				query = conn.prepareStatement(finalSql);
+				resultSet = query.executeQuery();		
 			}
 
 			RPDRPdoFactory.PidBuilder pidBuilder = new RPDRPdoFactory.PidBuilder(
@@ -168,7 +190,7 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 	 */
 	public PidSet getPidFromPatientSet(PatientListType patientListType,
 			boolean detailFlag, boolean blobFlag, boolean statusFlag)
-			throws I2B2DAOException {
+					throws I2B2DAOException {
 
 		PatientListTypeHandler patientListTypeHandler = new PatientListTypeHandler(
 				dataSourceLookup, patientListType);
@@ -196,7 +218,7 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 				String patientSetCollectionId = patientListTypeHandler
 						.getCollectionId();
 				preparedStmt = conn.prepareStatement(mainSqlString);
-				preparedStmt.setString(1, patientSetCollectionId);
+				preparedStmt.setInt(1, Integer.parseInt(patientSetCollectionId));
 
 			} else if (patientListTypeHandler.isEnumerationSet()) {
 				String serverType = dataSourceLookup.getServerType();
@@ -255,6 +277,9 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 		if (dataSourceLookup.getServerType().equalsIgnoreCase(
 				DAOFactoryHelper.SQLSERVER)) {
 			tempTableName = this.getDbSchemaName() + SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE;
+		} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
+				DAOFactoryHelper.POSTGRESQL)) {
+			tempTableName =  SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE.substring(1);
 		}
 		try {
 			// execute fullsql
@@ -264,7 +289,7 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 			String selectClause = pidRelated.getSelectClause();
 			ResultSet resultSet = null;
 
-			
+
 
 			// create temp table
 			// load to temp table
@@ -310,7 +335,7 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 		} finally {
 			PdoTempTableUtil tempUtil = new PdoTempTableUtil();
 			tempUtil.clearTempTable(dataSourceLookup.getServerType(), conn, tempTableName);
-			
+
 			try {
 				JDBCUtil.closeJdbcResource(null, query, conn);
 
@@ -378,7 +403,7 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 		if ((pidType.getPatientId() != null && pidType.getPatientId()
 				.getValue() != null)
 				|| (pidType.getPatientMapId() != null && pidType
-						.getPatientMapId().size() > 0)) {
+				.getPatientMapId().size() > 0)) {
 			// pidType.setPatientId(singlePatientId);
 			pidSet.getPid().add(pidType);
 		}
@@ -387,12 +412,25 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 
 	private void uploadTempTable(Statement tempStmt, List<String> patientNumList)
 			throws SQLException {
+		String temp_pdo = SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE;
+		if (dataSourceLookup.getServerType().equalsIgnoreCase(
+				DAOFactoryHelper.POSTGRESQL))
+			temp_pdo = temp_pdo.substring(1);
+
 		String createTempInputListTable = "create table "
-				+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE
+				+ temp_pdo
 				+ " ( char_param1 varchar(100) )";
+	
+		if (dataSourceLookup.getServerType().equalsIgnoreCase(
+				DAOFactoryHelper.POSTGRESQL))
+		 createTempInputListTable = "create temp table "
+				+ temp_pdo
+				+ " ( char_param1 varchar(100) )";
+
+		
 		tempStmt.executeUpdate(createTempInputListTable);
 		log.debug("created temp table"
-				+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE);
+				+ temp_pdo);
 		// load to temp table
 		// TempInputListInsert inputListInserter = new
 		// TempInputListInsert(dataSource,TEMP_PDO_INPUTLIST_TABLE);
@@ -400,7 +438,7 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 		int i = 0;
 		for (String singleValue : patientNumList) {
 			tempStmt.addBatch("insert into "
-					+ SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE
+					+ temp_pdo
 					+ " values ('" + singleValue + "' )");
 			log.debug("adding batch" + singleValue);
 			i++;
@@ -416,6 +454,7 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 
 	private void deleteTempTable(Connection conn, String tempTableName) {
 
+		
 		Statement deleteStmt = null;
 		try {
 			deleteStmt = conn.createStatement();
@@ -441,6 +480,12 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 		if (dataSourceLookup.getServerType().equalsIgnoreCase(
 				DAOFactoryHelper.SQLSERVER)) {
 			String createTempInputListTable = "create table "
+					+ tempTableName
+					+ " (set_index int, char_param1 varchar(200), char_param2 varchar(200) )";
+			tempStmt.executeUpdate(createTempInputListTable);
+		} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
+				DAOFactoryHelper.POSTGRESQL)) {
+			String createTempInputListTable = "create temp table "
 					+ tempTableName
 					+ " (set_index int, char_param1 varchar(200), char_param2 varchar(200) )";
 			tempStmt.executeUpdate(createTempInputListTable);
@@ -497,6 +542,19 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 						+ " ( set_index int, char_param1 varchar(500) )";
 				tempStmt.executeUpdate(createTempInputListTable);
 				log.debug("created temp table" + tempTable);
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
+				log.debug("creating temp table");
+				java.sql.Statement tempStmt = conn.createStatement();
+				tempTable = SQLServerFactRelatedQueryHandler.TEMP_PDO_INPUTLIST_TABLE.substring(1);
+				try {
+					tempStmt.executeUpdate("drop table " + tempTable);
+				} catch (SQLException sqlex) {
+					;
+				}
+				String createTempInputListTable = "create temp table  " + tempTable
+						+ " ( set_index int, char_param1 varchar(500) )";
+				tempStmt.executeUpdate(createTempInputListTable);
+				log.debug("created temp table" + tempTable);
 			}
 			// if the inputlist is enumeration, then upload the enumerated input
 			// to temp table.
@@ -527,7 +585,15 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 					+ " FROM "
 					+ getDbSchemaName()
 					+ "patient_mapping pm "
-					+ " where patient_num in (select distinct char_param1 from "
+					+ " where patient_num in (select distinct ";
+
+			if (serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL))
+				finalSql += " CAST(coalesce(char_param1, '0') as integer) ";
+			else
+				finalSql += " char_param1 ";
+
+
+			finalSql += "from " 
 					+ tempTable + ") order by patient_num";
 			log.debug("Executing SQL [" + finalSql + "]");
 			System.out.println("Final Sql " + finalSql);
@@ -550,7 +616,7 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 		} finally {
 			PdoTempTableUtil tempUtil = new PdoTempTableUtil();
 			tempUtil.clearTempTable(dataSourceLookup.getServerType(), conn, tempTable);
-			
+
 			if (inputOptionListHandler != null
 					&& inputOptionListHandler.isEnumerationSet()) {
 				try {
@@ -571,11 +637,11 @@ public class PdoQueryPidDao extends CRCDAO implements IPdoQueryPidDao {
 
 	}
 
-	
+
 
 	private void executeUpdateSql(String totalSql, Connection conn,
 			int sqlParamCount, IInputOptionListHandler inputOptionListHandler)
-			throws SQLException {
+					throws SQLException {
 
 		PreparedStatement stmt = conn.prepareStatement(totalSql);
 

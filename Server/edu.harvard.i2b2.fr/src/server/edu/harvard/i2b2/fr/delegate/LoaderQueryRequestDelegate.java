@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the i2b2 Software License v1.0 
+ * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
  * 
  * Contributors: 
@@ -48,16 +48,15 @@ public class LoaderQueryRequestDelegate extends RequestHandlerDelegate {
     protected final Log log = LogFactory.getLog(getClass());
 	//ConfigureType pmResponseUserInfo  = null;
 
-    /**
-     * @see edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate#handleRequest(java.lang.String)
-     */
     @Override
 	public String handleRequest(String requestXml,RequestHandler requestHandler) throws I2B2Exception {
         String response = null;
         JAXBUtil jaxbUtil = FRJAXBUtil.getJAXBUtil();
        
         try {
-            JAXBElement jaxbElement = jaxbUtil.unMashallFromString(requestXml);
+    		log.debug("LoaderQueryRequestDelegate - RequestXML: " + requestXml);
+        	
+            JAXBElement<?> jaxbElement = jaxbUtil.unMashallFromString(requestXml);
             RequestMessageType requestMessageType = (RequestMessageType) jaxbElement.getValue();
             BodyType bodyType = requestMessageType.getMessageBody();
 
@@ -89,7 +88,7 @@ public class LoaderQueryRequestDelegate extends RequestHandlerDelegate {
             	pmResponseUserInfo = PMServiceDriver.checkValidUser(securityType);
             	//projectType = pmResponseUserInfo.getUser().getProject().get(0);
             	
-				Iterator it = pmResponseUserInfo.getUser().getProject().iterator();
+				Iterator<?> it = pmResponseUserInfo.getUser().getProject().iterator();
 				
 				
 				
@@ -254,6 +253,4 @@ public class LoaderQueryRequestDelegate extends RequestHandlerDelegate {
  	   }
  	   return false;
     }
-    
-    
 }

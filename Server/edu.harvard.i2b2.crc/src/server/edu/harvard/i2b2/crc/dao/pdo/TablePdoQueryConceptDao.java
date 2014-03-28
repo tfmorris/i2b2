@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 
 import oracle.sql.ArrayDescriptor;
 
-import org.jboss.resource.adapter.jdbc.WrappedConnection;
+//import org.jboss.resource.adapter.jdbc.WrappedConnection;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
@@ -73,7 +73,7 @@ public class TablePdoQueryConceptDao extends CRCDAO implements
 			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
 				factTempTable = this.getDbSchemaName()
 						+ FactRelatedQueryHandler.TEMP_FACT_PARAM_TABLE;
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) || serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL )) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				factTempTable = this.getDbSchemaName()
@@ -101,8 +101,13 @@ public class TablePdoQueryConceptDao extends CRCDAO implements
 			ResultSet resultSet = null;
 			for (String panelSql : panelSqlList) {
 				insertSql = " insert into "
-						+ factTempTable
-						+ "(char_param1) select distinct obs_concept_cd from ( "
+						+ factTempTable;
+				
+				if (serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL))
+					insertSql = " CAST(coalesce(char_param1, '0') as integer) ";
+				else 
+					insertSql += " (char_param1) ";
+				insertSql += "(char_param1) select distinct obs_concept_cd from ( "
 						+ panelSql + ") b";
 
 				log.debug("Executing SQL [ " + insertSql + "]");
@@ -203,8 +208,8 @@ public class TablePdoQueryConceptDao extends CRCDAO implements
 			String selectClause = conceptFactRelated.getSelectClause();
 			String serverType = dataSourceLookup.getServerType();
 			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
-				oracle.jdbc.driver.OracleConnection conn1 = (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
-						.getUnderlyingConnection();
+				oracle.jdbc.driver.OracleConnection conn1 = null;// (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
+			//			.getUnderlyingConnection();
 				String finalSql = "SELECT "
 						+ selectClause
 						+ "  FROM "
@@ -219,7 +224,8 @@ public class TablePdoQueryConceptDao extends CRCDAO implements
 				oracle.sql.ARRAY paramArray = new oracle.sql.ARRAY(desc, conn1,
 						conceptCdList.toArray(new String[] {}));
 				query.setArray(1, paramArray);
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				tempTableName = this.getDbSchemaName()

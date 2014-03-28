@@ -22,6 +22,7 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.ConstrainOperatorType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ConstrainValueType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ItemType;
 import edu.harvard.i2b2.crc.util.SqlClauseUtil;
+import edu.harvard.i2b2.crc.util.StringUtil;
 
 /**
  * Class to handle modifier constrains. Generates sql where clause based on the
@@ -67,20 +68,20 @@ public class ModifierConstrainsHandler {
 			}
 		}
 
-		dimPath.replaceAll("'", "''");
-
+		//dimPath.replaceAll("'", "''");
+		//dimCode = dimCode.replaceAll("'", "''");
+		
 		constrainSql = "  (" + factTableColumn + " IN ( select "
 				+ factTableColumn + " from " + this.schemaName + dimTableName + " where "
-				+ dimColumnName + " " + dimOperator + " " + dimCode;
+				+ dimColumnName + " " + dimOperator + " " + dimCode ;
 		
-		if (dimOperator.toUpperCase().equals("LIKE"))
+
+		if ((dimOperator.toUpperCase() != null) && (dimOperator.toUpperCase().equals("LIKE")))
 		{
 			
 			constrainSql += " {ESCAPE '?'} ";
 		}
 		constrainSql += "))";
-
-		
 
 
 		

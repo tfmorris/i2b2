@@ -131,6 +131,15 @@ public class EidListTypeHandler extends CRCDAO implements
 					+ " (set_index int, char_param1 varchar(100), char_param2 varchar(100) )";
 			deleteTempFlag = true;
 			tempStmt.executeUpdate(createTempInputListTable);
+		} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
+				DAOFactoryHelper.POSTGRESQL))
+		{
+			String createTempInputListTable = "create temp table "
+					+ getTempTableName()
+					+ " (set_index int, char_param1 varchar(100), char_param2 varchar(100) )";
+			deleteTempFlag = true;
+			tempStmt.executeUpdate(createTempInputListTable);
+			
 		}
 		int i = 0, j = 1;
 
@@ -182,7 +191,8 @@ public class EidListTypeHandler extends CRCDAO implements
 			deleteStmt = conn.createStatement();
 
 			if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL)) {
 				conn.createStatement().executeUpdate(
 						"drop table " + getTempTableName());
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(

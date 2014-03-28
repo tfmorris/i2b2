@@ -11,5 +11,5 @@ public  abstract class DataSourceLookupDAO extends JdbcTemplate {
 	//public abstract DataSourceLookup getDataSourceByHiveProjectOwner(String hive,String projectId, String owner);
 	public abstract List<DataSourceLookup> getDbLookupByHiveProjectOwner(String hiveId, String projectId,
 			String ownerId);
-	
+	public abstract List<DataSourceLookup> getDbLookupByHive(String hiveId);	
 }

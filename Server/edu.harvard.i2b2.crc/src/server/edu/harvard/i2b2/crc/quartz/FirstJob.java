@@ -1,13 +1,7 @@
 package edu.harvard.i2b2.crc.quartz;
 
 import javax.annotation.Resource;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
+
 import javax.naming.InitialContext;
 
 import org.quartz.Job;
@@ -25,11 +19,11 @@ import edu.harvard.i2b2.crc.ejb.analysis.QueryInstance;
 
 public class FirstJob implements Job {
 
-	Connection connection = null;
-	@Resource(mappedName = "ConnectionFactory")
-	private ConnectionFactory connectionFactory;
-	@Resource(mappedName = "jms/edu.harvard.i2b2.crc.loader.loadresponse")
-	private static Queue responseQueue;
+//	Connection connection = null;
+//	@Resource(mappedName = "ConnectionFactory")
+//	private ConnectionFactory connectionFactory;
+//	@Resource(mappedName = "jms/edu.harvard.i2b2.crc.loader.loadresponse")
+//	private static Queue responseQueue;
 
 	public FirstJob() {
 	}
@@ -121,6 +115,7 @@ public class FirstJob implements Job {
 	 */
 	private void sendResponse(String sessionId, String publishMessage)
 			throws Throwable {
+		/*
 		Session session = null;
 		MessageProducer publisher = null;
 		TextMessage message = null;
@@ -158,7 +153,7 @@ public class FirstJob implements Job {
 				}
 			}
 		}
-
+*/
 	}
 
 }

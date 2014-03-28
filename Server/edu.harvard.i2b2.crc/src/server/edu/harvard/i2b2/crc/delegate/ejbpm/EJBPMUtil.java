@@ -17,7 +17,12 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.Options;
-import org.apache.axis2.client.ServiceClient;
+import edu.harvard.i2b2.common.util.axis2.ServiceClient;
+import org.apache.axis2.context.ServiceContext;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -47,46 +52,12 @@ import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 public class EJBPMUtil {
 
-	private SecurityType securityType = null;
-	private String projectId = null;
-	private String ontologyUrl = null;
 	public static String LOCKEDOUT = "LOCKEDOUT";
 
 	private static Log log = LogFactory.getLog(EJBPMUtil.class);
 
-	public EJBPMUtil(String requestXml) throws JAXBUtilException, I2B2Exception {
-		this(QueryProcessorUtil.getInstance().getOntologyUrl(), requestXml);
-	}
-
-	public EJBPMUtil(String ontologyUrl, String requestXml)
-			throws JAXBUtilException, I2B2Exception {
-		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
-				.unMashallFromString(requestXml);
-		RequestMessageType request = (RequestMessageType) responseJaxb
-				.getValue();
-		this.securityType = request.getMessageHeader().getSecurity();
-		this.projectId = request.getMessageHeader().getProjectId();
-		this.ontologyUrl = ontologyUrl;
-	}
-
-	public EJBPMUtil(SecurityType securityType, String projectId)
-			throws I2B2Exception {
-		this.securityType = securityType;
-		this.projectId = projectId;
-		this.ontologyUrl = QueryProcessorUtil.getInstance()
-				.getProjectManagementCellUrl();
-		log.debug("CRC PM call url" + ontologyUrl);
-	}
-
-	public EJBPMUtil(String ontologyUrl, SecurityType securityType,
-			String projectId) throws I2B2Exception {
-		this.securityType = securityType;
-		this.projectId = projectId;
-		this.ontologyUrl = ontologyUrl;
-	}
-
-	public void setUserLockedParam(String userName, String projectId,
-			String paramName, String lockDate) throws I2B2Exception {
+	public static void setUserLockedParam(String userName,
+			String paramName, String lockDate, SecurityType securityType, String projectId, String ontologyUrl ) throws I2B2Exception {
 
 		ParamType paramType = new ParamType();
 		paramType.setName(LOCKEDOUT);
@@ -101,13 +72,14 @@ public class EJBPMUtil {
 		projectType1.setUserName(userName);
 		projectType1.setId(projectId);
 		bodyType.getAny().add(of.createSetProjectUserParam(projectType1));
-		RequestMessageType requestMessageType = getI2B2RequestMessage(bodyType);
+		RequestMessageType requestMessageType = getI2B2RequestMessage(bodyType, securityType, projectId);
 		OMElement requestElement = null;
 
 		try {
 			requestElement = buildOMElement(requestMessageType);
 			log.debug("CRC PM call's request xml " + requestElement);
-			OMElement response = getServiceClient().sendReceive(requestElement);
+			//OMElement response = getServiceClient().sendReceive(requestElement);
+			String response = ServiceClient.sendREST(ontologyUrl, requestElement);
 			// :TODO check the status in the response
 
 			// projectType = getUserProjectFromResponse(response.toString());
@@ -117,15 +89,15 @@ public class EJBPMUtil {
 		} catch (JAXBUtilException e) {
 			e.printStackTrace();
 			throw new I2B2Exception("" + StackTraceUtil.getStackTrace(e));
-		} catch (AxisFault e) {
+		} catch (Exception  e) {
 			e.printStackTrace();
 			throw new I2B2Exception(
 					"AxisFault error when setting lockedout param for user "
 							+ StackTraceUtil.getStackTrace(e));
-		}
+		} 
 	}
 
-	public ProjectType callUserProject() throws AxisFault, I2B2Exception {
+	public static ProjectType callUserProject(SecurityType securityType, String projectId,  String ontologyUrl ) throws AxisFault, I2B2Exception {
 		// build message body
 		// GetUserInfoType getUserInfoType = null;
 		GetUserConfigurationType userConfig = new GetUserConfigurationType();
@@ -134,25 +106,27 @@ public class EJBPMUtil {
 		ObjectFactory of = new ObjectFactory();
 		BodyType bodyType = new BodyType();
 		bodyType.getAny().add(of.createGetUserConfiguration(userConfig));
-		RequestMessageType requestMessageType = getI2B2RequestMessage(bodyType);
+		RequestMessageType requestMessageType = getI2B2RequestMessage(bodyType, securityType, projectId);
 		OMElement requestElement = null;
 		ProjectType projectType = null;
 		try {
 			requestElement = buildOMElement(requestMessageType);
 			log.debug("CRC PM call's request xml " + requestElement);
-			OMElement response = getServiceClient().sendReceive(requestElement);
-			projectType = getUserProjectFromResponse(response.toString());
+			//OMElement response = getServiceClient().sendReceive(requestElement);
+			String response = ServiceClient.sendREST(ontologyUrl, requestElement );
+			projectType = getUserProjectFromResponse(response, securityType, projectId);
 		} catch (XMLStreamException e) {
 			e.printStackTrace();
 			throw new I2B2Exception("" + StackTraceUtil.getStackTrace(e));
-		} catch (JAXBUtilException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new I2B2Exception("" + StackTraceUtil.getStackTrace(e));
-		}
+		} 
+
 		return projectType;
 	}
 
-	public RolesType callGetRole(String userId, String projectId)
+	public static RolesType callGetRole(String userId, SecurityType securityType,  String projectId, String ontologyUrl  )
 			throws AxisFault, I2B2Exception {
 		RolesType rolesType = new RolesType();
 		String pmBypassRole = null, pmBypassProject = null;
@@ -198,19 +172,21 @@ public class EJBPMUtil {
 			ObjectFactory of = new ObjectFactory();
 			BodyType bodyType = new BodyType();
 			bodyType.getAny().add(of.createGetAllRole(roleType));
-			RequestMessageType requestMessageType = getI2B2RequestMessage(bodyType);
+			RequestMessageType requestMessageType = getI2B2RequestMessage(bodyType, securityType, projectId);
 			OMElement requestElement = null;
 
 			try {
 				requestElement = buildOMElement(requestMessageType);
 				log.debug("CRC PM call's request xml " + requestElement);
-				OMElement response = getServiceClient().sendReceive(
-						requestElement);
-				rolesType = getUserRolesFromResponse(response.toString());
+				//OMElement response = getServiceClient().sendReceive(
+				//		requestElement);
+				String response = ServiceClient.sendREST(ontologyUrl,requestElement);
+
+				rolesType = getUserRolesFromResponse(response);
 			} catch (XMLStreamException e) {
 				e.printStackTrace();
 				throw new I2B2Exception("" + StackTraceUtil.getStackTrace(e));
-			} catch (JAXBUtilException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				throw new I2B2Exception("" + StackTraceUtil.getStackTrace(e));
 			}
@@ -219,7 +195,7 @@ public class EJBPMUtil {
 		return rolesType;
 	}
 
-	private ProjectType getUserProjectFromResponse(String responseXml)
+	private static ProjectType getUserProjectFromResponse(String responseXml, SecurityType securityType,  String projectId )
 			throws JAXBUtilException, I2B2Exception {
 		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
 				.unMashallFromString(responseXml);
@@ -268,7 +244,7 @@ public class EJBPMUtil {
 		return projectType;
 	}
 
-	private RolesType getUserRolesFromResponse(String responseXml)
+	private static RolesType getUserRolesFromResponse(String responseXml)
 			throws JAXBUtilException, I2B2Exception {
 		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
 				.unMashallFromString(responseXml);
@@ -299,7 +275,7 @@ public class EJBPMUtil {
 
 	}
 
-	private OMElement buildOMElement(RequestMessageType requestMessageType)
+	private static OMElement buildOMElement(RequestMessageType requestMessageType)
 			throws XMLStreamException, JAXBUtilException {
 		StringWriter strWriter = new StringWriter();
 		edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory hiveof = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
@@ -316,7 +292,7 @@ public class EJBPMUtil {
 		return request;
 	}
 
-	private RequestMessageType getI2B2RequestMessage(BodyType bodyType) {
+	private static RequestMessageType getI2B2RequestMessage(BodyType bodyType, SecurityType securityType,  String projectId ) {
 		QueryProcessorUtil queryUtil = QueryProcessorUtil.getInstance();
 		MessageHeaderType messageHeaderType = (MessageHeaderType) queryUtil
 				.getSpringBeanFactory().getBean("message_header");
@@ -339,21 +315,6 @@ public class EJBPMUtil {
 		requestMessageType.setRequestHeader(requestHeader);
 
 		return requestMessageType;
-
-	}
-
-	private ServiceClient getServiceClient() {
-		// call
-		ServiceClient serviceClient = PMServiceClient.getServiceClient();
-
-		Options options = new Options();
-		options.setTo(new EndpointReference(ontologyUrl));
-		options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-		options.setProperty(Constants.Configuration.ENABLE_REST,
-				Constants.VALUE_TRUE);
-		options.setTimeOutInMilliSeconds(50000);
-		serviceClient.setOptions(options);
-		return serviceClient;
 
 	}
 

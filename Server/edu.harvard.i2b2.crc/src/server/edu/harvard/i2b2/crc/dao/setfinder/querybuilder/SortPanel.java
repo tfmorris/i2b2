@@ -17,21 +17,23 @@ import org.apache.commons.logging.LogFactory;
 import org.jdom.Element;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
+import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.exception.StackTraceUtil;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
+import edu.harvard.i2b2.crc.datavo.i2b2message.SecurityType;
 import edu.harvard.i2b2.crc.datavo.ontology.ConceptType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.ItemType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.PanelType;
 import edu.harvard.i2b2.crc.delegate.ontology.CallOntologyUtil;
 import edu.harvard.i2b2.crc.util.ItemKeyUtil;
+import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 public class SortPanel {
 	/** log **/
 	protected final Log log = LogFactory.getLog(getClass());
 
 	public List<Element> getSortedPanelList(List<Element> panelList,
-			CallOntologyUtil ontologyUtil) throws AxisFault, I2B2DAOException,
-			XMLStreamException, JAXBUtilException {
+			SecurityType securityType, String projectId) throws AxisFault, XMLStreamException, JAXBUtilException, I2B2Exception {
 
 		Map<Integer, Integer> panelTotalMap = new HashMap<Integer, Integer>();
 		Map<Integer, Element> panelMap = new HashMap<Integer, Element>();
@@ -47,7 +49,8 @@ public class SortPanel {
 				Element itemXml = (org.jdom.Element) iterator.next();
 				String itemKey = itemXml.getChildText("item_key");
 				String itemClass = itemXml.getChildText("class");
-				ConceptType conceptType = ontologyUtil.callOntology(itemKey);
+				//ConceptType conceptType = ontologyUtil.callOntology(itemKey);
+				ConceptType conceptType = CallOntologyUtil.callOntology(itemKey, securityType, projectId, QueryProcessorUtil.getInstance().getOntologyUrl());
 				if (conceptType != null && conceptType.getTotalnum() != null) {
 					panelTotal += conceptType.getTotalnum();
 				}
@@ -89,7 +92,7 @@ public class SortPanel {
 	}
 
 	public List<PanelType> sortedPanelList(List<PanelType> panelList,
-			CallOntologyUtil ontologyUtil) throws I2B2DAOException {
+			SecurityType securityType, String projectId) throws I2B2Exception {
 
 		Map<Integer, Integer> panelTotalMap = new HashMap<Integer, Integer>();
 		Map<Integer, Integer> invertPanelTotalMap = new HashMap<Integer, Integer>();
@@ -111,7 +114,9 @@ public class SortPanel {
 				try {
 					itemKey = itemType.getItemKey();
 						if (ItemKeyUtil.isConceptKey(itemKey)) { 
-						conceptType = ontologyUtil.callOntology(itemKey);
+						//conceptType = ontologyUtil.callOntology(itemKey);
+						 conceptType = CallOntologyUtil.callOntology(itemKey, securityType, projectId, QueryProcessorUtil.getInstance().getOntologyUrl());
+
 						if (conceptType != null && conceptType.getTotalnum() !=null) {
 							panelTotal += conceptType.getTotalnum();
 						}

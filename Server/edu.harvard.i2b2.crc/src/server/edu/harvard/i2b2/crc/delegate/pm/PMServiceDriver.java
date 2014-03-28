@@ -64,8 +64,8 @@ public class PMServiceDriver {
 			projectType.setId(pmBypassProject);
 
 		} else {
-			CallPMUtil callPMUtil = new CallPMUtil(security, projectId);
-			projectType = callPMUtil.callUserProject();
+		//	CallPMUtil callPMUtil = new CallPMUtil(security, projectId);
+			projectType = CallPMUtil.callUserProject(security, projectId);
 		}
 		return projectType;
 	}

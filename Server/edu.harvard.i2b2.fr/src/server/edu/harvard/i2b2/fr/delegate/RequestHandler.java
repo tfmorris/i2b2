@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v1.0 
  * which accompanies this distribution. 
@@ -64,16 +64,21 @@ public abstract class RequestHandler {
      */
     protected Object getRequestType(String requestXml, Class classname)
         throws JAXBUtilException {
+		log.debug("RequestHandler - RequestXML: " + requestXml);
+
         Object returnObject = null;
+        log.debug("MM1");
 
         JAXBUtil jaxbUtil = FRJAXBUtil.getJAXBUtil();
         JAXBElement jaxbElement = jaxbUtil.unMashallFromString(requestXml);
         RequestMessageType requestMessageType = (RequestMessageType) jaxbElement.getValue();
         BodyType bodyType = requestMessageType.getMessageBody();
         JAXBUnWrapHelper unWrapHelper = new JAXBUnWrapHelper();
+        log.debug("MM6");
         //get request header type
         returnObject = unWrapHelper.getObjectByClass(bodyType.getAny(),
                 classname);
+        log.debug("MM7");
         return returnObject;
     }
     

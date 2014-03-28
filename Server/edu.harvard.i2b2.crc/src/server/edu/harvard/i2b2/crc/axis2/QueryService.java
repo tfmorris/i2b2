@@ -23,10 +23,15 @@ import org.springframework.util.Assert;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
-import edu.harvard.i2b2.crc.delegate.loader.LoaderQueryRequestDelegate;
-import edu.harvard.i2b2.crc.delegate.loader.PublishDataRequestHandler;
+//import edu.harvard.i2b2.crc.delegate.loader.LoaderQueryRequestDelegate;
+//import edu.harvard.i2b2.crc.delegate.loader.PublishDataRequestHandler;
+import edu.harvard.i2b2.crc.delegate.getnameinfo.GetNameInfoRequestDelegate;
 import edu.harvard.i2b2.crc.delegate.pdo.PdoQueryRequestDelegate;
 import edu.harvard.i2b2.crc.delegate.setfinder.QueryRequestDelegate;
+import edu.harvard.i2b2.crc.loader.delegate.BulkLoadRequestHandler;
+import edu.harvard.i2b2.crc.loader.delegate.GetLoadStatusRequestHandler;
+import edu.harvard.i2b2.crc.loader.delegate.LoaderQueryRequestDelegate;
+import edu.harvard.i2b2.crc.loader.delegate.PublishDataRequestHandler;
 import edu.harvard.i2b2.crc.loader.ws.ProviderRestService;
 
 /**
@@ -52,6 +57,9 @@ public class QueryService {
 
 	/** set finder request constant used only inside this class **/
 	private final String SETFINDER_REQUEST = "SETFINDER_REQUEST";
+
+	/** get name info request constant used only inside this class **/
+	private final String GETNAMEINFO_REQUEST = "GETNAMEINFO_REQUEST";
 
 	/**
 	 * Webservice function to handle setfinder request
@@ -79,11 +87,26 @@ public class QueryService {
 		log.debug("Inside pdo request " + omElement);
 		return handleRequest(PDO_REQUEST, omElement);
 	}
+	
+	/**
+	 * Webservice function to handle find request
+	 * 
+	 * @param omElement
+	 *            request message wrapped in OMElement
+	 * @return response message in wrapped inside OMElement
+	 */
+	public OMElement getNameInfo(OMElement omElement) {
+		Assert.notNull(omElement, "getNameInfo  OMElement must not be null");
+		log.debug("Inside getNameInfo request " + omElement);
+		return handleRequest(GETNAMEINFO_REQUEST, omElement);
+	}
 
 	public OMElement publishDataRequest(OMElement request) {
 		Assert.notNull(request,
 				"publish data request OMElement must not be null");
 		log.debug("Inside publish data request " + request);
+		//TODO removed loader
+		// Added back
 		LoaderQueryRequestDelegate queryDelegate = new LoaderQueryRequestDelegate();
 		OMElement responseElement = null;
 		try {
@@ -93,9 +116,7 @@ public class QueryService {
 			String response = queryDelegate.handleRequest(requestXml, handler);
 			responseElement = buildOMElementFromString(response);
 
-		} catch (XMLStreamException e) {
-			log.error("xml stream exception", e);
-		} catch (I2B2Exception e) {
+		} catch (Exception e) {
 			log.error("i2b2 exception", e);
 		} catch (Throwable e) {
 			log.error("Throwable", e);
@@ -104,6 +125,59 @@ public class QueryService {
 
 	}
 
+	public OMElement bulkLoadRequest(OMElement request) {
+		Assert.notNull(request,
+				"bulk load request OMElement must not be null");
+		log.debug("Inside bulk load request " + request);
+		
+		//LoaderQueryReqDel handles permissions...
+		LoaderQueryRequestDelegate queryDelegate = new LoaderQueryRequestDelegate();
+		OMElement responseElement = null;
+		try {
+			String requestXml = request.toString();
+			BulkLoadRequestHandler handler = new BulkLoadRequestHandler(
+					requestXml);
+			String response = queryDelegate.handleRequest(requestXml, handler);
+			responseElement = buildOMElementFromString(response);
+
+		} catch (Exception e) {
+			log.error("i2b2 exception", e);
+		} catch (Throwable e) {
+			log.error("Throwable", e);
+		}
+		return responseElement;
+
+	}	
+	
+	public OMElement getLoadDataStatusRequest(OMElement request) {
+		Assert.notNull(request,
+				"get load Data status request OMElement must not be null");
+		log.debug("Inside load status request " + request);
+		
+		//LoaderQueryReqDel handles permissions...
+		LoaderQueryRequestDelegate queryDelegate = new LoaderQueryRequestDelegate();
+		OMElement responseElement = null;
+		try {
+			String requestXml = request.toString();
+			GetLoadStatusRequestHandler handler = new GetLoadStatusRequestHandler(
+					requestXml);
+			String response = queryDelegate.handleRequest(requestXml, handler);
+			responseElement = buildOMElementFromString(response);
+
+		} catch (Exception e) {
+			log.error("i2b2 exception", e);
+		} catch (Throwable e) {
+			log.error("Throwable", e);
+		}
+		return responseElement;
+
+	}	
+	
+
+	
+	//TODO removed loader   
+	// added back above (lcp5)
+	/*
 	public OMElement getLoadDataStatusRequest(OMElement request) {
 		Assert.notNull(request,
 				"Data load status request OMElement must not be null");
@@ -111,7 +185,7 @@ public class QueryService {
 		ProviderRestService rs = new ProviderRestService();
 		return rs.getLoadDataStatusRequest(request);
 	}
-	
+
 	public OMElement getMissingTermRequest(OMElement request) {
 		Assert.notNull(request,
 				"Missing term request OMElement must not be null");
@@ -119,7 +193,7 @@ public class QueryService {
 		ProviderRestService rs = new ProviderRestService();
 		return rs.getMissingTermRequest(request);
 	}
-
+	 */
 	// --------------------------------------------
 	// Creates delegate based on the request type
 	// --------------------------------------------
@@ -130,6 +204,8 @@ public class QueryService {
 			requestHandlerDelegate = new PdoQueryRequestDelegate();
 		} else if (requestType.equals(SETFINDER_REQUEST)) {
 			requestHandlerDelegate = new QueryRequestDelegate();
+		} else if (requestType.equals(GETNAMEINFO_REQUEST)) {
+			requestHandlerDelegate = new GetNameInfoRequestDelegate();			
 		}
 		OMElement returnElement = null;
 		try {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2007 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v1.0 
  * which accompanies this distribution. 
@@ -56,6 +56,10 @@ public class FRUtil {
 	/** property name for metadata schema name* */
 	private static final String PMCELL_BYPASS_ROLE_PROPERTIES = "edu.harvard.i2b2.fr.ws.pm.bypass.role";
 	
+	private static final String PM_WS_EPR = "fr.ws.pm.url";
+
+	/** property name for PM webservice method **/
+	private static final String PM_WS_METHOD = "edu.harvard.i2b2.fr.ws.pm.webServiceMethod";
 
 	/** class instance field* */
 	private static FRUtil thisInstance = null;
@@ -176,5 +180,16 @@ public class FRUtil {
 		return propertyValue;
 	}
 
+
+
+	public String getPmEndpointReference() throws I2B2Exception {
+		return getPropertyValue(PMCELL_WS_URL_PROPERTIES).trim();
+	}
+
+
+
+	public String getPmWebServiceMethod() throws I2B2Exception {
+		return getPropertyValue(PM_WS_METHOD).trim();
+	}
 
 }

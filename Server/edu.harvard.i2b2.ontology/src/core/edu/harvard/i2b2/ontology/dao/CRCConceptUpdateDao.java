@@ -79,25 +79,23 @@ public class CRCConceptUpdateDao extends JdbcDaoSupport {
 					"PROCESSING");
 			// call frc
 			log.debug("Begin file transfer to FR");
-			CallFileRepositoryUtil frUtil = new CallFileRepositoryUtil(
-					securityType, projectId);
-			frUtil.callFileRepository(pdoFileName);
+			//CallFileRepositoryUtil frUtil = new CallFileRepositoryUtil(
+			//		securityType, projectId);
+			CallFileRepositoryUtil.callFileRepository(pdoFileName, securityType, projectId);
 			log.debug("File transfered to FR");
 			ontProcessStatusDao.updateStatus(processId, null, "ONT_SENTTO_FRC",
 					"PROCESSING");
 
 			// call crc loader
-			try {
-			CallCRCUtil crcUtil = new CallCRCUtil(securityType, projectId);
-			LoadDataResponseType loadDataResponseType = crcUtil.callCRCUpload(
-					pdoFileName, "ONT_SYNC_" + processId, synchronizeAllFlag);
+			//CallCRCUtil crcUtil = new CallCRCUtil(securityType, projectId);
+			LoadDataResponseType loadDataResponseType = CallCRCUtil.callCRCUpload(
+					pdoFileName, "ONT_SYNC_" + processId, synchronizeAllFlag,securityType, projectId);
 			// update upload_id in the process table
 			ontProcessStatusDao.updateCRCUploadId(processId,
 					loadDataResponseType.getUploadId());
 			// poll upload status
-			loadDataResponseType = crcUtil
+			loadDataResponseType = CallCRCUtil
 					.pollUploadStatus(loadDataResponseType.getUploadId());
-			} catch (Exception e) {}
 
 			ontProcessStatusDao.updateStatus(processId, new Date(System
 					.currentTimeMillis()), "ONT_SENTTO_CRCLOADER", "COMPLETED");
@@ -107,9 +105,11 @@ public class CRCConceptUpdateDao extends JdbcDaoSupport {
 			if (ontProcessStatusDao != null && processId > 0) {
 				ontProcessStatusDao.updateStatus(processId, new Date(System
 						.currentTimeMillis()), "ERROR", "ERROR");
-				ontProcessStatusDao.updateStatusMessage(processId, t.getMessage());
+				ontProcessStatusDao.updateStatusMessage(processId,
+						StackTraceUtil.getStackTrace(t).substring(0, 1900));
 			}
-			throw new I2B2Exception(t.getMessage());
+			throw new I2B2Exception(StackTraceUtil.getStackTrace(t).substring(
+					0, 1900));
 		} finally {
 
 			// try to delete the temp pdo file

@@ -18,11 +18,9 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.MasterResponseType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.UserRequestType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
-import edu.harvard.i2b2.crc.ejb.QueryInfoLocal;
-import edu.harvard.i2b2.crc.ejb.QueryInfoLocalHome;
+import edu.harvard.i2b2.crc.ejb.QueryInfoBean;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
-import javax.ejb.CreateException;
 
 
 /**
@@ -62,10 +60,14 @@ public class GetQueryMasterListFromGroupIdHandler extends RequestHandler {
         BodyType bodyType = new BodyType();
         MasterResponseType masterResponseType = null;
         try {
-            QueryInfoLocalHome queryInfoLocalHome = qpUtil.getQueryInfoLocalHome();
-            QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
+        	//TODO removed ejbs
+    //        QueryInfoLocalHome queryInfoLocalHome = qpUtil.getQueryInfoLocalHome();
+    //        QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
             long initialTime = System.currentTimeMillis();
-            masterResponseType = queryInfoLocal.getQueryMasterListFromGroupId(this.getDataSourceLookup(),userRequestType);
+     //       masterResponseType = queryInfoLocal.getQueryMasterListFromGroupId(this.getDataSourceLookup(),userRequestType);
+            QueryInfoBean query = new QueryInfoBean();
+            masterResponseType = query.getQueryMasterListFromGroupId(getDataSourceLookup(),userRequestType);
+
             long finalTime = System.currentTimeMillis();
             long diffTimeMill = finalTime - initialTime;
             long diffTime = diffTimeMill / 1000;
@@ -73,19 +75,10 @@ public class GetQueryMasterListFromGroupIdHandler extends RequestHandler {
                 diffTime);
             masterResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));
             log.debug("Size of list " + masterResponseType.getQueryMaster().size());
-//            ResponseMessageType responseMessageType = new ResponseMessageType();
-//            responseMessageType.setMessageBody(bodyType);
-//            responseString = getResponseString(responseMessageType);
-        } catch (I2B2Exception e) {
+        } catch (Exception e) {
         	masterResponseType = new MasterResponseType();
         	masterResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.ERROR_TYPE, e.getMessage()));
         	log.equals(e);
-        } catch (ServiceLocatorException e) {
-            log.error(e);
-            throw new I2B2Exception("Servicelocator exception", e);
-        } catch (CreateException e) {
-            log.error(e);
-            throw new I2B2Exception("Ejb create exception", e);
         } finally { 
         	edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
             bodyType.getAny().add(of.createResponse(masterResponseType));

@@ -11,11 +11,6 @@ package edu.harvard.i2b2.crc.delegate.setfinder;
 
 import java.util.List;
 
-import javax.ejb.CreateException;
-import javax.management.MalformedObjectNameException;
-
-import org.jboss.cache.Cache;
-
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.ServiceLocatorException;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
@@ -29,8 +24,7 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.QueryStatusTypeType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
-import edu.harvard.i2b2.crc.ejb.QueryManagerLocal;
-import edu.harvard.i2b2.crc.ejb.QueryManagerLocalHome;
+import edu.harvard.i2b2.crc.ejb.QueryManagerBean;
 import edu.harvard.i2b2.crc.ejb.role.PriviledgeLocal;
 import edu.harvard.i2b2.crc.util.CacheUtil;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
@@ -79,46 +73,40 @@ public class RunQueryInstanceFromQueryDefinitionHandler extends RequestHandler {
 		BodyType bodyType = new BodyType();
 		MasterInstanceResultResponseType masterInstanceResponse = null;
 		try {
-			PriviledgeLocal privilegeLocal = qpUtil.getPriviledgeLocal();
+			log.debug("Running Execute");
 
 			DAOFactoryHelper daoFactoryHelper = new DAOFactoryHelper(this
 					.getDataSourceLookup().getDomainId(), getDataSourceLookup()
 					.getProjectPath(), getDataSourceLookup().getOwnerId());
 
-			Cache cache = null;
-			try {
-				cache = CacheUtil.getCache();
-			} catch (MalformedObjectNameException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NullPointerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			// domainId + "/" + projectId + "/" + userId;
 			String rolePath = getDataSourceLookup().getDomainId() + "/"
 					+ getDataSourceLookup().getProjectPath() + "/"
 					+ getDataSourceLookup().getOwnerId();
 
-			List<String> roles = (List<String>) cache.getRoot().get(rolePath);
+			//List<String> roles = (List<String>) cache.getRoot().get(rolePath);
 			log.debug("Roles from get " + rolePath);
+			List<String> roles = (List<String>) CacheUtil.get(rolePath);
 			if (roles != null) {
 				log.debug("Roles from size " + roles.size());
 			} else {
 				log.debug("Roles from get is null ");
 			}
 
+			//TODO check previlieges
 			IDAOFactory daoFactory = daoFactoryHelper.getDAOFactory();
+			PriviledgeLocal privilegeLocal = qpUtil.getPriviledgeLocal();
+
 			privilegeLocal.checkPriviledge(daoFactory,
 					"SETFINDER_QRY_WITH_DATAOBFSC", roles);
+        	//TODO removed ejbs
+//			QueryManagerLocalHome queryManagerLocalHome = qpUtil
+//					.getQueryManagerLocalHome();
 
-			QueryManagerLocalHome queryManagerLocalHome = qpUtil
-					.getQueryManagerLocalHome();
+//			QueryManagerLocal queryManagerLocal = queryManagerLocalHome
+//					.create();
 
-			QueryManagerLocal queryManagerLocal = queryManagerLocalHome
-					.create();
-
-			// response = queryManagerLocal.processQuery(requestXml);
+			log.debug("Calling QueryManager ");
+			QueryManagerBean queryManagerLocal = new QueryManagerBean();
 			masterInstanceResponse = queryManagerLocal.processQuery(this
 					.getDataSourceLookup(), requestXml);
 			if (masterInstanceResponse.getStatus() != null) {
@@ -132,9 +120,13 @@ public class RunQueryInstanceFromQueryDefinitionHandler extends RequestHandler {
 					}
 				}
 			}
+			log.debug("Calling QueryInstance ");
 			QueryInstanceType queryInstance = masterInstanceResponse.getQueryInstance();
 			QueryStatusTypeType statusType = queryInstance.getQueryStatusType();
+			log.debug("checking status type: " + statusType.getStatusTypeId());
+			//masterInstanceResponse.getStatus().getCondition().get(0).g
 			if (statusType.getStatusTypeId() != null && statusType.getStatusTypeId().trim().equals("4")) { 
+				log.debug("Changing status type to ERROR");
 				StatusType status =  new StatusType();
 				StatusType.Condition condition = new StatusType.Condition();
 				condition.setType("ERROR");
@@ -142,21 +134,19 @@ public class RunQueryInstanceFromQueryDefinitionHandler extends RequestHandler {
 				status.getCondition().add(condition);
 				masterInstanceResponse.setStatus(status);
 				errorFlag = true;
+			} else if (statusType.getStatusTypeId() != null && !statusType.getStatusTypeId().trim().equals("6")) {
+				masterInstanceResponse.setStatus(this.buildCRCStausType(
+						 "RUNNING", "RUNNING"));
+			} else {
+			 masterInstanceResponse.setStatus(this.buildCRCStausType(
+			 RequestHandlerDelegate.DONE_TYPE, "DONE"));
 			}
-			// masterInstanceResponse.setStatus(this.buildCRCStausType(
-			// RequestHandlerDelegate.DONE_TYPE, "DONE"));
-			
-			// response = this.buildResponseMessage(requestXml, bodyType);
-		} catch (I2B2Exception e) {
+			 response = this.buildResponseMessage(requestXml, bodyType);
+		} catch (Exception ee) {
+			log.debug("Ran into a error: " + ee.getMessage());
 			masterInstanceResponse = new MasterInstanceResultResponseType();
 			masterInstanceResponse.setStatus(this.buildCRCStausType(
-					RequestHandlerDelegate.ERROR_TYPE, e.getMessage()));
-		} catch (ServiceLocatorException e) {
-			log.error(e);
-			throw new I2B2Exception("Servicelocator exception", e);
-		} catch (CreateException e) {
-			log.error(e);
-			throw new I2B2Exception("Ejb create exception", e);
+					RequestHandlerDelegate.ERROR_TYPE, ee.getMessage()));
 		} finally {
 			edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory psmObjFactory = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
 			bodyType.getAny().add(
@@ -165,6 +155,7 @@ public class RunQueryInstanceFromQueryDefinitionHandler extends RequestHandler {
 
 		return bodyType;
 	}
+
 
 	public boolean getLockedoutFlag() {
 		return lockedoutFlag;

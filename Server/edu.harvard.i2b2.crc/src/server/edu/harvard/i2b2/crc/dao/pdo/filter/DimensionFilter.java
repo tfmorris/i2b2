@@ -11,6 +11,8 @@ package edu.harvard.i2b2.crc.dao.pdo.filter;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
+import edu.harvard.i2b2.crc.dao.DAOFactoryHelper;
+import edu.harvard.i2b2.crc.datavo.db.DataSourceLookup;
 import edu.harvard.i2b2.crc.datavo.pdo.query.ItemType;
 import edu.harvard.i2b2.crc.util.SqlClauseUtil;
 
@@ -25,16 +27,17 @@ public class DimensionFilter {
 	private String dimensionColumnName = null;
 	private String factTableColumn = null;
 	private String schemaName = null;
-
+	private DataSourceLookup dataSourceLookup = null;
+	
 	/**
 	 * Parameter constructor
 	 * 
 	 * @param filterListType
 	 */
-	public DimensionFilter(ItemType item, String schemaName) {
+	public DimensionFilter(ItemType item, String schemaName, DataSourceLookup dataSourceLookup) {
 		this.item = item;
 		this.schemaName = schemaName;
-
+		this.dataSourceLookup = dataSourceLookup; 
 	}
 
 	/**
@@ -69,6 +72,9 @@ public class DimensionFilter {
 					} else {
 						dimCode = dimCode + "\\%";
 					}
+					if (dataSourceLookup.getServerType().equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL))
+						dimCode = dimCode.replaceAll("\\\\", "\\\\\\\\");
+
 				}
 			}
 			

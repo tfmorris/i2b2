@@ -3,6 +3,8 @@ package edu.harvard.i2b2.crc.dao.setfinder;
 import java.util.Map;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
+import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 
 public interface IQueryRequestDao {
 
@@ -25,9 +27,11 @@ public interface IQueryRequestDao {
 	 * @param queryRequestXml
 	 * @return sql string
 	 * @throws I2B2DAOException
+	 * @throws I2B2Exception 
+	 * @throws JAXBUtilException 
 	 */
 	public String[] buildSql(String queryRequestXml, boolean encounterSetFlag)
-			throws I2B2DAOException;
+			throws I2B2DAOException, I2B2Exception, JAXBUtilException;
 
 	
 	/**
@@ -42,6 +46,12 @@ public interface IQueryRequestDao {
 	 * @param allowLargeTextValueConstrainFlag
 	 */
 	public void setAllowLargeTextValueConstrainFlag(boolean allowLargeTextValueConstrainFlag) ;
+		
+	/**
+	 * set query with temp table optimization
+	 * @param allowLargeTextValueConstrainFlag
+	 */
+	public void setQueryWithoutTempTableFlag(boolean queryWithoutTempTableFlag) ;
 		
 	
 }

@@ -10,6 +10,7 @@
 package edu.harvard.i2b2.crc.dao.setfinder.querybuilder;
 
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -39,7 +40,8 @@ public class DateConstrainHandler {
 				DAOFactoryHelper.ORACLE)) {
 			dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
 		} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-				DAOFactoryHelper.SQLSERVER)) {
+				DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+						DAOFactoryHelper.POSTGRESQL)) {
 			// ISO 8601
 			dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		}
@@ -53,6 +55,7 @@ public class DateConstrainHandler {
 		String sqlOperator = null;
 
 		if (fromDate != null) {
+			dateFormat.setTimeZone(fromDate.toGregorianCalendar().getTimeZone());
 			String fromDateString = dateFormat.format(fromDate
 					.toGregorianCalendar().getTime());
 
@@ -68,7 +71,8 @@ public class DateConstrainHandler {
 				dateConstrainSql = fromDateField + sqlOperator + "to_date('"
 						+ fromDateString + "','DD-MON-YYYY HH24:MI:SS')";
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL)) {
 				// {ts '2005-06-27 00:00:00'}
 				dateConstrainSql = fromDateField + sqlOperator + " '"
 						+ fromDateString + "'";
@@ -78,6 +82,7 @@ public class DateConstrainHandler {
 		if (toDate != null) {
 			sqlOperator = null;
 
+			dateFormat.setTimeZone(toDate.toGregorianCalendar().getTimeZone());
 			String toDateString = dateFormat.format(toDate
 					.toGregorianCalendar().getTime());
 
@@ -100,7 +105,8 @@ public class DateConstrainHandler {
 				dateConstrainSql += (toDateField + sqlOperator + "to_date('"
 						+ toDateString + "','DD-MON-YYYY HH24:MI:SS')");
 			} else if (dataSourceLookup.getServerType().equalsIgnoreCase(
-					DAOFactoryHelper.SQLSERVER)) {
+					DAOFactoryHelper.SQLSERVER) || dataSourceLookup.getServerType().equalsIgnoreCase(
+							DAOFactoryHelper.POSTGRESQL)) {
 				dateConstrainSql += (toDateField + sqlOperator + " '"
 						+ toDateString + "'");
 			}

@@ -12,12 +12,13 @@ public class TempTableNameMap {
 	
 	public TempTableNameMap(String serverType) { 
 		if (serverType.equalsIgnoreCase(
-				DAOFactoryHelper.SQLSERVER)) {
+				DAOFactoryHelper.SQLSERVER) ) {
 			tempTableName = "#global_temp_table";
 			tempDxTableName = "#dx";
 			tempMasterTableName = "#master_global_temp_table";
 		} else if (serverType.equalsIgnoreCase(
-				DAOFactoryHelper.ORACLE)) {
+				DAOFactoryHelper.ORACLE) || serverType.equalsIgnoreCase(
+						DAOFactoryHelper.POSTGRESQL)) {
 			tempTableName = "QUERY_GLOBAL_TEMP";
 			tempDxTableName = "DX";
 			tempMasterTableName = "MASTER_QUERY_GLOBAL_TEMP";

@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 
 import oracle.sql.ArrayDescriptor;
 
-import org.jboss.resource.adapter.jdbc.WrappedConnection;
+//import org.jboss.resource.adapter.jdbc.WrappedConnection;
 
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.util.db.JDBCUtil;
@@ -77,8 +77,8 @@ public class PdoQueryProviderDao extends CRCDAO implements IPdoQueryProviderDao 
 			String selectClause = providerRelated.getSelectClause();
 			String serverType = dataSourceLookup.getServerType();
 			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
-				oracle.jdbc.driver.OracleConnection conn1 = (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
-						.getUnderlyingConnection();
+				oracle.jdbc.driver.OracleConnection conn1 = null;// (oracle.jdbc.driver.OracleConnection) ((WrappedConnection) conn)
+			//			.getUnderlyingConnection();
 				String finalSql = "SELECT "
 						+ selectClause
 						+ " FROM "
@@ -92,7 +92,8 @@ public class PdoQueryProviderDao extends CRCDAO implements IPdoQueryProviderDao 
 				oracle.sql.ARRAY paramArray = new oracle.sql.ARRAY(desc, conn1,
 						providerIdList.toArray(new String[] {}));
 				query.setArray(1, paramArray);
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				tempTableName = this.getDbSchemaName()
@@ -117,7 +118,7 @@ public class PdoQueryProviderDao extends CRCDAO implements IPdoQueryProviderDao 
 			}
 			ResultSet resultSet = query.executeQuery();
 			I2B2PdoFactory.ProviderBuilder providerBuilder = new I2B2PdoFactory().new ProviderBuilder(
-					detailFlag, blobFlag, statusFlag);
+					detailFlag, blobFlag, statusFlag, dataSourceLookup.getServerType());
 			while (resultSet.next()) {
 				ObserverType providerDimensionType = providerBuilder
 						.buildObserverSet(resultSet);
@@ -182,7 +183,7 @@ public class PdoQueryProviderDao extends CRCDAO implements IPdoQueryProviderDao 
 
 		ObserverSet observerSet = new ObserverSet();
 		I2B2PdoFactory.ProviderBuilder providerBuilder = new I2B2PdoFactory().new ProviderBuilder(
-				detailFlag, blobFlag, statusFlag);
+				detailFlag, blobFlag, statusFlag, dataSourceLookup.getServerType());
 		ProviderFactRelated providerFactRelated = new ProviderFactRelated(
 				buildOutputOptionType(detailFlag, blobFlag, statusFlag));
 		String selectClause = providerFactRelated.getSelectClause();
@@ -195,7 +196,8 @@ public class PdoQueryProviderDao extends CRCDAO implements IPdoQueryProviderDao 
 			if (serverType.equalsIgnoreCase(DAOFactoryHelper.ORACLE)) {
 				factTempTable = this.getDbSchemaName()
 						+ FactRelatedQueryHandler.TEMP_FACT_PARAM_TABLE;
-			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER)) {
+			} else if (serverType.equalsIgnoreCase(DAOFactoryHelper.SQLSERVER) ||
+					serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL)) {
 				log.debug("creating temp table");
 				java.sql.Statement tempStmt = conn.createStatement();
 				factTempTable = this.getDbSchemaName()

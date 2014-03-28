@@ -25,13 +25,9 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.UserType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.CrcXmlResultResponseType;
 import edu.harvard.i2b2.crc.delegate.RequestHandler;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
-import edu.harvard.i2b2.crc.ejb.QueryInfoLocal;
-import edu.harvard.i2b2.crc.ejb.QueryInfoLocalHome;
-import edu.harvard.i2b2.crc.ejb.QueryResultLocal;
-import edu.harvard.i2b2.crc.ejb.QueryResultLocalHome;
+import edu.harvard.i2b2.crc.ejb.QueryInfoBean;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
-import javax.ejb.CreateException;
 
 
 /**
@@ -79,26 +75,19 @@ public class GetAllQueryResultTypeHandler extends RequestHandler {
       
         ResultTypeResponseType resultTypeResponseType= new  ResultTypeResponseType();
         try {
-            QueryInfoLocalHome queryInfoLocalHome = qpUtil.getQueryInfoLocalHome();
-            QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
-           
-            resultTypeResponseType = queryInfoLocal.getAllResultType(dataSourceLookup);
+        	//TODO removed ejbs
+   //         QueryInfoLocalHome queryInfoLocalHome = qpUtil.getQueryInfoLocalHome();
+   //         QueryInfoLocal queryInfoLocal = queryInfoLocalHome.create();
+   
+        	 QueryInfoBean query = new QueryInfoBean();
+           resultTypeResponseType = query.getAllResultType(dataSourceLookup);
             
            
             resultTypeResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.DONE_TYPE, "DONE"));
             
-//            ResponseMessageType responseMessageType = new ResponseMessageType();
-//            responseMessageType.setMessageBody(bodyType);
-//            responseString = this.getResponseString(responseMessageType);
-        } catch (I2B2Exception e) {
+        } catch (Exception e) {
         	 resultTypeResponseType = new ResultTypeResponseType();
         	 resultTypeResponseType.setStatus(this.buildCRCStausType(RequestHandlerDelegate.ERROR_TYPE, e.getMessage()));
-        } catch (ServiceLocatorException e) {
-            log.error(e);
-            throw new I2B2Exception("Servicelocator exception", e);
-        } catch (CreateException e) {
-            log.error(e);
-            throw new I2B2Exception("Ejb create exception", e);
         } finally { 
         	edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory of = new edu.harvard.i2b2.crc.datavo.setfinder.query.ObjectFactory();
             bodyType.getAny().add(of.createResponse(resultTypeResponseType));

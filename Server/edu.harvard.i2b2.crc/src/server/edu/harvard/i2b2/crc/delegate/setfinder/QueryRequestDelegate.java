@@ -17,7 +17,6 @@ import javax.xml.bind.JAXBElement;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.cache.Node;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.exception.StackTraceUtil;
@@ -35,8 +34,10 @@ import edu.harvard.i2b2.crc.datavo.pm.ParamType;
 import edu.harvard.i2b2.crc.datavo.pm.ProjectType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.PsmQryHeaderType;
 import edu.harvard.i2b2.crc.datavo.setfinder.query.PsmRequestTypeType;
+import edu.harvard.i2b2.crc.datavo.setfinder.query.StatusType.Condition;
 import edu.harvard.i2b2.crc.delegate.RequestHandlerDelegate;
 import edu.harvard.i2b2.crc.delegate.ejbpm.EJBPMUtil;
+import edu.harvard.i2b2.crc.delegate.pm.CallPMUtil;
 import edu.harvard.i2b2.crc.delegate.pm.PMServiceDriver;
 import edu.harvard.i2b2.crc.util.CacheUtil;
 import edu.harvard.i2b2.crc.util.LogTimingUtil;
@@ -95,7 +96,7 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 					procStatus = new StatusType();
 					procStatus.setType("ERROR");
 					procStatus
-							.setValue("Request message missing user/password");
+					.setValue("Request message missing user/password");
 					response = I2B2MessageResponseFactory.buildResponseMessage(
 							requestXml, procStatus, bodyType);
 					return response;
@@ -111,8 +112,8 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 					procStatus = new StatusType();
 					procStatus.setType("ERROR");
 					procStatus
-							.setValue("Invalid user/password for the given project["
-									+ projectId + "]");
+					.setValue("Invalid user/password for the given project["
+							+ projectId + "]");
 					response = I2B2MessageResponseFactory.buildResponseMessage(
 							requestXml, procStatus, bodyType);
 					return response;
@@ -120,18 +121,21 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 
 				log.debug("project name from PM " + projectType.getName());
 				log.debug("project id from PM " + projectType.getId());
-				
-				
+
+
 				if (projectType.getRole() != null) {
 					log.debug("project role from PM "
 							+ projectType.getRole().get(0));
 
 					this.putRoles(projectId, securityType.getUsername(),
 							securityType.getDomain(), projectType.getRole());
-					
 
-					Node rootNode = CacheUtil.getCache().getRoot();
-					List<String> roles = (List<String>) rootNode
+					//TODO removed cache
+					//	Node rootNode = CacheUtil.getCache().getRoot();
+					//List<String> roles = (List<String>) rootNode
+					//		.get(securityType.getDomain() + "/" + projectId
+					//				+ "/" + securityType.getUsername());
+					List<String> roles = (List<String>) CacheUtil
 							.get(securityType.getDomain() + "/" + projectId
 									+ "/" + securityType.getUsername());
 					if (roles != null) {
@@ -141,8 +145,9 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 					log.error("Project role not set for the user ");
 
 				}
-				
+
 				//check if process_timing_flag is set
+				log.debug("check if process_timing_flag is set");
 				LogTimingUtil.clearPocessTiming(projectId, securityType.getUsername(), securityType.getDomain());
 				ParamUtil paramUtil = new ParamUtil();
 				paramUtil.clearParam(projectId, securityType.getUsername(), securityType.getDomain(), ParamUtil.CRC_ENABLE_UNITCD_CONVERSION);
@@ -173,7 +178,7 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 				procStatus = new StatusType();
 				procStatus.setType("ERROR");
 				procStatus
-						.setValue("Message error connecting Project Management cell");
+				.setValue("Message error connecting Project Management cell");
 				response = I2B2MessageResponseFactory.buildResponseMessage(
 						requestXml, procStatus, bodyType);
 				return response;
@@ -181,13 +186,14 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 				procStatus = new StatusType();
 				procStatus.setType("ERROR");
 				procStatus
-						.setValue("Message error from Project Management cell");
+				.setValue("Message error from Project Management cell");
 				response = I2B2MessageResponseFactory.buildResponseMessage(
 						requestXml, procStatus, bodyType);
 				return response;
 			}
 
 			// check if the role is DATA_AGG to proceed
+			log.debug("check if the role is DATA_AGG to proceed");
 			boolean errorFlag = false;
 			JAXBUnWrapHelper unWrapHelper = new JAXBUnWrapHelper();
 			headerType = (PsmQryHeaderType) unWrapHelper
@@ -213,7 +219,7 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 						procStatus = new StatusType();
 						procStatus.setType("ERROR");
 						procStatus
-								.setValue("Authorization failure, should have MANAGER  role");
+						.setValue("Authorization failure, should have MANAGER  role");
 						response = I2B2MessageResponseFactory
 								.buildResponseMessage(requestXml, procStatus,
 										bodyType);
@@ -224,7 +230,7 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 					procStatus = new StatusType();
 					procStatus.setType("ERROR");
 					procStatus
-							.setValue("Authorization failure, should have MANAGER role");
+					.setValue("Authorization failure, should have MANAGER role");
 					response = I2B2MessageResponseFactory.buildResponseMessage(
 							requestXml, procStatus, bodyType);
 					return response;
@@ -237,6 +243,7 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 					.getRequestType()
 					.equals(
 							PsmRequestTypeType.CRC_QRY_RUN_QUERY_INSTANCE_FROM_QUERY_DEFINITION)) {
+				log.debug("Running in " + PsmRequestTypeType.CRC_QRY_RUN_QUERY_INSTANCE_FROM_QUERY_DEFINITION);
 				ParamType lockedParamType = null;
 				List<ParamType> paramList = projectType.getParam();
 				for (ParamType paramType : paramList) {
@@ -245,13 +252,15 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 						break;
 					}
 				}
+				log.debug("Check if user is locked out");
 				if (lockedParamType != null) {
 					// Not authorized
 					procStatus = new StatusType();
 					procStatus.setType("ERROR");
 					procStatus
-							.setValue("LOCKEDOUT error: The user account is lockedout at ["
-									+ lockedParamType.getValue() + "]");
+					.setValue("LOCKEDOUT error: The user account is lockedout at ["
+							+ lockedParamType.getValue() + "]");
+					bodyType = new BodyType();
 					response = I2B2MessageResponseFactory.buildResponseMessage(
 							requestXml, procStatus, bodyType);
 					return response;
@@ -259,24 +268,25 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 					RunQueryInstanceFromQueryDefinitionHandler handler = new RunQueryInstanceFromQueryDefinitionHandler(
 							requestXml);
 					responseBodyType = handler.execute();
+
 					// check if the response body type has lockedout error
 					if (handler.getLockedoutFlag()) {
 						procStatus = new StatusType();
 						procStatus.setType("ERROR");
 						procStatus
-								.setValue("LOCKEDOUT error: The user account is lockedout at ["
-										+ new Date(System.currentTimeMillis())
-										+ "]");
+						.setValue("LOCKEDOUT error: The user account is lockedout at ["
+								+ new Date(System.currentTimeMillis())
+								+ "]");
 						response = I2B2MessageResponseFactory
 								.buildResponseMessage(requestXml, procStatus,
 										responseBodyType);
 						return response;
 					}
-					
+
 					//if (handler.getErrorFlag()) { 
 					//	errorFlag = true;
 					//}
-					
+
 				}
 			} else if (headerType
 					.getRequestType()
@@ -355,7 +365,7 @@ public class QueryRequestDelegate extends RequestHandlerDelegate {
 						requestXml);
 				responseBodyType = handler.execute();
 			}
-			
+
 			procStatus = new StatusType();
 			if (errorFlag == false) { 
 				procStatus.setType("DONE");

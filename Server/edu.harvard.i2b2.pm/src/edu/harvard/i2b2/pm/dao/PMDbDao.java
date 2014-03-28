@@ -83,17 +83,26 @@ public class PMDbDao extends JdbcDaoSupport {
 	private static Log log = LogFactory.getLog(PMDbDao.class);
 
 
+	private  String database = "";
 	private SimpleJdbcTemplate jt;
 
 	public PMDbDao() throws I2B2Exception{
 		DataSource ds = null;
 		try {
-			ds = PMUtil.getInstance().getDataSource("java:PMBootStrapDS");
+			ds = PMUtil.getInstance().getDataSource("java:/PMBootStrapDS");
 			log.debug(ds.toString());
 		} catch (I2B2Exception e2) {
 			log.error("bootstrap ds failure: " + e2.getMessage());
 			throw e2;
 		} 
+		/*
+		try {
+			database = ds.getConnection().getMetaData().getDatabaseProductName();
+		} catch (Exception e)
+		{
+			log.error("Error geting database name:" + e.getMessage());
+		}
+		*/
 		this.jt = new SimpleJdbcTemplate(ds);
 	}
 
@@ -903,6 +912,48 @@ public class PMDbDao extends JdbcDaoSupport {
 		return queryResult;	
 	}
 
+	public boolean verifyNotLockedOut(String userId)
+	{
+		
+		String sql = null;
+	/*
+		if (database.equalsIgnoreCase("oracle"))
+			sql =  "select count(*) as badlogin from pm_user_login where user_id = ? and " +
+				" attempt_cd = 'BADPASSWORD' and " +
+				"(entry_date + interval '60' minute)  >= CURRENT_TIMESTAMP ";
+		else if (database.equalsIgnoreCase("Microsoft sql server"))
+			sql =  "select count(*) as badlogin from pm_user_login where user_id = ? and " +
+					" attempt_cd = 'BADPASSWORD' and " +
+					"dateadd(minute, 60, entry_date)  >= getdate() ";
+		else if (database.equalsIgnoreCase("postgresql"))
+			sql =  "select count(*) as badlogin from pm_user_login where user_id = ? and " +
+					" attempt_cd = 'BADPASSWORD' and " +
+					"(entry_date + cast('60 minutes' as interval))  >= now() ";
+		
+		int results = jt.queryForInt(sql, userId);
+*/
+		int results = 0;
+		
+		if (results > 10)
+			return true;
+		else 
+			return false;
+	}
+	
+	public int setLoginAttempt(String userId, String attemptCd) {
+		String addSql = "insert into pm_user_login " + 
+				"(user_id, attempt_cd, changeby_char, entry_date, status_cd) values (?,?,?,?,'A')";
+
+		int numRowsAdded =1;
+				/*jt.update(addSql, 
+				userId,
+				attemptCd,
+				userId,
+				Calendar.getInstance().getTime());	
+*/
+		return numRowsAdded;		
+	}
+
 	public int setSession(String userId, String sessionId, int timeout)
 	{
 		String addSql = "insert into pm_user_session " + 
@@ -991,7 +1042,7 @@ public class PMDbDao extends JdbcDaoSupport {
 						groupdata.getName(),
 						groupdata.getUrl(),
 						groupdata.getMethod(),
-						groupdata.isCanOverride(),
+						groupdata.isCanOverride() ? 1 : 0,
 						Calendar.getInstance().getTime(),
 						Calendar.getInstance().getTime(),
 						caller,
@@ -1006,7 +1057,7 @@ public class PMDbDao extends JdbcDaoSupport {
 						groupdata.getName(),
 						groupdata.getUrl(),
 						groupdata.getMethod(),
-						groupdata.isCanOverride(),
+						groupdata.isCanOverride() ? 1 : 0,
 						Calendar.getInstance().getTime(),
 						caller,
 						groupdata.getId(),
@@ -1344,19 +1395,24 @@ public class PMDbDao extends JdbcDaoSupport {
 		}
 		else if (utype instanceof RoleType)
 		{
+			String addsql = " and user_id = '" + caller + "' ";
+			if ((validateRole(caller, "admin", null)) || (validateRole(caller, "manager", project)))
+			{
+				addsql = "";				
+			}
 			if (((RoleType) utype).getProjectId() == null)
 			{
-				sql =  "select * from pm_project_user_roles where status_cd<>'D' order by project_id";
+				sql =  "select * from pm_project_user_roles where status_cd<>'D' " + addsql + " order by project_id";
 				queryResult = jt.query(sql, getRole());
 
 			} else if (((RoleType) utype).getUserName() != null)
 			{
-				sql =  "select * from pm_project_user_roles where project_id=? and user_id=? and status_cd<>'D' order by project_id";
+				sql =  "select * from pm_project_user_roles where project_id=? and user_id=? and status_cd<>'D' " + addsql + " order by project_id";
 				queryResult = jt.query(sql, getRole(), ((RoleType) utype).getProjectId(), ((RoleType) utype).getUserName());
 
 			}  
 			else {
-				sql =  "select * from pm_project_user_roles where project_id=? and status_cd<>'D'";
+				sql =  "select * from pm_project_user_roles where project_id=? and status_cd<>'D' " + addsql;
 				queryResult = jt.query(sql, getRole(), ((RoleType) utype).getProjectId());
 			}
 			//	}
@@ -2443,6 +2499,34 @@ public class PMDbDao extends JdbcDaoSupport {
 
 
 	private ParameterizedRowMapper getSession() {
+		ParameterizedRowMapper<SessionData> map = new ParameterizedRowMapper<SessionData>() {
+			public SessionData mapRow(ResultSet rs, int rowNum) throws SQLException {
+				SessionData rData = new SessionData();
+				//				DTOFactory factory = new DTOFactory();
+
+				rData.setSessionID(rs.getString("session_id"));
+
+				Date date = rs.getTimestamp("expired_date");
+				if (date == null)
+					rData.setExpiredDate(null);
+				else 
+					rData.setExpiredDate(date); 
+
+				date = rs.getTimestamp("entry_date");
+				if (date == null)
+					rData.setIssuedDate(null);
+				else 
+					rData.setIssuedDate(date); 
+
+
+				return rData;
+			} 
+		};
+		return map;
+	}
+	
+
+	private ParameterizedRowMapper getUserLogin() {
 		ParameterizedRowMapper<SessionData> map = new ParameterizedRowMapper<SessionData>() {
 			public SessionData mapRow(ResultSet rs, int rowNum) throws SQLException {
 				SessionData rData = new SessionData();

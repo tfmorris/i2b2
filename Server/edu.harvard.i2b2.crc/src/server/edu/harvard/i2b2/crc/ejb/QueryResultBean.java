@@ -12,11 +12,6 @@ package edu.harvard.i2b2.crc.ejb;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import javax.ejb.CreateException;
-import javax.ejb.EJBException;
-import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -53,7 +48,7 @@ import edu.harvard.i2b2.crc.datavo.setfinder.query.XmlValueType;
  * 
  * 
  */
-public class QueryResultBean implements SessionBean {
+public class QueryResultBean { // implements SessionBean {
 	private static Log log = LogFactory.getLog(QueryResultBean.class);
 	
 	/**
@@ -68,7 +63,9 @@ public class QueryResultBean implements SessionBean {
 	public ResultResponseType getResultInstanceFromQueryInstanceId(DataSourceLookup dataSourceLookup,String userId, String  queryInstanceId) throws I2B2DAOException {
 		SetFinderDAOFactory sfDaoFactory = this.getSetFinderDaoFactory(dataSourceLookup.getDomainId(), dataSourceLookup.getProjectPath(), dataSourceLookup.getOwnerId());
 		IQueryResultInstanceDao patientSetResultDao = sfDaoFactory.getPatientSetResultDAO();
+		log.debug("got resultinstancesdao" + patientSetResultDao.toString());
 		List<QtQueryResultInstance> queryResultInstanceList = patientSetResultDao.getResultInstanceList( queryInstanceId);
+		log.debug("got QtQueryResultInstance" + queryResultInstanceList.size());
 		ResultResponseType resultResponseType = new ResultResponseType();
 		DTOFactory dtoFactory = new DTOFactory(); 
 		for(QtQueryResultInstance resultInstance: queryResultInstanceList) { 
@@ -125,27 +122,5 @@ public class QueryResultBean implements SessionBean {
 	        return sfDaoFactory;
 	   }
 	
-	public void ejbCreate() throws CreateException {
-	}
-
-	public void ejbActivate() throws EJBException, RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void ejbPassivate() throws EJBException, RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void ejbRemove() throws EJBException, RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void setSessionContext(SessionContext arg0) throws EJBException, RemoteException {
-		// TODO Auto-generated method stub
-		
-	}
 	
 }

@@ -31,14 +31,15 @@ import javax.xml.bind.JAXBElement;
  */
 public class ServicesMessage {
     private static Log log = LogFactory.getLog(ServicesMessage.class);
-    private JAXBUtil jaxbUtil = null;
+  //  private JAXBUtil jaxbUtil = null;
     RequestMessageType reqMessageType = null;
 
     /**
      * The constructor
      */
     public ServicesMessage(String requestPdo) throws I2B2Exception {
-        jaxbUtil = new JAXBUtil(JAXBConstant.DEFAULT_PACKAGE_NAME);
+    	JAXBUtil jaxbUtil = MessageFactory.getJAXBUtil();
+        		//new JAXBUtil(JAXBConstant.DEFAULT_PACKAGE_NAME);
 
         try {
             log.debug("Begin unmarshall of XML");

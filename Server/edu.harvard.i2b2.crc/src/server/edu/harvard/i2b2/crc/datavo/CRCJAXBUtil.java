@@ -12,7 +12,7 @@ package edu.harvard.i2b2.crc.datavo;
 import java.util.List;
 
 import org.springframework.beans.factory.BeanFactory;
-
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 /**
@@ -24,15 +24,15 @@ import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
  * @author rkuttan
  */
 public class CRCJAXBUtil {
-	private static edu.harvard.i2b2.common.util.jaxb.JAXBUtil jaxbUtil = null;
-	private static edu.harvard.i2b2.common.util.jaxb.JAXBUtil queryDefjaxbUtil = null;
-	private static edu.harvard.i2b2.common.util.jaxb.JAXBUtil analysisDefjaxbUtil = null;
+	private static JAXBUtil jaxbUtil = null;
+	private static JAXBUtil queryDefjaxbUtil = null;
+	private static JAXBUtil analysisDefjaxbUtil = null;
 
-	private CRCJAXBUtil() {
-	}
+	//private CRCJAXBUtil() {
+	//}
 
-	@SuppressWarnings("unchecked")
-	public static edu.harvard.i2b2.common.util.jaxb.JAXBUtil getJAXBUtil() {
+	//@SuppressWarnings("unchecked")
+	public static JAXBUtil getJAXBUtil() {
 		if (jaxbUtil == null) {
 			BeanFactory springBean = QueryProcessorUtil.getInstance()
 					.getSpringBeanFactory();
@@ -41,26 +41,26 @@ public class CRCJAXBUtil {
 					.toArray(new String[] {
 
 					});
-			jaxbUtil = new edu.harvard.i2b2.common.util.jaxb.JAXBUtil(
+			jaxbUtil = new JAXBUtil(
 					jaxbPackageNameArray);
 		}
 
 		return jaxbUtil;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static edu.harvard.i2b2.common.util.jaxb.JAXBUtil getQueryDefJAXBUtil() {
+	//@SuppressWarnings("unchecked")
+	public static JAXBUtil getQueryDefJAXBUtil() {
 		if (queryDefjaxbUtil == null) {
-			queryDefjaxbUtil = new edu.harvard.i2b2.common.util.jaxb.JAXBUtil(
+			queryDefjaxbUtil = new JAXBUtil(
 					edu.harvard.i2b2.crc.datavo.setfinder.query.QueryDefinitionType.class);
 		}
 		return queryDefjaxbUtil;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static edu.harvard.i2b2.common.util.jaxb.JAXBUtil getAnalysisDefJAXBUtil() {
+	//@SuppressWarnings("unchecked")
+	public static JAXBUtil getAnalysisDefJAXBUtil() {
 		if (analysisDefjaxbUtil == null) {
-			analysisDefjaxbUtil = new edu.harvard.i2b2.common.util.jaxb.JAXBUtil(
+			analysisDefjaxbUtil = new JAXBUtil(
 					edu.harvard.i2b2.crc.datavo.setfinder.query.AnalysisDefinitionRequestType.class);
 		}
 		return analysisDefjaxbUtil;

@@ -17,9 +17,13 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.Options;
-import org.apache.axis2.client.ServiceClient;
+import edu.harvard.i2b2.common.util.axis2.ServiceClient;
+import org.apache.axis2.context.ServiceContext;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.i2b2.common.exception.I2B2DAOException;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crc.datavo.CRCJAXBUtil;
 import edu.harvard.i2b2.crc.datavo.i2b2message.BodyType;
@@ -49,103 +54,85 @@ import edu.harvard.i2b2.crc.util.QueryProcessorUtil;
 
 public class CallOntologyUtil {
 
-	private SecurityType securityType = null;
-	private String projectId = null;
-	private String ontologyUrl = null;
+	//	private SecurityType securityType = null;
+	//	private String projectId = null;
+	//	private String ontologyUrl = null;
 
 	private static Log log = LogFactory.getLog(CallOntologyUtil.class);
 
-	public CallOntologyUtil(String requestXml) throws JAXBUtilException,
-			I2B2Exception {
-		this(QueryProcessorUtil.getInstance().getOntologyUrl(), requestXml);
-	}
+	private static JAXBUtil jaxbUtil =   CRCJAXBUtil.getJAXBUtil();
 
-	public CallOntologyUtil(String ontologyUrl, String requestXml)
-			throws JAXBUtilException, I2B2Exception {
-		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
-				.unMashallFromString(requestXml);
-		RequestMessageType request = (RequestMessageType) responseJaxb
-				.getValue();
-		this.projectId = request.getMessageHeader().getProjectId();
-		SecurityType tempSecurityType = request.getMessageHeader()
-				.getSecurity();
-		this.securityType = PMServiceAccountUtil
-				.getServiceSecurityType(tempSecurityType.getDomain());
-		this.ontologyUrl = ontologyUrl;
-	}
 
-	public CallOntologyUtil(SecurityType securityType, String projectId)
-			throws I2B2Exception {
-		this.securityType = securityType;
-		this.projectId = projectId;
-		this.ontologyUrl = QueryProcessorUtil.getInstance().getOntologyUrl();
-		log.debug("CRC Ontology call url" + ontologyUrl);
-	}
-
-	public CallOntologyUtil(String ontologyUrl, SecurityType securityType,
-			String projectId) throws I2B2Exception {
-		this.securityType = securityType;
-		this.projectId = projectId;
-		this.ontologyUrl = ontologyUrl;
-	}
-
-	public ConceptType callOntology(String itemKey) throws XMLStreamException,
-			JAXBUtilException, AxisFault, I2B2DAOException {
-		RequestMessageType requestMessageType = getI2B2RequestMessage(itemKey);
+	public static ConceptType callOntology(String itemKey, SecurityType securityType,  String projectId, String ontologyUrl ) throws XMLStreamException,
+	JAXBUtilException, AxisFault, I2B2Exception {
+		RequestMessageType requestMessageType = getI2B2RequestMessage(itemKey, securityType, projectId.replaceAll("/", ""));
 		OMElement requestElement = buildOMElement(requestMessageType);
-		log.debug("CRC Ontology call's request xml " + requestElement);
-		OMElement response = getServiceClient().sendReceive(requestElement);
-		ConceptType conceptType = getConceptFromResponse(response);
+		log.debug("CRC Ontology call's request xml from callOntology:  " + requestElement);
+		log.debug("URL: " + ontologyUrl);
+		ConceptType conceptType = null;
+		try {
+			String response = ServiceClient.sendREST(ontologyUrl, requestElement);
+			conceptType = getConceptFromResponse(response);
+		} catch (Exception e)
+		{
+
+		}
 		return conceptType;
 	}
 
-	public ConceptsType callGetChildren(String itemKey)
-			throws XMLStreamException, JAXBUtilException, AxisFault,I2B2DAOException  {
-		RequestMessageType requestMessageType = getChildrenI2B2RequestMessage(itemKey);
+	public static ConceptsType callGetChildren(String itemKey, SecurityType securityType,  String projectId, String ontologyUrl )
+			throws XMLStreamException, JAXBUtilException, AxisFault,I2B2Exception  {
+		RequestMessageType requestMessageType = getChildrenI2B2RequestMessage(itemKey, securityType, projectId.replaceAll("/", ""));
 		OMElement requestElement = buildOMElement(requestMessageType);
-		log.debug("CRC Ontology call's request xml " + requestElement);
-		OMElement response = getServiceClient().sendReceive(requestElement);
-		ConceptsType conceptsType = getChildrenFromResponse(response.toString());
+		ConceptsType conceptsType = null;
+		log.debug("CRC Ontology call's request xml from callGetChildren: " + requestElement);
+		log.debug("URL: " + ontologyUrl);
+		try {
+			String response = ServiceClient.sendREST(ontologyUrl, requestElement);
+			conceptsType = getChildrenFromResponse(response);
+		} catch (Exception e)
+		{
+
+		}
 		return conceptsType;
 	}
-	
-	public ModifierType callGetModifierInfo(String modifierKey, String appliedPath)
-	throws XMLStreamException, JAXBUtilException, AxisFault, I2B2DAOException  {
-		RequestMessageType requestMessageType = getModifierI2B2RequestMessage(modifierKey,appliedPath);
+
+	public static ModifierType callGetModifierInfo(String modifierKey, String appliedPath, SecurityType securityType,  String projectId, String ontologyUrl )
+			throws XMLStreamException, JAXBUtilException, AxisFault, I2B2Exception  {
+		RequestMessageType requestMessageType = getModifierI2B2RequestMessage(modifierKey,appliedPath, securityType, projectId.replaceAll("/", ""));
 		OMElement requestElement = buildOMElement(requestMessageType);
-		log.debug("CRC Ontology call's request xml " + requestElement);
-		OMElement response = getServiceClient().sendReceive(requestElement);
-		ModifierType modifierType = getModifierFromResponse(response.toString());
+		log.debug("CRC Ontology call's request xml from callGetModifierInfo: " + requestElement);
+		log.debug("URL: " + ontologyUrl);
+		ModifierType modifierType = null;
+		try {
+			String response = ServiceClient.sendREST(ontologyUrl, requestElement);
+			modifierType = getModifierFromResponse(response);
+		} catch (Exception e)
+		{
+
+		}
 		return modifierType;
 	}
-	
 
-	public ConceptsType callGetChildrenWithHttpClient(String itemKey)
-			throws XMLStreamException, JAXBUtilException,I2B2DAOException  {
+
+	public static ConceptsType callGetChildrenWithHttpClient(String itemKey, SecurityType securityType,  String projectId )
+			throws XMLStreamException, JAXBUtilException,I2B2Exception, HttpException, IOException  {
 		HttpClient client = new HttpClient();
-		PostMethod postMethod = new PostMethod(this.ontologyUrl);
+		PostMethod postMethod = new PostMethod(QueryProcessorUtil.getInstance().getOntologyUrl());
 
 		client.setConnectionTimeout(8000);
 
 		// Send any XML file as the body of the POST request
 
 		// postMethod.setRequestBody(new FileInputStream(f));
-		RequestMessageType requestMessageType = getChildrenI2B2RequestMessage(itemKey);
+		RequestMessageType requestMessageType = getChildrenI2B2RequestMessage(itemKey, securityType, projectId.replaceAll("/", ""));
 		String requestXml = buildRequestXml(requestMessageType);
 		postMethod.setRequestBody(requestXml);
 		postMethod.setRequestHeader("Content-type",
 				"text/xml; charset=ISO-8859-1");
 		String responseXml = null;
-		try {
-			int statusCode1 = client.executeMethod(postMethod);
-			responseXml = postMethod.getResponseBodyAsString();
-		} catch (HttpException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		int statusCode1 = client.executeMethod(postMethod);
+		responseXml = postMethod.getResponseBodyAsString();
 
 		log.debug("CRC's Ontology call response xml " + responseXml);
 
@@ -153,14 +140,14 @@ public class CallOntologyUtil {
 		ConceptsType conceptsType = getChildrenFromResponse(responseXml);
 		return conceptsType;
 	}
-	
-	
-	private ModifierType getModifierFromResponse(String responseXml)
-	throws JAXBUtilException, I2B2DAOException {
-		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
-				.unMashallFromString(responseXml);
+
+
+	private static ModifierType getModifierFromResponse(String responseXml)
+			throws JAXBUtilException, I2B2DAOException {
+		JAXBElement responseJaxb =   
+				jaxbUtil.unMashallFromString(responseXml); //CRCJAXBUtil.getJAXBUtil()
 		ResponseMessageType r = (ResponseMessageType) responseJaxb.getValue();
-		log.debug("CRC's ontology call response xml" + responseXml);
+		log.debug("CRC's ontology call response xml from ModiferType: " + responseXml);
 		if (r.getResponseHeader() != null && r.getResponseHeader().getResultStatus() !=null) { 
 			if (r.getResponseHeader().getResultStatus().getStatus().getType().equalsIgnoreCase("ERROR")) {
 				throw new I2B2DAOException("Error when getting modifier from ontology [" + r.getResponseHeader().getResultStatus().getStatus().getValue() +"]");
@@ -169,22 +156,22 @@ public class CallOntologyUtil {
 		JAXBUnWrapHelper helper = new JAXBUnWrapHelper();
 		ModifiersType modifiersType = (ModifiersType) helper.getObjectByClass(r
 				.getMessageBody().getAny(), ModifiersType.class);
-		
+
 		if (modifiersType != null && modifiersType.getModifier() != null
 				&& modifiersType.getModifier().size() > 0) {
 			return modifiersType.getModifier().get(0);
 		} else {
 			return null;
 		}
-		
+
 	}
 
-	private ConceptsType getChildrenFromResponse(String responseXml)
+	private static ConceptsType getChildrenFromResponse(String responseXml)
 			throws JAXBUtilException, I2B2DAOException {
-		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
-				.unMashallFromString(responseXml);
+		JAXBElement responseJaxb = 
+				jaxbUtil.unMashallFromString(responseXml); //CRCJAXBUtil.getJAXBUtil()
 		ResponseMessageType r = (ResponseMessageType) responseJaxb.getValue();
-		log.debug("CRC's ontology call response xml" + responseXml);
+		log.debug("CRC's ontology call response xml from getChildrenFromResponse: " + responseXml);
 
 		if (r.getResponseHeader() != null && r.getResponseHeader().getResultStatus() !=null) { 
 			if (r.getResponseHeader().getResultStatus().getStatus().getType().equalsIgnoreCase("ERROR")) {
@@ -197,12 +184,12 @@ public class CallOntologyUtil {
 		return conceptsType;
 	}
 
-	private ConceptType getConceptFromResponse(OMElement response)
+	private static ConceptType getConceptFromResponse(String response)
 			throws JAXBUtilException, I2B2DAOException {
-		JAXBElement responseJaxb = CRCJAXBUtil.getJAXBUtil()
-				.unMashallFromString(response.toString());
+		JAXBElement responseJaxb =// CRCJAXBUtil.getJAXBUtil()
+				jaxbUtil.unMashallFromString(response);
 		ResponseMessageType r = (ResponseMessageType) responseJaxb.getValue();
-		log.debug("CRC's ontology call response xml" + response);
+		log.debug("CRC's ontology call response xml from getConceptFromResponse: " + response);
 		if (r.getResponseHeader() != null && r.getResponseHeader().getResultStatus() !=null) { 
 			if (r.getResponseHeader().getResultStatus().getStatus().getType().equalsIgnoreCase("ERROR")) {
 				throw new I2B2DAOException("Error when getting metadata from ontology [" + r.getResponseHeader().getResultStatus().getStatus().getValue() +"]");
@@ -220,11 +207,12 @@ public class CallOntologyUtil {
 
 	}
 
-	private OMElement buildOMElement(RequestMessageType requestMessageType)
+	private static OMElement buildOMElement(RequestMessageType requestMessageType)
 			throws XMLStreamException, JAXBUtilException {
 		StringWriter strWriter = new StringWriter();
 		edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory hiveof = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
-		CRCJAXBUtil.getJAXBUtil().marshaller(
+		//CRCJAXBUtil.getJAXBUtil()
+		jaxbUtil.marshaller(
 				hiveof.createRequest(requestMessageType), strWriter);
 		// getOMElement from message
 		OMFactory fac = OMAbstractFactory.getOMFactory();
@@ -237,17 +225,18 @@ public class CallOntologyUtil {
 		return request;
 	}
 
-	private String buildRequestXml(RequestMessageType requestMessageType)
+	private static String buildRequestXml(RequestMessageType requestMessageType)
 			throws XMLStreamException, JAXBUtilException {
 		StringWriter strWriter = new StringWriter();
 		edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory hiveof = new edu.harvard.i2b2.crc.datavo.i2b2message.ObjectFactory();
-		CRCJAXBUtil.getJAXBUtil().marshaller(
+		//CRCJAXBUtil.getJAXBUtil()
+		jaxbUtil.marshaller(
 				hiveof.createRequest(requestMessageType), strWriter);
 
 		return strWriter.toString();
 	}
 
-	private RequestMessageType getI2B2RequestMessage(String conceptPath) {
+	private static RequestMessageType getI2B2RequestMessage(String conceptPath, SecurityType securityType,  String projectId ) {
 		QueryProcessorUtil queryUtil = QueryProcessorUtil.getInstance();
 		MessageHeaderType messageHeaderType = (MessageHeaderType) queryUtil
 				.getSpringBeanFactory().getBean("message_header");
@@ -286,7 +275,7 @@ public class CallOntologyUtil {
 
 	}
 
-	private RequestMessageType getChildrenI2B2RequestMessage(String conceptPath) {
+	private static RequestMessageType getChildrenI2B2RequestMessage(String conceptPath, SecurityType securityType,  String projectId ) {
 		QueryProcessorUtil queryUtil = QueryProcessorUtil.getInstance();
 		MessageHeaderType messageHeaderType = (MessageHeaderType) queryUtil
 				.getSpringBeanFactory().getBean("message_header");
@@ -324,8 +313,8 @@ public class CallOntologyUtil {
 		return requestMessageType;
 
 	}
-	
-	private RequestMessageType getModifierI2B2RequestMessage(String modifierPath, String appliedPath) {
+
+	private static RequestMessageType getModifierI2B2RequestMessage(String modifierPath, String appliedPath, SecurityType securityType,  String projectId ) {
 		QueryProcessorUtil queryUtil = QueryProcessorUtil.getInstance();
 		MessageHeaderType messageHeaderType = (MessageHeaderType) queryUtil
 				.getSpringBeanFactory().getBean("message_header");
@@ -343,7 +332,7 @@ public class CallOntologyUtil {
 		GetModifierInfoType modifierInfoType = new GetModifierInfoType(); 
 		modifierInfoType.setSelf(modifierPath);
 		modifierInfoType.setAppliedPath(appliedPath);
-		
+
 		// max="300" hiddens="false" synonyms="false" type="core" blob="true"
 		// getChildren.setMax(300);
 		modifierInfoType.setHiddens(true);
@@ -366,19 +355,5 @@ public class CallOntologyUtil {
 
 	}
 
-	private ServiceClient getServiceClient() {
-		// call
-		ServiceClient serviceClient = OntologyServiceClient.getServiceClient();
-
-		Options options = new Options();
-		options.setTo(new EndpointReference(ontologyUrl));
-		options.setTransportInProtocol(Constants.TRANSPORT_HTTP);
-		options.setProperty(Constants.Configuration.ENABLE_REST,
-				Constants.VALUE_TRUE);
-		options.setTimeOutInMilliSeconds(50000);
-		serviceClient.setOptions(options);
-		return serviceClient;
-
-	}
 
 }

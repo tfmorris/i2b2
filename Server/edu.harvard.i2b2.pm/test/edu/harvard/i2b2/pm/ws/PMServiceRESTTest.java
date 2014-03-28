@@ -29,7 +29,7 @@ public class PMServiceRESTTest extends PMAxisAbstract{
 	private static String testFileDir = "";
 
 	private static String pmTargetEPR = 
-			"http://localhost:9090/i2b2/rest/PMService/getServices";			
+			"http://127.0.0.1:9090/i2b2/services/PMService/getServices";			
 	//	"http://127.0.0.1:8080/i2b2/services/PMService/getServices";			
 
 	public static junit.framework.Test suite() { 
@@ -49,6 +49,24 @@ public class PMServiceRESTTest extends PMAxisAbstract{
 
 	}
 
+	@Test
+	public void SleepForBamboo() throws Exception {
+		String filename = testFileDir + "/pm_create_user_for_crc.xml";
+		ConfigureType ctype = null;
+		String masterInstanceResult = null;
+		try { 
+
+			 Thread.sleep(60000);
+
+			assertTrue(true);
+
+		} catch (Exception e) { 
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	
 	@Test
 	public void CreateUserRoleforCRC() throws Exception {
 		String filename = testFileDir + "/pm_create_user_for_crc.xml";
@@ -86,7 +104,58 @@ public class PMServiceRESTTest extends PMAxisAbstract{
 			masterInstanceResult = (String)helper.getObjectByClass(r.getMessageBody().getAny(),String.class);
 			assertNotNull(masterInstanceResult);
 
-
+			//Add Role 1
+			filename = testFileDir + "/pm_set_role1_for_work.xml";
+			requestString = getQueryString(filename);
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(pmTargetEPR).sendReceive(requestElement);
+			responseJaxb = PMJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
+			masterInstanceResult = (String)helper.getObjectByClass(r.getMessageBody().getAny(),String.class);
+			assertNotNull(masterInstanceResult);
+			
+			//Add Role 1
+			filename = testFileDir + "/pm_set_role2_for_work.xml";
+			requestString = getQueryString(filename);
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(pmTargetEPR).sendReceive(requestElement);
+			responseJaxb = PMJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
+			masterInstanceResult = (String)helper.getObjectByClass(r.getMessageBody().getAny(),String.class);
+			assertNotNull(masterInstanceResult);
+			//Add Role 1
+			filename = testFileDir + "/pm_set_role3_for_work.xml";
+			requestString = getQueryString(filename);
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(pmTargetEPR).sendReceive(requestElement);
+			responseJaxb = PMJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
+			masterInstanceResult = (String)helper.getObjectByClass(r.getMessageBody().getAny(),String.class);
+			assertNotNull(masterInstanceResult);
+			
+			//Add Role 1
+			filename = testFileDir + "/pm_set_role1_for_im.xml";
+			requestString = getQueryString(filename);
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(pmTargetEPR).sendReceive(requestElement);
+			responseJaxb = PMJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
+			masterInstanceResult = (String)helper.getObjectByClass(r.getMessageBody().getAny(),String.class);
+			assertNotNull(masterInstanceResult);
+			//Add Role 1
+			filename = testFileDir + "/pm_set_role2_for_im.xml";
+			requestString = getQueryString(filename);
+			requestElement = convertStringToOMElement(requestString); 
+			responseElement = getServiceClient(pmTargetEPR).sendReceive(requestElement);
+			responseJaxb = PMJAXBUtil.getJAXBUtil().unMashallFromString(responseElement.toString());
+			r = (ResponseMessageType)responseJaxb.getValue();
+			helper = new  JAXBUnWrapHelper();
+			masterInstanceResult = (String)helper.getObjectByClass(r.getMessageBody().getAny(),String.class);
+			assertNotNull(masterInstanceResult);		
 		} catch (Exception e) { 
 			e.printStackTrace();
 			assertTrue(false);
@@ -533,7 +602,7 @@ public class PMServiceRESTTest extends PMAxisAbstract{
 			assertNotNull(ctype);
 			assertEquals(ctype.getId(),"BAMBOO");
 			assertEquals(ctype.getName(),"Bamboo Test");
-			assertEquals(ctype.getKey(), "e80");
+			assertEquals(ctype.getKey(), "ca2");
 			assertEquals(ctype.getWiki(),"http://127.0.0.1/wiki");
 			assertEquals(ctype.getDescription(),"This is a message");
 			assertEquals(ctype.getPath(),"/bamboo");
@@ -614,7 +683,7 @@ public class PMServiceRESTTest extends PMAxisAbstract{
 			assertEquals(ctype.getWiki(),"http://127.0.0.1/wiki");
 			assertEquals(ctype.getDescription(),"This is a message");
 			assertEquals(ctype.getPath(),"/bamboo");
-			assertEquals(ctype.getKey(), "e80");
+			assertEquals(ctype.getKey(), "ca2");
 		} catch (Exception e) { 
 			e.printStackTrace();
 			assertTrue(false);

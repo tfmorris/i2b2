@@ -21,9 +21,10 @@ import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.OperationClient;
 import org.apache.axis2.client.Options;
-import org.apache.axis2.client.ServiceClient;
+import edu.harvard.i2b2.common.util.axis2.ServiceClient;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
+import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.wsdl.WSDLConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,52 +52,27 @@ import edu.harvard.i2b2.ontology.util.OntologyUtil;
 public class CallFileRepositoryUtil {
 
 	/** log **/
-	protected final Log log = LogFactory.getLog(getClass());
+	protected static Log log = LogFactory.getLog(CallFileRepositoryUtil.class);
 
-	private SecurityType securityType = null;
-	private String projectId = null;
-	private String frUrl = null;
-	private OntologyUtil ontologyUtil = OntologyUtil.getInstance();
+	//private SecurityType securityType = null;
+	//private String projectId = null;
+	private static String frUrl = null;
+	private static OntologyUtil ontologyUtil = OntologyUtil.getInstance();
 
-	public CallFileRepositoryUtil(String requestXml) throws JAXBUtilException,
-			I2B2Exception {
-		JAXBElement responseJaxb = OntologyJAXBUtil.getJAXBUtil()
-				.unMashallFromString(requestXml);
-		RequestMessageType request = (RequestMessageType) responseJaxb
-				.getValue();
-		this.securityType = request.getMessageHeader().getSecurity();
-		this.projectId = request.getMessageHeader().getProjectId();
-		this.frUrl = ontologyUtil.getFileManagentCellUrl();
-
-	}
-
-	public CallFileRepositoryUtil(SecurityType securityType, String projectId)
-			throws I2B2Exception {
-		this.securityType = securityType;
-		this.projectId = projectId;
-		this.frUrl = ontologyUtil.getFileManagentCellUrl();
-		log.debug("file repository url " + frUrl);
-	}
-
-	public CallFileRepositoryUtil(String frUrl, SecurityType securityType,
-			String projectId) throws I2B2Exception {
-		this(securityType, projectId);
-		this.frUrl = frUrl;
-	}
-
-	public String callFileRepository(String fileRepositoryFileName)
+	
+	public static String callFileRepository(String fileRepositoryFileName,  SecurityType securityType,  String projectId)
 			throws I2B2Exception {
 		String localFileName = null;
-		RequestMessageType requestMessageType = getI2B2RequestMessage(fileRepositoryFileName);
+		RequestMessageType requestMessageType = getI2B2RequestMessage(fileRepositoryFileName, securityType, projectId);
 		OMElement requestElement = buildOMElement(requestMessageType);
 		log.debug("FileRespository request message ["
 				+ requestElement.toString() + "]");
 		// MessageContext response = getResponseSOAPBody(requestElement);
-		uploadConceptFile(fileRepositoryFileName);
+		uploadConceptFile(fileRepositoryFileName, securityType, projectId);
 		return fileRepositoryFileName;
 	}
 
-	private ResultStatusType getI2B2ResponseStatus(OMElement response)
+	private static ResultStatusType getI2B2ResponseStatus(OMElement response)
 			throws JAXBUtilException {
 		JAXBElement responseJaxb = OntologyJAXBUtil.getJAXBUtil()
 				.unMashallFromString(response.toString());
@@ -104,7 +80,7 @@ public class CallFileRepositoryUtil {
 		return r.getResponseHeader().getResultStatus();
 	}
 
-	private OMElement buildOMElement(RequestMessageType requestMessageType)
+	private static OMElement buildOMElement(RequestMessageType requestMessageType)
 			throws I2B2Exception {
 		StringWriter strWriter = new StringWriter();
 		edu.harvard.i2b2.ontology.datavo.i2b2message.ObjectFactory hiveof = new edu.harvard.i2b2.ontology.datavo.i2b2message.ObjectFactory();
@@ -127,7 +103,7 @@ public class CallFileRepositoryUtil {
 		return request;
 	}
 
-	private RequestMessageType getI2B2RequestMessage(String sendFileName) {
+	private static RequestMessageType getI2B2RequestMessage(String sendFileName,  SecurityType securityType,  String projectId) {
 
 		MessageHeaderType messageHeaderType = (MessageHeaderType) ontologyUtil
 				.getSpringBeanFactory().getBean("message_header");
@@ -162,8 +138,10 @@ public class CallFileRepositoryUtil {
 
 	}
 
-	private void uploadConceptFile(String conceptFile) throws I2B2Exception {
+	private static void uploadConceptFile(String conceptFile,  SecurityType securityType,  String projectId)  throws I2B2Exception {
+		org.apache.axis2.client.ServiceClient sender = null;
 		try {
+			
 			Options options = new Options();
 			options.setTo(new EndpointReference(frUrl));
 			options.setAction("urn:sendfileRequest");
@@ -182,11 +160,11 @@ public class CallFileRepositoryUtil {
 			options.setProperty(Constants.Configuration.FILE_SIZE_THRESHOLD,
 					"4000");
 
-			ServiceClient sender = FileRepositoryServiceClient
+			sender = ServiceClient
 					.getServiceClient();
 			sender.setOptions(options);
 			OperationClient mepClient = sender
-					.createClient(ServiceClient.ANON_OUT_IN_OP);
+					.createClient(org.apache.axis2.client.ServiceClient.ANON_OUT_IN_OP);
 
 			MessageContext mc = new MessageContext();
 			javax.activation.DataHandler dataHandler = new javax.activation.DataHandler(
@@ -198,14 +176,7 @@ public class CallFileRepositoryUtil {
 			SOAPFactory sfac = OMAbstractFactory.getSOAP11Factory();
 			SOAPEnvelope env = sfac.getDefaultEnvelope();
 
-			/*
-			 * OMNamespace omNs = sfac.createOMNamespace(
-			 * "http://www.i2b2.org/xsd", "swa"); OMElement idEle =
-			 * sfac.createOMElement("attchmentID", omNs); idEle.setText("cid");
-			 * 
-			 * env.getBody().addChild(idEle);
-			 */
-			RequestMessageType requestMessageType = getI2B2RequestMessage(conceptFile);
+			RequestMessageType requestMessageType = getI2B2RequestMessage(conceptFile, securityType, projectId);
 			OMElement requestElement = buildOMElement(requestMessageType);
 			log.debug("File repository request message from ontology ["
 					+ requestElement + "]");
@@ -227,6 +198,10 @@ public class CallFileRepositoryUtil {
 			OMElement frResponse = (OMElement) response.getEnvelope().getBody()
 					.getFirstOMChild();
 			log.debug("File Repository response body [: " + frResponse + "]");
+			
+			
+			
+			
 			// read header status
 			ResultStatusType resultStatusType = getI2B2ResponseStatus(frResponse);
 
@@ -251,101 +226,17 @@ public class CallFileRepositoryUtil {
 			throw new I2B2Exception(
 					"Unable to send file to file repository :Axisfault ["
 							+ t.getMessage() + "]");
-		}
-	}
-
-	private MessageContext getResponseSOAPBody(OMElement requestElement)
-			throws I2B2Exception {
-		MessageContext response = null;
-		// call
-		ServiceClient serviceClient = FileRepositoryServiceClient
-				.getServiceClient();
-
-		Options options = new Options();
-		String frOperationName = OntologyUtil.getInstance()
-				.getFileRepositoryOperationName();
-		if (frOperationName == null) {
-			throw new I2B2Exception(
-					"File Repository operation property missing from the property file");
-		}
-		log.debug("File Repository operation property value ["
-				+ frOperationName + "]");
-		options.setAction(frOperationName);
-		options.setSoapVersionURI(SOAP11Constants.SOAP_ENVELOPE_NAMESPACE_URI);
-		String timeout = OntologyUtil.getInstance().getFileRepositoryTimeout();
-		log.debug("File Repository timeout property value [" + timeout + "]");
-		// Increase the time out to receive large attachments
-		options.setTimeOutInMilliSeconds(Integer.parseInt(timeout));
-		options.setProperty(Constants.Configuration.CACHE_ATTACHMENTS,
-				Constants.VALUE_TRUE);
-		options.setProperty(Constants.Configuration.ATTACHMENT_TEMP_DIR,
-				ontologyUtil.getFileRepositoryTempSpace());
-		options.setProperty(Constants.Configuration.FILE_SIZE_THRESHOLD,
-				ontologyUtil.getFileRepositoryThreshold());
-		options.setTo(new EndpointReference(frUrl));
-		serviceClient.setOptions(options);
-
-		try {
-			OperationClient mepClient = serviceClient
-					.createClient(ServiceClient.ANON_OUT_IN_OP);
-			MessageContext mc = new MessageContext();
-
-			SOAPFactory sfac = OMAbstractFactory.getSOAP11Factory();
-			SOAPEnvelope env = sfac.getDefaultEnvelope();
-			env.getBody().addChild(requestElement);
-
-			// SOAPEnvelope env = createEnvelope("fileattachment");
-			mc.setEnvelope(env);
-			// mc.addAttachment("contentID",dataHandler);
-			mc.setDoingSwA(true);
-			mepClient.addMessageContext(mc);
-			mepClient.execute(true);
-			response = mepClient
-					.getMessageContext(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-			log.debug("File Repository response envelope: "
-					+ response.toString() + "]");
-			OMElement frResponse = (OMElement) response.getEnvelope().getBody()
-					.getFirstOMChild();
-			log.debug("File Repository response body [: " + frResponse + "]");
-			// read header status
-			ResultStatusType resultStatusType = getI2B2ResponseStatus(frResponse);
-
-			// if the status type is error, then throw i2b2exception
-			if (resultStatusType.getStatus() != null
-					&& resultStatusType.getStatus().getType() != null
-					&& resultStatusType.getStatus().getType().equalsIgnoreCase(
-							"error")) {
-				String errorMsg = resultStatusType.getStatus().getValue();
-
-				throw new I2B2Exception(
-						"Unable to fetch file from file repository ["
-								+ errorMsg + "]");
+		} finally {
+			if (sender != null) {
+				try{
+					sender.cleanupTransport();
+					sender.cleanup();
+				} catch (AxisFault e) {
+					log.debug("Error .", e);
+				}
 			}
-
-			OperationContext operationContext = mc.getOperationContext();
-			MessageContext outMessageContext = operationContext
-					.getMessageContext(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-			log
-					.debug("File Repository response has ["
-							+ outMessageContext.getAttachmentMap()
-									.getAllContentIDs().length
-							+ "] attachments");
-		} catch (AxisFault axisFault) {
-			throw new I2B2Exception(
-					"Unable to fetch file from file repository :Axisfault ["
-							+ axisFault.getCause().getMessage() + "]");
-		} catch (JAXBUtilException jaxbUtilEx) {
-			throw new I2B2Exception(
-					"Unable to fetch file from file repository :Axisfault ["
-							+ jaxbUtilEx.getMessage() + "]");
-		} catch (Throwable t) {
-			t.printStackTrace();
-			throw new I2B2Exception(
-					"Unable to fetch file from file repository :Axisfault ["
-							+ t.getMessage() + "]");
-		}
-		return response;
-
+		}	
 	}
+
 
 }

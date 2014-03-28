@@ -20,7 +20,7 @@ public class OntologyServiceRESTTest extends OntologyAxisAbstract{
 	private static String testFileDir = "";
 
 	private static String ontologyTargetEPR = 
-			"http://localhost:9090/i2b2/rest/OntologyService/getSchemes";			
+			"http://localhost:9090/i2b2/services/OntologyService/getSchemes";			
 	//	"http://127.0.0.1:8080/i2b2/services/PMService/getServices";			
 
 	public static junit.framework.Test suite() { 
