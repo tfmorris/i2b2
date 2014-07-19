@@ -1,3 +1,7 @@
 *~
 *.class
 #*/*/gensrc/
+gensrc/
+genlib/
+bin/
+classes/
