@@ -377,7 +377,8 @@ i2b2.CRC.ctrlr.QueryStatus.prototype = function() {
 							
 							//Process Concepts, put all concepts in one large set
 							sdxData = {};
-							var panel_list = i2b2.CRC.model.queryCurrent.panels
+							for (var j2 = 0; j2 < i2b2.CRC.model.queryCurrent.panels.length; j2++) {
+							var panel_list = i2b2.CRC.model.queryCurrent.panels[j2]
 							var panel_cnt = panel_list.length;
 							
 							for (var p2 = 0; p2 < panel_cnt; p2++) {
@@ -386,6 +387,7 @@ i2b2.CRC.ctrlr.QueryStatus.prototype = function() {
 									sdxData[0] = panel_list[p2].items[i2];
 									i2b2.Timeline.conceptDropped(sdxData);
 								}
+							}
 							}
 							//$('Timeline-pgstart').value = '1';
 							//$('Timeline-pgsize').value = '10';

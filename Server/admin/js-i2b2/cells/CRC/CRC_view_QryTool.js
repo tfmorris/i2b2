@@ -198,6 +198,7 @@ i2b2.CRC.view.QT.ContextMenuRouter = function(a, b, actionName) {
  }
 
 //================================================================================================== //
+
 i2b2.CRC.view.QT.enableSameTiming = function() {
 
 		if (YAHOO.util.Dom.inDocument(queryTimingButton.getMenu().element)) {
@@ -221,6 +222,7 @@ i2b2.CRC.view.QT.enableSameTiming = function() {
 }
 
 // ================================================================================================== //
+
 i2b2.CRC.view.QT.setQueryTiming = function(sText) {
 	
 	//TODO cleanup
@@ -232,6 +234,8 @@ i2b2.CRC.view.QT.setQueryTiming = function(sText) {
 										{ text: "Treat Independently", value: "ANY"}]);	
 					queryTimingButton.getMenu().addItems([ 	 
 										{ text: "Selected groups occur in the same financial encounter", value: "SAMEVISIT" }]);
+					queryTimingButton.getMenu().addItems([
+										{ text: "Define sequence of Events", value: "TEMPORAL" }]);									
 					if (sText == "SAMEINSTANCENUM") {
 										queryTimingButton.getMenu().addItems([ 	 
 										{ text: "Items Instance will be the same", value: "SAMEINSTANCENUM" }]);	 
@@ -239,32 +243,42 @@ i2b2.CRC.view.QT.setQueryTiming = function(sText) {
 						
 					}
 					queryTimingButton.getMenu().render();
-		}
-		queryTimingButton.getMenu().render();
-	if (sText == "SAMEINSTANCENUM" )
-	{
-		
-			var menu = queryTimingButton.getMenu();
-			var item = menu.getItem(2);
-			queryTimingButton.set("selectedMenuItem", item);
-		//queryTimingButton.set("selectedMenuItem", 2);	
-	} else if (sText == "SAMEVISIT" )
-	{
+		}  else {
+			
+			if (sText ="TEMPORAL") {
+					queryTimingButton.set("label",  "Define sequence of Events");	
+					
+										i2b2.CRC.ctrlr.QT.queryTiming = "TEMPORAL";
+					$('defineTemporalBar').show();	
 	
-				// else {
-				//	i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.itemData ={ text: "Treat Independently", value: "ANY",
-				//						text: "Occurs in Same Encounter", value: "SAME" };
-				//}		
+			} else if (sText ="SAMEVISIT") {
+					queryTimingButton.set("label",  "Selected groups occur in the same financial encounter");	
+			}
+
+			}
+	
+		queryTimingButton.getMenu().render();
+		var menu = queryTimingButton.getMenu();
+
+		if (sText == "SAMEINSTANCENUM" )
+		{
+			var item = menu.getItem(3);
+		} else if (sText == "SAMEVISIT" )
+		{
+			var item = menu.getItem(1);
+		} else if (sText == "TEMPORAL" )
+		{
+			var item = menu.getItem(2);
+		} else
+		{
+			var item = menu.getItem(0);		
+		}
+		queryTimingButton.set("selectedMenuItem", item);
 		
-		queryTimingButton.set("selectedMenuItem", 1);	
-	} else
-	{
-		queryTimingButton.set("selectedMenuItem", 0);	
-		
-	}
 }
 
 //================================================================================================== //
+
 i2b2.CRC.view.QT.setPanelTiming = function(panelNum, sText) {
 	if (panelNum > 3) {return}
 	if (sText == "SAMEVISIT" )
@@ -317,6 +331,7 @@ i2b2.CRC.view.QT.Resize = function(e) {
 	$('QPD1').style.height = z;
 	$('QPD2').style.height = z;
 	$('QPD3').style.height = z;	
+	$('temporalbuilders').style.height = z + 50;	
 }
 //YAHOO.util.Event.addListener(window, "resize", i2b2.CRC.view.QT.Resize, i2b2.CRC.view.QT); // tdw9
 
@@ -332,14 +347,18 @@ i2b2.CRC.view.QT.splitterDragged = function()
 	var CRCQueryName 			= $("queryName");
 	var CRCQueryNameBar 		= $("queryNameBar");
 	var temporalConstraintBar 	= $("temporalConstraintBar");
+	var defineTemporalBar 		= $("defineTemporalBar");
 	var temporalConstraintLabel = $("temporalConstraintLabel");
 	var temporalConstraintDiv	= $("temporalConstraintDiv");
 	var queryTiming				= $("queryTiming");
 	var queryTimingButton		= $("queryTiming-button");
 	
+	var defineTemporal				= $("defineTemporal");
+	var defineTemporalButton		= $("defineTemporal-button");
+
 	var CRCQueryPanels 			= $("crcQryToolPanels");
 	var CRCinnerQueryPanel		= $("crc.innerQueryPanel");
-	
+	var CRCtemoralBuilder		= $("crc.temoralBuilder");
 	var basicWidth					= parseInt(viewPortDim.width) - parseInt(splitter.style.left) - parseInt(splitter.offsetWidth);
 
 	/* Title, buttons, and panels */		
@@ -349,13 +368,17 @@ i2b2.CRC.view.QT.splitterDragged = function()
 	
 	CRCQueryNameBar.style.width 		= Math.max(basicWidth - 38, 0) + "px";
 	temporalConstraintBar.style.width 	= Math.max(basicWidth - 38, 0) + "px";
+	defineTemporalBar.style.width 	= Math.max(basicWidth - 38, 0) + "px";
 	temporalConstraintDiv.style.width 	= Math.max( parseInt(temporalConstraintBar.style.width) - parseInt(temporalConstraintLabel.style.width)-2, 0) + "px";
-	queryTimingButton.style.width 		= Math.max( parseInt(temporalConstraintBar.style.width) - parseInt(temporalConstraintLabel.style.width)-23, 0) + "px";
+	queryTimingButton.style.width 		= Math.max( parseInt(temporalConstraintBar.style.width) - 250,0) + "px";
+	defineTemporalButton.style.width 		= Math.max( parseInt(temporalConstraintBar.style.width) - 250,0) + "px";
+	//parseInt(temporalConstraintLabel.style.width)-23, 0) + "px";
 	
 	CRCQueryName.style.width			= Math.max(basicWidth - 128, 0) + "px"; // use max to avoid negative width
 	
 	CRCQueryPanels.style.width		= Math.max(basicWidth - 30, 0) + "px";
 	CRCinnerQueryPanel.style.width	= Math.max(basicWidth - 36, 0) + "px";
+	CRCtemoralBuilder.style.width	= Math.max(basicWidth - 36, 0) + "px";
 	
 	
 	var panelWidth = (basicWidth - 36)/3 - 4;
@@ -454,9 +477,14 @@ i2b2.CRC.view.QT.ResizeHeight = function() {
 		$('queryTopicPanel').show();
 		z = z - 28;
 	}
+	
+	if ($('defineTemporalBar').style.display === '')			
+		z = z - 20;
 	$('QPD1').style.height = z;
 	$('QPD2').style.height = z;
 	$('QPD3').style.height = z;	
+	$('temporalbuilders').style.height = z + 50;	
+
 }
 
 // This is done once the entire cell has been loaded
@@ -857,22 +885,86 @@ i2b2.events.afterCellInit.subscribe(
 			queryTimingButton =  new YAHOO.widget.Button("queryTiming", 
 					{ lazyLoad: "false", type: "menu", menu: "menubutton1select", name:"querytiming" });
 
+		defineTemporalButton =  new YAHOO.widget.Button("defineTemporal", 
+					{ lazyLoad: "false", type: "menu", menu: "menubutton2select", name:"definetemporal" });
+
+
+			var addDefineGroup = new YAHOO.widget.Button("addDefineGroup"); 
+				addDefineGroup.on("click", function (event) {
+					i2b2.CRC.ctrlr.QT.temporalGroup = i2b2.CRC.model.queryCurrent.panels.length;
+					//i2b2.CRC.ctrlr.QT.temporalGroup = i2b2.CRC.ctrlr.QT.temporalGroup + 1;
+					defineTemporalButton.getMenu().addItems([ 	 
+										{ text: "Event " + (i2b2.CRC.ctrlr.QT.temporalGroup), value: i2b2.CRC.ctrlr.QT.temporalGroup}]);	 
+					defineTemporalButton.getMenu().render();			
+					
+					i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup] = {};
+					this.yuiTree = new YAHOO.widget.TreeView("QPD1");
+					i2b2.CRC.ctrlr.QT.panelAdd(this.yuiTree);
+					i2b2.CRC.ctrlr.QT._redrawAllPanels();	
+					
+					//Add to define a query	
+					var select = document.getElementById("instancevent1[0]");
+					select.options[select.options.length] = new Option( 'Event '+i2b2.CRC.ctrlr.QT.temporalGroup, i2b2.CRC.ctrlr.QT.temporalGroup);
 	
+					 select = document.getElementById("instancevent2[0]");
+					select.options[select.options.length] = new Option( 'Event '+i2b2.CRC.ctrlr.QT.temporalGroup, i2b2.CRC.ctrlr.QT.temporalGroup);
+
+						});
+
+		
 			queryTimingButton.on("mousedown", function (event) {
 				//i2b2.CRC.ctrlr.QT.panelControllers[0].doTiming(p_oItem.value);
-				if ((i2b2.CRC.ctrlr.QT.hasModifier) && (queryTimingButton.getMenu().getItems().length == 2))  {
+				if ((i2b2.CRC.ctrlr.QT.hasModifier) && (queryTimingButton.getMenu().getItems().length == 3))  {
 					queryTimingButton.getMenu().addItems([ 	 
 										{ text: "Items Instance will be the same", value: "SAMEINSTANCENUM" }]);	 
 					queryTimingButton.getMenu().render();
 				}
 			});
-	
-			
+		
+		
+		
+			defineTemporalButton.on("selectedMenuItemChange", function (event) {
+				//i2b2.CRC.ctrlr.QT.panelControllers[0].doTiming(p_oItem.value);
+				var oMenuItem = event.newValue; 
+				
+				var sText = oMenuItem.value;
+							defineTemporalButton.set("label",oMenuItem.cfg.getProperty("text"));	
+		
+				if (sText != "BUILDER")
+				{
+					$('crc.temoralBuilder').hide();		
+
+					$('crc.innerQueryPanel').show();
+					i2b2.CRC.ctrlr.QT.temporalGroup = sText;
+					i2b2.CRC.ctrlr.QT._redrawAllPanels();
+					
+					
+					if (sText == "0")
+					{
+						$('QPD1').style.background = '#FFFFFF';
+						$('queryPanelTitle1').innerHTML = 'Group 1';
+					} else {
+						$('QPD1').style.background = '#D9ECF0';
+						$('queryPanelTitle1').innerHTML = 'Anchoring Observation';	
+						i2b2.CRC.ctrlr.QT.panelControllers[0].doTiming("SAMEINSTANCENUM");
+					
+						i2b2.CRC.ctrlr.QT.panelControllers[0].refTiming.set("label", "Items Instance will be the same");		
+
+
+					
+					}
+				} else {
+					$('crc.innerQueryPanel').hide();
+					$('crc.temoralBuilder').show();	
+	//				queryTimingButton.set("label", "Temporal Contraint Builder");
+				}
+						}); 
+
 			queryTimingButton.on("selectedMenuItemChange", function (event) {
 				//i2b2.CRC.ctrlr.QT.panelControllers[0].doTiming(p_oItem.value);
 				var oMenuItem = event.newValue; 
 				
-				if (oMenuItem == 0)
+					if (oMenuItem == 0)
 				{
 					var sValue = "ANY";
 					var sText = "Treat all groups independently";
@@ -892,6 +984,12 @@ i2b2.events.afterCellInit.subscribe(
 			
 				queryTimingButton.set("label", sText);		
 				
+				if (sValue != "TEMPORAL") {
+					$('QPD1').style.background = '#FFFFFF';
+					$('defineTemporalBar').hide();
+					$('crc.temoralBuilder').hide();	
+					$('crc.innerQueryPanel').show();
+				}
 				if (sValue == "SAMEVISIT") {
 					i2b2.CRC.ctrlr.QT.queryTiming = "SAMEVISIT";
 					for (var i=0; i<length; i++) {
@@ -919,6 +1017,9 @@ i2b2.events.afterCellInit.subscribe(
 	
 				} else if (sValue == "ANY") {
 					i2b2.CRC.ctrlr.QT.queryTiming = "ANY";
+					
+					i2b2.CRC.ctrlr.QT.temporalGroup = 0;
+					i2b2.CRC.ctrlr.QT._redrawAllPanels();
 					
 					for (var i=0; i<length; i++) {
 						i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.set("label", "Treat Independently");		
@@ -948,7 +1049,18 @@ i2b2.events.afterCellInit.subscribe(
 						}
 						i2b2.CRC.ctrlr.QT.panelControllers[i].doTiming(sValue);
 					}					
-								
+				} else if  (sValue == "TEMPORAL") {
+					i2b2.CRC.ctrlr.QT.queryTiming = "TEMPORAL";
+					$('defineTemporalBar').show();	
+					for (var i=0; i<length; i++) {
+
+						i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.set('disabled', false);					
+						//i2b2.CRC.ctrlr.QT.panelControllers[i].refTiming.set("label", "Items Instance will be the same");
+						
+					}					
+					//$('QPD1').style.background = '#D9ECF0';
+					//$('queryPanelTitle1').innerHTML = 'Anchoring Observation';
+					
 				} else {
 					i2b2.CRC.ctrlr.QT.queryTiming = "SAMEINSTANCENUM";
 					for (var i=0; i<length; i++) {
@@ -977,6 +1089,8 @@ i2b2.events.afterCellInit.subscribe(
 					}
 					
 				}
+				i2b2.CRC.view.QT.ResizeHeight();
+			
 			}); 
 			
 			//var qryButtonTiming = {};

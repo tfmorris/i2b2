@@ -18,6 +18,8 @@ function QueryToolController() {
 	this.queryIsRunning = false;
 	this.queryNamePrompt = false;
 	this.queryTiming = 'ANY';
+	this.temporalGroup = 0;
+	this.tenporalBuilders = 0;
 	this.hasModifier = false;
 	this.queryNameDefault = 'New Query';
 	this.queryStatusDefaultText = 'Drag query items to one or more groups then click Run Query.';
@@ -37,8 +39,12 @@ function QueryToolController() {
 		// function to clear query from memory
 		delete i2b2.CRC.model.queryCurrent;
 		i2b2.CRC.model.queryCurrent = {};
+		i2b2.CRC.ctrlr.QT.temporalGroup = 0; 
 		var dm = i2b2.CRC.model.queryCurrent;
 		dm.panels = [];
+		dm.panels[0] = new Array();
+		dm.panels[1] = new Array();
+		dm.panels[2] = new Array();
 		this.doSetQueryName.call(this,'');
 		this.doShowFrom(0);
 		this._redrawPanelCount();
@@ -46,6 +52,10 @@ function QueryToolController() {
 		this.queryIsDirty = true;
 		this.hasModifier = false;
 		$('infoQueryStatusText').innerHTML = "";
+		$('crc.temoralBuilder').hide();		
+		$('crc.innerQueryPanel').show();
+		this.panelControllers[0].refTitle.innerHTML =  'Group 1';
+		$("defineTemporal-button").innerHTML = "Population in which events occur";
 		i2b2.CRC.view.QT.setQueryTiming(0);
 	}
 
@@ -84,286 +94,323 @@ function QueryToolController() {
 				//i2b2.CRC.view.QT.queryTimingButtonset("label", dObj.timing);
 				i2b2.CRC.view.QT.setQueryTiming(dObj.timing);
 				dObj.specificity = i2b2.h.getXNodeVal(qd[0],'specificity_scale');
-				dObj.panels = [];
-				var qp = i2b2.h.XPath(qd[0], 'descendant::panel');
-				var total_panels = qp.length;
-				for (var i1=0; i1<total_panels; i1++) {
-					// extract the data for each panel
-					var po = {};
-					po.panel_num = i2b2.h.getXNodeVal(qp[i1],'panel_number');
-					var t = i2b2.h.getXNodeVal(qp[i1],'invert');
-					po.exclude = (t=="1");
-					//po.timing = i2b2.h.getXNodeVal(qp[i1],'panel_timing');
-					// 1.4 queries don't have panel_timing, and undefined doesn't work
-                    // so default to ANY
-                    po.timing = i2b2.h.getXNodeVal(qp[i1],'panel_timing') || 'ANY';				
-					i2b2.CRC.view.QT.setPanelTiming(po.panel_num, po.timing);
-					var t = i2b2.h.getXNodeVal(qp[i1],'total_item_occurrences');
-					po.occurs = (1*t)-1;
-					var t = i2b2.h.getXNodeVal(qp[i1],'panel_accuracy_scale');
-					po.relevance = t;					
-					var t = i2b2.h.getXNodeVal(qp[i1],'panel_date_from');
-					if (t) {
-						t = t.replace('Z','');
-						t = t.split('-');
-						po.dateFrom = {};
-						po.dateFrom.Year = t[0];
-						po.dateFrom.Month = t[1];
-						po.dateFrom.Day = t[2];
-					} else {
-						po.dateFrom = false;
+				//dObj.panels = new Array(new Array());
+	
+				var sqc = i2b2.h.XPath(qd[0], 'subquery_constraint');
+			
+				for (var j=0; j <sqc.length; j++) {
+
+					i2b2.CRC.view.QT.setQueryTiming("TEMPORAL");
+					//i2b2.CRC.view.QT.setQueryTiming("BUILDER");
+				
+					 $('instancevent1['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'first_query/query_id');
+					 $('preloc1['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'first_query/join_column');
+					 $('instanceopf1['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'first_query/aggregate_operator');
+					$('postloc['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'operator');
+					$('instancevent2['+j + ']').value =i2b2.h.getXNodeVal(sqc[j],'second_query/query_id');
+					$('preloc2['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'second_query/join_column');
+					$('instanceopf2['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'second_query/aggregate_operator');
+
+
+					var span = i2b2.h.XPath(sqc[j], 'span');
+
+					for (var k=0; k < span.length; k++) {
+						$('byspan' + k + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'operator');
+						$('bytimevalue' + k + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'span_value');
+						$('bytimeunit' + k + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'units');
 					}
-					var t = i2b2.h.getXNodeVal(qp[i1],'panel_date_to');
-					if (t) {
-						t = t.replace('Z','');
-						t = t.split('-');
-						po.dateTo = {};
-						po.dateTo.Year = t[0];
-						po.dateTo.Month = t[1];
-						po.dateTo.Day = t[2];
-					} else {
-						po.dateTo = false;
-					}
-					po.items = [];
-					var pi = i2b2.h.XPath(qp[i1], 'descendant::item[item_key]');
-					for (i2=0; i2<pi.length; i2++) {
-						var item = {};
-						// get the item's details from the ONT Cell
-						var ckey = i2b2.h.getXNodeVal(pi[i2],'item_key');
-						
-						
-						// Determine what item this is
-						if (ckey.startsWith("query_master_id")) {
-							var o = new Object;
-							o.name =i2b2.h.getXNodeVal(pi[i2],'item_name');
-							o.id = ckey.substring(16);
-							o.result_instance_id = o.PRS_id ;
-
-							var sdxDataNode = i2b2.sdx.Master.EncapsulateData('QM',o);
-							po.items.push(sdxDataNode);								
-						} else 	if (ckey.startsWith("masterid")) {
-							var o = new Object;
-							o.name =i2b2.h.getXNodeVal(pi[i2],'item_name');
-							o.id = ckey;
-							o.result_instance_id = o.PRS_id ;
-
-							var sdxDataNode = i2b2.sdx.Master.EncapsulateData('QM',o);
-							po.items.push(sdxDataNode);								
-						} else if (ckey.startsWith("patient_set_coll_id")) {
-							var o = new Object;
-							o.titleCRC =i2b2.h.getXNodeVal(pi[i2],'item_name');
-							o.PRS_id = ckey.substring(20);
-							o.result_instance_id = o.PRS_id ;
-
-							var sdxDataNode = i2b2.sdx.Master.EncapsulateData('PRS',o);
-							po.items.push(sdxDataNode);		
-						} else if (ckey.startsWith("patient_set_enc_id")) {
-							var o = new Object;
-							o.titleCRC =i2b2.h.getXNodeVal(pi[i2],'item_name');
-							o.PRS_id = ckey.substring(19);
-							o.result_instance_id = o.PRS_id ;
-
-							var sdxDataNode = i2b2.sdx.Master.EncapsulateData('ENS',o);
-							po.items.push(sdxDataNode);		
-								
-						} else {
-							//Get the modfier if it exists
-					//		if (i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier') != null)
-					//		{
-					//			po.modifier_key = i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier/modifier_key');
-					//			po.applied_path = i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier/applied_path');
-					//		}
-							
-							
-							// WE MUST QUERY THE ONT CELL TO BE ABLE TO DISPLAY THE TREE STRUCTURE CORRECTLY
-
-								var o = new Object;
-								o.level = i2b2.h.getXNodeVal(pi[i2],'hlevel');
-								o.name = i2b2.h.getXNodeVal(pi[i2],'item_name');
-								o.key = i2b2.h.getXNodeVal(pi[i2],'item_key');
-								o.synonym_cd = i2b2.h.getXNodeVal(pi[i2],'item_is_synonym');
-								o.tooltip = i2b2.h.getXNodeVal(pi[i2],'tooltip');
-								o.hasChildren = i2b2.h.getXNodeVal(pi[i2],'item_icon');
-								
-								//o.xmlOrig = c;
-								
-								// Lab Values processing
-								var lvd = i2b2.h.XPath(pi[i2], 'descendant::constrain_by_value');
-								if ((lvd.length>0) && (i2b2.h.XPath(pi[i2], 'descendant::constrain_by_modifier').length == 0)){
-									lvd = lvd[0];
-									// pull the LabValue definition for concept
-									// extract & translate
-									var t = i2b2.h.getXNodeVal(lvd,"value_constraint");
-									o.LabValues = {};
-									o.LabValues.NumericOp = i2b2.h.getXNodeVal(lvd,"value_operator");
-									o.LabValues.GeneralValueType = i2b2.h.getXNodeVal(lvd,"value_type");								
-									switch(o.LabValues.GeneralValueType) {
-										case "NUMBER":
-											o.LabValues.MatchBy = "VALUE";
-											if (t.indexOf(' and ')!=-1) {
-												// extract high and low values
-												t = t.split(' and ');
-												o.LabValues.ValueLow = t[0];
-												o.LabValues.ValueHigh = t[1];
-											} else {
-												o.LabValues.Value = t;
-											}
-											break;
-										case "STRING":
-											o.LabValues.MatchBy = "VALUE";
-											o.LabValues.ValueString = t;
-											break;
-										case "LARGETEXT":
-											o.LabValues.MatchBy = "VALUE";
-											o.LabValues.GeneralValueType = "LARGESTRING";
-											o.LabValues.DbOp = (i2b2.h.getXNodeVal(lvd,"value_operator") == "CONTAINS[database]" ? true : false );													
-											o.LabValues.ValueString = t;
-											break;
-										case "TEXT":	// this means Enum?
-											o.LabValues.MatchBy = "VALUE";
-											try {
-												o.LabValues.ValueEnum = eval("(Array"+t+")");
-												o.LabValues.GeneralValueType = "ENUM";																									
-											} catch(e) {
-												//is a string
-												o.LabValues.StringOp = i2b2.h.getXNodeVal(lvd,"value_operator");
-												o.LabValues.ValueString = t;
-												o.LabValues.GeneralValueType = "STRING";	
-												//i2b2.h.LoadingMask.hide();
-												//("Conversion Failed: Lab Value data = "+t);
-											}
-											break;
-										case "FLAG":
-											o.LabValues.MatchBy = "FLAG";
-											o.LabValues.ValueFlag = t
-											break;		
-										default:
-											o.LabValues.Value = t;
-									}		
-								}
-								// sdx encapsulate
-								var sdxDataNode = i2b2.sdx.Master.EncapsulateData('CONCPT',o);
-								if (o.LabValues) {
-									// We do want 2 copies of the Lab Values: one is original from server while the other one is for user manipulation
-									sdxDataNode.LabValues = o.LabValues;
-								}
-										//o.xmlOrig = c;
-										if (i2b2.h.XPath(pi[i2], 'descendant::constrain_by_modifier').length > 0) {
-									//if (i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier') != null) {
-										sdxDataNode.origData.parent = {};
-										sdxDataNode.origData.parent.key = o.key;
-										//sdxDataNode.origData.parent.LabValues = o.LabValues;
-										sdxDataNode.origData.parent.hasChildren = o.hasChildren;
-										sdxDataNode.origData.parent.level = o.level;
-										sdxDataNode.origData.parent.name = o.name;
-										sdxDataNode.origData.key = i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier/modifier_key');
-										sdxDataNode.origData.applied_path = i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier/applied_path');
-										sdxDataNode.origData.name = i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier/modifier_name');
-										sdxDataNode.origData.isModifier = true;
-										this.hasModifier = true;
-										
-										// Lab Values processing
-										var lvd = i2b2.h.XPath(pi[i2], 'descendant::constrain_by_modifier/constrain_by_value');
-										if (lvd.length>0){
-											lvd = lvd[0];
-											// pull the LabValue definition for concept
-
-											// extract & translate
-											var t = i2b2.h.getXNodeVal(lvd,"value_constraint");
-											o.ModValues = {};
-											o.ModValues.NumericOp = i2b2.h.getXNodeVal(lvd,"value_operator");
-											o.ModValues.GeneralValueType = i2b2.h.getXNodeVal(lvd,"value_type");								
-											switch(o.ModValues.GeneralValueType) {
-												case "NUMBER":
-													o.ModValues.MatchBy = "VALUE";
-													if (t.indexOf(' and ')!=-1) {
-														// extract high and low values
-														t = t.split(' and ');
-														o.ModValues.ValueLow = t[0];
-														o.ModValues.ValueHigh = t[1];
-													} else {
-														o.ModValues.Value = t;
-													}
-													break;
-												case "STRING":
-													o.ModValues.MatchBy = "VALUE";
-													o.ModValues.ValueString = t;
-													break;
-												case "LARGETEXT":
-													o.ModValues.MatchBy = "VALUE";
-													o.ModValues.GeneralValueType = "LARGESTRING";
-													o.ModValues.DbOp = (i2b2.h.getXNodeVal(lvd,"value_operator") == "CONTAINS[database]" ? true : false );													
-													o.ModValues.ValueString = t;
-													break;
-												case "TEXT":	// this means Enum?
-													o.ModValues.MatchBy = "VALUE";
-													try {
-														o.ModValues.ValueEnum = eval("(Array"+t+")");
-														o.ModValues.GeneralValueType = "ENUM";													
-													} catch(e) {
-														o.ModValues.StringOp = i2b2.h.getXNodeVal(lvd,"value_operator");
-														o.ModValues.ValueString = t;
-														
-													//	i2b2.h.LoadingMask.hide();
-													//	console.error("Conversion Failed: Lab Value data = "+t);
-													}
-													break;
-												case "FLAG":
-													o.ModValues.MatchBy = "FLAG";
-													o.ModValues.ValueFlag = t
-													break;		
-												default:
-													o.ModValues.Value = t;
-											}		
-										}
-										// sdx encapsulate
-										//var sdxDataNode = i2b2.sdx.Master.EncapsulateData('CONCPT',o);
-										if (o.ModValues) {
-											// We do want 2 copies of the Lab Values: one is original from server while the other one is for user manipulation
-											sdxDataNode.ModValues = o.ModValues;
-										}
-									//}
-											
-								}
-								
-								
-								po.items.push(sdxDataNode);
-						//	} else {
-						//		console.error("CRC's ONT Handler could not get term details about '"+ckey+"'!");
-						//	}
-							
-						}
-					}
-					dObj.panels[po.panel_num] = po;
 				}
-				// reindex the panels index (panel [1,3,5] should be [0,1,2])
-				dObj.panels = dObj.panels.compact();
-				i2b2.CRC.model.queryCurrent = dObj;
+				
+				
+				for (var j=0; j <qd.length; j++) {
+					dObj.panels = [];
+					if (j==0)
+						var qp = i2b2.h.XPath(qd[j], 'panel');
+					else
+						var qp = i2b2.h.XPath(qd[j], 'descendant::panel');
+					
+					var total_panels = qp.length;
+					for (var i1=0; i1<total_panels; i1++) {
+						// extract the data for each panel
+						var po = {};
+						po.panel_num = i2b2.h.getXNodeVal(qp[i1],'panel_number');
+						var t = i2b2.h.getXNodeVal(qp[i1],'invert');
+						po.exclude = (t=="1");
+						//po.timing = i2b2.h.getXNodeVal(qp[i1],'panel_timing');
+						// 1.4 queries don't have panel_timing, and undefined doesn't work
+						// so default to ANY
+						po.timing = i2b2.h.getXNodeVal(qp[i1],'panel_timing') || 'ANY';				
+						i2b2.CRC.view.QT.setPanelTiming(po.panel_num, po.timing);
+						var t = i2b2.h.getXNodeVal(qp[i1],'total_item_occurrences');
+						po.occurs = (1*t)-1;
+						var t = i2b2.h.getXNodeVal(qp[i1],'panel_accuracy_scale');
+						po.relevance = t;					
+						var t = i2b2.h.getXNodeVal(qp[i1],'panel_date_from');
+						if (t) {
+							t = t.replace('Z','');
+							t = t.split('-');
+							po.dateFrom = {};
+							po.dateFrom.Year = t[0];
+							po.dateFrom.Month = t[1];
+							po.dateFrom.Day = t[2];
+						} else {
+							po.dateFrom = false;
+						}
+						var t = i2b2.h.getXNodeVal(qp[i1],'panel_date_to');
+						if (t) {
+							t = t.replace('Z','');
+							t = t.split('-');
+							po.dateTo = {};
+							po.dateTo.Year = t[0];
+							po.dateTo.Month = t[1];
+							po.dateTo.Day = t[2];
+						} else {
+							po.dateTo = false;
+						}
+						po.items = [];
+						var pi = i2b2.h.XPath(qp[i1], 'descendant::item[item_key]');
+						for (i2=0; i2<pi.length; i2++) {
+							var item = {};
+							// get the item's details from the ONT Cell
+							var ckey = i2b2.h.getXNodeVal(pi[i2],'item_key');
+							
+							
+							// Determine what item this is
+							if (ckey.startsWith("query_master_id")) {
+								var o = new Object;
+								o.name =i2b2.h.getXNodeVal(pi[i2],'item_name');
+								o.id = ckey.substring(16);
+								o.result_instance_id = o.PRS_id ;
+	
+								var sdxDataNode = i2b2.sdx.Master.EncapsulateData('QM',o);
+								po.items.push(sdxDataNode);								
+							} else 	if (ckey.startsWith("masterid")) {
+								var o = new Object;
+								o.name =i2b2.h.getXNodeVal(pi[i2],'item_name');
+								o.id = ckey;
+								o.result_instance_id = o.PRS_id ;
+	
+								var sdxDataNode = i2b2.sdx.Master.EncapsulateData('QM',o);
+								po.items.push(sdxDataNode);								
+							} else if (ckey.startsWith("patient_set_coll_id")) {
+								var o = new Object;
+								o.titleCRC =i2b2.h.getXNodeVal(pi[i2],'item_name');
+								o.PRS_id = ckey.substring(20);
+								o.result_instance_id = o.PRS_id ;
+	
+								var sdxDataNode = i2b2.sdx.Master.EncapsulateData('PRS',o);
+								po.items.push(sdxDataNode);		
+							} else if (ckey.startsWith("patient_set_enc_id")) {
+								var o = new Object;
+								o.titleCRC =i2b2.h.getXNodeVal(pi[i2],'item_name');
+								o.PRS_id = ckey.substring(19);
+								o.result_instance_id = o.PRS_id ;
+	
+								var sdxDataNode = i2b2.sdx.Master.EncapsulateData('ENS',o);
+								po.items.push(sdxDataNode);		
+									
+							} else {
+								//Get the modfier if it exists
+						//		if (i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier') != null)
+						//		{
+						//			po.modifier_key = i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier/modifier_key');
+						//			po.applied_path = i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier/applied_path');
+						//		}
+								
+								
+								// WE MUST QUERY THE ONT CELL TO BE ABLE TO DISPLAY THE TREE STRUCTURE CORRECTLY
+	
+									var o = new Object;
+									o.level = i2b2.h.getXNodeVal(pi[i2],'hlevel');
+									o.name = i2b2.h.getXNodeVal(pi[i2],'item_name');
+									o.key = i2b2.h.getXNodeVal(pi[i2],'item_key');
+									o.synonym_cd = i2b2.h.getXNodeVal(pi[i2],'item_is_synonym');
+									o.tooltip = i2b2.h.getXNodeVal(pi[i2],'tooltip');
+									o.hasChildren = i2b2.h.getXNodeVal(pi[i2],'item_icon');
+									
+									//o.xmlOrig = c;
+									
+									// Lab Values processing
+									var lvd = i2b2.h.XPath(pi[i2], 'descendant::constrain_by_value');
+									if ((lvd.length>0) && (i2b2.h.XPath(pi[i2], 'descendant::constrain_by_modifier').length == 0)){
+										lvd = lvd[0];
+										// pull the LabValue definition for concept
+										// extract & translate
+										var t = i2b2.h.getXNodeVal(lvd,"value_constraint");
+										o.LabValues = {};
+										o.LabValues.NumericOp = i2b2.h.getXNodeVal(lvd,"value_operator");
+										o.LabValues.GeneralValueType = i2b2.h.getXNodeVal(lvd,"value_type");								
+										switch(o.LabValues.GeneralValueType) {
+											case "NUMBER":
+												o.LabValues.MatchBy = "VALUE";
+												if (t.indexOf(' and ')!=-1) {
+													// extract high and low values
+													t = t.split(' and ');
+													o.LabValues.ValueLow = t[0];
+													o.LabValues.ValueHigh = t[1];
+												} else {
+													o.LabValues.Value = t;
+												}
+												break;
+											case "STRING":
+												o.LabValues.MatchBy = "VALUE";
+												o.LabValues.ValueString = t;
+												break;
+											case "LARGETEXT":
+												o.LabValues.MatchBy = "VALUE";
+												o.LabValues.GeneralValueType = "LARGESTRING";
+												o.LabValues.DbOp = (i2b2.h.getXNodeVal(lvd,"value_operator") == "CONTAINS[database]" ? true : false );													
+												o.LabValues.ValueString = t;
+												break;
+											case "TEXT":	// this means Enum?
+												o.LabValues.MatchBy = "VALUE";
+												try {
+													o.LabValues.ValueEnum = eval("(Array"+t+")");
+													o.LabValues.GeneralValueType = "ENUM";																									
+												} catch(e) {
+													//is a string
+													o.LabValues.StringOp = i2b2.h.getXNodeVal(lvd,"value_operator");
+													o.LabValues.ValueString = t;
+													o.LabValues.GeneralValueType = "STRING";	
+													//i2b2.h.LoadingMask.hide();
+													//("Conversion Failed: Lab Value data = "+t);
+												}
+												break;
+											case "FLAG":
+												o.LabValues.MatchBy = "FLAG";
+												o.LabValues.ValueFlag = t
+												break;		
+											default:
+												o.LabValues.Value = t;
+										}		
+									}
+									// sdx encapsulate
+									var sdxDataNode = i2b2.sdx.Master.EncapsulateData('CONCPT',o);
+									if (o.LabValues) {
+										// We do want 2 copies of the Lab Values: one is original from server while the other one is for user manipulation
+										sdxDataNode.LabValues = o.LabValues;
+									}
+											//o.xmlOrig = c;
+											if (i2b2.h.XPath(pi[i2], 'descendant::constrain_by_modifier').length > 0) {
+										//if (i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier') != null) {
+											sdxDataNode.origData.parent = {};
+											sdxDataNode.origData.parent.key = o.key;
+											//sdxDataNode.origData.parent.LabValues = o.LabValues;
+											sdxDataNode.origData.parent.hasChildren = o.hasChildren;
+											sdxDataNode.origData.parent.level = o.level;
+											sdxDataNode.origData.parent.name = o.name;
+											sdxDataNode.origData.key = i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier/modifier_key');
+											sdxDataNode.origData.applied_path = i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier/applied_path');
+											sdxDataNode.origData.name = i2b2.h.getXNodeVal(pi[i2],'constrain_by_modifier/modifier_name');
+											sdxDataNode.origData.isModifier = true;
+											this.hasModifier = true;
+											
+											// Lab Values processing
+											var lvd = i2b2.h.XPath(pi[i2], 'descendant::constrain_by_modifier/constrain_by_value');
+											if (lvd.length>0){
+												lvd = lvd[0];
+												// pull the LabValue definition for concept
+	
+												// extract & translate
+												var t = i2b2.h.getXNodeVal(lvd,"value_constraint");
+												o.ModValues = {};
+												o.ModValues.NumericOp = i2b2.h.getXNodeVal(lvd,"value_operator");
+												o.ModValues.GeneralValueType = i2b2.h.getXNodeVal(lvd,"value_type");								
+												switch(o.ModValues.GeneralValueType) {
+													case "NUMBER":
+														o.ModValues.MatchBy = "VALUE";
+														if (t.indexOf(' and ')!=-1) {
+															// extract high and low values
+															t = t.split(' and ');
+															o.ModValues.ValueLow = t[0];
+															o.ModValues.ValueHigh = t[1];
+														} else {
+															o.ModValues.Value = t;
+														}
+														break;
+													case "STRING":
+														o.ModValues.MatchBy = "VALUE";
+														o.ModValues.ValueString = t;
+														break;
+													case "LARGETEXT":
+														o.ModValues.MatchBy = "VALUE";
+														o.ModValues.GeneralValueType = "LARGESTRING";
+														o.ModValues.DbOp = (i2b2.h.getXNodeVal(lvd,"value_operator") == "CONTAINS[database]" ? true : false );													
+														o.ModValues.ValueString = t;
+														break;
+													case "TEXT":	// this means Enum?
+														o.ModValues.MatchBy = "VALUE";
+														try {
+															o.ModValues.ValueEnum = eval("(Array"+t+")");
+															o.ModValues.GeneralValueType = "ENUM";													
+														} catch(e) {
+															o.ModValues.StringOp = i2b2.h.getXNodeVal(lvd,"value_operator");
+															o.ModValues.ValueString = t;
+															
+														//	i2b2.h.LoadingMask.hide();
+														//	console.error("Conversion Failed: Lab Value data = "+t);
+														}
+														break;
+													case "FLAG":
+														o.ModValues.MatchBy = "FLAG";
+														o.ModValues.ValueFlag = t
+														break;		
+													default:
+														o.ModValues.Value = t;
+												}		
+											}
+											// sdx encapsulate
+											//var sdxDataNode = i2b2.sdx.Master.EncapsulateData('CONCPT',o);
+											if (o.ModValues) {
+												// We do want 2 copies of the Lab Values: one is original from server while the other one is for user manipulation
+												sdxDataNode.ModValues = o.ModValues;
+											}
+										//}
+												
+									}
+									
+									
+									po.items.push(sdxDataNode);
+							//	} else {
+							//		console.error("CRC's ONT Handler could not get term details about '"+ckey+"'!");
+							//	}
+								
+							}
+						}
+						dObj.panels[po.panel_num] = po;
+					}
+					// reindex the panels index (panel [1,3,5] should be [0,1,2])
+					dObj.panels = dObj.panels.compact();
+					i2b2.CRC.model.queryCurrent.panels[j] = dObj.panels;
+				
+				}
 				// populate the panels yuiTrees
 				try {
 					var qpc = i2b2.CRC.ctrlr.QT.panelControllers[0];
 					var dm = i2b2.CRC.model.queryCurrent;
-					for (var pi=0; pi<dm.panels.length; pi++) {
+					for (var k=0; k<dm.panels.length; k++) {
+					for (var pi=0; pi<dm.panels[k].length; pi++) {
 						// create a treeview root node and connect it to the treeview controller
-						dm.panels[pi].tvRootNode = new YAHOO.widget.RootNode(qpc.yuiTree);
-						qpc.yuiTree.root = dm.panels[pi].tvRootNode;
-						dm.panels[pi].tvRootNode.tree = qpc.yuiTree;
+						dm.panels[k][pi].tvRootNode = new YAHOO.widget.RootNode(qpc.yuiTree);
+						qpc.yuiTree.root = dm.panels[k][pi].tvRootNode;
+						dm.panels[k][pi].tvRootNode.tree = qpc.yuiTree;
 						qpc.yuiTree.setDynamicLoad(i2b2.CRC.ctrlr.QT._loadTreeDataForNode,1);						
 						// load the treeview with the data
 						var tvRoot = qpc.yuiTree.getRoot();
-						for (var pii=0; pii<dm.panels[pi].items.length; pii++) {
-							var withRenderData = qpc._addConceptVisuals(dm.panels[pi].items[pii], tvRoot, false);
-							if (dm.panels[pi].items[pii].ModValues)
+						for (var pii=0; pii<dm.panels[k][pi].items.length; pii++) {
+							var withRenderData = qpc._addConceptVisuals(dm.panels[k][pi].items[pii], tvRoot, false);
+							if (dm.panels[k][pi].items[pii].ModValues)
 							{
-								withRenderData.ModValues = 	dm.panels[pi].items[pii].ModValues;
+								withRenderData.ModValues = 	dm.panels[k][pi].items[pii].ModValues;
 							}
-							if (dm.panels[pi].items[pii].LabValues)
+							if (dm.panels[k][pi].items[pii].LabValues)
 							{
-								withRenderData.LabValues = 	dm.panels[pi].items[pii].LabValues;
+								withRenderData.LabValues = 	dm.panels[k][pi].items[pii].LabValues;
 							}
 							
-							dm.panels[pi].items[pii] = withRenderData;
+							dm.panels[k][pi].items[pii] = withRenderData;
 						}
+					}
 					}
 				} catch (e) {}
 				// redraw the Query Tool GUI
@@ -391,7 +438,7 @@ function QueryToolController() {
 			return void(0);
 		}
 		
-		if (i2b2.CRC.model.queryCurrent.panels.length < 1) {
+		if (i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length < 1) {
 			alert('You must enter at least one concept to run a query.');
 			return void(0);
 		}
@@ -627,171 +674,252 @@ function QueryToolController() {
 // ================================================================================================== //
 	this._getQueryXML = function(queryName) {
 		var i;
+		var isTemporal = false;
 		var el;
 		var concept;
-		var panel_list = i2b2.CRC.model.queryCurrent.panels
+		var panel_list = i2b2.CRC.model.queryCurrent.panels[0]; //i2b2.CRC.ctrlr.QT.temporalGroup];
 		var panel_cnt = panel_list.length;
 		var auto_query_name_len = 15;
 		var auto_query_name = '';
+		
+		if (this.queryTiming == "TEMPORAL") {
+			isTemporal = true;	
+		}
 		if (panel_cnt > 0) {
 			auto_query_name_len = Math.floor(15/panel_cnt);
 			if (auto_query_name_len < 1) {auto_query_name_len = 1;}
 		}
 		// build Query XML
 		var s = '<query_definition>\n';
+		if (isTemporal)
+		{
+			queryName = '(t) ' + queryName;	
+		}
 		s += '\t<query_name>' + i2b2.h.Escape(queryName) + '</query_name>\n';
 		if (this.queryTiming == "SAMEVISIT")
 		{
 			s += '\t<query_timing>SAMEVISIT</query_timing>\n';			
 		} else if (this.queryTiming == "ANY") {
 			s += '\t<query_timing>ANY</query_timing>\n';						
+		} else if (this.queryTiming == "TEMPORAL") {
+			s += '\t<query_timing>ANY</query_timing>\n';						
 		} else {
 			s += '\t<query_timing>SAMEINSTANCENUM</query_timing>\n';
 		}
 		s += '\t<specificity_scale>0</specificity_scale>\n';
 		if (i2b2.PM.model.shrine_domain) { s += '\t<use_shrine>1</use_shrine>\n'; }
-		for (var p = 0; p < panel_cnt; p++) {
-			s += '\t<panel>\n';
-			s += '\t\t<panel_number>' + (p+1) + '</panel_number>\n';
-			// date range constraints
-			if (panel_list[p].dateFrom) {
-				s += '\t\t<panel_date_from>'+panel_list[p].dateFrom.Year+'-'+padNumber(panel_list[p].dateFrom.Month,2)+'-'+padNumber(panel_list[p].dateFrom.Day,2)+'</panel_date_from>\n';
-			}
-			if (panel_list[p].dateTo) {
-				s += '\t\t<panel_date_to>'+panel_list[p].dateTo.Year+'-'+padNumber(panel_list[p].dateTo.Month,2)+'-'+padNumber(panel_list[p].dateTo.Day,2)+'</panel_date_to>\n';
-			}
-			s += "\t\t<panel_accuracy_scale>" + panel_list[p].relevance + "</panel_accuracy_scale>\n";
-			// Exclude constraint (invert flag)
-			if (panel_list[p].exclude) {
-				s += '\t\t<invert>1</invert>\n';
-			} else {
-				s += '\t\t<invert>0</invert>\n';
-			}
-			// Panel Timing
-			s += '\t\t<panel_timing>' + panel_list[p].timing + '</panel_timing>\n';
-			// Occurs constraint
-			s += '\t\t<total_item_occurrences>'+((panel_list[p].occurs*1)+1)+'</total_item_occurrences>\n';
-			// Concepts
-			for (i=0; i < panel_list[p].items.length; i++) {
-				var sdxData = panel_list[p].items[i];
-				s += '\t\t<item>\n';
-					switch(sdxData.sdxInfo.sdxType) {
-					case "QM":	
-						s += '\t\t\t<item_key>masterid:' + sdxData.origData.id + '</item_key>\n';
-						s += '\t\t\t<item_name>' + sdxData.origData.title + '</item_name>\n';
-						s += '\t\t\t<tooltip>' + sdxData.origData.name + '</tooltip>\n';
-						s += '\t\t\t<item_is_synonym>false</item_is_synonym>\n';
-						s += '\t\t\t<hlevel>0</hlevel>\n';
-					break;
-					case "PRS":	
-						s += '\t\t\t<item_key>patient_set_coll_id:' + sdxData.sdxInfo.sdxKeyValue + '</item_key>\n';
-						s += '\t\t\t<item_name>' + sdxData.sdxInfo.sdxDisplayName + '</item_name>\n';
-						s += '\t\t\t<tooltip>' + sdxData.sdxInfo.sdxDisplayName + '</tooltip>\n';
-						s += '\t\t\t<item_is_synonym>false</item_is_synonym>\n';
-						s += '\t\t\t<hlevel>0</hlevel>\n';
-					break;
-					case "ENS":	
-						s += '\t\t\t<item_key>patient_set_enc_id:' + sdxData.sdxInfo.sdxKeyValue + '</item_key>\n';
-						s += '\t\t\t<item_name>' + sdxData.sdxInfo.sdxDisplayName + '</item_name>\n';
-						s += '\t\t\t<tooltip>' + sdxData.sdxInfo.sdxDisplayName + '</tooltip>\n';
-						s += '\t\t\t<item_is_synonym>false</item_is_synonym>\n';
-						s += '\t\t\t<hlevel>0</hlevel>\n';
-					break;
-					default:
-						if (sdxData.origData.isModifier) {
-							
-							var modParent = sdxData.origData.parent;
-							var level = sdxData.origData.level;
-							var key = sdxData.origData.parent.key;
-							var name = (sdxData.origData.parent.name != null ? i2b2.h.Escape(sdxData.origData.parent.name) : i2b2.h.Escape(sdxData.origData.name)) ;
-							var tooltip = sdxData.origData.tooltip;
-							var itemicon = sdxData.origData.hasChildren;
-							while  (modParent != null)
-							{
-								if (modParent.isModifier)
-								{
-									modParent = modParent.parent;
-								} else {
-									level = modParent.level;
-									key = modParent.key;
-									name = modParent.name;
-									tooltip = modParent.tooltip;
-									itemicon = modParent.hasChildren;
-									break;
-								}
-							}							
-							
-							s += '\t\t\t<hlevel>' + level + '</hlevel>\n';
-							s += '\t\t\t<item_key>' + key + '</item_key>\n';
-							s += '\t\t\t<item_name>' +  name + '</item_name>\n';
-							// (sdxData.origData.newName != null ? sdxData.origData.newName : sdxData.origData.name) + '</item_name>\n';
-							s += '\t\t\t<tooltip>' + tooltip + '</tooltip>\n';
-							s += '\t\t\t<item_icon>' + itemicon + '</item_icon>\n';
-							s += '\t\t\t<class>ENC</class>\n';
+		
+		
+		for (var ip = 0; ip < i2b2.CRC.model.queryCurrent.panels.length; ip++)
+		{
+			panel_list = i2b2.CRC.model.queryCurrent.panels[ip]; //i2b2.CRC.ctrlr.QT.temporalGroup];
+			panel_cnt = panel_list.length;
+			if (isTemporal && ip > 0)
+			{
+				//if equal to one than add subquery_contraint
+				if (ip == 1)
+				{
+					s += '\t<subquery_constraint>\n';
+					s += '\t\t<first_query>\n';
+					s +=  '\t\t\t<query_id>' + $('instancevent1[0]').options[$('instancevent1[0]').selectedIndex].value + '</query_id>\n';
+					s +=  '\t\t\t<join_column>' + $('preloc1[0]').options[$('preloc1[0]').selectedIndex].value + '</join_column>\n';
+					s +=  '\t\t\t<aggregate_operator>' + $('instanceopf1[0]').options[$('instanceopf1[0]').selectedIndex].value + '</aggregate_operator>\n';
+					s += '\t\t</first_query>\n';
+					s +=  '\t\t<operator>' + $('postloc[0]').options[$('postloc[0]').selectedIndex].value + '</operator>\n';
+					s += '\t\t<second_query>\n';
+					s +=  '\t\t\t<query_id>' + $('instancevent2[0]').options[$('instancevent2[0]').selectedIndex].value + '</query_id>\n';
+					s +=  '\t\t\t<join_column>' + $('preloc2[0]').options[$('preloc2[0]').selectedIndex].value + '</join_column>\n';
+					s +=  '\t\t\t<aggregate_operator>' + $('instanceopf2[0]').options[$('instanceopf2[0]').selectedIndex].value + '</aggregate_operator>\n';
+					s += '\t\t</second_query>\n';
 
-                         	s += '\t\t\t\t<constrain_by_modifier>\n';
-                            s += '\t\t\t\t\t<modifier_name>' + sdxData.origData.name + '</modifier_name>\n';
-                            s += '\t\t\t\t\t<applied_path>' + sdxData.origData.applied_path + '</applied_path>\n';
-                            s += '\t\t\t\t\t<modifier_key>' + sdxData.origData.key + '</modifier_key>\n';
-							if (sdxData.ModValues)
-							{
-								s += this.getValues( sdxData.ModValues);
+					if ( $('bytime1[0]').checked)
+					{
+							s += '\t\t<span>\n';
+                  			s += '\t\t\t<operator>' + $('byspan1[0]').options[$('byspan1[0]').selectedIndex].value + '</operator>\n';
+                 			s += '\t\t\t<span_value>' + $('bytimevalue1[0]').value + '</span_value>\n';
+                  			s += '\t\t\t<units>' + $('bytimeunit1[0]').options[$('bytimeunit1[0]').selectedIndex].value + '</units>\n';
+							s += '\t\t</span>\n';
+					}
+					if ( $('bytime2[0]').checked)
+					{
+							s += '\t\t<span>\n';
+                  			s += '\t\t\t<operator>' + $('byspan2[0]').options[$('byspan2[0]').selectedIndex].value + '</operator>\n';
+                 			s += '\t\t\t<span_value>' + $('bytimevalue2[0]').value + '</span_value>\n';
+                  			s += '\t\t\t<units>' + $('bytimeunit2[0]').options[$('bytimeunit2[0]').selectedIndex].value + '</units>\n';
+							s += '\t\t</span>\n';
+					}
+
+	
+					s += '\t</subquery_constraint>\n';
+					
+					
+		
+				} 
+				
+				if (panel_list[0].items.length == 0)
+					break;
+
+				s += '<subquery>\n ';	
+				
+				s += '<query_id>Event '+ ip +'</query_id>\n';
+               s += '<query_type>EVENT</query_type>\n';
+               s += '<query_name>Event '+ ip +'</query_name>\n';
+               s += '<query_timing>SAMEINSTANCENUM</query_timing>\n';
+               s += '<specificity_scale>0</specificity_scale>\n';
+			}
+
+
+			for (var p = 0; p < panel_cnt; p++) {
+				s += '\t<panel>\n';
+				s += '\t\t<panel_number>' + (p+1) + '</panel_number>\n';
+				// date range constraints
+				if (panel_list[p].dateFrom) {
+					s += '\t\t<panel_date_from>'+panel_list[p].dateFrom.Year+'-'+padNumber(panel_list[p].dateFrom.Month,2)+'-'+padNumber(panel_list[p].dateFrom.Day,2)+'</panel_date_from>\n';
+				}
+				if (panel_list[p].dateTo) {
+					s += '\t\t<panel_date_to>'+panel_list[p].dateTo.Year+'-'+padNumber(panel_list[p].dateTo.Month,2)+'-'+padNumber(panel_list[p].dateTo.Day,2)+'</panel_date_to>\n';
+				}
+				s += "\t\t<panel_accuracy_scale>" + panel_list[p].relevance + "</panel_accuracy_scale>\n";
+				// Exclude constraint (invert flag)
+				if (panel_list[p].exclude) {
+					s += '\t\t<invert>1</invert>\n';
+				} else {
+					s += '\t\t<invert>0</invert>\n';
+				}
+				// Panel Timing
+				s += '\t\t<panel_timing>' + panel_list[p].timing + '</panel_timing>\n';
+				// Occurs constraint
+				s += '\t\t<total_item_occurrences>'+((panel_list[p].occurs*1)+1)+'</total_item_occurrences>\n';
+				// Concepts
+				for (i=0; i < panel_list[p].items.length; i++) {
+					var sdxData = panel_list[p].items[i];
+					s += '\t\t<item>\n';
+						switch(sdxData.sdxInfo.sdxType) {
+						case "QM":	
+							s += '\t\t\t<item_key>masterid:' + sdxData.origData.id + '</item_key>\n';
+							s += '\t\t\t<item_name>' + sdxData.origData.title + '</item_name>\n';
+							s += '\t\t\t<tooltip>' + sdxData.origData.name + '</tooltip>\n';
+							s += '\t\t\t<item_is_synonym>false</item_is_synonym>\n';
+							s += '\t\t\t<hlevel>0</hlevel>\n';
+						break;
+						case "PRS":	
+							s += '\t\t\t<item_key>patient_set_coll_id:' + sdxData.sdxInfo.sdxKeyValue + '</item_key>\n';
+							s += '\t\t\t<item_name>' + sdxData.sdxInfo.sdxDisplayName + '</item_name>\n';
+							s += '\t\t\t<tooltip>' + sdxData.sdxInfo.sdxDisplayName + '</tooltip>\n';
+							s += '\t\t\t<item_is_synonym>false</item_is_synonym>\n';
+							s += '\t\t\t<hlevel>0</hlevel>\n';
+						break;
+						case "ENS":	
+							s += '\t\t\t<item_key>patient_set_enc_id:' + sdxData.sdxInfo.sdxKeyValue + '</item_key>\n';
+							s += '\t\t\t<item_name>' + sdxData.sdxInfo.sdxDisplayName + '</item_name>\n';
+							s += '\t\t\t<tooltip>' + sdxData.sdxInfo.sdxDisplayName + '</tooltip>\n';
+							s += '\t\t\t<item_is_synonym>false</item_is_synonym>\n';
+							s += '\t\t\t<hlevel>0</hlevel>\n';
+						break;
+						default:
+							if (sdxData.origData.isModifier) {
+								
+								var modParent = sdxData.origData.parent;
+								var level = sdxData.origData.level;
+								var key = sdxData.origData.parent.key;
+								var name = (sdxData.origData.parent.name != null ? i2b2.h.Escape(sdxData.origData.parent.name) : i2b2.h.Escape(sdxData.origData.name)) ;
+								var tooltip = sdxData.origData.tooltip;
+								var itemicon = sdxData.origData.hasChildren;
+								while  (modParent != null)
+								{
+									if (modParent.isModifier)
+									{
+										modParent = modParent.parent;
+									} else {
+										level = modParent.level;
+										key = modParent.key;
+										name = modParent.name;
+										tooltip = modParent.tooltip;
+										itemicon = modParent.hasChildren;
+										break;
+									}
+								}							
+								
+								s += '\t\t\t<hlevel>' + level + '</hlevel>\n';
+								s += '\t\t\t<item_key>' + key + '</item_key>\n';
+								s += '\t\t\t<item_name>' +  name + '</item_name>\n';
+								// (sdxData.origData.newName != null ? sdxData.origData.newName : sdxData.origData.name) + '</item_name>\n';
+								s += '\t\t\t<tooltip>' + tooltip + '</tooltip>\n';
+								s += '\t\t\t<item_icon>' + itemicon + '</item_icon>\n';
+								s += '\t\t\t<class>ENC</class>\n';
+	
+								s += '\t\t\t\t<constrain_by_modifier>\n';
+								s += '\t\t\t\t\t<modifier_name>' + sdxData.origData.name + '</modifier_name>\n';
+								s += '\t\t\t\t\t<applied_path>' + sdxData.origData.applied_path + '</applied_path>\n';
+								s += '\t\t\t\t\t<modifier_key>' + sdxData.origData.key + '</modifier_key>\n';
+								if (sdxData.ModValues)
+								{
+									s += this.getValues( sdxData.ModValues);
+								}
+								
+								s += '\t\t\t\t</constrain_by_modifier>\n';					
+							} else {
+								sdxData.origData.key = (sdxData.origData.key).replace(/</g,"&lt;");
+								sdxData.origData.name = (sdxData.origData.name).replace(/</g,"&lt;");
+								if (undefined != sdxData.origData.tooltip)                        
+									sdxData.origData.tooltip = (sdxData.origData.tooltip).replace(/</g,"&lt;");
+								s += '\t\t\t<hlevel>' + sdxData.origData.level + '</hlevel>\n';
+								//s += '\t\t\t<item_name>' + (sdxData.origData.newName != null ? i2b2.h.Escape(sdxData.origData.newName) : i2b2.h.Escape(sdxData.origData.name)) + '</item_name>\n';
+								s += '\t\t\t<item_name>' + (sdxData.origData.name != null ? i2b2.h.Escape(sdxData.origData.name) : i2b2.h.Escape(sdxData.origData.newName)) + '</item_name>\n';
+								s += '\t\t\t<item_key>' + sdxData.origData.key + '</item_key>\n';
+								s += '\t\t\t<tooltip>' + sdxData.origData.tooltip + '</tooltip>\n';
+								s += '\t\t\t<class>ENC</class>\n';
+								s += '\t\t\t<item_icon>' + sdxData.origData.hasChildren + '</item_icon>\n';	
+							}
+								try {
+									var t = i2b2.h.XPath(sdxData.origData.xmlOrig,'descendant::synonym_cd/text()');
+									t = (t[0].nodeValue=="Y");
+								} catch(e) {
+									var t = "false";
+								}
+								s += '\t\t\t<item_is_synonym>'+t+'</item_is_synonym>\n';
+								
+							if (sdxData.LabValues) {
+								//s += '\t\t\t<constrain_by_value>\n';
+								s += this.getValues( sdxData.LabValues);
 							}
 							
-                        	s += '\t\t\t\t</constrain_by_modifier>\n';					
+						break;
+					}
+					//TODO add contraint to the item in the future
+					/*
+							s += '\t\t\t<constrain_by_date>\n';
+							if (panel_list[p].dateFrom) {
+								s += '\t\t\t\t<date_from>'+panel_list[p].dateFrom.Year+'-'+padNumber(panel_list[p].dateFrom.Month,2)+'-'+padNumber(panel_list[p].dateFrom.Day,2)+'Z</date_from>\n';
+							}
+							if (panel_list[p].dateTo) {
+								s += '\t\t\t\t<date_to>'+panel_list[p].dateTo.Year+'-'+padNumber(panel_list[p].dateTo.Month,2)+'-'+padNumber(panel_list[p].dateTo.Day,2)+'Z</date_to>\n';
+							}
+							s += '\t\t\t</constrain_by_date>\n';	
+					*/
+					s += '\t\t</item>\n';
+					if (i==0) {
+						if (undefined != sdxData.origData.name) {
+							auto_query_name += sdxData.origData.name.substring(0,auto_query_name_len);
+						} else if (undefined != sdxData.origData.title) {
+							auto_query_name += sdxData.origData.title.substring(0,auto_query_name_len);					
 						} else {
-	                        sdxData.origData.key = (sdxData.origData.key).replace(/</g,"&lt;");
-	                        sdxData.origData.name = (sdxData.origData.name).replace(/</g,"&lt;");
-							if (undefined != sdxData.origData.tooltip)                        
-	                        	sdxData.origData.tooltip = (sdxData.origData.tooltip).replace(/</g,"&lt;");
-							s += '\t\t\t<hlevel>' + sdxData.origData.level + '</hlevel>\n';
-							//s += '\t\t\t<item_name>' + (sdxData.origData.newName != null ? i2b2.h.Escape(sdxData.origData.newName) : i2b2.h.Escape(sdxData.origData.name)) + '</item_name>\n';
-							s += '\t\t\t<item_name>' + (sdxData.origData.name != null ? i2b2.h.Escape(sdxData.origData.name) : i2b2.h.Escape(sdxData.origData.newName)) + '</item_name>\n';
-							s += '\t\t\t<item_key>' + sdxData.origData.key + '</item_key>\n';
-							s += '\t\t\t<tooltip>' + sdxData.origData.tooltip + '</tooltip>\n';
-							s += '\t\t\t<class>ENC</class>\n';
-							s += '\t\t\t<item_icon>' + sdxData.origData.hasChildren + '</item_icon>\n';	
-						}
-							try {
-								var t = i2b2.h.XPath(sdxData.origData.xmlOrig,'descendant::synonym_cd/text()');
-								t = (t[0].nodeValue=="Y");
-							} catch(e) {
-								var t = "false";
-							}
-							s += '\t\t\t<item_is_synonym>'+t+'</item_is_synonym>\n';
-							
-						if (sdxData.LabValues) {
-							//s += '\t\t\t<constrain_by_value>\n';
-							s += this.getValues( sdxData.LabValues);
+							auto_query_name += "new query";
 						}
 						
-					break;
-				}
-				//TODO add contraint to the item in the future
-				/*
-						s += '\t\t\t<constrain_by_date>\n';
-						if (panel_list[p].dateFrom) {
-							s += '\t\t\t\t<date_from>'+panel_list[p].dateFrom.Year+'-'+padNumber(panel_list[p].dateFrom.Month,2)+'-'+padNumber(panel_list[p].dateFrom.Day,2)+'Z</date_from>\n';
-						}
-						if (panel_list[p].dateTo) {
-							s += '\t\t\t\t<date_to>'+panel_list[p].dateTo.Year+'-'+padNumber(panel_list[p].dateTo.Month,2)+'-'+padNumber(panel_list[p].dateTo.Day,2)+'Z</date_to>\n';
-						}
-						s += '\t\t\t</constrain_by_date>\n';	
-				*/
-				s += '\t\t</item>\n';
-				if (i==0) {
-					if (undefined != sdxData.origData.name) {
-						auto_query_name += sdxData.origData.name.substring(0,auto_query_name_len);
-					} else if (undefined != sdxData.origData.title) {
-						auto_query_name += sdxData.origData.title.substring(0,auto_query_name_len);					
-					} else {
-						auto_query_name += "new query";
+						if (p < panel_cnt-1) {auto_query_name += '-';}
 					}
-					
-					if (p < panel_cnt-1) {auto_query_name += '-';}
 				}
+				s += '\t</panel>\n';
 			}
-			s += '\t</panel>\n';
+			if (isTemporal && ip > 0)
+			{
+				s += '</subquery>\n ';	
+			}	
+			if (isTemporal == false)
+			{
+				break;
+			}
 		}
 		s += '</query_definition>\n';
 		this.queryMsg = {};
@@ -860,28 +988,91 @@ function QueryToolController() {
 // ================================================================================================== //
 	this.panelAdd = function(yuiTree) {
 		// this function is used to create a new panel, it initializes the data structure in the 
-		if (!i2b2.CRC.model.queryCurrent.panels) { i2b2.CRC.model.queryCurrent.panels = []}
+	
+		if (!i2b2.CRC.model.queryCurrent.panels) { 
+			i2b2.CRC.model.queryCurrent.panels = [];
+			i2b2.CRC.model.queryCurrent.panels[0] = new Array();
+			i2b2.CRC.model.queryCurrent.panels[1] = new Array();
+			i2b2.CRC.model.queryCurrent.panels[2] = new Array();
+		
+	//		i2b2.CRC.model.queryCurrent.panels = new Array(new Array());	
+			}
 		var dm = i2b2.CRC.model.queryCurrent;
-		var pi = dm.panels.length;
+		var pi = dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length;
+		if (pi == undefined)
+		{
+			 pi = 0;
+		}
+		var tTiming = i2b2.CRC.ctrlr.QT.queryTiming;
+		if ((tTiming == "TEMPORAL") && (i2b2.CRC.ctrlr.QT.temporalGroup > 0))
+			tTiming = "SAMEINSTANCENUM";
+		if ((tTiming == "TEMPORAL") && (i2b2.CRC.ctrlr.QT.temporalGroup == 0))
+			tTiming = "ANY";
+
+
+
 		// setup the data model for this panel
-		dm.panels[pi] = {};
-		dm.panels[pi].dateTo = false;
-		dm.panels[pi].dateFrom = false;
-		dm.panels[pi].exclude = false;
-		dm.panels[pi].occurs = '0';
-		dm.panels[pi].relevance = '100';
-		dm.panels[pi].timing = i2b2.CRC.ctrlr.QT.queryTiming; //'ANY';
-		dm.panels[pi].items = [];
+		dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi] = {};
+		dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].dateTo = false;
+		dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].dateFrom = false;
+		dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].exclude = false;
+		dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].occurs = '0';
+		dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].relevance = '100';
+		dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].timing = tTiming; // i2b2.CRC.ctrlr.QT.queryTiming; //'ANY';
+		dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].items = [];
 		// create a treeview root node and connect it to the treeview controller
-		dm.panels[pi].tvRootNode = new YAHOO.widget.RootNode(this.yuiTree);
-		yuiTree.root = dm.panels[pi].tvRootNode;
-		dm.panels[pi].tvRootNode.tree = yuiTree;
+		dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].tvRootNode = new YAHOO.widget.RootNode(this.yuiTree);
+		yuiTree.root = dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].tvRootNode;
+		dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].tvRootNode.tree = yuiTree;
 		yuiTree.setDynamicLoad(i2b2.CRC.ctrlr.QT._loadTreeDataForNode,1);
+		
+		
+		if (dm.panels.length == 1)
+		{
+			var tTiming = i2b2.CRC.ctrlr.QT.queryTiming;
+			if (i2b2.CRC.ctrlr.QT.queryTiming == "TEMPORAL")
+				tTiming = "ANY";
+			i2b2.CRC.ctrlr.QT.temporalGroup = 1;
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup] = {};	
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi] = {};
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].dateTo = false;
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].dateFrom = false;
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].exclude = false;
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].occurs = '0';
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].relevance = '100';
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].timing = tTiming; //i2b2.CRC.ctrlr.QT.queryTiming; //'ANY';
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].items = [];
+			// create a treeview root node and connect it to the treeview controller
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].tvRootNode = new YAHOO.widget.RootNode(this.yuiTree);
+			yuiTree.root = dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].tvRootNode;
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].tvRootNode.tree = yuiTree;
+			yuiTree.setDynamicLoad(i2b2.CRC.ctrlr.QT._loadTreeDataForNode,1);
+			i2b2.CRC.ctrlr.QT.temporalGroup = 2;
+			if (i2b2.CRC.ctrlr.QT.queryTiming == "TEMPORAL")
+				tTiming = "SAMEINSTANCENUM";
+
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup] = {};	
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi] = {};
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].dateTo = false;
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].dateFrom = false;
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].exclude = false;
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].occurs = '0';
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].relevance = '100';
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].timing =  tTiming; //i2b2.CRC.ctrlr.QT.queryTiming; //'ANY';
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].items = [];
+			// create a treeview root node and connect it to the treeview controller
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].tvRootNode = new YAHOO.widget.RootNode(this.yuiTree);
+			yuiTree.root = dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].tvRootNode;
+			dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi].tvRootNode.tree = yuiTree;
+			yuiTree.setDynamicLoad(i2b2.CRC.ctrlr.QT._loadTreeDataForNode,1);
+			i2b2.CRC.ctrlr.QT.temporalGroup = 0;
+	
+		}
 		// update the count on the GUI
 		this._redrawPanelCount();
 		// return a reference to the new panel object
 		this.doSetQueryName.call(this,'');
-		return dm.panels[pi];
+		return dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][pi];
 	}
 
 // ================================================================================================== //
@@ -901,8 +1092,8 @@ function QueryToolController() {
 	this.panelDelete = function(index) {
 		// alter the data model's panel elements
 		var dm = i2b2.CRC.model.queryCurrent;
-		if(index <0 || index>=dm.panels.length) { return false;}
-		dm.panels.splice(index,1);
+		if(index <0 || index>=dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length) { return false;}
+		dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup].splice(index,1);
 		// redraw the panels
 		this.doShowFrom(this.panelControllers[0].panelCurrentIndex);
 		// BUG FIX: force the panels to fully reattach the yuiRootNode to the controllers
@@ -920,10 +1111,23 @@ function QueryToolController() {
 		if (index_offset===false) { return true; }
 		if (index_offset < 0) { index_offset = 0; }
 		for (var i=0; i<3; i++) {
-			this.panelControllers[i].refTitle.innerHTML = "Group "+(index_offset+i+1);
+			if ((i2b2.CRC.ctrlr.QT.queryTiming == "TEMPORAL") && (i==0))
+			{
+				var sText = defineTemporalButton.get("label");
+			
+			if (sText != "Population in which events occur")
+					this.panelControllers[i].refTitle.innerHTML =  'Anchoring Observation';
+				else
+					this.panelControllers[i].refTitle.innerHTML =  'Group 1';
+
+			}
+			else
+			{
+				this.panelControllers[i].refTitle.innerHTML = "Group "+(index_offset+i+1);
+			}
 			this.panelControllers[i].setPanelRecord(index_offset+i, i);
 			if (i > 0) {
-				if (index_offset+i <= i2b2.CRC.model.queryCurrent.panels.length) {
+				if (index_offset+i <= i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length) {
 					$('queryBalloonAnd'+(i)).style.display = 'block';
 				} else {
 					$('queryBalloonAnd'+(i)).style.display = 'none';
@@ -939,7 +1143,7 @@ function QueryToolController() {
 		for (var i=0; i<3; i++) {
 			this.panelControllers[i].doRedraw();
 			if (i > 0) {
-				if (this.panelControllers[i].panelCurrentIndex-1 < i2b2.CRC.model.queryCurrent.panels.length) {
+				if (this.panelControllers[i].panelCurrentIndex-1 < i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length) {
 					$('queryBalloonAnd'+(i)).style.display = 'block';
 				} else {
 					$('queryBalloonAnd'+(i)).style.display = 'none';
@@ -950,7 +1154,7 @@ function QueryToolController() {
 
 // ================================================================================================== //
 	this._redrawPanelCount = function() {
-		var c = i2b2.CRC.model.queryCurrent.panels.length; 
+		var c = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length; 
 		if (c == 1) {
 			var s = '1 Group';
 		} else {
@@ -1121,6 +1325,74 @@ function QueryToolController() {
 
 	}
 
+
+// ================================================================================================== //
+	this.doAddTemporal = function() {
+		var html = $('temporalbuilders').innerHTML;
+		this.tenporalBuilders = this.tenporalBuilders + 1;
+		html = $('temporalbuilders').innerHTML 
+		
+					+ '		  <div class="relationshipAmongEvents" id="temporalbuilder_' + this.tenporalBuilders + '"> '
+                    + '          <select id="preloc1[' + this.tenporalBuilders + ']" name="preloc1[' + this.tenporalBuilders + ']" style="width:100px;"><option value="STARTDATE">Start of</option><option  value="ENDDATE">End of</option></select> '
+                    + '          <select id="instanceopf1[' + this.tenporalBuilders + ']" name="instanceopf1[' + this.tenporalBuilders + ']" style="width:150px;"><option  value="FIRST">the First Ever</option><option  value="LAST">the Last Ever</option><option value="ANY">any</option></select> '
+                    + '          <select id="instancevent1[' + this.tenporalBuilders + ']" name="instancevent1[' + this.tenporalBuilders + ']" style="width:100px;"><option  selected="selected">Event 1</option><option>Event 2</option>';
+					
+					for (var j =3; j < i2b2.CRC.model.queryCurrent.panels.length; j ++)
+					{	
+							html += '<option>Event ' + j + '</option>';
+					}
+
+                    html += '  </select>    		<br/> '
+
+                    + '          <select id="postloc[' + this.tenporalBuilders + ']" name="postloc[' + this.tenporalBuilders + ']"  style="width:150px;"><option value="LESS">Occurs Before</option><option value="LESSEQUAL">On Or After</option> '
+                     + '         <option value="EQUAL">Equals</option> '
+                     + '         <option  value="GREATER">Occurs On Or After</option> '
+                    + '          <option  value="GREATEREQUAL">Occurs After</option> '
+                              
+                     + '         </select> '
+
+                      + '    		<br/> '
+                                
+                      + '        <select id="preloc2[' + this.tenporalBuilders + ']" name="preloc2[' + this.tenporalBuilders + ']" style="width:100px;"><option value="STARTDATE">Start of</option><option  value="ENDDATE">End of</option></select> '
+                      + '        <select id="instanceopf2[' + this.tenporalBuilders + ']" name="instanceopf2[' + this.tenporalBuilders + ']"  style="width:150px;"><option  value="FIRST">the First Ever</option><option  value="LAST">the Last Ever</option><option value="ANY">any</option></select> '
+                      + '        <select id="instancevent2[' + this.tenporalBuilders + ']" name="instancevent2[' + this.tenporalBuilders + ']" style="width:100px;"><option>Event 1</option><option  selected="selected">Event 2</option>';
+					
+					for (var j =3; j < i2b2.CRC.model.queryCurrent.panels.length; j ++)
+					{	
+							html += '<option>Event ' + j + '</option>';
+					}
+
+                    html += '  </select>      <br/> '
+                                
+                        + '        <input  id="bytime1[' + this.tenporalBuilders + ']" name="bytime1[' + this.tenporalBuilders + ']" type="checkbox">By <select id="byspan1[' + this.tenporalBuilders + ']" name="byspan1[' + this.tenporalBuilders + ']"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL">&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL">&le;</option><option value="LESS">&lt;</option></select> '
+                       + '         <input   id="bytimevalue1[' + this.tenporalBuilders + ']" name="bytimevalue1[' + this.tenporalBuilders + ']" style="width:50px;" type="text" value="1"> '
+                       + '          <select   id="bytimeunit1[' + this.tenporalBuilders + ']" name="bytimeunit1[' + this.tenporalBuilders + ']" style="width:100px;"> '
+                       + '          <option  value="HOUR">hour(s)</option> '
+                       + '          <option   value="DAY" selected="selected">day(s)</option> '
+                       + '          <option  value="MONTH">month(s)</option> '
+                       + '          <option  value="YEAR">year(s)</option></select> '
+                                 
+                       + '          <br/> '
+                                 
+                       + '         <input id="bytime2[' + this.tenporalBuilders + ']" name="bytime2[' + this.tenporalBuilders + ']" type="checkbox">And <select  id="byspan2[' + this.tenporalBuilders + ']" name="byspan2[' + this.tenporalBuilders + ']"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL">&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL">&le;</option><option value="LESS">&lt;</option></select> '
+                       + '         <input id="bytimevalue2[' + this.tenporalBuilders + ']" name="bytimevalue2[' + this.tenporalBuilders + ']"  style="width:50px;" type="text" value="1"> '
+                       + '          <select  id="bytimeunit2[' + this.tenporalBuilders + ']" name="bytimeunit2[' + this.tenporalBuilders + ']" style="width:100px;"> '
+                       + '          <option  value="HOUR">hour(s)</option> '
+                       + '          <option   value="DAY" selected="selected">day(s)</option> '
+                       + '          <option  value="MONTH">month(s)</option> '
+                       + '          <option  value="YEAR">year(s)</option></select> '
+                                 
+                                 
+                                 
+                      + '    </div> ';
+		
+		
+		 '<div class="relationshipAmongEvents" id="temporalbuilder_' + this.tenporalBuilders + '">' +  html + '</div>';
+		
+		 $('temporalbuilders').innerHTML = html;
+		
+	}
+
 // ================================================================================================== //
 	this.doScrollFirst = function() {
 		this.doShowFrom(0);
@@ -1137,20 +1409,20 @@ function QueryToolController() {
 	this.doScrollNext = function() {
 		var i = this.panelControllers[0].panelCurrentIndex + 1;
 		var dm = i2b2.CRC.model.queryCurrent;
-		if (i > (dm.panels.length-3)) { i=dm.panels.length-3; }
+		if (i > (dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length-3)) { i=dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length-3; }
 		this.doShowFrom(i);
 	}
 
 // ================================================================================================== //
 	this.doScrollLast = function() {
-		var i = i2b2.CRC.model.queryCurrent.panels.length - 3;
+		var i = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length - 3;
 		if (i<0) { i = 0; }
 		this.doShowFrom(i);
 	}
 
 // ================================================================================================== //
 	this.doScrollNew = function() {
-		var i = i2b2.CRC.model.queryCurrent.panels.length - 2;
+		var i = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length - 2;
 		if (i<0) { i = 0; }
 		this.doShowFrom(i);
 	}
@@ -1166,7 +1438,7 @@ function QueryToolController() {
 			$('panelScrollFirst').src = dir+"QryTool_b_first.gif";
 			$('panelScrollPrev').src = dir+"QryTool_b_prev.gif";
 		}
-		if ((i2b2.CRC.model.queryCurrent.panels.length - i2b2.CRC.ctrlr.QT.panelControllers[0].panelCurrentIndex) > 3) {
+		if ((i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length - i2b2.CRC.ctrlr.QT.panelControllers[0].panelCurrentIndex) > 3) {
 			$('panelScrollNext').src = dir+"QryTool_b_next.gif";
 			$('panelScrollLast').src = dir+"QryTool_b_last.gif";
 		} else {
@@ -1179,7 +1451,6 @@ function QueryToolController() {
 	 * Print Query
 	 ****************/
 	this.doPrintQuery = function() {
-		var v_cnt_panels = i2b2.CRC.model.queryCurrent.panels.length;
 		var v_i2b2_quey_name = i2b2.CRC.model.queryCurrent.name;
 		
 		
@@ -1194,7 +1465,8 @@ function QueryToolController() {
 		){
 			v_i2b2_quey_name = 'No Query Name is currently provided.';
 		}
-		
+		var v_cnt_panels = i2b2.CRC.model.queryCurrent.panels[0].length;
+
 		if(v_cnt_panels > 0){
 			var win_html_inner = 
 			"<table style='border:1px solid #667788;width:700px;' cellpadding=3px>"+
@@ -1215,21 +1487,34 @@ function QueryToolController() {
 					win_html_inner += "Treat all groups independently";
 			} else if  (v_querytiming == "SAMEVISIT") {
 					win_html_inner += "Selected groups occur in the same financial encounter";
+			} else if  (v_querytiming == "TEMPORAL") {
+					win_html_inner += "Define sequence of events";
 			} else {
 					win_html_inner +=  "Items Instance will be the same";
 			}
 
 			win_html_inner += "</span></td></tr>";
 		
+		
+			var isTemporal = false;
+			if (this.queryTiming == "TEMPORAL") {
+				isTemporal = true;	
+			}
+		
+			for (var ip = 0; ip < i2b2.CRC.model.queryCurrent.panels.length; ip++)
+			{
+		
+				var v_cnt_panels = i2b2.CRC.model.queryCurrent.panels[ip].length;
+
 			//Get information for each query panel
 			for(x =0; x < v_cnt_panels; x++){
-				var v_dateTo 	= i2b2.CRC.model.queryCurrent.panels[x].dateTo;
-				var v_dateFrom 	= i2b2.CRC.model.queryCurrent.panels[x].dateFrom;
-				var v_exclude	= i2b2.CRC.model.queryCurrent.panels[x].exclude;
-				var v_occurs	= i2b2.CRC.model.queryCurrent.panels[x].occurs;
-				var v_relevance	= i2b2.CRC.model.queryCurrent.panels[x].relevance;
-				var v_timing	= i2b2.CRC.model.queryCurrent.panels[x].timing;
-				var v_items 	= i2b2.CRC.model.queryCurrent.panels[x].items;
+				var v_dateTo 	= i2b2.CRC.model.queryCurrent.panels[ip][x].dateTo;
+				var v_dateFrom 	= i2b2.CRC.model.queryCurrent.panels[ip][x].dateFrom;
+				var v_exclude	= i2b2.CRC.model.queryCurrent.panels[ip][x].exclude;
+				var v_occurs	= i2b2.CRC.model.queryCurrent.panels[ip][x].occurs;
+				var v_relevance	= i2b2.CRC.model.queryCurrent.panels[ip][x].relevance;
+				var v_timing	= i2b2.CRC.model.queryCurrent.panels[ip][x].timing;
+				var v_items 	= i2b2.CRC.model.queryCurrent.panels[ip][x].items;
 				
 				if((x % 2) == 0){
 					crc_cur_bcgrnd = crc_bcgrnd1;
@@ -1291,6 +1576,22 @@ function QueryToolController() {
 				  	v_dateFrom.Month +"/"+
 				  	v_dateFrom.Day  +"/" +
 				  	v_dateFrom.Year;
+				}
+				
+				if (isTemporal)
+				{
+					var tempalTitle = "Population in which events occur";
+					if (ip > 0)
+						tempalTitle = "Event " + ip;
+						
+					win_html_inner += 
+					"<tr>"+
+					crc_cur_bcgrnd;
+				
+					win_html_inner += 
+					"<span style='color:black;font-weight:bold;font-family:arial,helvetica;font-size:12px;'>"+
+					 tempalTitle
+					"</span></td></tr>";
 				}
 				
 				win_html_inner += 
@@ -1449,11 +1750,52 @@ function QueryToolController() {
 					win_html_inner += "</span></td></tr>";
 				}
 				
+				//end
 				
+					if (isTemporal == false)
+					break;
+				}
+			
+	
+			
 				win_html_inner += "</tbody></table>";
 				
 			}
 			
+				if (isTemporal)
+				{
+					
+					win_html_inner += 
+					"<tr>"+
+					crc_cur_bcgrnd;
+				
+					win_html_inner += 
+					"<span style='color:black;font-weight:bold;font-family:arial,helvetica;font-size:12px;'><center>"+
+					 
+					  $('instancevent1[0]').options[$('instancevent1[0]').selectedIndex].value + " " +
+					  $('preloc1[0]').options[$('preloc1[0]').selectedIndex].value +" " +
+					  $('instanceopf1[0]').options[$('instanceopf1[0]').selectedIndex].value  +"<br/>" +
+					  $('postloc[0]').options[$('postloc[0]').selectedIndex].value + "<br/>" +
+					  $('instancevent2[0]').options[$('instancevent2[0]').selectedIndex].value + " " +
+					  $('preloc2[0]').options[$('preloc2[0]').selectedIndex].value + " " +
+					   $('instanceopf2[0]').options[$('instanceopf2[0]').selectedIndex].value +" ";
+					   
+					if ( $('bytime1[0]').checked)
+					{
+							win_html_inner += "<br/>" + $('byspan1[0]').options[$('byspan1[0]').selectedIndex].value + " " +
+                 			 $('bytimevalue1[0]').value + " " +
+                  			  $('bytimeunit1[0]').options[$('bytimeunit1[0]').selectedIndex].value +" ";
+							 
+					}
+					if ( $('bytime2[0]').checked)
+					{
+							win_html_inner += "<br/>" +  $('byspan2[0]').options[$('byspan2[0]').selectedIndex].value + " " +
+                 			  $('bytimevalue2[0]').value + " " +
+                  			 $('bytimeunit2[0]').options[$('bytimeunit2[0]').selectedIndex].value;
+							
+					}						   
+					win_html_inner += "</center></span></td></tr>";
+				}
 			
 			win_html_inner += "</tbody></table>";
 			

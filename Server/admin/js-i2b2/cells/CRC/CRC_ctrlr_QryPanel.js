@@ -1,4 +1,4 @@
-/**
+	/**
  * @projectDescription	Event controller for Query Tool's three query panels. (GUI-only controller).
  * @inherits 	
  * @namespace	
@@ -31,11 +31,19 @@ function i2b2_PanelController(parentCtrlr) {
 // ================================================================================================== //
 	this.doRedraw = function() {
 		if (this.panelCurrentIndex===false) { return true; }
-		if (!i2b2.CRC.model.queryCurrent.panels) { i2b2.CRC.model.queryCurrent.panels = []}
+		if (!i2b2.CRC.model.queryCurrent.panels) { 
+			i2b2.CRC.model.queryCurrent.panels = [];
+			i2b2.CRC.model.queryCurrent.panels[0] = new Array();
+			i2b2.CRC.model.queryCurrent.panels[1] = new Array();
+			i2b2.CRC.model.queryCurrent.panels[2] = new Array();
+			// new Array(new Array());
+		}
 		var dm = i2b2.CRC.model.queryCurrent;
 		
 		// retreve/initialize the display data
-		var pd = dm.panels[this.panelCurrentIndex];
+//		if ((this.panelCurrentIndex < dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length)
+//		|| (this.panelCurrentIndex == 0)) {
+		var pd = dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex];
 		this._redrawPanelStyle(pd);
 		// protip: use null data to get other redraws to work
 		if (undefined===pd) {
@@ -52,6 +60,7 @@ function i2b2_PanelController(parentCtrlr) {
 		this._redrawTree(pd);
 		this._redrawButtons(pd);
 		this._redrawTiming(pd);
+		//}
 	}
 
 // ================================================================================================== //
@@ -68,7 +77,7 @@ function i2b2_PanelController(parentCtrlr) {
 			Element.removeClassName(this.refButtonTiming,'queryPanelButtonSelected');
 			
 			// is this panel one up from the max number of panels?
-			if (this.panelCurrentIndex == i2b2.CRC.model.queryCurrent.panels.length) {
+			if (this.panelCurrentIndex == i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length) {
 				this.isActive = 'Y';
 				if (this.QTController.queryTiming == "SAME") {
 					this.refButtonTiming.set('disabled', true);
@@ -143,7 +152,7 @@ function i2b2_PanelController(parentCtrlr) {
 // ================================================================================================== //
 	this._redrawTiming = function(pd) {
 		// set panel GUI according to data in the "pd" object
-		if (undefined===pd) { pd = i2b2.CRC.model.queryCurrent.panels[this.panelCurrentIndex]; }
+		if (undefined===pd) { pd = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex]; }
 
 	if (this.actualPanelIndex > 3) {return}
 	if (pd.timing == "SAMEVISIT" )
@@ -166,7 +175,7 @@ function i2b2_PanelController(parentCtrlr) {
 				$('infoQueryStatusText').innerHTML = "";		
 
 		// set panel GUI according to data in the "pd" object
-		if (undefined===pd) { pd = i2b2.CRC.model.queryCurrent.panels[this.panelCurrentIndex]; }
+		if (undefined===pd) { pd = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex]; }
 		if (pd.exclude) {
 			Element.addClassName(this.refButtonExclude,'queryPanelButtonSelected');
 			this.refBalloon.style.background = '#FF9999';
@@ -207,8 +216,8 @@ function i2b2_PanelController(parentCtrlr) {
 	
 // ================================================================================================== //
 	this.showOccurs = function(iMinCount) {
-		if (i2b2.CRC.model.queryCurrent.panels.length==0) { return;}
-		var dm = i2b2.CRC.model.queryCurrent.panels[this.panelCurrentIndex];
+		if (i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length==0) { return;}
+		var dm = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex];
 		if (undefined!==dm) {
 			
 			if (i2b2.CRC.ctrlr.QT.queryTiming == "ENCOUNTER")
@@ -296,7 +305,7 @@ function i2b2_PanelController(parentCtrlr) {
 					var closure_cpc = cpc;
 					// submit value(s)
 					if (this.submit()) {
-						var pd = i2b2.CRC.model.queryCurrent.panels[closure_qpi];
+						var pd = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][closure_qpi];
 						pd.occurs = parseInt($('constraintOccursInput').value, 10);
 						pd.relevance = slider.getRealValue();
 						slider.setValue(0);
@@ -353,8 +362,8 @@ function i2b2_PanelController(parentCtrlr) {
 	}
 	
 	this.showLimit = function(iMinCount) {
-		if (i2b2.CRC.model.queryCurrent.panels.length==0) { return;}
-		var dm = i2b2.CRC.model.queryCurrent.panels[this.panelCurrentIndex];
+		if (i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length==0) { return;}
+		var dm = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex];
 		if (undefined!==dm) {
 			
 			// prep variables for JS closure
@@ -370,7 +379,7 @@ function i2b2_PanelController(parentCtrlr) {
 					var closure_cpc = cpc;
 					// submit value(s)
 					if (this.submit()) {
-						var pd = i2b2.CRC.model.queryCurrent.panels[closure_qpi];
+						var pd = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][closure_qpi];
 						closure_cpc._redrawButtons(pd);
 						i2b2.CRC.ctrlr.QT.doSetQueryName.call(this, '');
 					}
@@ -415,9 +424,9 @@ function i2b2_PanelController(parentCtrlr) {
 
 // ================================================================================================== //
 	this.doExclude = function(bExclude) { 
-		if (i2b2.CRC.model.queryCurrent.panels.length==0) { return;}
+		if (i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length==0) { return;}
 		var bVal;
-		var dm = i2b2.CRC.model.queryCurrent.panels[this.panelCurrentIndex];
+		var dm = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex];
 		if (undefined!==dm) {
 			if (undefined!=bExclude) {
 				bVal = bExclude;
@@ -436,9 +445,9 @@ function i2b2_PanelController(parentCtrlr) {
 	this.doTiming = function(sTiming) { 
 		$('infoQueryStatusText').innerHTML = "";	
 
-		if (i2b2.CRC.model.queryCurrent.panels.length==0) { return;}
+		if (i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length==0) { return;}
 		var bVal;
-		var dm = i2b2.CRC.model.queryCurrent.panels[this.panelCurrentIndex];
+		var dm = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex];
 		
 		//this.QTController.panelControllers[this.panelCurrentIndex];
 		if (undefined!==dm) {
@@ -515,11 +524,11 @@ function i2b2_PanelController(parentCtrlr) {
 		var dm = i2b2.CRC.model.queryCurrent;
 		var repos = false;
 		var targetPanelIndex = this.panelCurrentIndex;
-		if (Object.isUndefined(dm.panels[targetPanelIndex])) { 
+		if (Object.isUndefined(dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][targetPanelIndex])) { 
 			this.QTController.panelAdd(this.yuiTree);
 			repos = true;
 		} 
-		var il = dm.panels[targetPanelIndex].items;
+		var il = dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][targetPanelIndex].items;
 		// check for duplicate data
 		//if (sdxConcept.origData.isModifier != true) {
 		//	for (var i=0; i<il.length; i++) {
@@ -543,7 +552,7 @@ function i2b2_PanelController(parentCtrlr) {
 	this._addConcept = function (sdxConcept, tvParent, isDragged) {
 		var tmpNode = this._addConceptVisuals.call(this, sdxConcept, tvParent, isDragged);
 		// add concept to data model record for panel
-		var panel = i2b2.CRC.model.queryCurrent.panels[this.panelCurrentIndex]
+		var panel = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex];
 		panel.items[panel.items.length] = sdxConcept;
 		return tmpNode;
 	}
@@ -778,7 +787,7 @@ function i2b2_PanelController(parentCtrlr) {
 
 // ================================================================================================== //
 	this._deleteConcept = function(key) {
-		var pd = i2b2.CRC.model.queryCurrent.panels[this.panelCurrentIndex];
+		var pd = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex];
 		$('infoQueryStatusText').innerHTML = "";
 		// remove the concept from panel
 		for (var i=0; i< pd.items.length; i++) {

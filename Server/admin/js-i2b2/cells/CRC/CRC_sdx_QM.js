@@ -338,6 +338,9 @@ i2b2.sdx.TypeControllers.QM.AttachDrag2Data = function(divParentID, divDataID){
 	var tvNode = tvTree.getNodeByProperty('nodeid', divDataID);
 	if (!Object.isUndefined(tvNode.DDProxy)) { return true; }
 	
+	//If termporal query than dont allow drag
+	//if (!Object.isUndefined(tvNode.data.i2b2_SDX.origData.master_type_cd)   && tvNode.data.i2b2_SDX.origData.master_type_cd == "TEMPORAL") { return true; }
+	
 	// attach DD
 	var t = new i2b2.sdx.TypeControllers.QM.DragDrop(divDataID)
 	t.yuiTree = tvTree;

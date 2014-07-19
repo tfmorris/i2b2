@@ -74,9 +74,9 @@ i2b2.CRC.view.modalLabValues = {
 // snm0	
 // ================================================================================================== //
 	show: function(panelIndex, queryPanelController, key, extData, isModifier) {
-		if (Object.isUndefined(i2b2.CRC.model.queryCurrent.panels[panelIndex])) { return; }
+		if (Object.isUndefined(i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][panelIndex])) { return; }
 		var fd = i2b2.CRC.view.modalLabValues.formdata;
-		var dm = i2b2.CRC.model.queryCurrent.panels[panelIndex];
+		var dm = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][panelIndex];
 		// save info for callback
 		this.qpi = panelIndex;
 		this.cpc = queryPanelController;
@@ -104,7 +104,7 @@ i2b2.CRC.view.modalLabValues = {
 							var closure_number = i2b2.CRC.view.modalLabValues.itemNumber;
 							// submit value(s)
 							if (this.submit()) {
-								var pd = i2b2.CRC.model.queryCurrent.panels[closure_qpi];
+								var pd = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][closure_qpi];
 								// find the correct item in the panel
 								for (var i=0; i<pd.items.length; i++) {
 									//if (pd.items[i].sdxInfo.sdxKeyValue==closure_key) {

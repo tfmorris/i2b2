@@ -47,6 +47,8 @@ i2b2.CRC.ctrlr.history = {
 					o.userid = i2b2.h.getXNodeVal(qm[i],'user_id');
 					o.group = i2b2.h.getXNodeVal(qm[i],'group_id');
 					o.created = i2b2.h.getXNodeVal(qm[i],'create_date');
+					o.master_type_cd = i2b2.h.getXNodeVal(qm[i],'master_type_cd');
+				
 					var dStr = '';
 					var d = o.created.match(/^[0-9\-]*/).toString();
 					if (d) {

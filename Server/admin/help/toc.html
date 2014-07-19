@@ -1,32 +1,25 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-<head>
-
-
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-<title>Default TreeView</title>
-
-
-<link rel="stylesheet" type="text/css" href="../js-ext/yui/build/fonts/fonts-min.css" />
-<link rel="stylesheet" type="text/css" href="../js-ext/yui/build/treeview/assets/skins/sam/treeview.css" />
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<title>Default TreeView</title>
+		<link rel="stylesheet" type="text/css" href="../js-ext/yui/build/fonts/fonts-min.css" />
+		<link rel="stylesheet" type="text/css" href="../js-ext/yui/build/treeview/assets/skins/sam/treeview.css" />
 <script type="text/javascript" src="../js-ext/yui/build/yahoo-dom-event/yahoo-dom-event.js"></script>
 
 <script type="text/javascript" src="../js-ext/yui/build/treeview/treeview-min.js"></script>
 
 
 <!--begin custom header content for this example-->
-<style>
+		<style>
     #treeDiv1 {background: #fff; padding:1em;}
-</style>
+		</style>
 <!--end custom header content for this example-->
-
-</head>
-
-<body class="yui-skin-sam">
+	</head>
+	<body class="yui-skin-sam">
 
 <!--BEGIN SOURCE CODE FOR EXAMPLE =============================== -->
-
-<div id="treeDiv1"></div>
+		<div id="treeDiv1"></div>
 
 <script type="text/javascript">
 
@@ -70,6 +63,13 @@ var tree;
 	 	 new YAHOO.widget.TextNode({ label:"Cancel a Query", href:"qt.html#qtCancelQuery", target:"right"},  tmpNode, false)
 	 	 new YAHOO.widget.TextNode({ label:"Saving a Query", href:"qt.html#qtSaveQuery", target:"right"},  tmpNode, false)
 	 	 new YAHOO.widget.TextNode({ label:"Printing a Query", href:"qt.html#qtPrintQuery", target:"right"},  tmpNode, false)
+		 var tmpNode = new YAHOO.widget.TextNode({label:"i2b2 Temporal Query Tool", href:"tqt.html#tqtView", target:"right"}, tree.getRoot(), false);
+		 new YAHOO.widget.TextNode({ label:"Introduction", href:"tqt.html#tqtIntro", target:"right"},  tmpNode, false)
+		 new YAHOO.widget.TextNode({ label:"Creating a Query", href:"tqt.html#tqtCreateQuery", target:"right"},  tmpNode, false)
+	 	 new YAHOO.widget.TextNode({ label:"Running a Query", href:"tqt.html#tqtRunningQuery", target:"right"},  tmpNode, false)
+	 	 new YAHOO.widget.TextNode({ label:"Cancel a Query", href:"tqt.html#tqtCancelQuery", target:"right"},  tmpNode, false)
+	 	 new YAHOO.widget.TextNode({ label:"Saving Query", href:"tqt.html#tqtSaveQueryGrp", target:"right"},  tmpNode, false)
+		 new YAHOO.widget.TextNode({ label:"Printing a Query", href:"tqt.html#tqtPrintQuery", target:"right"},  tmpNode, false)
 		 var tmpNode = new YAHOO.widget.TextNode({label:"i2b2 Workplace", href:"wp.html", target:"right"}, tree.getRoot(), false);
 		 new YAHOO.widget.TextNode({ label:"Introduction", href:"wp.html#wpIntro", target:"right"},  tmpNode, false)
 		 new YAHOO.widget.TextNode({ label:"Navigation", href:"wp.html#wpNavigation", target:"right"},  tmpNode, false)
@@ -122,7 +122,5 @@ var tree;
 </script>
 
 <!--END SOURCE CODE FOR EXAMPLE =============================== -->
-
-
-</body>
+	</body>
 </html>

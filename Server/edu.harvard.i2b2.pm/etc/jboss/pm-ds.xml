@@ -42,7 +42,7 @@
 	
 	<datasource jta="false" jndi-name="java:/PMBootStrapDS"
 		pool-name="PMBootStrapDS" enabled="true" use-ccm="false">
-		<connection-url>jdbc:sqlserver://localhost:1433</connection-url>
+		<connection-url>jdbc: sqlserver://localhost:1433</connection-url>
 		<driver-class>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver-class>
 		<driver>sqljdbc4.jar</driver>
 		<security>
@@ -50,8 +50,8 @@
 			<password>demouser</password>
 		</security>
 		<validation>
-			<valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.mssql.MSSQLValidConnectionChecker"></valid-connection-checker>
-            <validate-on-match>false</validate-on-match>
+			<validate-on-match>false</validate-on-match>
+			<background-validation>false</background-validation>
 		</validation>
 		<statement>
 			<share-prepared-statements>false</share-prepared-statements>

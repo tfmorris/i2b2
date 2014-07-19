@@ -7,6 +7,13 @@ DIV#crcQueryToolBox {
 	width: 534px;
 }
 
+DIV.relationshipAmongEvents {
+	text-align: center;
+	line-height: 30px;	
+	 background-color: #CBD8EF;
+    border: 1px solid #63758C;
+}
+
 DIV#crcQueryToolBox DIV.tabBox {}
 DIV#crcQueryToolBox DIV.tabBox DIV {}
 
@@ -130,7 +137,6 @@ min-height:1em;
 }
 
 DIV#crcQueryToolBox DIV.qryTemporalConstraint{
-	width:300px;
 	text-align:center;
 }
 
@@ -138,7 +144,7 @@ DIV#crcQueryToolBox DIV.qryTemporalConstraint .yuimenuitemlabel {width:200px;}
 
 DIV#crcQueryToolBox DIV.qryTemporalConstraint Button {
 line-height:1;
-width:375px;
+width:75px;
 min-height:1em;
 }
 DIV#crcQueryToolBox DIV#qryToolFooter {
@@ -155,6 +161,7 @@ DIV#crcQueryToolBox DIV#qryToolFooter {
 
 DIV#crcQueryToolBox DIV#newBox,
 DIV#crcQueryToolBox DIV#printQueryBox,
+DIV#crcQueryToolBox DIV#addTemporalBox,
 DIV#crcQueryToolBox DIV#runBox {
 	position:relative;
 	xdisplay:none;
@@ -176,12 +183,20 @@ DIV#crcQueryToolBox DIV#runBox {
 	overflow:hidden;
 }
 
+
 DIV#crcQueryToolBox DIV#newBox a,
 DIV#crcQueryToolBox DIV#printQueryBox a,
+DIV#crcQueryToolBox DIV#addTemporalBox a,
 DIV#crcQueryToolBox DIV#runBox a {
 	color:#FFF;
 	display:block;
 	text-decoration:none;
+}
+
+DIV#crcQueryToolBox DIV#addTemporalBox
+{
+	width: 150px;
+	float: none;	
 }
 
 a.topicButton {
@@ -209,6 +224,7 @@ a.topicButton:hover {
 
 DIV#crcQueryToolBox DIV#newBox a:hover,
 DIV#crcQueryToolBox DIV#printQueryBox a:hover,
+DIV#crcQueryToolBox DIV#addTemporalBox a:hover,
 DIV#crcQueryToolBox DIV#runBox a:hover {
 	background-color:#7687bf;
 }

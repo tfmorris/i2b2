@@ -69,20 +69,11 @@ public class ServicesHandler extends RequestHandler {
 		//setDbInfo(servicesMsg.getRequestMessageType().getMessageHeader());
 	}
 
-	private void saveLoginAttempt(PMDbDao pmDb, String username, String attempt)
-	{
-		// Add new timeout to it
-		//pmDb.setLoginAttempt(username, attempt );
-
-	}
-
 
 	private UserType validateSuppliedPassword (String username, String password, Hashtable param) throws Exception
 	{
 		PMDbDao pmDb = new PMDbDao();
 
-		if (pmDb.verifyNotLockedOut(username))
-			throw new Exception ("To many invalid attempts, user locked out");
 
 		//if (method.equalsIgnoreCase("NTLM"))
 		if ((param.get("authentication_method") != null) && (!param.get("authentication_method").equals("")))
@@ -107,7 +98,6 @@ public class ServicesHandler extends RequestHandler {
 			if (user == null)
 			{
 				log.debug("Did not find user: " + username);
-				saveLoginAttempt(pmDb, username, "NONEXIST");
 
 				throw new Exception ("Username or password does not exist");
 			}
@@ -118,7 +108,7 @@ public class ServicesHandler extends RequestHandler {
 				classname = "edu.harvard.i2b2.pm.util.SecurityAuthenticationNTLM";
 			else if (param.get("authentication_method").equals("LDAP"))
 				classname = "edu.harvard.i2b2.pm.util.SecurityAuthenticationLDAP";
-
+			
 			ClassLoader classLoader = ServicesHandler.class.getClassLoader();
 
 			try {
@@ -162,22 +152,16 @@ public class ServicesHandler extends RequestHandler {
 				if (user.getPassword().getValue().startsWith("@"))
 				{
 					if	(!(user.getPassword().getValue().substring(1)).equals(password))
-					{
-						saveLoginAttempt(pmDb, username, "BADPASSWORD");
 						throw new Exception ("Username or password does not exist");
-					}
 				}				
 				else if (!user.getPassword().getValue().equals(PMUtil.getInstance().getHashedPassword(password)))
 				{
-					saveLoginAttempt(pmDb, username, "BADPASSWORD");
 					throw new Exception ("Username or password does not exist");
 
 				}
 			}
 			if (user == null)
 			{
-				saveLoginAttempt(pmDb, username, "NONEXIST");
-
 				log .debug("Did not find user: " + username + " with password: " + PMUtil.getInstance().getHashedPassword(password) );
 				throw new Exception ("Username or password does not exist");
 			}
@@ -358,8 +342,6 @@ public class ServicesHandler extends RequestHandler {
 					UserType user = validateSuppliedPassword( rmt.getUsername(), rmt.getPassword().getValue(), params);
 					uType.setFullName(user.getFullName());
 					uType.setIsAdmin(user.isIsAdmin());
-					saveLoginAttempt(pmDb, rmt.getUsername(), "SUCCESS");
-
 				} catch (Exception e)
 				{
 					throw new Exception (e.getMessage());

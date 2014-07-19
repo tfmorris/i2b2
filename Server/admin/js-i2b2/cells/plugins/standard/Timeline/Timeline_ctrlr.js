@@ -280,6 +280,9 @@ i2b2.Timeline.showObservation = function(localkey) {
 				"\nconcept_id: " + t.concept_id + "<br />" +
 				"\nobserver_id: " + t.observer_id + "<br />" +
 				"\nstart_date: " + t.start_date_key;
+				
+	if ( i2b2.h.getXNodeVal(results.refXML, 'tval_char') != undefined)
+			disp +=  "<br />\ntval_char:" +	i2b2.h.getXNodeVal(results.refXML, 'tval_char') ;	
 	if (i2b2.Timeline.model.pData != undefined)
 	{
 		disp += "<hr/><pre>" + i2b2.Timeline.model.pData + "</pre>";	
@@ -600,6 +603,9 @@ i2b2.Timeline.getResults = function() {
 					if (d) { d = new Date(Date.parse(d)); }
 					if (d) { o.start_date = d; }
 					d = i2b2.h.getXNodeVal(oData[i2], "end_date");
+ 					if (d === undefined || d == null || d.length <= 0){  
+ 						d = i2b2.h.getXNodeVal(oData[i2], "start_date");
+ 					}					
 					if (d) { d = d.match(/^[0-9\-]*/).toString(); }
 					if (d) { d = d.replace(/-/g,'/'); }
 					if (d) { d = new Date(Date.parse(d)); }

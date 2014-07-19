@@ -83,7 +83,6 @@ public class PMDbDao extends JdbcDaoSupport {
 	private static Log log = LogFactory.getLog(PMDbDao.class);
 
 
-	private  String database = "";
 	private SimpleJdbcTemplate jt;
 
 	public PMDbDao() throws I2B2Exception{
@@ -95,14 +94,6 @@ public class PMDbDao extends JdbcDaoSupport {
 			log.error("bootstrap ds failure: " + e2.getMessage());
 			throw e2;
 		} 
-		/*
-		try {
-			database = ds.getConnection().getMetaData().getDatabaseProductName();
-		} catch (Exception e)
-		{
-			log.error("Error geting database name:" + e.getMessage());
-		}
-		*/
 		this.jt = new SimpleJdbcTemplate(ds);
 	}
 
@@ -910,48 +901,6 @@ public class PMDbDao extends JdbcDaoSupport {
 		log.debug("Searching for " + userId + " with session id of " + sessionID);
 		queryResult = jt.query(sql, getSession(), userId, sessionID);
 		return queryResult;	
-	}
-
-	public boolean verifyNotLockedOut(String userId)
-	{
-		
-		String sql = null;
-	/*
-		if (database.equalsIgnoreCase("oracle"))
-			sql =  "select count(*) as badlogin from pm_user_login where user_id = ? and " +
-				" attempt_cd = 'BADPASSWORD' and " +
-				"(entry_date + interval '60' minute)  >= CURRENT_TIMESTAMP ";
-		else if (database.equalsIgnoreCase("Microsoft sql server"))
-			sql =  "select count(*) as badlogin from pm_user_login where user_id = ? and " +
-					" attempt_cd = 'BADPASSWORD' and " +
-					"dateadd(minute, 60, entry_date)  >= getdate() ";
-		else if (database.equalsIgnoreCase("postgresql"))
-			sql =  "select count(*) as badlogin from pm_user_login where user_id = ? and " +
-					" attempt_cd = 'BADPASSWORD' and " +
-					"(entry_date + cast('60 minutes' as interval))  >= now() ";
-		
-		int results = jt.queryForInt(sql, userId);
-*/
-		int results = 0;
-		
-		if (results > 10)
-			return true;
-		else 
-			return false;
-	}
-	
-	public int setLoginAttempt(String userId, String attemptCd) {
-		String addSql = "insert into pm_user_login " + 
-				"(user_id, attempt_cd, changeby_char, entry_date, status_cd) values (?,?,?,?,'A')";
-
-		int numRowsAdded =1;
-				/*jt.update(addSql, 
-				userId,
-				attemptCd,
-				userId,
-				Calendar.getInstance().getTime());	
-*/
-		return numRowsAdded;		
 	}
 
 	public int setSession(String userId, String sessionId, int timeout)
@@ -2499,34 +2448,6 @@ public class PMDbDao extends JdbcDaoSupport {
 
 
 	private ParameterizedRowMapper getSession() {
-		ParameterizedRowMapper<SessionData> map = new ParameterizedRowMapper<SessionData>() {
-			public SessionData mapRow(ResultSet rs, int rowNum) throws SQLException {
-				SessionData rData = new SessionData();
-				//				DTOFactory factory = new DTOFactory();
-
-				rData.setSessionID(rs.getString("session_id"));
-
-				Date date = rs.getTimestamp("expired_date");
-				if (date == null)
-					rData.setExpiredDate(null);
-				else 
-					rData.setExpiredDate(date); 
-
-				date = rs.getTimestamp("entry_date");
-				if (date == null)
-					rData.setIssuedDate(null);
-				else 
-					rData.setIssuedDate(date); 
-
-
-				return rData;
-			} 
-		};
-		return map;
-	}
-	
-
-	private ParameterizedRowMapper getUserLogin() {
 		ParameterizedRowMapper<SessionData> map = new ParameterizedRowMapper<SessionData>() {
 			public SessionData mapRow(ResultSet rs, int rowNum) throws SQLException {
 				SessionData rData = new SessionData();

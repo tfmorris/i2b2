@@ -62,6 +62,7 @@ public class ExecRunnable implements Runnable{
 	private Exception ex = null;
 
 	private String callingMDBName = QueryManagerBeanUtil.SMALL_QUEUE, sessionId = "";
+	//	UserTransaction transaction = null;
 	// default timeout three minutes
 	int transactionTimeout = 0;
 

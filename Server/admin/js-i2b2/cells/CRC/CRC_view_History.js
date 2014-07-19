@@ -254,12 +254,24 @@ i2b2.CRC.view.history.PopulateQueryMasters = function(dm_ptr, dm_name, options) 
 	for (var i=0; i<sortFinal.length; i++) {
 		// add categories to ONT navigate tree
 		var sdxDataNode = sortFinal[i][1];
+		
+		if (sdxDataNode.origData.master_type_cd == "TEMPORAL")
+		{
+			icon = "sdx_CRC_QMT.gif";
+			iconExp = "sdx_CRC_QMT_exp.gif";
+		}
+		else
+		{
+			
+			icon = "sdx_CRC_QM.gif";
+			iconExp = "sdx_CRC_QM_exp.gif";		
+		}
 		var renderOptions = {
 			title: sdxDataNode.origData.name,
 			dragdrop: "i2b2.sdx.TypeControllers.QM.AttachDrag2Data",
 			dblclick: "i2b2.CRC.view.history.ToggleNode(this,'"+tvTree.id+"')",
-			icon: "sdx_CRC_QM.gif",
-			iconExp: "sdx_CRC_QM_exp.gif"
+			icon: icon,
+			iconExp: iconExp
 		};
 		var sdxRenderData = i2b2.sdx.Master.RenderHTML(tvTree.id, sdxDataNode, renderOptions);
 		i2b2.sdx.Master.AppendTreeNode(tvTree, tvRoot, sdxRenderData);
