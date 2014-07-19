@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -58,77 +58,86 @@ public class UpdateOntologyDialog extends Dialog {
 
 		GridLayout layout = (GridLayout)comp.getLayout();
 		layout.numColumns = 1;
-
-		Label label = new Label(comp, SWT.CENTER);
-		label.setText("      Synchronize Ontology in the Hive");
-
-		Group options = new Group(comp, SWT.CENTER);
-		final GridLayout gridLayout = new GridLayout();
-		gridLayout.marginWidth = 15;
-		gridLayout.horizontalSpacing = 15;
-		gridLayout.marginTop = 5;
-		gridLayout.marginRight = 15;
-		gridLayout.marginLeft = 15;
-		gridLayout.marginBottom = 5;
-		gridLayout.numColumns = 1;
-		options.setLayout(gridLayout);
-		//		options.setLayoutData(new GridData());
-		options.setText("Options");
-
-		String state = ProcessStatus.getInstance().getDirtyState().value();
 		
-		update = new Button(options, SWT.RADIO);
-		update.setText("Update only        ");
-		if((state != null) && (state.equals(DirtyValueType.ADD.value()))){
-			update.setText("Update only       (recommended)");
-			update.setSelection(true);
+		if(System.getProperty("OntEdit_ViewOnly").equals("true")){
+			Label label = new Label(comp, SWT.CENTER);
+			label.setText("This feature is not available in this mode");
 		}
-		operationType = "update_only";
-		update.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				update.setSelection(true);
-				synch.setSelection(false);
-				operationType = "update_only";
-			}
-		});			
-	
-
-		synch = new Button(options,SWT.RADIO);
-		synch.setText("Synchronize all         ");
-		if((state != null) && (state.equals(DirtyValueType.DELETE_EDIT.value()))){
-			synch.setText("Synchronize all    (recommended)");
-			synch.setSelection(true);
-			operationType = "synchronize_all";
 			
-		}
-		synch.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				update.setSelection(false);
+		else{
+
+
+			Label label = new Label(comp, SWT.CENTER);
+			label.setText("      Synchronize Ontology in the Hive");
+
+			Group options = new Group(comp, SWT.CENTER);
+			final GridLayout gridLayout = new GridLayout();
+			gridLayout.marginWidth = 15;
+			gridLayout.horizontalSpacing = 15;
+			gridLayout.marginTop = 5;
+			gridLayout.marginRight = 15;
+			gridLayout.marginLeft = 15;
+			gridLayout.marginBottom = 5;
+			gridLayout.numColumns = 1;
+			options.setLayout(gridLayout);
+			//		options.setLayoutData(new GridData());
+			options.setText("Options");
+
+			String state = ProcessStatus.getInstance().getDirtyState().value();
+
+			update = new Button(options, SWT.RADIO);
+			update.setText("Update only        ");
+			if((state != null) && (state.equals(DirtyValueType.ADD.value()))){
+				update.setText("Update only       (recommended)");
+				update.setSelection(true);
+			}
+			operationType = "update_only";
+			update.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event event) {
+					update.setSelection(true);
+					synch.setSelection(false);
+					operationType = "update_only";
+				}
+			});			
+
+
+			synch = new Button(options,SWT.RADIO);
+			synch.setText("Synchronize all         ");
+			if((state != null) && (state.equals(DirtyValueType.DELETE_EDIT.value()))){
+				synch.setText("Synchronize all    (recommended)");
 				synch.setSelection(true);
 				operationType = "synchronize_all";
+
 			}
-		});	
-		new Label(comp,SWT.NONE);
-		 hiddens = new Button(comp,SWT.CHECK);
-		hiddens.setText("Include hiddens");
-		hiddens.setSelection(true);
-		
-		
-		new Label(comp,SWT.NONE);
-		bar = new ProgressBar(comp, SWT.CENTER);
+			synch.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event event) {
+					update.setSelection(false);
+					synch.setSelection(true);
+					operationType = "synchronize_all";
+				}
+			});	
+			new Label(comp,SWT.NONE);
+			hiddens = new Button(comp,SWT.CHECK);
+			hiddens.setText("Include hiddens");
+			hiddens.setSelection(true);
 
-		GridData data = new GridData ();
-		data.widthHint = 300;
-		data.heightHint = 20;
-		data.horizontalAlignment = GridData.BEGINNING;
 
-		bar.setLayoutData(data);
-		bar.setMaximum(100);
+			new Label(comp,SWT.NONE);
+			bar = new ProgressBar(comp, SWT.CENTER);
 
-		updateStatus = new Label(comp, SWT.NONE);
-		updateStatus.setLayoutData(data);
-		updateStatus.setText("");
-		
+			GridData data = new GridData ();
+			data.widthHint = 300;
+			data.heightHint = 20;
+			data.horizontalAlignment = GridData.BEGINNING;
+
+			bar.setLayoutData(data);
+			bar.setMaximum(100);
+
+			updateStatus = new Label(comp, SWT.NONE);
+			updateStatus.setLayoutData(data);
+			updateStatus.setText("");
+		}
+
 		return parent;
 	}
 //	@Override
@@ -141,45 +150,55 @@ public class UpdateOntologyDialog extends Dialog {
 	@Override
 	protected void createButtonsForButtonBar(Composite parent){
 		super.createButtonsForButtonBar(parent);
-		createButton(parent, 2, "Run in Background", false);
-		getOKButton().setText("Run");
+		if((System.getProperty("OntEdit_ViewOnly") == null)||(System.getProperty("OntEdit_ViewOnly").equals("false"))){
+
+			createButton(parent, 2, "Run in Background", false);
+			getOKButton().setText("Run");
+		}
 	}
 
 	@Override
 	protected void buttonPressed(int buttonId){
-		// Run in background
-		if(buttonId == 2){
-			log.info("Starting " + operationType + " in background");
-			synchronize(operationType, hiddens.getSelection()).start();
-			close();
-		}	
-		// OK
-		else if(buttonId == 0){
-			// run synchronize within processStatus command
-			log.info("Starting " + operationType);
-	
-			this.getButton(0).setEnabled(false);
-			this.getButton(2).setEnabled(false);
-			bar.setSelection(0);	
-			updateStatus.setText("Starting synchronization process");
+		if((System.getProperty("OntEdit_ViewOnly") == null)||(System.getProperty("OntEdit_ViewOnly").equals("false"))){
 
-			//	synchronize().start();
-			runningThread = processStatus(bar, updateStatus, this.getButton(0), this.getButton(2), operationType,hiddens.getSelection());
-			runningThread.start();
-		}
-
-
-		//Cancel
-		else if(buttonId ==1) {
-			if(runningThread == null)
+			// Run in background
+			if(buttonId == 2){
+				log.info("Starting " + operationType + " in background");
+				synchronize(operationType, hiddens.getSelection()).start();
 				close();
+			}	
+			// OK
+			else if(buttonId == 0){
 
-			if((runningThread != null) || ((runningThread.isAlive()))){
-				runningThread.setName("stop");
-				close();
+				// run synchronize within processStatus command
+				log.info("Starting " + operationType);
+
+				this.getButton(0).setEnabled(false);
+				this.getButton(2).setEnabled(false);
+				bar.setSelection(0);	
+				updateStatus.setText("Starting synchronization process");
+
+				//	synchronize().start();
+				runningThread = processStatus(bar, updateStatus, this.getButton(0), this.getButton(2), operationType,hiddens.getSelection());
+				runningThread.start();
+
 			}
-			// send cancel message to ONT; pass id
 
+
+			//Cancel
+			else if(buttonId ==1) {
+				if(runningThread == null)
+					close();
+
+				if((runningThread != null) || ((runningThread.isAlive()))){
+					runningThread.setName("stop");
+					close();
+				}
+				// send cancel message to ONT; pass id
+
+			}
+		}else{
+			close();
 		}
 	}
 

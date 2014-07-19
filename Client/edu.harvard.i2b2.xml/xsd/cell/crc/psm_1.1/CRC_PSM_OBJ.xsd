@@ -72,6 +72,9 @@
     <xs:simpleType name="end_dateType">
         <xs:restriction base="xs:dateTime"/>
     </xs:simpleType>
+    <xs:simpleType name="master_cdType">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
 
     <xs:simpleType name="nameType">
         <xs:restriction base="xs:string"/>
@@ -151,6 +154,7 @@
             <xs:element name="name" type="crc:nameType"/>
             <xs:element name="user_id" type="crc:user_idType"/>
             <xs:element name="group_id" type="crc:group_idType"/>
+            <xs:element name="master_type_cd" type="crc:master_cdType"/>
             <xs:element name="create_date" type="crc:create_dateType"/>
             <xs:element name="delete_date" type="crc:delete_dateType"/>
             <xs:element name="request_xml" type="crc:request_xmlType"/>

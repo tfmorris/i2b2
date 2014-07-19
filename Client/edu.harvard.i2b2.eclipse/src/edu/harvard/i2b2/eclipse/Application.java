@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2012 Massachusetts General Hospital 
+* Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
 * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.core.runtime.IPlatformRunnable;
 import org.eclipse.swt.*;
+import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
@@ -131,6 +132,9 @@ public class Application implements IPlatformRunnable {
 			//display.addListener(SWT.Activate, listener);
 
 			/**********************************************************************/
+			//for mac fix
+			//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+				//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 
 			int returnCode = PlatformUI.createAndRunWorkbench(display, 
 					new ApplicationWorkbenchAdvisor());

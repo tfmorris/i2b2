@@ -51,7 +51,7 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ResultTypeResponseType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.UserType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.StatusType.Condition;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
-import edu.harvard.i2b2.query.data.Messages;
+import edu.harvard.i2b2.eclipse.plugins.query.utils.Messages;
 import edu.harvard.i2b2.query.datavo.QueryJAXBUtil;
 import edu.harvard.i2b2.query.serviceClient.QueryRequestClient;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -12,7 +12,9 @@
 package edu.harvard.i2b2.eclipse.plugins.ontology.ws;
 
 import java.io.StringReader;
+import java.util.Calendar;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -37,6 +39,9 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.MessageUtil;
+import edu.harvard.i2b2.eclipse.plugins.ontology.util.OntologyJAXBUtil;
+import edu.harvard.i2b2.ontclient.datavo.i2b2message.MessageHeaderType;
+import edu.harvard.i2b2.ontclient.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ConceptType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.DeleteChildType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.GetCategoriesType;
@@ -51,8 +56,11 @@ import edu.harvard.i2b2.ontclient.datavo.vdo.ModifierType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.ModifyChildType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.UpdateCrcConceptType;
 import edu.harvard.i2b2.ontclient.datavo.vdo.VocabRequestType;
+
 import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.common.util.xml.*;
+
 
 
 public class OntServiceDriver {
@@ -156,7 +164,7 @@ public class OntServiceDriver {
 				 }
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (I2B2Exception e) {
 				log.error(e.getMessage());
 				throw new I2B2Exception(e.getMessage());
@@ -189,7 +197,7 @@ public class OntServiceDriver {
 	//			log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (I2B2Exception e) {
 				log.error(e.getMessage());
 				throw new I2B2Exception(e.getMessage());
@@ -224,7 +232,7 @@ public class OntServiceDriver {
 //				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (I2B2Exception e) {
 				log.error(e.getMessage());
 				throw new I2B2Exception(e.getMessage());
@@ -262,7 +270,7 @@ public class OntServiceDriver {
 //				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
@@ -297,7 +305,7 @@ public class OntServiceDriver {
 //				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
@@ -351,13 +359,14 @@ public class OntServiceDriver {
 	//			log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
 			}
 		return response;
 	}
+	
 	
 	public static String sendREST(EndpointReference restEPR, String requestString, String type) throws Exception{	
 		if(UserInfoBean.getInstance().getCellDataUrl("ont") == null){
@@ -407,8 +416,40 @@ public class OntServiceDriver {
 				MessageUtil.getInstance().setFindResponse("URL: " + restEPR + "\n" + response);
 		}
 		
+		int timeout = processSecurityResult(response);
+//		log.info("get timeout from server: "+ timeout + " at: "+Calendar.getInstance().getTime());
+		if(timeout != -1) {
+			UserInfoBean.setLastActivityTime(Calendar.getInstance().getTime());
+			UserInfoBean.getInstance().setUserPasswordTimeout(timeout);
+			//log.info("get timeout from server: "+ timeout + " at: "+Calendar.getInstance().getTime());
+		}
 		return response;
 
+	}
+	
+	public static int processSecurityResult(String response) {
+		int timeout = -1;
+		try {
+			JAXBElement jaxbElement = OntologyJAXBUtil.getJAXBUtil()
+					.unMashallFromString(response);
+			ResponseMessageType respMessageType = (ResponseMessageType) jaxbElement.getValue();
+
+			// Get response message status
+			MessageHeaderType messageHeader = respMessageType.getMessageHeader();
+			if(messageHeader.getSecurity() != null && messageHeader.getSecurity().getPassword() != null && messageHeader.getSecurity().getPassword().getTokenMsTimeout() != null) {
+				timeout = messageHeader.getSecurity().getPassword().getTokenMsTimeout().intValue();
+			}
+
+			/*if (procStatus.equals("ERROR")) {
+				log.error("Error reported by Ont web Service " + procMessage);
+			} else if (procStatus.equals("WARNING")) {
+				log.error("Warning reported by Ont web Service" + procMessage);
+			}*/
+
+		} catch (JAXBUtilException e) {
+			log.error(e.getMessage());
+		}
+		return timeout;
 	}
 	
 	public static String sendSOAP(String requestString, String action, String operation, String type) throws Exception{	
@@ -523,7 +564,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -558,7 +599,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -593,7 +634,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -628,7 +669,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -662,7 +703,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -692,7 +733,7 @@ public class OntServiceDriver {
 	//			log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (I2B2Exception e) {
 				log.error(e.getMessage());
 				throw new I2B2Exception(e.getMessage());
@@ -842,7 +883,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -878,7 +919,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);

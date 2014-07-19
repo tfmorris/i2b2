@@ -18,9 +18,9 @@
 		</receiving_facility>
 		<datetime_of_message>2011-08-18T11:39:25.486-04:00</datetime_of_message>
 		<security>
-			<domain>i2b2demo</domain>
-			<username>demo</username>
-			<password>demouser</password>
+          <domain>i2b2demo</domain>
+            <username>demo</username>
+            <password>demouser</password>
 		</security>
 		<message_type>
 			<message_code>Q04</message_code>

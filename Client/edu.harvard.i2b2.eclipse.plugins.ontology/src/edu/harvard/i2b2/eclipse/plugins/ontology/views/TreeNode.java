@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -14,12 +14,15 @@ import java.util.*;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.ui.PlatformUI;
 
 import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.eclipse.plugins.ontology.model.RefreshNode;
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.StringUtil;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.CRCServiceDriver;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.GetChildrenResponseMessage;
@@ -63,7 +66,22 @@ public class TreeNode
     	this.data = data;
     	open = false;
     }
+    public TreeNode(edu.harvard.i2b2.eclipse.plugins.ontology.views.find.TreeNode node)
+    {
+    	this.data = new TreeData();
+    	this.data.setBasecode(node.getData().getBasecode());
+    	this.data.setFullName(node.getData().getFullName());
+    	this.data.setName(node.getData().getName());
+    	this.data.setDimcode(node.getData().getDimcode());
+    	this.data.setTooltip(node.getData().getTooltip());
+    	this.data.setKey(node.getData().getKey());
+    	this.data.setSynonymCd(node.getData().getSynonymCd());
+    	this.data.setVisualattributes(node.getData().getVisualattributes());
+    	this.data.setValuetypeCd(node.getData().getValuetypeCd());
+    	this.data.setLevel(node.getData().getLevel());
     
+    	open = false;
+    }
  
     public Object getParent()
     {
@@ -243,7 +261,10 @@ public class TreeNode
 
 			nodeType.setBlob(false);
 			nodeType.setSelf("\\\\"+tableCd +  path);		
-			nodeType.setType("limited");
+			nodeType.setType("core");
+			nodeType.setMax(Integer.parseInt(System.getProperty("OntMax")));
+			nodeType.setHiddens(Boolean.parseBoolean(System.getProperty("OntHiddens")));
+			nodeType.setSynonyms(Boolean.parseBoolean(System.getProperty("OntSynonyms")));
 
 
 			GetModifiersResponseMessage msg = new GetModifiersResponseMessage();
@@ -366,7 +387,7 @@ public class TreeNode
 
 			//		parentType.setMax(150);
 			parentType.setBlob(false);
-			parentType.setType("limited");
+			parentType.setType("core");
 
 			parentType.setParent(this.getData().getKey());		
 
@@ -481,7 +502,7 @@ public class TreeNode
 
 			//		parentType.setMax(150);
 			parentType.setBlob(false);
-			parentType.setType("limited");
+			parentType.setType("core");
 
 			parentType.setParent(this.getData().getModifier().getKey());		
 			parentType.setAppliedPath(this.getData().getModifier().getAppliedPath());
@@ -796,6 +817,61 @@ public class TreeNode
     		return null;
     	}
     }
+    
+    public Thread expandFindTree(TreeViewer viewer, 
+    		String[] parts, String parent){
+    	final TreeNode theNode = this;
+    	final TreeViewer theViewer = viewer;
+    	final String[] theParts = parts; 
+    	final Display theDisplay = PlatformUI.getWorkbench().getDisplay();
+   
+    	return new Thread() {
+    		@Override
+    		public void run(){
+    			try {		
+    				//	String parent = theParent;
+    				TreeNode treeNode = theNode;
+    				String compare = "\\"; 
+    				for(int i = 1; i < theParts.length; i++){
+    					compare += theParts[i] + "\\";
+    					List<TreeNode> nodes = treeNode.getChildren();	
+    					Iterator<TreeNode> it = nodes.iterator();
+    					while(it.hasNext()){
+    						TreeNode node = (TreeNode) it.next();
+    					
+    						if(StringUtil.getPath(node.getData().getFullName()).equals(compare)){
+    							treeNode = node;
+    							RefreshNode.getInstance().setRefreshNode(treeNode);
+    							RefreshNode.getInstance().setLevel(i);
+    							if((node.getChildren().isEmpty()) || 
+    									(node.getChildren().get(0).getData().getName().equals("working..."))){
+    								//	node.setOpen(true);
+    								node.getChildren().clear();
+    								treeNode.updateChildren(theDisplay, theViewer);
+    							}
+    							break;
+    						}
+    					}
+    				}	
+   			} catch (Exception e) {
+    				// TODO Auto-generated catch block
+    				//				System.setProperty("statusMessage", e.getMessage());					
+    			}
+    			theDisplay.syncExec(new Runnable() {
+    				public void run() {
+    					theViewer.collapseAll();
+    					theViewer.expandToLevel(RefreshNode.getInstance().getRefreshNode(), 1);	
+    					theViewer.setSelection(new StructuredSelection(RefreshNode.getInstance().getRefreshNode()), true);
+    					theViewer.getTree().setEnabled(true);
+    				}
+
+    			});
+    		}
+    	};
+    }
+
+
+
 
     //// Below are all the old Select service based ontology functions......    
 
@@ -807,14 +883,14 @@ public class TreeNode
     	    // Make a service
     	    SelectService service = new SelectServiceLocator();
     	    // Use service to get stub that implement SDI
-    	    
+
   //          java.net.URL endpoint = new java.net.URL(this.data.getWebserviceName());
             //* call is going out here
 //	    	System.out.println(this.data.getWebserviceName().toString());
  //   	    Select port = service.getSelect(endpoint);
     	    // Form the query
     	    org.w3c.dom.Document queryDoc = formQuery();
-    	    
+
     	    // Make the call
    // 	    org.w3c.dom.Document queryResultDoc  = port.getDataMartRecords(queryDoc);
 
@@ -825,10 +901,10 @@ public class TreeNode
         		System.setProperty("statusMessage", "Web service call failed");
     	    	return;
     	    }
-    	    
+
     	    int nodecount = queryResultDoc.getElementsByTagName("patientData").getLength();
     	    System.out.println("total node count: "+nodecount);
-    	    
+
     	    if(nodecount > 300) {
     	    	theDisplay.syncExec(new Runnable() {
 					public void run() {
@@ -841,7 +917,7 @@ public class TreeNode
 					}
     	    	});
     	    }
-    	    
+
     	    if(result == SWT.NO) {
     	    	TreeNode node = (TreeNode) this.getChildren().get(0);
     	    	node.getData().setName("Over 300 child nodes");
@@ -853,7 +929,7 @@ public class TreeNode
     	}
         catch(Exception e) {
         	e.printStackTrace();
-        	
+
     		if(e.getMessage().contains("Not+Found"))
     		{
     			System.setProperty("statusMessage", "updateChildren: WebService " + this.data.getWebserviceName() + " not found");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2013 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution.
@@ -18,11 +18,11 @@ import edu.harvard.i2b2.query.data.ModifierData;
 import edu.harvard.i2b2.query.data.UnitsData;
 
 public class ModifierNumericValueConstraintFrame extends javax.swing.JFrame {
-	private GroupPanel parentPanel;
+	private GroupPanel parent_;
 
 	/** Creates new form ValueConstrainFrame */
 	public ModifierNumericValueConstraintFrame(GroupPanel parent) {
-		parentPanel = parent;
+		parent_ = parent;
 
 		initComponents();
 
@@ -35,19 +35,19 @@ public class ModifierNumericValueConstraintFrame extends javax.swing.JFrame {
 		// jBetweenValuePanel.setVisible(false);
 		// jNumericPanel.setVisible(false);
 
-		if (!((ModifierData)parentPanel.currentData()).modifierValuePropertyData().okToUseValueFlag()) {
+		if (!((ModifierData)parent_.currentData()).modifierValuePropertyData().okToUseValueFlag()) {
 			jFlagRadioButton.setEnabled(false);
 		}
 
-		if (!((ModifierData)parentPanel.currentData()).modifierValuePropertyData().okToUseValue()) {
+		if (!((ModifierData)parent_.currentData()).modifierValuePropertyData().okToUseValue()) {
 			jNumericRadioButton.setEnabled(false);
 		}
 
 		// jUnitsComboBox.removeAllItems();
-		for (int i = 0; i < ((ModifierData)parentPanel.currentData()).modifierValuePropertyData().units
+		for (int i = 0; i < ((ModifierData)parent_.currentData()).modifierValuePropertyData().units
 				.size(); i++) {
 			jUnitsComboBox
-					.addItem(((ModifierData)parentPanel.currentData()).modifierValuePropertyData().units
+					.addItem(((ModifierData)parent_.currentData()).modifierValuePropertyData().units
 							.get(i));
 		}
 		setPreviousValues();
@@ -55,29 +55,30 @@ public class ModifierNumericValueConstraintFrame extends javax.swing.JFrame {
 	}
 
 	private void setPreviousValues() {
-		if (((ModifierData)parentPanel.currentData()).modifierValuePropertyData().useNumericValue()) {
-			jOperatorComboBox.setSelectedItem(((ModifierData)parentPanel.currentData()).modifierValuePropertyData().operator());
+		if (((ModifierData)parent_.currentData()).modifierValuePropertyData().useNumericValue()) {
+			jOperatorComboBox.setSelectedItem(((ModifierData)parent_.currentData()).modifierValuePropertyData().operator());
 
 			jNumericRadioButton.setSelected(true);
 			jNumericRadioButtonActionPerformed(null);
 			jOperatorComboBoxActionPerformed(null);
-			if (((ModifierData)parentPanel.currentData()).modifierValuePropertyData().operator().equals(
+			if (((ModifierData)parent_.currentData()).modifierValuePropertyData().operator().equals(
 					"BETWEEN")) {
-				jLowValueTextField.setText(((ModifierData)parentPanel.currentData())
-						.modifierValuePropertyData().lowValue());
-				jHighTextField.setText(((ModifierData)parentPanel.currentData())
-						.modifierValuePropertyData().highValue());
-			} 
-			else {
-				setOperator(((ModifierData)parentPanel.currentData()).modifierValuePropertyData().operator());
-				jValueTextField.setText(((ModifierData)parentPanel.currentData()).modifierValuePropertyData().value());
+				jLowValueTextField.setText(parent_.currentData()
+						.valuePropertyData().lowValue());
+				jHighTextField.setText(parent_.currentData()
+						.valuePropertyData().highValue());
+			} else // if (
+			// ((ModifierData)parent_.currentData()).modifierValuePropertyData().value().equals
+			// ("L"))
+			{
+				jValueTextField.setText(((ModifierData)parent_.currentData()).modifierValuePropertyData().value());
 			}
-		} else if (((ModifierData)parentPanel.currentData()).modifierValuePropertyData().useValueFlag()) {
-			if (((ModifierData)parentPanel.currentData()).modifierValuePropertyData().value().equals("H")) {
+		} else if (((ModifierData)parent_.currentData()).modifierValuePropertyData().useValueFlag()) {
+			if (((ModifierData)parent_.currentData()).modifierValuePropertyData().value().equals("H")) {
 				jFlagComboBox.setSelectedIndex(0);
 				jFlagRadioButton.setSelected(true);
 				jFlagRadioButtonActionPerformed(null);
-			} else if (((ModifierData)parentPanel.currentData()).modifierValuePropertyData().value()
+			} else if (((ModifierData)parent_.currentData()).modifierValuePropertyData().value()
 					.equals("L")) {
 				jFlagComboBox.setSelectedIndex(1);
 				jFlagRadioButton.setSelected(true);
@@ -85,9 +86,9 @@ public class ModifierNumericValueConstraintFrame extends javax.swing.JFrame {
 			}
 		}
 
-		if (((ModifierData)parentPanel.currentData()).hasValue()
-				&& ((ModifierData)parentPanel.currentData()).modifierValuePropertyData().unit() != null) {
-			jUnitsComboBox.setSelectedItem(parentPanel.currentData()
+		if (((ModifierData)parent_.currentData()).hasValue()
+				&& ((ModifierData)parent_.currentData()).modifierValuePropertyData().unit() != null) {
+			jUnitsComboBox.setSelectedItem(parent_.currentData()
 					.valuePropertyData().unit());
 		}
 
@@ -415,7 +416,7 @@ public class ModifierNumericValueConstraintFrame extends javax.swing.JFrame {
 	}
 
 	private void jOKButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		ModifierData data = (ModifierData)parentPanel.currentData();
+		ModifierData data = (ModifierData)parent_.currentData();
 
 		if (jNoValueRadioButton.isSelected()) {
 			data.modifierValuePropertyData().noValue(true);
@@ -476,35 +477,12 @@ public class ModifierNumericValueConstraintFrame extends javax.swing.JFrame {
 			data.modifierValuePropertyData().unit(ud.name());
 		}
 
-		data.name(parentPanel.currentData().titleName());
+		data.name(parent_.currentData().titleName());
 		// + parent_.currentData().valueName());
-		parentPanel.setValueDisplay();
+		parent_.setValueDisplay();
 		// data.name(parent_.currentData().titleName() + data.valueName());
 
 		setVisible(false);
-	}
-	
-	private void setOperator(String operator) {
-		if (operator == null) {
-			return;
-		}
-
-		if (operator.equalsIgnoreCase("LESS THAN (<)")
-				|| operator.equalsIgnoreCase("LT")) {
-			this.jOperatorComboBox.setSelectedIndex(0);
-		} else if (operator.equalsIgnoreCase("LESS THAN OR EQUAL TO (<=)")
-				|| operator.equalsIgnoreCase("LE")) {
-			this.jOperatorComboBox.setSelectedIndex(1);
-		} else if (operator.equalsIgnoreCase("EQUAL TO (=)")
-				|| operator.equalsIgnoreCase("EQ")) {
-			this.jOperatorComboBox.setSelectedIndex(2);
-		} else if (operator.equalsIgnoreCase("GREATER THAN (>)")
-				|| operator.equalsIgnoreCase("GT")) {
-			this.jOperatorComboBox.setSelectedIndex(4);
-		} else if (operator.equalsIgnoreCase("GREATER THAN OR EQUAL TO (>=)")
-				|| operator.equalsIgnoreCase("GE")) {
-			this.jOperatorComboBox.setSelectedIndex(5);
-		} 
 	}
 
 	private String getOperator(String opStr) {

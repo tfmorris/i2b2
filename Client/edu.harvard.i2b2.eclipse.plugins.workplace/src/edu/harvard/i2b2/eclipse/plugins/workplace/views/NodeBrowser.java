@@ -68,6 +68,7 @@ public class NodeBrowser extends ApplicationWindow
   private Menu menu;
   private Menu folderMenu;
   private Menu caseMenu;
+  private IAction protectAction;
   
   public NodeBrowser(Composite parent, int inputFlag, StatusLineManager slm)
   {
@@ -152,10 +153,14 @@ public class NodeBrowser extends ApplicationWindow
     IAction annotateAction = new AnnotateAction();
     IAction deleteAction = new DeleteAction();
     IAction exportAction = new ExportAction();
+    protectAction = new ProtectedAction();
     popupMenu.add(renameAction);
     popupMenu.add(annotateAction);
     popupMenu.add(deleteAction);
     popupMenu.add(exportAction);
+    //if (UserInfoBean.getInstance().isRoleInProject("DATA_LDS"/*"DATA_PROT"*/)) {
+    	//popupMenu.add(protectAction);
+   // }
     menu = popupMenu.createContextMenu(tree);
     
     MenuManager casePopupMenu = new MenuManager();
@@ -168,6 +173,9 @@ public class NodeBrowser extends ApplicationWindow
     folderPopupMenu.add(annotateAction);
     folderPopupMenu.add(deleteAction);
     folderPopupMenu.add(makeFolderAction);
+    //if (UserInfoBean.getInstance().isRoleInProject("DATA_LDS"/*"DATA_PROT"*/)) {
+    	//folderPopupMenu.add(protectAction);
+    //}
     folderMenu = folderPopupMenu.createContextMenu(tree);
     
 //    tree.setMenu(menu);
@@ -207,6 +215,18 @@ public class NodeBrowser extends ApplicationWindow
         	{
         		Color color = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
         		item.setForeground(color);
+        	}
+        	
+        	//if((((TreeNode)element).getData().getProtectedAccess() != null) &&
+        			//Boolean.parseBoolean(((TreeNode)element).getData().getProtectedAccess())) {
+        	if((((TreeNode)element).getData().getProtectedAccess() != null) &&
+        			(((TreeNode)element).getData().getProtectedAccess().equalsIgnoreCase("Y"))) {//protected_access()) {      		
+        		Color color = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_MAGENTA);
+        		item.setForeground(color);      		
+        	}
+        	else {
+        		Color color = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
+        		item.setForeground(color); 
         	}
         	
 //       	 if element is synonym; print label in dark blue
@@ -249,7 +269,13 @@ public class NodeBrowser extends ApplicationWindow
     });
 
     this.viewer.setInput(populateRootNode());
-
+    String version = System.getProperty("wkplServerVersion");
+	double vernum = Double.parseDouble(version);
+    if ((vernum >= 1.6/*1.7*/) && UserInfoBean.getInstance().isRoleInProject("DATA_LDS"/*"DATA_PROT"*/)) {
+    	popupMenu.add(protectAction);
+    	folderPopupMenu.add(protectAction);
+    }
+    
     String status = System.getProperty("errorMessage");
     if (status != null){
     	TreeNode placeholder = new TreeNode("placeholder",status, "C-ERROR");
@@ -276,16 +302,16 @@ public class NodeBrowser extends ApplicationWindow
 
 			if (node.getChildren().size() > 0) {	
 				TreeNode firstChild = (TreeNode)(node.getChildren().get(0));
-				if((firstChild.getData().getVisualAttributes().equals("LAO")) || (firstChild.getData().getVisualAttributes().equals("LHO")) )
-				{
+				//if((firstChild.getData().getVisualAttributes().equals("LAO")) || (firstChild.getData().getVisualAttributes().equals("LHO")) )
+				//{
 					// child is a placeholder, so remove from list 
 					//   update list with real children  
 //					node.getXMLData(viewer, browser).start();		
 					node.getXMLData(viewer).start();					
-				}
+				//}
 
 
-				else {
+				/*else {
 					for(int i=0; i<node.getChildren().size(); i++) {
 						TreeNode child = (TreeNode)(node.getChildren().get(i));
 						if(child.getData().getVisualAttributes().equals("FAO"))
@@ -303,7 +329,7 @@ public class NodeBrowser extends ApplicationWindow
 							child.getData().setVisualAttributes("CH");	
 						}
 					}
-				}
+				}*/
 			}
 			viewer.refresh();
 			viewer.expandToLevel(node, 1);
@@ -473,6 +499,14 @@ public class NodeBrowser extends ApplicationWindow
 							return;
 
 						TreeNode node =  (TreeNode) selection.getFirstElement();
+						if(node.getData().getProtectedAccess() != null 
+								&& node.getData().getProtectedAccess().equalsIgnoreCase("Y")) {
+							protectAction.setText("Clear PHI Access");
+						}
+						else {
+							protectAction.setText("Set PHI Access");
+						}
+						
 						if(node.getData().getVisualAttributes().equals("LA"))
 							menu.setVisible(true);
 						else if(node.getData().getVisualAttributes().startsWith("ZA"))
@@ -610,6 +644,62 @@ public class NodeBrowser extends ApplicationWindow
 
 		  TreeNode node =  (TreeNode) selection.getFirstElement();
 		  node.exportNode(viewer).start();
+
+	  }
+  }
+  
+  private class ProtectedAction extends Action 
+  {
+	  public ProtectedAction()
+	  {
+		  super("Set PHI Access");
+	  }
+	  
+	  
+	  @Override
+	  public void setText(String text) {
+		// TODO Auto-generated method stub
+		super.setText(text);
+	}
+
+
+	public void run()
+	  {
+		  IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+		  if (selection.size() != 1)
+			  return;
+		  TreeNode node =  (TreeNode) selection.getFirstElement();
+
+		  if(Boolean.parseBoolean(System.getProperty("WPManager")) || 
+				  (node.getData().getUserId().equals(UserInfoBean.getInstance().getUserName()))){
+			  int result = SWT.NO;
+			  //if(node.getData().getVisualAttributes().startsWith("F")){
+			//	  MessageBox mBox = new MessageBox(Display.getCurrent().getActiveShell(), 
+			//			  SWT.ICON_INFORMATION | SWT.OK);
+			//	  mBox.setText("Protect Node Dialog");
+			//	  mBox.setMessage("Can't perform this action on a folder for now.");
+			//	  result = mBox.open();
+			 // }
+			 // else{
+				  MessageBox mBox = new MessageBox(Display.getCurrent().getActiveShell(), 
+						  SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+				  mBox.setText("Protect Node Dialog");
+				  mBox.setMessage("Protect node \""+ node.getData().getName() + "\"?\n");
+				  result = mBox.open();
+			 // }
+			  if(result == SWT.NO) {
+				  return;
+			  }
+			  else {
+				  node.protectNode(viewer).start();
+			  }
+		  }
+		  else{
+			  MessageBox mBox = new MessageBox(Display.getCurrent().getActiveShell(),SWT.ICON_INFORMATION | SWT.OK);
+			  mBox.setText("Protect Node Message");
+			  mBox.setMessage("You do not have permission to protect this node");
+			  int result = mBox.open();
+		  }
 
 	  }
   }

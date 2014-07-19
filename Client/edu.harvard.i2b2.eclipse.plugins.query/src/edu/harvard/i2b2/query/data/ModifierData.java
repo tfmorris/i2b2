@@ -76,6 +76,31 @@ public class ModifierData extends QueryConceptTreeNodeData {
 		return hasModifierValue;
 	}
 	
+	private boolean hasModifierHelp = false;
+	
+	public boolean hasModifierHelp() {
+		return hasModifierHelp;
+	}
+	
+	private String modifier_helpName;
+	public void modifier_helpName(String str) {
+		modifier_helpName = new String(str);
+	}
+
+	public String modifier_helpName() {
+		return modifier_helpName;
+	}
+	
+	private String modifier_helpURL;
+	public void modifier_helpURL(String str) {
+		modifier_helpURL = new String(str);
+		hasModifierHelp = true;
+	}
+
+	public String modifier_helpURL() {
+		return modifier_helpURL;
+	}
+	
 	public ConstrainByModifier writeModifierConstraint() {
 		
 		ConstrainByModifier modifierConstraint = new ConstrainByModifier();
@@ -141,6 +166,20 @@ public class ModifierData extends QueryConceptTreeNodeData {
 				if ((metadataAttribs != null) && (valuedataAttribs != null)) {
 					log.debug("Has value");
 					hasModifierValue = true;
+					Element helpElement = valuedataAttribs
+							.getChild("Help");
+					if(helpElement != null){
+						Element buttonNameElement = helpElement.getChild("ButtonName");
+						if(buttonNameElement != null){
+							modifier_helpName(buttonNameElement.getTextTrim());
+						}
+						Element helpURLElement = helpElement.getChild("URL");
+						if(helpURLElement != null){
+							modifier_helpURL(helpURLElement.getTextTrim());
+							hasModifierHelp = true;
+						}
+					}
+					
 					Element dataTypeElement = valuedataAttribs
 							.getChild("DataType");
 					if (dataTypeElement != null

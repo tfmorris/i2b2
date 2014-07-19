@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution.
@@ -12,6 +12,8 @@ package edu.harvard.i2b2.previousquery.data;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.previousquery.datavo.PreviousQueryJAXBUtil;
@@ -28,10 +30,40 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.PsmRequestTypeType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.UserType;
 
 /**
- * Class: QueryMasterData A data holder for a querytool logic query.
+ * Class: QueryMasterData A data holder for a query tool logic query.
  */
 
 public class QueryMasterData extends QueryData {
+	
+	private String queryType = "";
+
+	public void queryType(String str) {
+		queryType = str;
+	}
+
+	public String queryType() {
+		return queryType;
+	}
+	
+	private String creationTimeStr = "";
+
+	public void creationTimeStr(String str) {
+		creationTimeStr = str;
+	}
+
+	public String creationTimeStr() {
+		return creationTimeStr;
+	}
+	
+	private XMLGregorianCalendar creationTime;
+
+	public void creationTime(XMLGregorianCalendar str) {
+		creationTime = str;
+	}
+
+	public XMLGregorianCalendar creationTime() {
+		return creationTime;
+	}
 
 	public ArrayList<QueryInstanceData> runs = null;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.graphics.*;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
+import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.Messages;
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.OntologyJAXBUtil;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.OntServiceDriver;
@@ -76,7 +77,7 @@ public class NodeBrowser extends ApplicationWindow
 	// to get the rootNode of a tree.....
 	private ImageRegistry imageRegistry;
 	private StatusLineManager slm;
-	private Menu allMenu, itemMenu, rootMenu, lockedMenu, modItemMenu;
+	private Menu allMenu, itemMenu, rootMenu, lockedMenu, modItemMenu, viewMenu;
 
 
 	public NodeBrowser(Composite parent, int inputFlag, StatusLineManager slm)
@@ -132,30 +133,7 @@ public class NodeBrowser extends ApplicationWindow
 		tree.setLayoutData(gridData);
 
 		// create popup menus
-		/*
-
-
-
-
-		MenuManager modifierPopupMenu2= new MenuManager("Modifier");
-		modifierPopupMenu2.add(modifierFolderAction);
-		modifierPopupMenu2.add(modifierItemAction);
-		modifierPopupMenu2.add(modifierContainerAction);
-
-		MenuManager newMenu2 = new MenuManager("New");
-		newMenu2.add(newFolderAction);
-		newMenu2.add(newItemAction);
-		newMenu2.add(newContainerAction);
-		newMenu2.add(modifierPopupMenu2);
-
-		MenuManager allPopupMenu = new MenuManager();
-		allPopupMenu.add(newMenu2);
-		allPopupMenu.add(deleteAction);
-		allPopupMenu.add(refreshAction); 
-		allPopupMenu.add(editAction);
-		allMenu = allPopupMenu.createContextMenu(tree);
-		allMenu.setVisible(false);
-		 */
+		
 
 		MenuManager modItemPopupMenu = createModItemPopupMenu();
 		modItemMenu = modItemPopupMenu.createContextMenu(tree);
@@ -180,6 +158,10 @@ public class NodeBrowser extends ApplicationWindow
 		lockedMenu = lockedPopupMenu.createContextMenu(tree);
 		lockedMenu.setVisible(false);
 
+		MenuManager viewPopupMenu = createViewPopupMenu();
+		viewMenu = viewPopupMenu.createContextMenu(tree);
+		viewMenu.setVisible(false);
+		
 
 		this.viewer = new TreeViewer(tree);  
 		this.viewer.setLabelProvider(new LabelProvider() {
@@ -440,6 +422,7 @@ public class NodeBrowser extends ApplicationWindow
 								allMenu.setVisible(false);
 								rootMenu.setVisible(true);
 								modItemMenu.setVisible(false);
+								viewMenu.setVisible(false);
 
 							}
 							else if( (node.getData().getVisualattributes().startsWith("F"))|| (node.getData().getVisualattributes().startsWith("C"))){
@@ -448,6 +431,7 @@ public class NodeBrowser extends ApplicationWindow
 								itemMenu.setVisible(false);
 								allMenu.setVisible(true);
 								modItemMenu.setVisible(false);
+								viewMenu.setVisible(false);
 
 							}
 							else if	((node.getData().getVisualattributes().startsWith("L"))|| (node.getData().getVisualattributes().startsWith("O"))
@@ -457,6 +441,7 @@ public class NodeBrowser extends ApplicationWindow
 								allMenu.setVisible(false);
 								itemMenu.setVisible(true);
 								modItemMenu.setVisible(false);
+								viewMenu.setVisible(false);
 
 							}
 							else if	((node.getData().getVisualattributes().startsWith("R"))){
@@ -465,6 +450,7 @@ public class NodeBrowser extends ApplicationWindow
 								itemMenu.setVisible(false);
 								modItemMenu.setVisible(true);
 								lockedMenu.setVisible(false);
+								viewMenu.setVisible(false);
 							}
 						
 							else{
@@ -473,14 +459,28 @@ public class NodeBrowser extends ApplicationWindow
 								allMenu.setVisible(false);
 								itemMenu.setVisible(false);
 								modItemMenu.setVisible(false);
+								viewMenu.setVisible(false);
 							}
 
 						}
+						else if((System.getProperty("OntEdit_ViewOnly") != null) && (System.getProperty("OntEdit_ViewOnly").equals("true"))){
+
+							//			else if(UserInfoBean.getInstance().getCellDataParam("ont", "OntEditView") != null){
+							//				if(UserInfoBean.getInstance().getCellDataParam("ont", "OntEditView").equals("true"));
+							viewMenu.setVisible(true);
+							lockedMenu.setVisible(false);
+							rootMenu.setVisible(false);
+							allMenu.setVisible(false);
+							itemMenu.setVisible(false);
+							modItemMenu.setVisible(false);
+						}
+
 						else{
 							rootMenu.setVisible(false);
 							allMenu.setVisible(false);
 							itemMenu.setVisible(false);
 							modItemMenu.setVisible(false);
+							viewMenu.setVisible(false);
 							lockedMenu.setVisible(true);
 						}
 					}
@@ -1149,6 +1149,84 @@ public class NodeBrowser extends ApplicationWindow
 
 		}
 	}
+	
+	private class ViewAction extends Action 
+	{
+		public ViewAction()
+		{
+			super("View");
+		}
+		@Override
+		public void run()
+		{
+			IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+			if (selection.size() != 1)
+				return;
+
+			TreeNode node = (TreeNode) selection.getFirstElement();
+			setCurrentNode(node);
+
+			MetadataRecord.getInstance().clear();
+			MetadataRecord.getInstance().setMetadata(node);
+			MetadataRecord.getInstance().registerBrowser(browser);
+
+
+
+			// populate synonyms list
+			//		MetadataRecord.getInstance().getSynonyms().clear();  // start fresh with empty synonym list
+			//		MetadataRecord.getInstance().setSynonymEditFlag(false);
+			synonyms(Display.getCurrent());
+
+			if(node.getData().getVisualattributes().startsWith("C")){
+				MetadataRecord.getInstance().setType("Container");
+			}
+			else if(node.getData().getVisualattributes().startsWith("F")){
+				MetadataRecord.getInstance().setType("Folder");
+			}
+			else if(node.getData().getVisualattributes().startsWith("I")){
+				MetadataRecord.getInstance().setType("Item");
+			}
+
+			ValueMetadata.getInstance().clear();
+			ValueMetadataType vmType = null;
+			XmlValueType xml = node.getData().getMetadataxml();
+			if (xml != null){
+				try {
+					org.w3c.dom.Element xmlElement =  xml.getAny().get(0);  
+
+					DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+					DocumentBuilder builder = factory.newDocumentBuilder();
+					org.w3c.dom.Document doc1 = builder.newDocument();
+					doc1.appendChild( doc1.importNode(xmlElement,true)); 
+
+					JAXBElement jaxbElement = OntologyJAXBUtil.getJAXBUtil().unMashallFromDocument(doc1);
+					vmType = (ValueMetadataType) jaxbElement.getValue();
+				} catch (JAXBUtilException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ParserConfigurationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			ValueMetadata.getInstance().setValueMetadataType(vmType);
+
+			//			ValueMetadata.getInstance().updateFlags();
+
+			ViewWizard wizard = new ViewWizard();
+
+		//	EditWizard wizard = new EditWizard();
+			WizardDialog dialog = new WizardDialog(Display.getCurrent().getActiveShell(), wizard);
+			dialog.setPageSize(350, 350);
+			dialog.setHelpAvailable(true);
+			dialog.create();
+			dialog.open();
+
+
+			wizard.dispose();	           
+		}
+
+	}
 	private MenuManager createModItemPopupMenu() {
 		MenuManager modItemPopupMenu = new MenuManager();
 		modItemPopupMenu.add(new DeleteAction());
@@ -1220,6 +1298,19 @@ public class NodeBrowser extends ApplicationWindow
 		return allPopupMenu;
 
 	}
+	
+	private MenuManager createViewPopupMenu(){
+
+
+			MenuManager viewPopupMenu = new MenuManager();
+			viewPopupMenu.add(new ViewAction());
+			viewPopupMenu.add(new RefreshAction());   
+
+			return viewPopupMenu;
+		}
+	
+
+	
 }
 
 

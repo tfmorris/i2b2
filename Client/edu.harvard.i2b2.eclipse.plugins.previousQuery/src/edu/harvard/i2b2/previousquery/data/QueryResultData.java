@@ -24,6 +24,7 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.PsmQryHeaderType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.PsmRequestTypeType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ResultRequestType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.UserType;
+import edu.harvard.i2b2.previousquery.dataModel.PDORequestMessageFactory;
 import edu.harvard.i2b2.previousquery.datavo.PreviousQueryJAXBUtil;
 
 public class QueryResultData extends QueryData {

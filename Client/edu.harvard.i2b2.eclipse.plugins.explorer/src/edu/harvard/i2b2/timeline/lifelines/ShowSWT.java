@@ -20,8 +20,10 @@ package edu.harvard.i2b2.timeline.lifelines;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.Panel;
+
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -56,6 +58,9 @@ public class ShowSWT {
 		}
 
 		/* Create and setting up frame */
+		////for mac fix
+		//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+			//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 		Frame frame = SWT_AWT.new_Frame(composite);
 		Panel panel = new Panel(new BorderLayout()) {
 			@Override

@@ -5,6 +5,7 @@
     targetNamespace="http://www.i2b2.org/xsd/cell/crc/psm/1.1/">
 
     <xs:element name="request" type="crc:requestType"/>
+    <xs:element name="get_name_info" type="crc:findBy_childType" />
     
     <xs:element name="sql" type="xs:string"/>
     
@@ -15,6 +16,47 @@
         </xs:annotation>
         <xs:sequence/>
     </xs:complexType>
+    
+    
+  <xs:complexType name="findBy_childType">
+        <xs:sequence>
+            <xs:element name="match_str" type="crc:match_strType" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="create_date" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="user_id" type="xs:string"/>
+        	<xs:element name="ascending" type="xs:boolean" default="false"/>            
+        </xs:sequence>
+        <xs:attribute name="max" type="xs:int" use="required"/>
+        <xs:attribute name="category" default="top">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="@"/>
+                    <xs:enumeration value="top"/>
+                    <xs:enumeration value="results"/>
+                    <xs:enumeration value="pdo"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+     </xs:complexType>
+    
+
+    
+        <xs:complexType name="match_strType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="strategy" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="exact"/>
+                            <xs:enumeration value="left"/>
+                            <xs:enumeration value="right"/>
+                            <xs:enumeration value="contains"/>
+                           
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>    
     
 
     <xs:complexType name="headerType">

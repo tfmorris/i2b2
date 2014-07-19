@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2012 Massachusetts General Hospital 
+* Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
 * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -11,20 +11,20 @@
 package edu.harvard.i2b2.eclipse;
 
 //import java.util.Hashtable;
+import java.io.FileInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.io.FileInputStream;
-import edu.harvard.i2b2.eclipse.util.Messages;
-import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.harvard.i2b2.eclipse.util.Messages;
 import edu.harvard.i2b2.pm.datavo.pm.PasswordType;
 import edu.harvard.i2b2.pm.datavo.pm.CellDataType;
 import edu.harvard.i2b2.pm.datavo.pm.CellDatasType;
@@ -44,6 +44,8 @@ public class UserInfoBean {
 
 	private static String userName;
 	private static PasswordType userPassword;
+	
+	private static int iDEFAULT_TIMEOUTINMILLISECONDS = 1800000;
 
 	private static String userFullName;
 	private static String userDomain;
@@ -84,8 +86,11 @@ public class UserInfoBean {
 	private static CellDatasType cellDatas;
 
 	private static List<ParamType> globals;
-	private static int iDEFAULT_TIMEOUTINMILLISECONDS = 1800000;
 	
+	private static boolean isAdmin;
+	public boolean isAdmin() {return isAdmin;}
+	public void isAdmin(boolean b) {UserInfoBean.isAdmin = b;} 
+
 	public static UserInfoBean getInstance() {
 		if (instance == null)
 			instance = new UserInfoBean();
@@ -94,6 +99,10 @@ public class UserInfoBean {
 
 	public String getProjectId() {
 		return selectedProject.getId();
+	}
+	
+	public String getProjectName(){
+		return selectedProject.getName();
 	}
 
 	public String getUserName() {
@@ -273,8 +282,10 @@ public class UserInfoBean {
 	}
 	
 	public int getUserPasswordTimeout() {
-		if (userPassword.getTokenMsTimeout() == null)
+		if (userPassword.getTokenMsTimeout() == null) {
 			userPassword.setTokenMsTimeout(getWorkbenchTimeoutInMiliseconds());//1800000);
+		}
+		
 		return userPassword.getTokenMsTimeout();
 	}
 	

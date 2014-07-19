@@ -10,6 +10,7 @@
  *     
  */
 package edu.harvard.i2b2.explorer.ui;
+import com.cloudgarden.resource.SWTResourceManager;
 
 import java.awt.*;
 import java.io.File;
@@ -42,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.jface.action.StatusLineManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
@@ -80,7 +82,6 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Combo;
-
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
@@ -93,7 +94,6 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crcxmljaxb.datavo.dnd.DndType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ResponseMessageType;
-
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.InstanceResponseType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ItemType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.MasterResponseType;
@@ -118,12 +118,18 @@ import edu.harvard.i2b2.explorer.dataModel.QueryModel;
 import edu.harvard.i2b2.explorer.dataModel.TimelineRow;
 import edu.harvard.i2b2.explorer.datavo.ExplorerJAXBUtil;
 import edu.harvard.i2b2.explorer.serviceClient.PDOQueryClient;
-
 import edu.harvard.i2b2.smlib.DBLib;
 import edu.harvard.i2b2.timeline.lifelines.QueryClient;
 import edu.harvard.i2b2.timeline.lifelines.Record;
 
 public class MainComposite extends Composite {
+
+	{
+//Register as a resource user - SWTResourceManager will
+//handle the obtaining and disposing of resources
+SWTResourceManager.registerResourceUser(this);
+	}
+
 	public static String noteKey = null;
 	private static final Log log = LogFactory.getLog(MainComposite.class);
 	private static final int MAX_STACK_SIZE = 28;
@@ -205,6 +211,12 @@ public class MainComposite extends Composite {
 	}
 
 	private String lastResponseMessage;
+	private CCombo filterCCombo;
+	//private Combo combo1;
+	private Label label2;
+	private Combo filterCombo;
+	private Label label1;
+	private String filter = "none";
 
 	public void lastRequestMessage(String msg) {
 		lastRequestMessage = msg;
@@ -375,6 +387,9 @@ public class MainComposite extends Composite {
 			previousRunTab.setControl(runComposite);
 
 			/* Create and setting up frame */
+			////for mac fix
+			//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+				//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 			Frame runFrame = SWT_AWT.new_Frame(runComposite);
 			Panel runPanel = new Panel(new BorderLayout());
 			try {
@@ -1044,12 +1059,14 @@ public class MainComposite extends Composite {
 
 		Composite oModelCheckButtonComposite = new Composite(oModelComposite,
 				SWT.NONE);
-		GridLayout gL1 = new GridLayout(20, true);
+		GridLayout gL1 = new GridLayout();
+		gL1.numColumns = 20;
 		oModelCheckButtonComposite.setLayout(gL1);
-		GridData oModelCheckButtonGridData = new GridData(
-				GridData.HORIZONTAL_ALIGN_FILL | GridData.VERTICAL_ALIGN_FILL);
+		GridData oModelCheckButtonGridData = new GridData();
+		oModelCheckButtonGridData.horizontalSpan = 4;
+		oModelCheckButtonGridData.verticalAlignment = GridData.FILL;
 		oModelCheckButtonGridData.grabExcessHorizontalSpace = true;
-		oModelCheckButtonGridData.horizontalSpan = 2;
+		oModelCheckButtonGridData.horizontalAlignment = GridData.FILL;
 		oModelCheckButtonComposite.setLayoutData(oModelCheckButtonGridData);
 
 		Button displayOrNotButton = new Button(oModelCheckButtonComposite,
@@ -1069,6 +1086,7 @@ public class MainComposite extends Composite {
 				&& System.getProperty("applicationName").equals("BIRN")) {
 			displayDemographicsOrNotButton.setSelection(false);
 			displayDemographicsOrNotButton.setEnabled(false);
+			
 			bDisplayDemographics = false;
 		} else if ((System.getProperty("applicationName") == null)
 				|| System.getProperty("applicationName").equals("i2b2")) {
@@ -1080,6 +1098,69 @@ public class MainComposite extends Composite {
 						bDisplayDemographics = !bDisplayDemographics;
 					}
 				});
+		
+		{
+			label2 = new Label(oModelCheckButtonComposite, SWT.NONE);
+			GridData label2LData = new GridData();
+			label2LData.horizontalIndent = 10;
+			label2.setLayoutData(label2LData);
+			label2.setText("Filter:");
+		}
+		{
+			filterCCombo = new CCombo(oModelCheckButtonComposite, SWT.BORDER);
+			filterCCombo.setBackground(SWTResourceManager.getColor(255, 255, 255));
+			filterCCombo.setEditable(false);
+			filterCCombo.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent evt) {
+					System.out.println("filterCCombo.widgetSelected, event="+evt);
+					int index = filterCCombo.getSelectionIndex();
+					
+					if(index == 0) {
+						filter = "none";
+					}
+					else if(index == 1) {
+						filter = "max";
+					}
+					else if(index == 2) {
+						filter = "min";
+					}
+					else if(index == 3) {
+						filter = "first";
+					}
+					else if(index == 4) {
+						filter = "last";
+					}
+				}
+			});
+			filterCCombo.add("none");
+			filterCCombo.add("max");
+			filterCCombo.add("min");
+			filterCCombo.add("first");
+			filterCCombo.add("last");
+			filterCCombo.select(0);
+		}
+		{
+			//combo1 = new Combo(oModelCheckButtonComposite, SWT.NONE);
+		}
+		{
+			//label1 = new Label(oModelCheckButtonComposite, SWT.NONE);
+			//label1.setText("Filter: ");
+		}
+		/*{
+			filterCombo = new Combo(oModelCheckButtonComposite, SWT.NONE);
+			GridData filterComboLData = new GridData();
+			filterComboLData.widthHint = 28;
+			filterComboLData.heightHint = 21;
+			filterCombo.setLayoutData(filterComboLData);
+			filterCombo.add("max");
+			filterCombo.add("min");
+			filterCombo.add("first");
+			filterCombo.add("last");
+			filterCombo.select(0);
+			//filterCombo.set;
+			
+			//filterCombo.setText("combo1");
+		}*/
 
 		if (UserInfoBean.getInstance().getCellDataUrl("identity") != null) {
 			Composite oPatientSetComposite = new Composite(oModelComposite,
@@ -1203,43 +1284,41 @@ public class MainComposite extends Composite {
 		DropTarget targetLable = new DropTarget(oModelQueryComposite,
 				DND.DROP_COPY);
 		targetLable.setTransfer(types);
-		targetLable.addDropListener(new DropTargetAdapter() {
+		targetLable.addDropListener(new DropTargetAdapter() 
+		{
 			@Override
-			public void dragLeave(DropTargetEvent event) {
+			public void dragLeave(DropTargetEvent event) 
+			{
 				super.dragLeave(event);
-				oModelQueryComposite.setForeground(oTheParent.getDisplay()
-						.getSystemColor(SWT.COLOR_BLACK));
+				oModelQueryComposite.setForeground(oTheParent.getDisplay().getSystemColor(SWT.COLOR_BLACK));
 			}
 
-			public void dragEnter(DropTargetEvent event) {
+			public void dragEnter(DropTargetEvent event) 
+			{
 				event.detail = DND.DROP_COPY;
-				oModelQueryComposite.setForeground(oTheParent.getDisplay()
-						.getSystemColor(SWT.COLOR_YELLOW));
+				oModelQueryComposite.setForeground(oTheParent.getDisplay().getSystemColor(SWT.COLOR_YELLOW));
 			}
 
 			@SuppressWarnings("unchecked")
-			public void drop(DropTargetEvent event) {
-				if (event.data == null) {
+			public void drop(DropTargetEvent event) 
+			{
+				if (event.data == null) 
+				{
 					event.detail = DND.DROP_NONE;
 					return;
 				}
 
-				try {
+				try 
+				{
 					SAXBuilder parser = new SAXBuilder();
 					String xmlContent = (String) event.data;
-					java.io.StringReader xmlStringReader = new java.io.StringReader(
-							xmlContent);
+					java.io.StringReader xmlStringReader = new java.io.StringReader(xmlContent);
 					org.jdom.Document tableDoc = parser.build(xmlStringReader);
-					org.jdom.Element tableXml = tableDoc
-							.getRootElement()
-							.getChild(
-									"concepts",
-									Namespace
-											.getNamespace("http://www.i2b2.org/xsd/cell/ont/1.1/"));
+					org.jdom.Element tableXml = tableDoc.getRootElement().getChild("concepts", Namespace.getNamespace("http://www.i2b2.org/xsd/cell/ont/1.1/"));
 
-					if (tableXml != null) {
-						MessageBox mBox = new MessageBox(table.getShell(),
-								SWT.ICON_INFORMATION | SWT.OK);
+					if (tableXml != null) 
+					{
+						MessageBox mBox = new MessageBox(table.getShell(), SWT.ICON_INFORMATION | SWT.OK);
 						mBox.setText("Please Note ...");
 						mBox.setMessage("You can not drop this item here.");
 						mBox.open();
@@ -1248,21 +1327,14 @@ public class MainComposite extends Composite {
 					}
 
 					boolean isQuery = false;
-					if (tableXml == null) {
-						tableXml = tableDoc
-								.getRootElement()
-								.getChild(
-										"query_master",
-										Namespace
-												.getNamespace("http://www.i2b2.org/xsd/cell/crc/psm/1.1/"));
-					}
+					if (tableXml == null) 
+						tableXml = tableDoc.getRootElement().getChild("query_master", Namespace.getNamespace("http://www.i2b2.org/xsd/cell/crc/psm/1.1/"));
 
-					if (tableXml != null) {
+					if (tableXml != null) 
 						isQuery = true;
-					} else {
-
-						MessageBox mBox = new MessageBox(table.getShell(),
-								SWT.ICON_INFORMATION | SWT.OK);
+					else 
+					{
+						MessageBox mBox = new MessageBox(table.getShell(),SWT.ICON_INFORMATION | SWT.OK);
 						mBox.setText("Please Note ...");
 						mBox.setMessage("You can not drop this item here.");
 						mBox.open();
@@ -1270,20 +1342,18 @@ public class MainComposite extends Composite {
 						return;
 					}
 
-					if (isQuery) {
+					if (isQuery) 
+					{
 						ArrayList<QueryModel> nodeXmls = new ArrayList<QueryModel>();
-						try {
+						try 
+						{
 							JAXBUtil jaxbUtil = ExplorerJAXBUtil.getJAXBUtil();
 							QueryMasterData ndata = new QueryMasterData();
 							ndata.name(tableXml.getChildText("name"));
-							queryNamemrnlistText.setText("Query Name: "
-									+ ndata.name());
-							groupNameText
-									.setText("Panel Name: All items of Query "
-											+ ndata.name());
+							queryNamemrnlistText.setText("Query Name: " + ndata.name());
+							groupNameText.setText("Panel Name: All items of Query " + ndata.name());
 							ndata.xmlContent(null);
-							ndata.id(tableXml
-									.getChildTextTrim("query_master_id"));
+							ndata.id(tableXml.getChildTextTrim("query_master_id"));
 							ndata.userId(tableXml.getChildTextTrim("user_id"));
 
 							String xmlcontent = null;
@@ -1292,170 +1362,58 @@ public class MainComposite extends Composite {
 							xmlrequest = ndata.writeDefinitionQueryXML();
 							lastRequestMessage(xmlrequest);
 
-							if (System.getProperty("webServiceMethod").equals(
-									"SOAP")) {
-								xmlcontent = PDOQueryClient
-										.sendPDQQueryRequestSOAP(xmlrequest);
-							} else {
-								xmlcontent = PDOQueryClient
-										.sendPDQQueryRequestREST(xmlrequest);
-							}
+							if (System.getProperty("webServiceMethod").equals("SOAP"))
+								xmlcontent = PDOQueryClient.sendPDQQueryRequestSOAP(xmlrequest);
+							else 
+								xmlcontent = PDOQueryClient.sendPDQQueryRequestREST(xmlrequest);
 							lastResponseMessage(xmlcontent);
 
-							if (xmlcontent == null) {
-
-								return;
-							} else {
-								log.debug("Query content response: "
-										+ xmlcontent);
+							if (xmlcontent == null)
+								return; 
+							else 
+							{
+								log.debug("Query content response: " + xmlcontent);
 								ndata.xmlContent(xmlcontent);
 							}
 
-							JAXBElement jaxbElement = jaxbUtil
-									.unMashallFromString(ndata.xmlContent());
-							ResponseMessageType messageType = (ResponseMessageType) jaxbElement
-									.getValue();
+							JAXBElement jaxbElement = jaxbUtil.unMashallFromString(ndata.xmlContent());
+							ResponseMessageType messageType = (ResponseMessageType) jaxbElement.getValue();
 
 							BodyType bt = messageType.getMessageBody();
-							MasterResponseType masterResponseType = (MasterResponseType) new JAXBUnWrapHelper()
-									.getObjectByClass(bt.getAny(),
-											MasterResponseType.class);
-							RequestXmlType requestXmlType = masterResponseType
-									.getQueryMaster().get(0).getRequestXml();
+							MasterResponseType masterResponseType = (MasterResponseType) new JAXBUnWrapHelper().getObjectByClass(bt.getAny(), MasterResponseType.class);
+							RequestXmlType requestXmlType = masterResponseType.getQueryMaster().get(0).getRequestXml();
 
-							org.w3c.dom.Element element = (org.w3c.dom.Element) requestXmlType
-									.getContent().get(0);
-							if (element != null) {
+							org.w3c.dom.Element element = (org.w3c.dom.Element) requestXmlType.getContent().get(0);
+							if (element != null)
 								log.debug("query definition not null");
-							} else {
+							else 
 								log.error("query definition is null");
-							}
 
-							String domString = edu.harvard.i2b2.common.util.xml.XMLUtil
-									.convertDOMElementToString(element);
+							String domString = edu.harvard.i2b2.common.util.xml.XMLUtil.convertDOMElementToString(element);
 							log.debug("string output" + domString);
 
-							JAXBContext jc1 = JAXBContext
-									.newInstance(edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory.class);
-							Unmarshaller unMarshaller = jc1
-									.createUnmarshaller();
-							JAXBElement queryDefinitionJaxbElement = (JAXBElement) unMarshaller
-									.unmarshal(new StringReader(domString));
+							JAXBContext jc1 = JAXBContext.newInstance(edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory.class);
+							Unmarshaller unMarshaller = jc1.createUnmarshaller();
+							JAXBElement queryDefinitionJaxbElement = (JAXBElement) unMarshaller.unmarshal(new StringReader(domString));
 
-							QueryDefinitionType queryDefinitionType = (QueryDefinitionType) queryDefinitionJaxbElement
-									.getValue();
-							int numOfPanels = queryDefinitionType.getPanel()
-									.size();
+							QueryDefinitionType queryDefinitionType = (QueryDefinitionType) queryDefinitionJaxbElement.getValue();
+							
+							int numOfPanels = queryDefinitionType.getPanel().size();
 							int conceptCount = 0;
-							for (int i = 0; i < numOfPanels; i++) {
-								PanelType panelType = queryDefinitionType
-										.getPanel().get(i);
-
-								for (int j = 0; j < panelType.getItem().size(); j++) {
-									ItemType itemType = panelType.getItem()
-											.get(j);
-									
-									///////////////////////////////////////////////
-									QueryModel nodedata = null;
-									ConstrainByModifier md = itemType.getConstrainByModifier();
-									if(md != null) {
-										nodedata = new ModifierData();
-										nodedata.isModifier(true);
-										((ModifierData)nodedata).modifier_key(md.getModifierKey());
-										((ModifierData)nodedata).applied_path(md.getAppliedPath());
-										((ModifierData)nodedata).modifier_name(md.getModifierName());
-										((ModifierData)nodedata).setModifierValueConstraint(md.getConstrainByValue());
-									}
-									else {
-										nodedata = new QueryModel();
-									}
-
-									nodedata.name(itemType.getItemName());
-									nodedata.visualAttribute("FA");
-									nodedata.tooltip(itemType.getTooltip());
-									nodedata.fullname(itemType.getItemKey());
-									nodedata.hlevel(new Integer(itemType
-											.getHlevel()).toString());
-
-									if (itemType.getItemShape() != null) {
-										nodedata.tableRow().height = new String(
-												itemType.getItemShape());
-										nodedata.tableRow().color = ((ConceptTableModel) table
-												.getModel()).getColor(itemType
-												.getItemColor());
-										// nodedata.tableRow().rowNumber =
-										// Integer
-										// .parseInt(itemType
-										// .getItemRowNumber());
-										nodedata.tableRow().rowNumber = conceptCount + 1;
-									} else {
-										nodedata.tableRow().height = "Medium";
-										nodedata.tableRow().color = new RGB(0,
-												0, 128);
-										nodedata.tableRow().rowNumber = conceptCount + 1;
-									}
-
-									nodedata.constrainByValue(itemType
-											.getConstrainByValue());
-									if (itemType.getConstrainByValue().size() > 0) {
-										nodedata.setValueConstrains(itemType
-												.getConstrainByValue());
-
-										if (itemType.getConstrainByValue()
-												.size() > 0) {
-											nodedata
-													.setValueConstrains(itemType
-															.getConstrainByValue());
-											if (nodedata.valueModel()
-													.hasEnumValue()) {
-												if (nodedata.valueModel()
-														.useTextValue()) {
-													ArrayList<String> results = new ArrayList<String>();
-													results
-															.toArray(nodedata
-																	.valueModel()
-																	.value()
-																	.split(","));
-													nodedata.valueModel().selectedValues = results;
-												}
-											}
-										}
-									}
-
-									// Handle Constrain By Dates
-									for (int u = 0; u < itemType
-											.getConstrainByDate().size(); u++) {
-										nodedata.setTimeConstrain(itemType
-												.getConstrainByDate().get(u)
-												.getDateFrom(), itemType
-												.getConstrainByDate().get(u)
-												.getDateTo());
-									}
-
-									nodedata.updateNodeMetaDataXML();
-									//if (status.equalsIgnoreCase("error")) {
-										// MessageBox mBox = new
-										// MessageBox(table
-										// .getShell(),
-										// SWT.ICON_INFORMATION | SWT.OK);
-										// mBox.setText("Please Note ...");
-										// mBox.setMessage("Response delivered from the remote server could not be understood,\n"
-										// +
-										// "you may wish to retry your last action.");
-										// mBox.open();
-										// event.detail = DND.DROP_NONE;
-
-										//continue;
-									//} else {
-										nodeXmls.add(nodedata);
-										conceptCount++;
-									//}
-								}
+							
+							if ( queryDefinitionType.getSubquery().size() == 0 ) 		// it's a normal query
+								conceptCount = addQueryModel( queryDefinitionType, nodeXmls, conceptCount ); // add concepts to nodeXmls, increment conceptCount
+							else if ( queryDefinitionType.getSubquery().size() > 0 ) // temporal queries have subqueries
+							{
+								conceptCount = addQueryModel( queryDefinitionType, nodeXmls, conceptCount ); 
+								List<QueryDefinitionType> subqueries = queryDefinitionType.getSubquery();
+								for ( QueryDefinitionType subQuery: subqueries )
+									conceptCount = addQueryModel( subQuery, nodeXmls, conceptCount ); // for each subquery, add concepts to nodeXmls, increment conceptCount
 							}
-							if (nodeXmls.size() == 0) {
-								MessageBox mBox = new MessageBox(table
-										.getShell(), SWT.ICON_INFORMATION
-										| SWT.OK);
+														
+							if (nodeXmls.size() == 0) 
+							{
+								MessageBox mBox = new MessageBox(table.getShell(), SWT.ICON_INFORMATION | SWT.OK);
 								mBox.setText("Please Note ...");
 								mBox.setMessage("No valid concept was found.");
 								mBox.open();
@@ -2351,6 +2309,9 @@ public class MainComposite extends Composite {
 			}
 
 			/* Create and setting up frame */
+			////for mac fix
+			//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+				//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 			Frame frame = SWT_AWT.new_Frame(composite);
 			Panel panel = new Panel(new BorderLayout()) {
 				public void update(java.awt.Graphics g) {
@@ -2385,6 +2346,9 @@ public class MainComposite extends Composite {
 			gridData3.grabExcessVerticalSpace = true;
 			composite.setLayoutData(gridData3);
 			/* Create and setting up frame */
+			////for mac fix
+			//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+				//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 			Frame frame = SWT_AWT.new_Frame(composite);
 			Panel panel = new Panel(new BorderLayout());// {
 
@@ -2511,6 +2475,105 @@ public class MainComposite extends Composite {
 		return parent;
 	}
 
+	
+	
+	//=============================================================================================================
+	//=============================================================================================================
+	//=============================================================================================================
+
+	private int addQueryModel( QueryDefinitionType queryDefinitionType, ArrayList<QueryModel> queryModels, int conceptCount )
+	{	
+		for (int i = 0; i <  queryDefinitionType.getPanel().size(); i++) 
+		{
+			PanelType panelType = queryDefinitionType.getPanel().get(i);
+
+			for (int j = 0; j < panelType.getItem().size(); j++) 
+			{
+				ItemType itemType = panelType.getItem().get(j);
+				QueryModel nodedata = null;
+
+				ConstrainByModifier md = itemType.getConstrainByModifier();
+				if(md != null) 
+				{
+					nodedata = new ModifierData();
+					nodedata.isModifier(true);
+					((ModifierData)nodedata).modifier_key(md.getModifierKey());
+					((ModifierData)nodedata).applied_path(md.getAppliedPath());
+					((ModifierData)nodedata).modifier_name(md.getModifierName());
+					((ModifierData)nodedata).setModifierValueConstraint(md.getConstrainByValue());
+				}
+				else 
+				{
+					nodedata = new QueryModel();
+				}
+
+				nodedata.name(itemType.getItemName());
+				nodedata.visualAttribute("FA");
+				nodedata.tooltip(itemType.getTooltip());
+				nodedata.fullname(itemType.getItemKey());
+				nodedata.hlevel(new Integer(itemType.getHlevel()).toString());
+
+				if (itemType.getItemShape() != null) 
+				{
+					nodedata.tableRow().height = new String(itemType.getItemShape());
+					nodedata.tableRow().color = ((ConceptTableModel) table.getModel()).getColor(itemType.getItemColor());
+					nodedata.tableRow().rowNumber = conceptCount + 1;
+				} 
+				else 
+				{
+					nodedata.tableRow().height = "Medium";
+					nodedata.tableRow().color = new RGB(0, 0, 128);
+					nodedata.tableRow().rowNumber = conceptCount + 1;
+				}
+
+				nodedata.constrainByValue(itemType.getConstrainByValue());
+				if (itemType.getConstrainByValue().size() > 0) 
+				{
+					nodedata.setValueConstrains(itemType.getConstrainByValue());
+
+					if (itemType.getConstrainByValue().size() > 0) 
+					{
+						nodedata.setValueConstrains(itemType.getConstrainByValue());
+						if (nodedata.valueModel().hasEnumValue()) 
+						{
+							if (nodedata.valueModel().useTextValue()) 
+							{
+								ArrayList<String> results = new ArrayList<String>();
+								results.toArray(nodedata.valueModel().value().split(","));
+								nodedata.valueModel().selectedValues = results;
+							}
+						}
+					}
+				}
+
+				// Handle Constrain By Dates
+				for (int u = 0; u < itemType.getConstrainByDate().size(); u++) 
+					nodedata.setTimeConstrain(itemType.getConstrainByDate().get(u).getDateFrom(), itemType.getConstrainByDate().get(u).getDateTo());
+
+				String status = nodedata.setXmlContent();
+				if (status.equalsIgnoreCase("error")) 
+				{
+					continue;
+				} 
+				else 
+				{
+					nodedata.updateNodeMetaDataXML();
+					queryModels.add(nodedata);
+					conceptCount++;
+				}
+			}
+		}
+		return conceptCount;
+	}	
+	
+	
+	
+	//=============================================================================================================
+	//=============================================================================================================
+	//=============================================================================================================
+
+	
+	
 	@SuppressWarnings("unchecked")
 	private void setTableRowData(QueryModel panelData, boolean isRawData) {
 
@@ -3569,13 +3632,14 @@ public class MainComposite extends Composite {
 							&& (writeFileStr.equalsIgnoreCase("yes"))) {
 						writeFile = true;
 					}
-
+					
+					
 					ArrayList<TimelineRow> tlrows = i2b2Model
 							.getTimelineRows(rowData);
 					String result = PDOQueryClient.getlldString(tlrows,
 							patientRefId, minPatient, minPatient + maxPatient,
 							bDisplayAll, writeFile, bDisplayDemographics,
-							explorer);
+							explorer, filter);
 
 					if (result != null) {
 						if (result.equalsIgnoreCase("memory error")) {
@@ -3908,9 +3972,11 @@ public class MainComposite extends Composite {
 		}
 	}
 
-	public void processQueryData(QueryMasterData ndata) {
+	public void processQueryData(QueryMasterData ndata) 
+	{
 		ArrayList<QueryModel> nodeXmls = new ArrayList<QueryModel>();
-		try {
+		try 
+		{
 			JAXBUtil jaxbUtil = ExplorerJAXBUtil.getJAXBUtil();
 			String xmlcontent = null;
 			String xmlrequest = null;
@@ -3918,211 +3984,100 @@ public class MainComposite extends Composite {
 			xmlrequest = ndata.writeDefinitionQueryXML();
 			lastRequestMessage(xmlrequest);
 
-			if (System.getProperty("webServiceMethod").equals("SOAP")) {
+			if (System.getProperty("webServiceMethod").equals("SOAP"))
 				xmlcontent = PDOQueryClient.sendPDQQueryRequestSOAP(xmlrequest);
-			} else {
+			else
 				xmlcontent = PDOQueryClient.sendPDQQueryRequestREST(xmlrequest);
-			}
+			
 			lastResponseMessage(xmlcontent);
 
-			if (xmlcontent == null) {
-
+			if (xmlcontent == null) 
 				return;
-			} else {
+			else 
+			{
 				log.debug("Query content response: " + xmlcontent);
 				ndata.xmlContent(xmlcontent);
 			}
-
-			JAXBElement jaxbElement = jaxbUtil.unMashallFromString(ndata
-					.xmlContent());
-			ResponseMessageType messageType = (ResponseMessageType) jaxbElement
-					.getValue();
+			
+			JAXBElement jaxbElement = jaxbUtil.unMashallFromString(ndata.xmlContent());
+			ResponseMessageType messageType = (ResponseMessageType) jaxbElement.getValue();
 
 			BodyType bt = messageType.getMessageBody();
-			MasterResponseType masterResponseType = (MasterResponseType) new JAXBUnWrapHelper()
-					.getObjectByClass(bt.getAny(), MasterResponseType.class);
-			RequestXmlType requestXmlType = masterResponseType.getQueryMaster()
-					.get(0).getRequestXml();
+			MasterResponseType masterResponseType = (MasterResponseType) new JAXBUnWrapHelper().getObjectByClass(bt.getAny(), MasterResponseType.class);
+			RequestXmlType requestXmlType = masterResponseType.getQueryMaster().get(0).getRequestXml();
 
-			org.w3c.dom.Element element = (org.w3c.dom.Element) requestXmlType
-					.getContent().get(0);
-			if (element != null) {
+			org.w3c.dom.Element element = (org.w3c.dom.Element) requestXmlType.getContent().get(0);
+			if (element != null) 
 				log.debug("query definition not null");
-			} else {
+			else 
 				log.error("query definition is null");
-			}
 
-			String domString = edu.harvard.i2b2.common.util.xml.XMLUtil
-					.convertDOMElementToString(element);
+			String domString = edu.harvard.i2b2.common.util.xml.XMLUtil.convertDOMElementToString(element);
 			log.debug("string output" + domString);
 
-			JAXBContext jc1 = JAXBContext
-					.newInstance(edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory.class);
+			JAXBContext jc1 = JAXBContext.newInstance(edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory.class);
 			Unmarshaller unMarshaller = jc1.createUnmarshaller();
-			JAXBElement queryDefinitionJaxbElement = (JAXBElement) unMarshaller
-					.unmarshal(new StringReader(domString));
+			JAXBElement queryDefinitionJaxbElement = (JAXBElement) unMarshaller.unmarshal(new StringReader(domString));
 
-			QueryDefinitionType queryDefinitionType = (QueryDefinitionType) queryDefinitionJaxbElement
-			.getValue();
+			QueryDefinitionType queryDefinitionType = (QueryDefinitionType) queryDefinitionJaxbElement.getValue();
 	
 			int numOfPanels = queryDefinitionType.getPanel().size();
 			int conceptCount = 0;
-			for (int i = 0; i < numOfPanels; i++) {
-				PanelType panelType = queryDefinitionType
-						.getPanel().get(i);
-		
-				for (int j = 0; j < panelType.getItem().size(); j++) {
-					ItemType itemType = panelType.getItem()
-							.get(j);
-					
-					///////////////////////////////////////////////
-					QueryModel nodedata = null;
-					ConstrainByModifier md = itemType.getConstrainByModifier();
-					if(md != null) {
-						nodedata = new ModifierData();
-						nodedata.isModifier(true);
-						((ModifierData)nodedata).modifier_key(md.getModifierKey());
-						((ModifierData)nodedata).applied_path(md.getAppliedPath());
-						((ModifierData)nodedata).modifier_name(md.getModifierName());
-						((ModifierData)nodedata).setModifierValueConstraint(md.getConstrainByValue());
-					}
-					else {
-						nodedata = new QueryModel();
-					}
-		
-					nodedata.name(itemType.getItemName());
-					nodedata.visualAttribute("FA");
-					nodedata.tooltip(itemType.getTooltip());
-					nodedata.fullname(itemType.getItemKey());
-					nodedata.hlevel(new Integer(itemType
-							.getHlevel()).toString());
-		
-					if (itemType.getItemShape() != null) {
-						nodedata.tableRow().height = new String(
-								itemType.getItemShape());
-						nodedata.tableRow().color = ((ConceptTableModel) table
-								.getModel()).getColor(itemType
-								.getItemColor());
-						// nodedata.tableRow().rowNumber =
-						// Integer
-						// .parseInt(itemType
-						// .getItemRowNumber());
-						nodedata.tableRow().rowNumber = conceptCount + 1;
-					} else {
-						nodedata.tableRow().height = "Medium";
-						nodedata.tableRow().color = new RGB(0,
-								0, 128);
-						nodedata.tableRow().rowNumber = conceptCount + 1;
-					}
-		
-					nodedata.constrainByValue(itemType
-							.getConstrainByValue());
-					if (itemType.getConstrainByValue().size() > 0) {
-						nodedata.setValueConstrains(itemType
-								.getConstrainByValue());
-		
-						if (itemType.getConstrainByValue()
-								.size() > 0) {
-							nodedata
-									.setValueConstrains(itemType
-											.getConstrainByValue());
-							if (nodedata.valueModel()
-									.hasEnumValue()) {
-								if (nodedata.valueModel()
-										.useTextValue()) {
-									ArrayList<String> results = new ArrayList<String>();
-									results
-											.toArray(nodedata
-													.valueModel()
-													.value()
-													.split(","));
-									nodedata.valueModel().selectedValues = results;
-								}
-							}
-						}
-					}
-		
-					// Handle Constrain By Dates
-					for (int u = 0; u < itemType
-							.getConstrainByDate().size(); u++) {
-						nodedata.setTimeConstrain(itemType
-								.getConstrainByDate().get(u)
-								.getDateFrom(), itemType
-								.getConstrainByDate().get(u)
-								.getDateTo());
-					}
-		
-					nodedata.updateNodeMetaDataXML();
-					//if (status.equalsIgnoreCase("error")) {
-						// MessageBox mBox = new
-						// MessageBox(table
-						// .getShell(),
-						// SWT.ICON_INFORMATION | SWT.OK);
-						// mBox.setText("Please Note ...");
-						// mBox.setMessage("Response delivered from the remote server could not be understood,\n"
-						// +
-						// "you may wish to retry your last action.");
-						// mBox.open();
-						// event.detail = DND.DROP_NONE;
-		
-						//continue;
-					//} else {
-						nodeXmls.add(nodedata);
-						conceptCount++;
-					//}
-				}
-			}
-			if (nodeXmls.size() == 0) {
-				
+			
+			
+			if ( queryDefinitionType.getSubquery().size() == 0 ) 		// it's a normal query
+				conceptCount = addQueryModel( queryDefinitionType, nodeXmls, conceptCount ); // add concepts to nodeXmls, increment conceptCount
+			else if ( queryDefinitionType.getSubquery().size() > 0 ) // temporal queries have subqueries
+			{
+				conceptCount = addQueryModel( queryDefinitionType, nodeXmls, conceptCount ); 
+				List<QueryDefinitionType> subqueries = queryDefinitionType.getSubquery();
+				for ( QueryDefinitionType subQuery: subqueries )
+					conceptCount = addQueryModel( subQuery, nodeXmls, conceptCount ); // for each subquery, add concepts to nodeXmls, increment conceptCount
+			}			
+			 
+			if (nodeXmls.size() == 0)			
 				return;
-			}
+			
 			populateTable(nodeXmls);
-
 			// get query instance
 			String xmlRequest = ndata.writeContentQueryXML();
 			lastRequestMessage(xmlRequest);
-			String xmlResponse = PDOQueryClient
-					.sendPDQQueryRequestREST(xmlRequest);
+			String xmlResponse = PDOQueryClient.sendPDQQueryRequestREST(xmlRequest);
 			lastResponseMessage(xmlResponse);
 
 			jaxbElement = jaxbUtil.unMashallFromString(xmlResponse);
 			messageType = (ResponseMessageType) jaxbElement.getValue();
 			bt = messageType.getMessageBody();
-			InstanceResponseType instanceResponseType = (InstanceResponseType) new JAXBUnWrapHelper()
-					.getObjectByClass(bt.getAny(), InstanceResponseType.class);
+			InstanceResponseType instanceResponseType = (InstanceResponseType) new JAXBUnWrapHelper().getObjectByClass(bt.getAny(), InstanceResponseType.class);
 
 			QueryInstanceData instanceData = null;
 			XMLGregorianCalendar startDate = null;
-			for (QueryInstanceType queryInstanceType : instanceResponseType
-					.getQueryInstance()) {
+			for (QueryInstanceType queryInstanceType : instanceResponseType.getQueryInstance()) 
+			{
 				QueryInstanceData runData = new QueryInstanceData();
-
 				runData.visualAttribute("FA");
 				runData.tooltip("The results of the query run");
-				runData.id(new Integer(queryInstanceType.getQueryInstanceId())
-						.toString());
+				runData.id(new Integer(queryInstanceType.getQueryInstanceId()).toString());
 				XMLGregorianCalendar cldr = queryInstanceType.getStartDate();
-				runData.name("Results of " + "[" + cldr.getMonth() + "-"
-						+ cldr.getDay() + "-" + cldr.getYear() + " "
-						+ cldr.getHour() + ":" + cldr.getMinute() + ":"
-						+ cldr.getSecond() + "]");
+				runData.name("Results of " + "[" + cldr.getMonth() + "-" + cldr.getDay() + "-" + cldr.getYear() + " " + cldr.getHour() + ":" + cldr.getMinute() + ":" + cldr.getSecond() + "]");
 
-				if (instanceData == null) {
+				if (instanceData == null) 
+				{
 					startDate = cldr;
 					instanceData = runData;
-				} else {
-					if (cldr.toGregorianCalendar().compareTo(
-							startDate.toGregorianCalendar()) > 0) {
+				}
+				else 
+				{
+					if (cldr.toGregorianCalendar().compareTo(startDate.toGregorianCalendar()) > 0) 
+					{
 						startDate = cldr;
 						instanceData = runData;
 					}
 				}
 			}
 			// get patient set
-			if (instanceData == null) {
-				// event.detail = DND.DROP_NONE;
+			if (instanceData == null) 
 				return;
-			}
 			log.debug("Got query instance: " + instanceData.name());
 
 			xmlRequest = instanceData.writeContentQueryXML();
@@ -4134,58 +4089,52 @@ public class MainComposite extends Composite {
 			jaxbElement = jaxbUtil.unMashallFromString(xmlResponse);
 			messageType = (ResponseMessageType) jaxbElement.getValue();
 			bt = messageType.getMessageBody();
-			ResultResponseType resultResponseType = (ResultResponseType) new JAXBUnWrapHelper()
-					.getObjectByClass(bt.getAny(), ResultResponseType.class);
+			ResultResponseType resultResponseType = (ResultResponseType) new JAXBUnWrapHelper().getObjectByClass(bt.getAny(), ResultResponseType.class);
 
-			for (QueryResultInstanceType queryResultInstanceType : resultResponseType
-					.getQueryResultInstance()) {
-				if (!(queryResultInstanceType.getQueryResultType().getName()
-						.equalsIgnoreCase("PATIENTSET"))) {
+			for (QueryResultInstanceType queryResultInstanceType : resultResponseType.getQueryResultInstance()) 
+			{
+				if (!(queryResultInstanceType.getQueryResultType().getName().equalsIgnoreCase("PATIENTSET"))) 
 					continue;
-				}
+				String status = queryResultInstanceType.getQueryStatusType().getName();
 
-				String status = queryResultInstanceType.getQueryStatusType()
-						.getName();
-
-				if (status.equalsIgnoreCase("FINISHED")) {
-
-					String setId = new Integer(queryResultInstanceType
-							.getResultInstanceId()).toString();
-					String setSize = new Integer(queryResultInstanceType
-							.getSetSize()).toString();
-					String description = queryResultInstanceType
-							.getDescription();
-					if (description != null) {
-						patientSetText.setText(description);
-					} else {
-						patientSetText.setText("Patient Set: " + setSize
-								+ " patients");
-					}
+				if (status.equalsIgnoreCase("FINISHED")) 
+				{					
+					String setId = new Integer(queryResultInstanceType.getResultInstanceId()).toString();
+					final String setSize = new Integer(queryResultInstanceType.getSetSize()).toString();
+					final String description = queryResultInstanceType.getDescription();
 					patientRefId = new String(setId);
-					patientMinNumText.setText("1");
-					leftArrowButton.setEnabled(false);
-
-					int maxPatientNum = new Integer(patientMaxNumText.getText())
-							.intValue();
 					patientSetSize = queryResultInstanceType.getSetSize();
-					if (patientSetSize > maxPatientNum) {
-						rightArrowButton.setEnabled(true);
-						patientMaxNumText.setText("10");
-					} else {
-						rightArrowButton.setEnabled(false);
-						if (patientSetSize > 0) {
-							patientMaxNumText.setText(setSize);
-						}
-					}
+					
+					Display.getDefault().asyncExec( new Runnable()
+					{						
+						public void run() 
+						{
+							if (description != null) 
+								patientSetText.setText(description);
+							else 
+								patientSetText.setText("Patient Set: " + setSize + " patients");
+							patientMinNumText.setText("1");
+							leftArrowButton.setEnabled(false);
+							int maxPatientNum = new Integer(patientMaxNumText.getText()).intValue();
+							
+							if (patientSetSize > maxPatientNum) 
+							{
+								rightArrowButton.setEnabled(true);
+								patientMaxNumText.setText("10");
+							} 
+							else 
+							{
+								rightArrowButton.setEnabled(false);
+								if (patientSetSize > 0) 
+									patientMaxNumText.setText(setSize);
+							}
 
-					log.debug("Dropped set of: " + setSize + " patients"/*
-																		 * strs[0
-																		 * ]
-																		 */
-							+ " with refId: " + setId/*
-													 * strs[ 1 ]
-													 */);
-				} else {
+						}
+					});
+					log.debug("Dropped set of: " + setSize + " patients" + " with refId: " + setId);
+				} 
+				else 
+				{
 					// message
 				}
 			}

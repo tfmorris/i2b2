@@ -246,6 +246,19 @@ public class XmlUtil {
 			return MessageUtil.getInstance().getTimestamp();
 
 	}
+	
+	public static String getSiteId(XmlValueType xml)
+	{    	
+		Element rootElement = xml.getAny().get(0);
+		NodeList nameElements = rootElement.getElementsByTagName("patient_id");
+		if (nameElements.getLength() != 0 && nameElements.item(0).getAttributes().getLength() != 0){
+			return nameElements.item(0).getAttributes().item(0).getTextContent();
+		}
+		else
+			return "";//MessageUtil.getInstance().getTimestamp();
+
+	}
+	
 	public static String getIndex(XmlValueType xml)
 	{    	
 		Element rootElement = xml.getAny().get(0);

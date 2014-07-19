@@ -28,6 +28,7 @@ import javax.xml.bind.JAXBElement;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.previousquery.data.QueryConceptTreeNodeData;
 import edu.harvard.i2b2.previousquery.data.QueryMasterData;
+import edu.harvard.i2b2.previousquery.dataModel.TopPanelModel;
 import edu.harvard.i2b2.previousquery.datavo.PreviousQueryJAXBUtil;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.*;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.MasterInstanceResultResponseType;

@@ -829,11 +829,13 @@ public class ConceptTableModel implements KTableModel {
 				pdoItem.panelName(pdoItem.fullPath);
 				
 				String version = System.getProperty("serverVersion");
+				//if(version!=null) {
 				double vernum = Double.parseDouble(version);
-				if(vernum < 1.6) {
-					pdoItem.tableType = new String(lookuptable);
-					pdoItem.dimcode = new String(dimcode);
-				}
+					if(vernum < 1.6) {
+						pdoItem.tableType = new String(lookuptable);
+						pdoItem.dimcode = new String(dimcode);
+					}
+				//}
 				
 				pdoItem.queryModel(tableRow.data());
 				timelineRow.pdoItems.add(pdoItem);

@@ -7,12 +7,15 @@
  * Contributors:
  * 		Lori Phillips
  *      Raj Kuttan
+ *      Wensong Pan
  */
 
 package edu.harvard.i2b2.eclipse.plugins.workplace.ws;
 
 import java.io.StringReader;
+import java.util.Calendar;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -35,17 +38,24 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.i2b2.eclipse.UserInfoBean;
+import edu.harvard.i2b2.eclipse.plugins.workplace.ws.GetNameInfoRequestMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.util.MessageUtil;
+import edu.harvard.i2b2.eclipse.plugins.workplace.util.WorkplaceJAXBUtil;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.GetFoldersByUserIdRequestMessage;
+import edu.harvard.i2b2.wkplclient.datavo.wdo.FindByChildType;
+import edu.harvard.i2b2.wkplclient.datavo.i2b2message.MessageHeaderType;
+import edu.harvard.i2b2.wkplclient.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.AnnotateChildType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.ChildType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.DeleteChildType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.FolderType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.GetChildrenType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.GetReturnType;
+import edu.harvard.i2b2.wkplclient.datavo.wdo.ProtectedType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.RenameChildType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.ExportChildType;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.common.util.xml.*;
 
 public class WorkplaceServiceDriver {
@@ -59,6 +69,9 @@ public class WorkplaceServiceDriver {
 	
 	private static EndpointReference childrenEPR = new EndpointReference(
 			serviceURL + "getChildren");
+	
+	private static EndpointReference nameInfoEPR = new EndpointReference(
+			serviceURL + "getNameInfo");
 
 	private static EndpointReference foldersProjectEPR = new EndpointReference(
 		serviceURL + "getFoldersByProject");
@@ -71,6 +84,9 @@ public class WorkplaceServiceDriver {
 
 	private static EndpointReference renameEPR = new EndpointReference(
 			serviceURL + "renameChild");
+	
+	private static EndpointReference protectEPR = new EndpointReference(
+			serviceURL + "setProtectedAccess");
 	
 	private static EndpointReference annotateEPR = new EndpointReference(
 			serviceURL + "annotateChild");
@@ -111,7 +127,7 @@ public class WorkplaceServiceDriver {
 			log.debug("Workplace response = " + response);
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -146,7 +162,7 @@ public class WorkplaceServiceDriver {
 			log.debug("Workplace response = " + response);
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -154,6 +170,40 @@ public class WorkplaceServiceDriver {
 		return response;
 	}
 	
+	/**
+	 * Function to send getNameInfo requestVdo to ONT web service
+	 * 
+	 * @param VocabRequestType  return parameters 
+	 * @return A String containing the ONT web service response 
+	 */
+	
+	public static String getNameInfo(FindByChildType vocabData) throws Exception{
+		String response = null;
+			 try {
+				 GetNameInfoRequestMessage reqMsg = new GetNameInfoRequestMessage();
+				 String getNameInfoRequestString = reqMsg.doBuildXML(vocabData);
+
+//				 log.debug(getNameInfoRequestString);
+				 
+					if(serviceMethod.equals("SOAP")) {
+//						response = sendSOAP(getChildrenRequestString,"http://rpdr.partners.org/GetChildren", "GetChildren", type );
+						log.error("SOAP version of getNameInfo has not been implemented");
+						response = sendREST(nameInfoEPR, getNameInfoRequestString);
+					}
+					else {
+						response = sendREST(nameInfoEPR, getNameInfoRequestString);
+					}
+
+//				log.debug("Ont response = " + response);
+			} catch (AxisFault e) {
+				log.error(e.getMessage());
+				//throw new AxisFault(e);
+			} catch (Exception e) {
+				log.error(e.getMessage());
+				throw new Exception(e);
+			}
+		return response;
+	}
 	
 	/**
 	 * Function to send getChildren requestWdo to WORK web service
@@ -180,7 +230,7 @@ public class WorkplaceServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -214,7 +264,7 @@ public class WorkplaceServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -247,7 +297,7 @@ public class WorkplaceServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -281,7 +331,41 @@ public class WorkplaceServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			throw new Exception(e);
+		}
+		return response;
+	}
+	
+	/**
+	 * Function to send protectChild requestWdo to WORK web service
+	 * 
+	 * @param ProtectedType  childNode we wish to be protected
+	 * @return A String containing the WORK web service response 
+	 */
+	
+	public static String protectChild(ProtectedType childNode) throws Exception{
+		String response = null;
+
+		try {
+			ProtectRequestMessage reqMsg = new ProtectRequestMessage();
+
+			String protectChildRequestString = reqMsg.doBuildXML(childNode);
+			log.debug(protectChildRequestString);
+
+			if(serviceMethod.equals("SOAP")) { 
+				//	response = sendSOAP(renameChildRequestString,"http://rpdr.partners.org/RenameChild", "RenameChild", type );
+				log.error("SOAP version of protectChild has not been implemented");
+				response = sendREST(protectEPR, protectChildRequestString);
+			}
+			else {
+				response = sendREST(protectEPR, protectChildRequestString);
+			}
+		} catch (AxisFault e) {
+			log.error(e.getMessage());
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -315,7 +399,7 @@ public class WorkplaceServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -348,7 +432,7 @@ public class WorkplaceServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -384,7 +468,7 @@ public class WorkplaceServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -440,8 +524,40 @@ public class WorkplaceServiceDriver {
 		MessageUtil.getInstance().setResponse("URL: " + restEPR + "\n" + response);
 
 		
+		/*int timeout = processSecurityResult(response);
+		log.info("get timeout from server: "+ timeout + " at: "+Calendar.getInstance().getTime());
+		if(timeout != -1) {
+			UserInfoBean.setLastActivityTime(Calendar.getInstance().getTime());
+			UserInfoBean.getInstance().setUserPasswordTimeout(timeout);
+			//log.info("get timeout from server: "+ timeout + " at: "+Calendar.getInstance().getTime());
+		}*/
 		return response;
 
+	}
+	
+	public static int processSecurityResult(String response) {
+		int timeout = -1;
+		try {
+			JAXBElement jaxbElement = WorkplaceJAXBUtil.getJAXBUtil()
+					.unMashallFromString(response);
+			ResponseMessageType respMessageType = (ResponseMessageType) jaxbElement.getValue();
+
+			// Get response message status
+			MessageHeaderType messageHeader = respMessageType.getMessageHeader();
+			if(messageHeader.getSecurity() != null && messageHeader.getSecurity().getPassword() != null && messageHeader.getSecurity().getPassword().getTokenMsTimeout() != null) {
+				timeout = messageHeader.getSecurity().getPassword().getTokenMsTimeout().intValue();
+			}
+
+			/*if (procStatus.equals("ERROR")) {
+				log.error("Error reported by Ont web Service " + procMessage);
+			} else if (procStatus.equals("WARNING")) {
+				log.error("Warning reported by Ont web Service" + procMessage);
+			}*/
+
+		} catch (JAXBUtilException e) {
+			log.error(e.getMessage());
+		}
+		return timeout;
 	}
 	
 	public static String sendSOAP(String requestString, String action, String operation, String type) throws Exception{	

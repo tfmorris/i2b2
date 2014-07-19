@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -75,6 +75,18 @@ public class EditView extends ViewPart {
 		
 		else
 			System.setProperty("OntEditConceptCode","false"); 		
+		// Hiddens and synonyms are hard coded to false in TreeNode (getChildren)
+		
+		
+		if (UserInfoBean.getInstance().getSelectedProjectParam("OntEdit_ViewOnly") != null){			
+			System.setProperty("OntEdit_ViewOnly",UserInfoBean.getInstance().getSelectedProjectParam("OntEdit_ViewOnly"));
+
+//			if (UserInfoBean.getInstance().getCellDataParam("ont", "OntEditView") != null){
+//			System.setProperty("OntEdit_ViewOnly",  UserInfoBean.getInstance().getCellDataParam("ont","OntEditView"));	
+		}
+		
+		else
+			System.setProperty("OntEdit_ViewOnly","false"); 		
 		// Hiddens and synonyms are hard coded to false in TreeNode (getChildren)
 	}
 	

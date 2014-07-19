@@ -12,6 +12,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.help.IWorkbenchHelpSystem;
 import org.jdom.JDOMException;
@@ -62,12 +63,12 @@ public class VerifyDataPage extends WizardPage {
 			// Set top as the scrolled content of the ScrolledComposite
 			sc.setContent(composite);
 
-			// Set the minimum size
-			sc.setMinSize(600, 700);
-
 			// Expand both horizontally and vertically
 			sc.setExpandHorizontal(true);
 			sc.setExpandVertical(true);
+			
+			// Set the minimum size
+			sc.setMinSize(1200, 700);
 
 			Group parametersGroup = new Group(composite, SWT.NONE);
 			parametersGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -82,14 +83,36 @@ public class VerifyDataPage extends WizardPage {
 			gridLayout.marginBottom = 5;
 			parametersGroup.setLayout(gridLayout);
 			
+			GridData gridData =
+	            new GridData(
+	              GridData.FILL_HORIZONTAL);
+	          gridData.horizontalSpan = 1;
+	          gridData.heightHint = 700;
+	          gridData.widthHint = 150;
+	          gridData.grabExcessVerticalSpace = true;
 
 			verifyData = new Label(parametersGroup, SWT.NONE);
-			verifyData.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1));
+			verifyData.setLayoutData(gridData);
+			
+			GridData gridData2 =
+	            new GridData(
+	              GridData.FILL_HORIZONTAL);
+	          gridData2.horizontalSpan = 1;
+	          gridData2.heightHint = 700;
+	          gridData2.widthHint = 1000;
+	          gridData2.grabExcessVerticalSpace = true;
+
+		
 
 			verifyData2 = new Label(parametersGroup, SWT.NONE);
-			verifyData2.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1));
-			
+			verifyData2.setLayoutData(gridData2);
 			setControl(composite);
+			
+			
+			if((System.getProperty("OntEdit_ViewOnly") != null) && (System.getProperty("OntEdit_ViewOnly").equals("true")))
+				updateParameters();
+			
+		
 			
 
 		}
@@ -243,18 +266,18 @@ public class VerifyDataPage extends WizardPage {
 				complete = false;
 			}
 			
-			if(!((MetadataRecord.getInstance().getMetadata().getTooltip() == null) || (MetadataRecord.getInstance().getMetadata().getTooltip().length() == 0))){
-				sb.append("Tooltip");
-				sb.append("\n");
-				sb2.append(MetadataRecord.getInstance().getMetadata().getTooltip());
-				sb2.append("\n");
-			}
-
 			if(!((MetadataRecord.getInstance().getMetadata().getDimcode() == null) || (MetadataRecord.getInstance().getMetadata().getDimcode().length() == 0))){
 				sb.append("Dimension Code");
 				sb.append("\n");
 				sb2.append(MetadataRecord.getInstance().getMetadata().getDimcode());
 				sb2.append("\n");
+			}
+			
+			if(!((MetadataRecord.getInstance().getMetadata().getTooltip() == null) || (MetadataRecord.getInstance().getMetadata().getTooltip().length() == 0))){
+				sb.append("Tooltip");
+				sb.append("\n\n");
+				sb2.append(MetadataRecord.getInstance().getMetadata().getTooltip());
+				sb2.append("\n\n");
 			}
 
 			if (ValueMetadata.getInstance().hasValueMetadataType()){
@@ -286,12 +309,13 @@ public class VerifyDataPage extends WizardPage {
 				MetadataRecord.getInstance().getMetadata().setMetadataxml(null);
 			
 			verifyData.setText(sb.toString());
-			verifyData.pack();
+	//		verifyData.pack();
 
 
 			verifyData2.setText(sb2.toString());
-			verifyData2.pack();
-			
+	//		verifyData2.pack();
+			if((System.getProperty("OntEdit_ViewOnly") != null) && (System.getProperty("OntEdit_ViewOnly").equals("true")))
+				complete = true;
 			return complete;
 
 		}

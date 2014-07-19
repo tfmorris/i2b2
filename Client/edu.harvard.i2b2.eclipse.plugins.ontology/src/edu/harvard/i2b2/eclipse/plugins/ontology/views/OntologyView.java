@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -17,14 +17,18 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.StatusLineManager;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.help.IWorkbenchHelpSystem;
 import org.eclipse.ui.part.ViewPart;
 
+import edu.harvard.i2b2.eclipse.ICommonMethod;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.CRCServiceDriver;
 import edu.harvard.i2b2.eclipse.plugins.ontology.ws.GetPsmResponseMessage;
@@ -52,7 +56,7 @@ public class OntologyView extends ViewPart {
 	private Log log = LogFactory.getLog(THIS_CLASS_NAME);
 	public boolean bWantStatusLine = false;
 	private StatusLineManager slm = new StatusLineManager();	
-
+    private TreeComposite dragTree;
 
 	/**
 	 * The constructor.
@@ -130,8 +134,8 @@ public class OntologyView extends ViewPart {
 	 */
 
 	@Override
-	public void createPartControl(Composite parent) {
-		log.info("Navigate Terms version 1.6.0");
+	public void createPartControl(Composite parent)  {
+		log.info("Navigate Terms version 1.7.0");
 		// Drag "from" tree
 		compositeQueryTree = new Composite(parent, SWT.NULL);
 		GridLayout gridLayout = new GridLayout();
@@ -149,10 +153,9 @@ public class OntologyView extends ViewPart {
 		fromTreeGridData.widthHint = 300;
 		compositeQueryTree.setLayoutData(fromTreeGridData);
 
-		TreeComposite dragTree = new TreeComposite(compositeQueryTree, 1, slm);
+		dragTree = new TreeComposite(compositeQueryTree, 1, slm);
 		dragTree.setLayoutData(new GridData (GridData.FILL_BOTH));
 		dragTree.setLayout(gridLayout);
-		
 		
 		//setup context help
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, ONTOLOGY_VIEW_CONTEXT_ID);
@@ -180,4 +183,7 @@ public class OntologyView extends ViewPart {
 	public void setFocus() {
 		compositeQueryTree.setFocus();
 	}
+	
+
+	
 }

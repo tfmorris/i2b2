@@ -18,9 +18,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 
-import edu.harvard.i2b2.previousquery.data.MessageUtil;
+import edu.harvard.i2b2.eclipse.plugins.previousquery.util.DisplayXmlStackList;
+import edu.harvard.i2b2.eclipse.plugins.previousquery.util.MessageUtil;
 import edu.harvard.i2b2.previousquery.ui.DisplayXmlMessageDialog;
-import edu.harvard.i2b2.previousquery.ui.DisplayXmlStackList;
 
 public class ViewStackToolbarActionDelegate implements IViewActionDelegate {
 

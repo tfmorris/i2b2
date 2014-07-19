@@ -14,7 +14,6 @@ package edu.harvard.i2b2.query.ui;
 
 import javax.swing.JOptionPane;
 
-import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ConstrainOperatorType;
 import edu.harvard.i2b2.query.data.QueryConceptTreeNodeData;
 import edu.harvard.i2b2.query.data.UnitsData;
 
@@ -25,11 +24,11 @@ import edu.harvard.i2b2.query.data.UnitsData;
  */
 
 public class NumericValueConstraintFrame extends javax.swing.JFrame {
-	private GroupPanel parentPanel;   
+	private GroupPanel parent_;   
 
 	/** Creates new form ValueConstrainFrame */
 	public NumericValueConstraintFrame(GroupPanel parent) {
-		parentPanel = parent;
+		parent_ = parent;
 
 		initComponents();
 
@@ -62,31 +61,32 @@ public class NumericValueConstraintFrame extends javax.swing.JFrame {
 	}
 
 	private void setPreviousValues() {
-		if (parentPanel.currentData().valuePropertyData().useNumericValue()) {
-			jOperatorComboBox.setSelectedItem(parentPanel.currentData()
+		if (parent_.currentData().valuePropertyData().useNumericValue()) {
+			jOperatorComboBox.setSelectedItem(parent_.currentData()
 					.valuePropertyData().operator());
 
 			jNumericRadioButton.setSelected(true);
 			jNumericRadioButtonActionPerformed(null);
 			jOperatorComboBoxActionPerformed(null);
-			if (parentPanel.currentData().valuePropertyData().operator().equals(
+			if (parent_.currentData().valuePropertyData().operator().equals(
 					"BETWEEN")) {
-				jLowValueTextField.setText(parentPanel.currentData()
+				jLowValueTextField.setText(parent_.currentData()
 						.valuePropertyData().lowValue());
-				jHighTextField.setText(parentPanel.currentData()
+				jHighTextField.setText(parent_.currentData()
 						.valuePropertyData().highValue());
-			} 
-			else {
-				setOperator(parentPanel.currentData().valuePropertyData().operator());
-				jValueTextField.setText(parentPanel.currentData()
+			} else // if (
+			// parent_.currentData().valuePropertyData().value().equals
+			// ("L"))
+			{
+				jValueTextField.setText(parent_.currentData()
 						.valuePropertyData().value());
 			}
-		} else if (parentPanel.currentData().valuePropertyData().useValueFlag()) {
-			if (parentPanel.currentData().valuePropertyData().value().equals("H")) {
+		} else if (parent_.currentData().valuePropertyData().useValueFlag()) {
+			if (parent_.currentData().valuePropertyData().value().equals("H")) {
 				jFlagComboBox.setSelectedIndex(0);
 				jFlagRadioButton.setSelected(true);
 				jFlagRadioButtonActionPerformed(null);
-			} else if (parentPanel.currentData().valuePropertyData().value()
+			} else if (parent_.currentData().valuePropertyData().value()
 					.equals("L")) {
 				jFlagComboBox.setSelectedIndex(1);
 				jFlagRadioButton.setSelected(true);
@@ -94,9 +94,9 @@ public class NumericValueConstraintFrame extends javax.swing.JFrame {
 			}
 		}
 
-		if (parentPanel.currentData().hasValue()
-				&& parentPanel.currentData().valuePropertyData().unit() != null) {
-			jUnitsComboBox.setSelectedItem(parentPanel.currentData()
+		if (parent_.currentData().hasValue()
+				&& parent_.currentData().valuePropertyData().unit() != null) {
+			jUnitsComboBox.setSelectedItem(parent_.currentData()
 					.valuePropertyData().unit());
 		}
 
@@ -424,7 +424,7 @@ public class NumericValueConstraintFrame extends javax.swing.JFrame {
 	}
 
 	private void jOKButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		QueryConceptTreeNodeData data = parentPanel.currentData();
+		QueryConceptTreeNodeData data = parent_.currentData();
 
 		if (jNoValueRadioButton.isSelected()) {
 			data.valuePropertyData().noValue(true);
@@ -484,36 +484,12 @@ public class NumericValueConstraintFrame extends javax.swing.JFrame {
 			data.valuePropertyData().unit(ud.name());
 		}
 
-		data.name(parentPanel.currentData().titleName());
+		data.name(parent_.currentData().titleName());
 		// + parent_.currentData().valueName());
-		parentPanel.setValueDisplay();
+		parent_.setValueDisplay();
 		// data.name(parent_.currentData().titleName() + data.valueName());
 
 		setVisible(false);
-	}
-	
-	private void setOperator(String operator) {
-		//ConstrainOperatorType result = null;
-		if (operator == null) {
-			return;// result;
-		}
-
-		if (operator.equalsIgnoreCase("LESS THAN (<)")
-				|| operator.equalsIgnoreCase("LT")) {
-			this.jOperatorComboBox.setSelectedIndex(0);
-		} else if (operator.equalsIgnoreCase("LESS THAN OR EQUAL TO (<=)")
-				|| operator.equalsIgnoreCase("LE")) {
-			this.jOperatorComboBox.setSelectedIndex(1);
-		} else if (operator.equalsIgnoreCase("EQUAL TO (=)")
-				|| operator.equalsIgnoreCase("EQ")) {
-			this.jOperatorComboBox.setSelectedIndex(2);
-		} else if (operator.equalsIgnoreCase("GREATER THAN (>)")
-				|| operator.equalsIgnoreCase("GT")) {
-			this.jOperatorComboBox.setSelectedIndex(4);
-		} else if (operator.equalsIgnoreCase("GREATER THAN OR EQUAL TO (>=)")
-				|| operator.equalsIgnoreCase("GE")) {
-			this.jOperatorComboBox.setSelectedIndex(5);
-		} 
 	}
 
 	private String getOperator(String opStr) {

@@ -1452,7 +1452,7 @@ public class MainPanel extends javax.swing.JPanel {
 								if (panel.data().startTime() != -1
 										|| panel.data().endTime() != -1) {
 									ConstrainByDate timeConstrain = panel
-											.data().writeTimeConstraint();
+											.data().writeTimeConstrain();
 									itemType.getConstrainByDate().add(
 											timeConstrain);
 								}
@@ -1461,7 +1461,7 @@ public class MainPanel extends javax.swing.JPanel {
 								if (!node.valuePropertyData().noValue()) {
 									ConstrainByValue valueConstrain = node
 											.valuePropertyData()
-											.writeValueConstraint();
+											.writeValueConstrain();
 									itemType.getConstrainByValue().add(
 											valueConstrain);
 								}

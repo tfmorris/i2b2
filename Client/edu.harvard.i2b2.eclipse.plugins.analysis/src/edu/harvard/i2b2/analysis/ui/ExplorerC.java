@@ -81,7 +81,6 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Combo;
-
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
@@ -105,7 +104,6 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crcxmljaxb.datavo.dnd.DndType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.BodyType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ResponseMessageType;
-
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.InstanceResponseType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ItemType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.MasterResponseType;
@@ -117,7 +115,6 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.RequestXmlType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ResultResponseType;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.eclipse.plugins.analysis.utils.StackData;
-
 import edu.harvard.i2b2.smlib.DBLib;
 import edu.harvard.i2b2.timeline.lifelines.QueryClient;
 import edu.harvard.i2b2.timeline.lifelines.record;
@@ -363,6 +360,9 @@ public class ExplorerC extends Composite {
 			previousRunTab.setControl(runComposite);
 
 			/* Create and setting up frame */
+			////for mac fix
+			//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+				//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 			Frame runFrame = SWT_AWT.new_Frame(runComposite);
 			Panel runPanel = new Panel(new BorderLayout());
 			try {
@@ -2259,6 +2259,9 @@ public class ExplorerC extends Composite {
 			}
 
 			/* Create and setting up frame */
+			////for mac fix
+			//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+				//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 			Frame frame = SWT_AWT.new_Frame(composite);
 			Panel panel = new Panel(new BorderLayout()) {
 				public void update(java.awt.Graphics g) {
@@ -2293,6 +2296,9 @@ public class ExplorerC extends Composite {
 			gridData3.grabExcessVerticalSpace = true;
 			composite.setLayoutData(gridData3);
 			/* Create and setting up frame */
+			////for mac fix
+			//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+				//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 			Frame frame = SWT_AWT.new_Frame(composite);
 			Panel panel = new Panel(new BorderLayout());// {
 

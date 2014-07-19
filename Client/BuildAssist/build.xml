@@ -62,6 +62,30 @@
               </fileset>
 	</copy>
 
+	<copy todir="../edu.harvard.i2b2.eclipse.plugins.adminTool/${genlib}">
+       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
+		         <include name="*.jar"/>
+              </fileset>
+	</copy>
+
+	<copy todir="../edu.harvard.i2b2.eclipse.plugins.querytool/${genlib}">
+       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
+		         <include name="*.jar"/>
+              </fileset>
+	</copy>
+       	      	
+
+	<copy todir="../edu.harvard.i2b2.eclipse.plugins.patientSet/${genlib}">
+       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
+		         <include name="*.jar"/>
+              </fileset>
+	</copy>
+	
+	<copy todir="../edu.harvard.i2b2.eclipse.plugins.patientMapping/${genlib}">
+       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
+		         <include name="*.jar"/>
+              </fileset>
+	</copy>
 
 		<copy todir="../edu.harvard.i2b2.eclipse.plugins.crcxmljaxb/${genlib}">
 		       	      <fileset dir="../edu.harvard.i2b2.common/${dist}">
@@ -81,6 +105,10 @@
 			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.query/buildFiles" includes="build.xml" />
 			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.previousQuery/buildFiles" includes="build.xml" />
 			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.analysis/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.querytool/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.adminTool/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.patientMapping/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.patientSet/buildFiles" includes="build.xml" />
     	</subant>	
 
     </target>
@@ -95,6 +123,10 @@
 			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.query/buildFiles" includes="build.xml" />
 			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.previousQuery/buildFiles" includes="build.xml" />
 			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.analysis/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.querytool/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.adminTool/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.patientMapping/buildFiles" includes="build.xml" />
+			<fileset dir="../edu.harvard.i2b2.eclipse.plugins.patientSet/buildFiles" includes="build.xml" />
 		</subant>	
 	</target> 
 	

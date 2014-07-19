@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.util.*;
 
 import javax.swing.JOptionPane;
+import javax.xml.bind.JAXBElement;
 
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
@@ -34,19 +35,23 @@ import org.w3c.dom.NodeList;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.eclipse.plugins.workplace.util.MessageUtil;
 import edu.harvard.i2b2.eclipse.plugins.workplace.util.StringUtil;
+import edu.harvard.i2b2.eclipse.plugins.workplace.util.WorkplaceJAXBUtil;
 import edu.harvard.i2b2.eclipse.plugins.workplace.util.XmlUtil;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.AddChildRequestMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.AnnotateChildResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.DeleteChildResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.GetChildrenResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.MoveChildResponseMessage;
+import edu.harvard.i2b2.eclipse.plugins.workplace.ws.ProtectResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.RenameChildResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.ExportChildResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.WorkplaceResponseData;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.WorkplaceResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.workplace.ws.WorkplaceServiceDriver;
+import edu.harvard.i2b2.wkplclient.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.wkplclient.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.ExportChildType;
+import edu.harvard.i2b2.wkplclient.datavo.wdo.ProtectedType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.XmlValueType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.AnnotateChildType;
 import edu.harvard.i2b2.wkplclient.datavo.wdo.ChildType;
@@ -327,8 +332,9 @@ public class TreeNode
 
 			GetChildrenResponseMessage msg = new GetChildrenResponseMessage();
 			StatusType procStatus = null;	
+			String response = null;
 			while(procStatus == null || !procStatus.getType().equals("DONE")){
-				String response = null;
+				//String response = null;
 				if(Boolean.parseBoolean(System.getProperty("WPManager")))
 					response = WorkplaceServiceDriver.getHomeFoldersByProject(request);
 				else
@@ -345,6 +351,14 @@ public class TreeNode
 				}	
 				procStatus.setType("DONE");
 			}
+			
+			JAXBElement jaxbElement = WorkplaceJAXBUtil.getJAXBUtil().unMashallFromString(response);
+			ResponseMessageType respMessageType  = (ResponseMessageType) jaxbElement.getValue();
+			String version = respMessageType.getMessageHeader().getSendingApplication().getApplicationVersion();
+			System.setProperty("wkplServerVersion", version);
+			double vernum = Double.parseDouble(version);
+			log.info("Workplace server version: "+version);
+	
 			FoldersType allFolders = msg.doReadFolders();   	    
 			List folders = allFolders.getFolder();
 			getNodesFromXMLString(folders);	
@@ -358,6 +372,116 @@ public class TreeNode
 			log.error(e.getMessage());
 			System.setProperty("errorMessage",  "Remote server is unavailable");
 
+		}
+	}
+	
+	public Thread protectNode(TreeViewer viewer) {
+		final TreeNode theNode = this;
+		final TreeViewer theViewer = viewer;
+		final Display theDisplay = Display.getCurrent();
+		return new Thread() {
+			public void run(){
+				try {
+					theNode.protect(theDisplay, theViewer);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					System.setProperty("statusMessage", e.getMessage());					
+				}
+				theDisplay.syncExec(new Runnable() {
+					public void run() {
+						//	  ((TreeNode)(theNode.getParent())).getChildren().remove(theNode);
+						theViewer.refresh(theNode.getParent());
+					}
+				});
+			}
+		};
+	}
+	
+	public void protect(final Display theDisplay, final TreeViewer theViewer) 
+	{
+		XmlValueType newWorkXml = null;
+		//String theNewName = new String("test_protected_access");
+		try {
+			ProtectResponseMessage msg = new ProtectResponseMessage();
+			StatusType procStatus = null;	
+			while(procStatus == null || !procStatus.getType().equals("DONE")){
+
+				ProtectedType childType = new ProtectedType();
+				childType.setIndex("\\\\" + this.getData().getTableCd() +  "\\" + this.getData().getIndex());
+				//childType.setName(theNewName);
+				//newWorkXml = updateWorkXml(theNewName);
+				//childType.setWorkXml(newWorkXml);
+				if(this.getData().getProtectedAccess().equalsIgnoreCase("Y")) {
+					childType.setProtectedAccess("false");
+				}
+				else {
+					childType.setProtectedAccess("true");
+				}
+				String response = WorkplaceServiceDriver.protectChild(childType);
+
+				procStatus = msg.processResult(response);
+
+				//				else if  other error codes
+				//				TABLE_ACCESS_DENIED and USER_INVALID and DATABASE ERRORS
+				if (procStatus.getType().equals("ERROR")){		
+					System.setProperty("errorMessage",  procStatus.getValue());				
+					theDisplay.syncExec(new Runnable() {
+						public void run() {
+							MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+							mBox.setText("Please Note ...");
+							mBox.setMessage("Server reports: " +  System.getProperty("errorMessage"));
+							int result = mBox.open();
+						}
+					});
+					return;
+				}			
+			}
+			//this.getData().setName(theNewName);
+			//this.getData().protected_access(true);
+			if(this.getData().getProtectedAccess().equalsIgnoreCase("Y")) {
+				this.getData().setProtectedAccess("N");
+			}
+			else {
+				this.getData().setProtectedAccess("Y");
+			}
+			if (newWorkXml != null)
+				this.getData().setWorkXml(newWorkXml);
+			/*  old code before rename fix
+			 * if((this.getData().getWorkXmlI2B2Type().equals("CONCEPT"))) {
+				Element rootElement = this.getData().getWorkXml().getAny().get(0);
+				NodeList nameElements = rootElement.getElementsByTagName("name");
+				nameElements.item(0).setTextContent(theNewName);	   
+
+				NodeList synonymElements = rootElement.getElementsByTagName("synonym_cd");
+				if(synonymElements.item(0) != null)
+					synonymElements.item(0).setTextContent("Y");
+			}
+			 */
+		} catch (AxisFault e) {
+			log.error(e.getMessage());
+			theDisplay.syncExec(new Runnable() {
+				public void run() {
+					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+					MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					mBox.setText("Please Note ...");
+					mBox.setMessage("Unable to make a connection to the remote server\n" +  
+							"This is often a network error, please try again");
+					int result = mBox.open();
+				}
+			});  
+
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			theDisplay.syncExec(new Runnable() {
+				public void run() {
+					// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+					MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+					mBox.setText("Please Note ...");
+					mBox.setMessage("Error message delivered from the remote server\n" +  
+							"You may wish to retry your last action");
+					int result = mBox.open();
+				}
+			});			
 		}
 	}
 

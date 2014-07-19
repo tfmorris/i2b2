@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -44,7 +44,16 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.graphics.*;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
+import edu.harvard.i2b2.eclipse.plugins.ontology.model.RefreshNode;
+import edu.harvard.i2b2.eclipse.plugins.ontology.model.TermSelectionProvider;
+import edu.harvard.i2b2.eclipse.plugins.ontology.util.StringUtil;
 import edu.harvard.i2b2.eclipse.plugins.ontology.views.TreeNode;
 
 public class NodeBrowser extends ApplicationWindow
@@ -200,6 +209,14 @@ public class NodeBrowser extends ApplicationWindow
              		Color color = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
              		item.setForeground(color);
              	}
+//           	 if element is synonym; print label in blue
+            	else if (((TreeNode)element).getData().getModifier().getSynonymCd() != null) {
+            		if (((TreeNode)element).getData().getModifier().getSynonymCd().equals("Y"))
+            		{
+            			Color color = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
+            			item.setForeground(color);
+            		}
+            	}
         	}
         	else {
         		if (((TreeNode)element).getData().getVisualattributes().substring(1,2).equals("I")){
@@ -482,6 +499,35 @@ public class NodeBrowser extends ApplicationWindow
 		    viewer.getTree().addListener(SWT.MouseMove, viewerListener);
 		    viewer.getTree().addListener(SWT.MouseHover, viewerListener);	
 		    viewer.getTree().addListener(SWT.MouseExit, viewerListener);	
+		    
+		    ISelectionChangedListener findListener = new ISelectionChangedListener() {
+		    	public void selectionChanged(SelectionChangedEvent event) {
+		    		if(event.getSelection() instanceof IStructuredSelection) {
+		    			IStructuredSelection selection = (IStructuredSelection)event.getSelection();
+		    			edu.harvard.i2b2.eclipse.plugins.ontology.views.find.TreeNode node = 
+		    				(edu.harvard.i2b2.eclipse.plugins.ontology.views.find.TreeNode) selection.getFirstElement();
+
+		    			TreeNode node1 = new TreeNode(node);
+		    			String foundKey = node1.getData().getKey();
+
+		    			String parent = "\\\\"+StringUtil.getTableCd(foundKey)+"\\";
+		    			String fullName = StringUtil.getPath(foundKey);
+
+		    			String[] parts = fullName.split("\\\\");
+
+		    			if(rootNode.getChildren().isEmpty())
+		    				log.debug("rootNode is empty");
+		    			else{
+		    				viewer.getTree().setEnabled(false);
+		    				rootNode.expandFindTree(viewer, parts, parent).start();	
+		    			}
+		    		}
+		    	}
+		    };
+
+		    TermSelectionProvider.getInstance().addSelectionChangedListener(findListener);
+			
+					
   }
 
   public void setCurrentNode(TreeNode node)
@@ -534,6 +580,23 @@ public class NodeBrowser extends ApplicationWindow
 	  return root;
   
   }
+	
+	public void expandTreeView(TreeNode node){
+		
+		String foundKey = node.getData().getKey();
+
+		String parent = "\\\\"+StringUtil.getTableCd(foundKey)+"\\";
+		String fullName = StringUtil.getPath(foundKey);
+
+		String[] parts = fullName.split("\\\\");
+
+		if(rootNode.getChildren().isEmpty())
+				log.debug("rootNode is empty");
+		else{
+			rootNode.expandFindTree(viewer, parts, parent).start();	
+		}
+		
+	}
   
 //  IAction countAction = new CountAction();
 //  IAction shortTooltipAction = new ShortTooltipAction();

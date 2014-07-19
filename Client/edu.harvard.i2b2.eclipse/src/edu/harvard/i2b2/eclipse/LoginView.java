@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -13,6 +13,7 @@
 package edu.harvard.i2b2.eclipse;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -21,13 +22,13 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import javax.swing.JFrame;
-import java.io.FileInputStream;
 import java.util.Properties;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.*;
 import org.eclipse.jface.action.Action;
@@ -55,7 +56,6 @@ public class LoginView extends ViewPart  {
 
 	private static Log log = LogFactory.getLog(LoginView.class.getName());
 
-	private static int iDEFAULT_TIMEOUTINMILLISECONDS = 1800000;
 	private Composite top;
 	public String msTitle = ""; //i2b2 Workbench for Asthma Project"; //$NON-NLS-1$
 	public String msUsername = ""; //$NON-NLS-1$
@@ -76,6 +76,7 @@ public class LoginView extends ViewPart  {
 	private StatusLabelPaintListener statusLabelPaintListener;
 	private Label statusLabel;
 	private String OS = System.getProperty("os.name").toLowerCase(); //$NON-NLS-1$
+	private static int iDEFAULT_TIMEOUTINMILLISECONDS = 1800000;
 
 	public static String BUTTON_TEXT_LOGIN =  Messages.getString("LoginView.ButtonLogIn"); //$NON-NLS-1$
 
@@ -386,6 +387,38 @@ public class LoginView extends ViewPart  {
 				});	
 			}
 		});
+		
+				
+		final Button passwordButton = new Button(banner, SWT.PUSH | SWT.LEFT);
+		passwordButton.setFont(buttonFont);
+		passwordButton.setText("Password"); 
+		passwordButton.setToolTipText("Display Set Password Dialog");
+		passwordButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				final Button myButton = (Button) event.widget;
+				Display display=myButton.getDisplay();
+				//final Shell myShell=myButton.getShell();
+				display.asyncExec(new Runnable() {
+					public void run() {
+						java.awt.EventQueue.invokeLater(new Runnable() {
+				            public void run() {
+				                SetPasswordJDialog dialog = new SetPasswordJDialog(new javax.swing.JFrame(), true);
+				                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+				                    @Override
+				                    public void windowClosing(java.awt.event.WindowEvent e) {
+				                        //System.exit(0);
+				                    }
+				                });
+				                dialog.setSize(304, 237);
+				                dialog.setLocation(400, 200);
+				                dialog.setVisible(true);
+				            }
+				        });
+					}
+				});	
+			}
+		});			
 
 		// attach titlelabel to left and align vertically with tool bar
 		FormData titleLabelFormData = new FormData();
@@ -408,10 +441,14 @@ public class LoginView extends ViewPart  {
 		// vertically
 
 		FormData authorizationLabelFormData = new FormData();
-		authorizationLabelFormData.right = new FormAttachment(statusLabel, -10);
-		authorizationLabelFormData.top = new FormAttachment(statusLabel, 0,
-				SWT.CENTER);
+		authorizationLabelFormData.right = new FormAttachment(passwordButton, -10);
+		authorizationLabelFormData.top = new FormAttachment(passwordButton, 0, SWT.CENTER);
 		authorizationLabel.setLayoutData(authorizationLabelFormData);
+		
+		FormData passwordButtonFormData = new FormData();
+		passwordButtonFormData.right = new FormAttachment(statusLabel, -10);
+		passwordButtonFormData.top = new FormAttachment(statusLabel, 0, SWT.CENTER);
+		passwordButton.setLayoutData(passwordButtonFormData);
 
 		FormData statusLabelFormData = new FormData();
 		// statusLabelFormData.right = new FormAttachment(rightButton,0);
@@ -445,8 +482,6 @@ public class LoginView extends ViewPart  {
 			}
 		};
 
-
-
 		getViewSite().getActionBars().setGlobalActionHandler("properties", propertyAction); //$NON-NLS-1$
 	}
 
@@ -461,21 +496,19 @@ public class LoginView extends ViewPart  {
 
 		//		make a date to compare with
 
-		if(UserInfoBean.getLastActivityTime()==null || this.inSessionExpired ||this.inScreenSaver) return;
+		if(UserInfoBean.getLastActivityTime()==null || this.inSessionExpired || this.inScreenSaver) return;
 		this.inSessionExpired=true;
 		try {
 			Calendar c=Calendar.getInstance();
 			if (UserInfoBean.getInstance().getUserPasswordTimeout() < 60000)
 			{
-				c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout());//-6000); //TODO changed from -20 to -1
+				c.add(Calendar.MILLISECOND,-UserInfoBean.getInstance().getUserPasswordTimeout()); //-20);//TODO changed from -20 to -1
 			} else {
 				c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout()+60000);//-20); //subtract 20 minutes;
 			}
-			
 			//log.info("timeout: " + UserInfoBean.getInstance().getUserPasswordTimeout());
 			//log.info("last activity: " + UserInfoBean.getLastActivityTime()
 					//+ " c_time: "+ c.getTime() + " current: "+ Calendar.getInstance().getTime());
-
 			if(!UserInfoBean.getLastActivityTime().after(c.getTime()))
 			{
 				LoginHelper loginHelper = new LoginHelper();
@@ -497,9 +530,10 @@ public class LoginView extends ViewPart  {
 				UserInfoBean.getInstance().setUserPassword(ubean.getUserPassword());
 				UserInfoBean.setLastActivityTime(Calendar.getInstance().getTime());
 
+				//System.out.println("New Seesion is: " + UserInfoBean.getInstance().getUserPassword());
 				log.info("Start new session: " + UserInfoBean.getInstance().getUserPassword()
 						+ " at "+ Calendar.getInstance().getTime());
-				//System.out.println("New Seesion is: " + UserInfoBean.getInstance().getUserPassword());
+				log.info("Set time out to: " + UserInfoBean.getInstance().getUserPasswordTimeout());
 			}
 		} catch (Exception e)
 		{
@@ -530,13 +564,13 @@ public class LoginView extends ViewPart  {
 
 			if (UserInfoBean.getInstance().getUserPasswordTimeout() < 60000)
 			{
-				c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout()); //-6000); //TODO changed from -20 to -1
+				c.add(Calendar.MILLISECOND,-UserInfoBean.getInstance().getUserPasswordTimeout());//-20); //TODO changed from -20 to -1
 
 			} else {
 				//c.add(Calendar.MINUTE,-20); 
 				c.add(Calendar.MILLISECOND, -UserInfoBean.getInstance().getUserPasswordTimeout() + 60000);//-20); //subtract 20 minutes;
 			}
-
+			
 			//log.info("timeout: " + UserInfoBean.getInstance().getUserPasswordTimeout());
 			//log.info("screen saver: " + UserInfoBean.getScreenSaverTimer()
 					//+ " c_time: "+ c.getTime() + " current: "+ Calendar.getInstance().getTime());
@@ -559,8 +593,9 @@ public class LoginView extends ViewPart  {
 				while (userInfoBean == null);
 				UserInfoBean.setScreenSaverTimer(Calendar.getInstance().getTime());
 				UserInfoBean.getInstance().setUserPassword(userInfoBean.getUserPasswordType());
-				log.info("Start new session (Screen saver): " + UserInfoBean.getInstance().getUserPassword()
+				log.info("Start new session (screen saver): " + UserInfoBean.getInstance().getUserPassword()
 						+ " at "+ Calendar.getInstance().getTime());
+				log.info("Set time out to: " + UserInfoBean.getInstance().getUserPasswordTimeout());
 			}
 		} catch (Exception e)
 		{

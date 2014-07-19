@@ -20,6 +20,8 @@ import java.awt.Rectangle;
 
 import javax.swing.*;
 
+import edu.harvard.i2b2.previousquery.dataModel.TopPanelModel;
+
 public class QueryPanel extends javax.swing.JPanel {
 
 	private TopPanelModel dataModel;

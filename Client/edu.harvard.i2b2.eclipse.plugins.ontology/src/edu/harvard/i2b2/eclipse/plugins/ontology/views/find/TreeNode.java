@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -178,7 +178,7 @@ public class TreeNode
 			parentType.setMax(Integer.parseInt(System.getProperty("OntFindMax")));
 			parentType.setHiddens(Boolean.parseBoolean(System.getProperty("OntFindHiddens")));
 			parentType.setSynonyms(Boolean.parseBoolean(System.getProperty("OntFindSynonyms")));
-			parentType.setType("limited");
+			parentType.setType("core");
 
 			parentType.setParent(this.getData().getKey());
 
@@ -286,7 +286,7 @@ public class TreeNode
 //			request.setType("limited");
 
 			GetCategoriesType request = new GetCategoriesType();
-			request.setType("limited");
+			request.setType("core");
 			request.setHiddens(false);
 			request.setSynonyms(false);
 			
@@ -373,7 +373,7 @@ public class TreeNode
 		parentType.setSynonyms(Boolean.parseBoolean(System.getProperty("OntSynonyms")));
 
 		parentType.setBlob(false);
-		parentType.setType("limited");
+		parentType.setType("core");
 
 		parentType.setParent(this.getData().getModifier().getKey());		
 		parentType.setAppliedPath(this.getData().getModifier().getAppliedPath());

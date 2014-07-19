@@ -202,7 +202,7 @@ public class ValuePropertyData {
 		units = new ArrayList<UnitsData>();
 	}
 
-	public ConstrainByValue writeValueConstraint() {
+	public ConstrainByValue writeValueConstrain() {
 		ConstrainByValue valueConstrain = new ConstrainByValue();
 
 		// set the fields according to the data
@@ -309,8 +309,7 @@ public class ValuePropertyData {
 		if (operator.equalsIgnoreCase("LESS THAN (<)")
 				|| operator.equalsIgnoreCase("LT")) {
 			result = ConstrainOperatorType.LT;
-		} else if (operator.equalsIgnoreCase("LESS THAN OR EQUAL TO (<=)")
-				|| operator.equalsIgnoreCase("LE")) {
+		} else if (operator.equalsIgnoreCase("LESS THAN OR EQUAL TO (<=)")) {
 			result = ConstrainOperatorType.LE;
 		} else if (operator.equalsIgnoreCase("EQUAL TO (=)")
 				|| operator.equalsIgnoreCase("EQ")) {
@@ -318,8 +317,7 @@ public class ValuePropertyData {
 		} else if (operator.equalsIgnoreCase("GREATER THAN (>)")
 				|| operator.equalsIgnoreCase("GT")) {
 			result = ConstrainOperatorType.GT;
-		} else if (operator.equalsIgnoreCase("GREATER THAN OR EQUAL TO (>=)")
-				|| operator.equalsIgnoreCase("GE")) {
+		} else if (operator.equalsIgnoreCase("GREATER THAN OR EQUAL TO (>=)")) {
 			result = ConstrainOperatorType.GE;
 		} else if (operator.equalsIgnoreCase("LIKE[contains]")) {
 			result = ConstrainOperatorType.LIKE_CONTAINS;

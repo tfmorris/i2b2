@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2012 Massachusetts General Hospital 
+* Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
 * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -22,8 +22,8 @@ import java.util.Timer;
 
 import javax.xml.bind.JAXBElement;
 
-import org.apache.axis2.AxisFault;
-import org.apache.axis2.addressing.EndpointReference;
+//import org.apache.axis2.AxisFault;
+//import org.apache.axis2.addressing.EndpointReference;
 import org.apache.commons.logging.*;
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
@@ -56,11 +56,11 @@ public class ReLoginDialog extends Dialog {
 	private String input; // return from dialog
 
 	private UserInfoBean userInfo ; //return from dialog
-	
-	private static int iDEFAULT_TIMEOUTINMILLISECONDS = 1800000;
 
 	private String userid; 
 
+	private static int iDEFAULT_TIMEOUTINMILLISECONDS = 1800000;
+	
 	private String password; 
 
 	private String loginStatus; // message on login status
@@ -374,7 +374,6 @@ public class ReLoginDialog extends Dialog {
 				ptype.setIsToken(false);
 				ptype.setTokenMsTimeout(getWorkbenchTimeoutInMiliseconds());
 				
-
 					LoginThread loginThread = new LoginThread(textUser.getText()
 							.trim(), ptype,
 							currentPrj.getUrl(),
@@ -507,7 +506,6 @@ public class ReLoginDialog extends Dialog {
 		log.info("workbench timeout in milliseconds set to: " + iTimeoutInMilliseconds); //$NON-NLS-1$
 		return iTimeoutInMilliseconds;
 	}
-
 
 	/**
 	 * @param userID

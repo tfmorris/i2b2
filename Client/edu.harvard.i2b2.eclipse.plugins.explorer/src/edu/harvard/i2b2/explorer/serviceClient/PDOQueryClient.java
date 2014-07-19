@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2012 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -14,6 +14,7 @@ package edu.harvard.i2b2.explorer.serviceClient;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import javax.swing.JOptionPane;
@@ -41,6 +42,9 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 import edu.harvard.i2b2.common.datavo.pdo.PatientSet;
 import edu.harvard.i2b2.common.datavo.pdo.PatientType;
@@ -203,8 +207,21 @@ public class PDOQueryClient {
 
 	public static String sendPDOQueryRequestREST(String XMLstr) {
 		try {
+			
+				SAXBuilder parser = new SAXBuilder();
+				String xmlContent = XMLstr;
+				java.io.StringReader xmlStringReader = new java.io.StringReader(
+						xmlContent);
+				org.jdom.Document tableDoc = parser.build(xmlStringReader);
+				XMLOutputter o = new XMLOutputter();
+				o.setFormat(Format.getPrettyFormat());
+				StringWriter str = new StringWriter();
+				o.output(tableDoc, str);
+				//jMessageTextArea.setText(str.toString());
+				//text.setText(str.toString());
+			
 			MessageUtil.getInstance().setRequest(
-					"URL: " + getPDOServiceName() + "\n" + XMLstr);
+					"URL: " + getPDOServiceName() + "\n" + str);
 			OMElement payload = getQueryPayLoad(XMLstr);
 			Options options = new Options();
 
@@ -223,9 +240,16 @@ public class PDOQueryClient {
 
 			OMElement responseElement = sender.sendReceive(payload);
 			// log.debug("Client Side response " + responseElement.toString());
+			xmlStringReader = new java.io.StringReader(
+					responseElement.toString());
+			tableDoc = parser.build(xmlStringReader);
+			o = new XMLOutputter();
+			o.setFormat(Format.getPrettyFormat());
+			str = new StringWriter();
+			o.output(tableDoc, str);
 			MessageUtil.getInstance().setResponse(
 					"URL: " + getPDOServiceName() + "\n"
-							+ responseElement.toString());
+							+ str);  //responseElement.toString());
 
 			return responseElement.toString();
 
@@ -345,7 +369,8 @@ public class PDOQueryClient {
 	public static String getlldString(ArrayList<TimelineRow> tlrows,
 			String patientRefId, int minPatient, int maxPatient,
 			boolean bDisplayAll, boolean writeFile,
-			boolean displayDemographics, MainComposite explorer) {
+			boolean displayDemographics, MainComposite explorer,
+			String filter) {
 
 		try {
 			HashSet<String> conceptPaths = new HashSet<String>();
@@ -377,7 +402,7 @@ public class PDOQueryClient {
 				pid = patientRefId;
 			}
 			String xmlStr = pdoFactory.requestXmlMessage(items, pid,
-					new Integer(minPatient), new Integer(maxPatient), false);
+					new Integer(minPatient), new Integer(maxPatient), false, filter);
 			// explorer.lastRequestMessage(xmlStr);
 
 			String result = null;// sendPDOQueryRequestREST(xmlStr);
@@ -533,7 +558,7 @@ public class PDOQueryClient {
 		// ppaths.add(conceptPath);
 
 		String xmlStr = pdoFactory.requestXmlMessage(null, "1545", new Integer(
-				1), new Integer(20), false);
+				1), new Integer(20), false, "");
 		String result = sendPDOQueryRequestREST(xmlStr);
 
 		// FileWriter fwr = new FileWriter("c:\\testdir\\response.txt");

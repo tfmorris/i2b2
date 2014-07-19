@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -25,13 +25,17 @@ import java.awt.event.MouseMotionAdapter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -65,15 +69,17 @@ import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.eclipse.ICommonMethod;
 import edu.harvard.i2b2.eclipse.UserInfoBean; //import edu.harvard.i2b2.previousquery.data.StackData;
-import edu.harvard.i2b2.previousquery.data.Messages;
-import edu.harvard.i2b2.previousquery.data.PDOResponseMessageFactory;
+import edu.harvard.i2b2.eclipse.plugins.previousquery.util.PmServiceController;
 import edu.harvard.i2b2.previousquery.data.PatientData;
 import edu.harvard.i2b2.previousquery.data.QueryConceptTreeNodeData;
 import edu.harvard.i2b2.previousquery.data.QueryData;
 import edu.harvard.i2b2.previousquery.data.QueryInstanceData;
 import edu.harvard.i2b2.previousquery.data.QueryMasterData;
 import edu.harvard.i2b2.previousquery.data.QueryResultData;
+import edu.harvard.i2b2.previousquery.dataModel.Messages;
+import edu.harvard.i2b2.previousquery.dataModel.PDOResponseMessageFactory;
 import edu.harvard.i2b2.previousquery.datavo.PreviousQueryJAXBUtil;
+import edu.harvard.i2b2.previousquery.serviceClient.QueryListNamesClient;
 import edu.harvard.i2b2.crcxmljaxb.datavo.dnd.DndType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ApplicationType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.BodyType;
@@ -90,8 +96,11 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.SecurityType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.common.datavo.pdo.PatientSet;
 import edu.harvard.i2b2.common.datavo.pdo.PatientType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ConstrainDateType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.FindByChildType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.InstanceResponseType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.MasterResponseType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.MatchStrType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.PsmQryHeaderType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.PsmRequestTypeType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.QueryInstanceType;
@@ -122,7 +131,8 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 	private int result;
 
 	private boolean ascending = false;
-
+	private XMLGregorianCalendar curCreationDate;
+	
 	public void ascending(boolean b) {
 		ascending = b;
 	}
@@ -155,6 +165,18 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 
 	private boolean isManager = false;
 	private boolean hasProtectedAccess = false;
+	
+	private int userIndex = 0;
+	
+	public void userIndex(int i) {
+		userIndex =i;
+	}
+	
+	public int userIndex() {
+		return userIndex;
+	}
+	
+	public ArrayList<String> users = null;
 
 	/** Creates new form QueryPreviousRunsPanel */
 	public PreviousQueryPanel(QueryC parentC) {// , ExplorerC explorerC) {
@@ -184,16 +206,16 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 		}
 
 		if (isManager) {
-			loadPreviousQueries(true);
+			loadPreviousQueries("all users");
 		} else {
-			loadPreviousQueries(false);
+			loadPreviousQueries(UserInfoBean.getInstance().getUserName());
 		}
 		initComponents();
 		createPopupMenu();
 	}
 
 	public PreviousQueryPanel(ViewPart parent) {
-		log.info("Previous Query plugin version 1.6.0");
+		log.info("Previous Query plugin version 1.7.0");
 
 		parentView = parent;
 		ArrayList<String> roles = (ArrayList<String>) UserInfoBean
@@ -222,16 +244,16 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 		}
 
 		if (isManager) {
-			loadPreviousQueries(true);
+			loadPreviousQueries("all users");
 		} else {
-			loadPreviousQueries(false);
+			loadPreviousQueries(UserInfoBean.getInstance().getUserName());
 		}
 
 		initComponents();
 		createPopupMenu();
 
 		if (cellStatus.equalsIgnoreCase("")) {
-			reset(200, false);
+			reset(200, false, false);
 		}
 	}
 
@@ -514,7 +536,7 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 		return number;
 	}
 
-	private String writeContentQueryXML(boolean getAllInGroup) {
+	private String writeFindQueryXML(String searchStr, int category, int strategy) {
 
 		// create header
 		PsmQryHeaderType headerType = new PsmQryHeaderType();
@@ -525,7 +547,176 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 		userType.setValue(userId);
 
 		headerType.setUser(userType);
-		if (getAllInGroup) {
+		//if (getAllInGroup) {
+			//headerType
+				//	.setRequestType(PsmRequestTypeType.CRC_QRY_GET_QUERY_MASTER_LIST_FROM_GROUP_ID);
+		//} else {
+			//headerType
+				//	.setRequestType(PsmRequestTypeType.CRC_QRY_GET_QUERY_MASTER_LIST_FROM_USER_ID);
+		//}
+
+		FindByChildType userRequestType = new FindByChildType();
+		String categoryStr = "@";
+		if(category == 1) {
+			categoryStr = "top";
+		}
+		else if(category == 2) {
+			categoryStr = "results";
+		}
+		else if(category == 3) {
+			categoryStr = "PDO";
+		}
+		
+		String strategyStr = "contains";
+		if(strategy == 1) {
+			strategyStr = "left";
+		}
+		else if(strategy == 2) {
+			strategyStr = "right";
+		}
+		else if(strategy == 3) {
+			strategyStr = "exact";
+		}
+		
+		userRequestType.setCategory(categoryStr);
+		MatchStrType mStr = new MatchStrType();
+		mStr.setValue(searchStr);
+		mStr.setStrategy(strategyStr);
+		userRequestType.setMatchStr(mStr);
+
+		String maxNum = System.getProperty("QueryToolMaxQueryNumber");
+		if (maxNum == null || maxNum.equals("")) {
+			userRequestType.setMax(20);
+		} else {
+			userRequestType.setMax(Integer.parseInt(maxNum));
+		}
+		
+		RequestHeaderType requestHeader = new RequestHeaderType();
+		requestHeader.setResultWaittimeMs(180000);
+		BodyType bodyType = new BodyType();
+		edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory psmOf = new edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory();
+		bodyType.getAny().add(psmOf.createPsmheader(headerType));
+		bodyType.getAny().add(psmOf.createGetNameInfo(userRequestType));
+		MessageHeaderType messageHeader = getMessageHeader();
+		RequestMessageType requestMessageType = new RequestMessageType();
+		requestMessageType.setMessageBody(bodyType);
+		requestMessageType.setMessageHeader(messageHeader);
+		requestMessageType.setRequestHeader(requestHeader);
+
+		JAXBUtil jaxbUtil = PreviousQueryJAXBUtil.getJAXBUtil();
+		StringWriter strWriter = new StringWriter();
+		try {
+			edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory();
+			jaxbUtil
+					.marshaller(of.createRequest(requestMessageType), strWriter);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// System.out.println("Generated content XML request: " +
+		// strWriter.toString());
+		return strWriter.toString();
+	}
+	
+	private String writePagingQueryXML(String searchStr, int category, 
+			int strategy, boolean ascending, XMLGregorianCalendar cldr) {
+
+		// create header
+		PsmQryHeaderType headerType = new PsmQryHeaderType();
+
+		UserType userType = new UserType();
+		String userId = UserInfoBean.getInstance().getUserName();
+		userType.setLogin(userId);
+		userType.setValue(userId);
+
+		headerType.setUser(userType);
+		//if (getAllInGroup) {
+			//headerType
+				//	.setRequestType(PsmRequestTypeType.CRC_QRY_GET_QUERY_MASTER_LIST_FROM_GROUP_ID);
+		//} else {
+			//headerType
+				//	.setRequestType(PsmRequestTypeType.CRC_QRY_GET_QUERY_MASTER_LIST_FROM_USER_ID);
+		//}
+
+		FindByChildType userRequestType = new FindByChildType();
+		String categoryStr = "top";//"@";
+		/*if(category == 1) {
+			categoryStr = "top";
+		}
+		else if(category == 2) {
+			categoryStr = "results";
+		}
+		else if(category == 3) {
+			categoryStr = "PDO";
+		}*/
+		
+		String strategyStr = "contains";
+		/*if(strategy == 1) {
+			strategyStr = "left";
+		}
+		else if(strategy == 2) {
+			strategyStr = "right";
+		}
+		else if(strategy == 3) {
+			strategyStr = "exact";
+		}*/
+		
+		userRequestType.setCategory(categoryStr);
+		MatchStrType mStr = new MatchStrType();
+		mStr.setValue(searchStr);
+		mStr.setStrategy(strategyStr);
+		userRequestType.setMatchStr(mStr);
+
+		String maxNum = System.getProperty("QueryToolMaxQueryNumber");
+		if (maxNum == null || maxNum.equals("")) {
+			userRequestType.setMax(20);
+		} else {
+			userRequestType.setMax(Integer.parseInt(maxNum));
+		}
+		
+		userRequestType.setAscending(ascending);
+		userRequestType.setCreateDate(cldr);//.toGregorianCalendar().getTime().getTime());
+		userRequestType.setUserId("demo");
+		
+		RequestHeaderType requestHeader = new RequestHeaderType();
+		requestHeader.setResultWaittimeMs(180000);
+		BodyType bodyType = new BodyType();
+		edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory psmOf = new edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory();
+		bodyType.getAny().add(psmOf.createPsmheader(headerType));
+		bodyType.getAny().add(psmOf.createGetNameInfo(userRequestType));
+		MessageHeaderType messageHeader = getMessageHeader();
+		RequestMessageType requestMessageType = new RequestMessageType();
+		requestMessageType.setMessageBody(bodyType);
+		requestMessageType.setMessageHeader(messageHeader);
+		requestMessageType.setRequestHeader(requestHeader);
+
+		JAXBUtil jaxbUtil = PreviousQueryJAXBUtil.getJAXBUtil();
+		StringWriter strWriter = new StringWriter();
+		try {
+			edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory of = new edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ObjectFactory();
+			jaxbUtil
+					.marshaller(of.createRequest(requestMessageType), strWriter);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// System.out.println("Generated content XML request: " +
+		// strWriter.toString());
+		return strWriter.toString();
+	}
+	
+	private String writeContentQueryXML(String user) {
+
+		// create header
+		PsmQryHeaderType headerType = new PsmQryHeaderType();
+
+		UserType userType = new UserType();
+		String userId = UserInfoBean.getInstance().getUserName();
+		userType.setLogin(userId);
+		userType.setValue(userId);
+
+		headerType.setUser(userType);
+		if (user.equalsIgnoreCase("all users")) {
 			headerType
 					.setRequestType(PsmRequestTypeType.CRC_QRY_GET_QUERY_MASTER_LIST_FROM_GROUP_ID);
 		} else {
@@ -536,7 +727,7 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 		UserRequestType userRequestType = new UserRequestType();
 		userRequestType.setGroupId(UserInfoBean.selectedProjectID());
 
-		userRequestType.setUserId(userId);
+		userRequestType.setUserId(user);
 
 		String maxNum = System.getProperty("QueryToolMaxQueryNumber");
 		if (maxNum == null || maxNum.equals("")) {
@@ -573,10 +764,10 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 	}
 
 	@SuppressWarnings("unchecked")
-	public String loadPreviousQueries(boolean getAllInGroup) {
+	public String loadPreviousQueries(String user) {
 		System.out.println("Loading previous queries for: "
 				+ System.getProperty("user"));
-		String xmlStr = writeContentQueryXML(getAllInGroup);
+		String xmlStr = writeContentQueryXML(user);
 		// System.out.println(xmlStr);
 
 		String responseStr = null;
@@ -617,8 +808,12 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 						+ addZero(cldr.getDay()) + "-"
 						+ addZero(cldr.getYear()) + " ]" + " ["
 						+ queryMasterType.getUserId() + "]");
-				tmpData
-						.tooltip("A query run by "
+				tmpData.creationTime(cldr);//.clone());
+				tmpData.creationTimeStr(addZero(cldr.getMonth()) + "-"
+						+ addZero(cldr.getDay()) + "-"
+						+ addZero(cldr.getYear())+ " "+cldr.getHour()+":"
+						+cldr.getMinute()+":"+cldr.getSecond());
+				tmpData.tooltip("A query run by "
 								+ queryMasterType.getUserId());// System.
 				// getProperty
 				// ("user"));
@@ -627,6 +822,9 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 				tmpData.id(queryMasterType.getQueryMasterId());
 				tmpData.userId(queryMasterType.getUserId()); // System.getProperty
 				// ("user"));
+				if(queryMasterType.getMasterTypeCd() != null) {
+					tmpData.queryType(queryMasterType.getMasterTypeCd());
+				}
 				previousQueries.add(tmpData);
 			}
 			return "";
@@ -640,17 +838,90 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 	 * This method is called from within the constructor to initialize the form.
 	 */
 	private void initComponents() {
-
+		java.awt.GridBagConstraints gridBagConstraints;
 		System.setProperty("PQSortByTimeCheckBox", "true");
 		System.setProperty("QueryToolMaxQueryNumber", "20");
 		System.setProperty("PQMaxPatientsNumber", "200");
 		System.setProperty("PQSortByNameCheckBox", "false");
 
+		jPanel1 = new javax.swing.JPanel();
+        jContainComboBox = new javax.swing.JComboBox();
+        jCategoryComboBox = new javax.swing.JComboBox();
+        jSearchStringTextField = new javax.swing.JTextField();
+        jFindButton = new javax.swing.JButton();
 		jScrollPane1 = new javax.swing.JScrollPane();
 		jTree1 = new javax.swing.JTree();
+		jPanel2 = new javax.swing.JPanel();
+	    jStartTimeTextField = new javax.swing.JTextField();
+	    jBackwardButton = new javax.swing.JButton();
+	    jForwardButton = new javax.swing.JButton();
+	    jLabel2 = new javax.swing.JLabel();
 
-		setLayout(new java.awt.BorderLayout());
+		//setLayout(new java.awt.BorderLayout());
+		setLayout(new java.awt.BorderLayout(20, 4));
 
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Search By Name"));
+        jPanel1.setMinimumSize(new java.awt.Dimension(0, 50));
+        jPanel1.setPreferredSize(new java.awt.Dimension(400, 80));
+        jContainComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Containing", "Start With", "End With", "Exact" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.RELATIVE;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 32;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.01;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 2);
+        jPanel1.add(jContainComboBox, gridBagConstraints);
+
+        jCategoryComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Any Category", "Previous Query", "Previous Query Result", "Patient" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.ipadx = 14;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.6;
+        gridBagConstraints.insets = new java.awt.Insets(4, 2, 0, 2);
+        jPanel1.add(jCategoryComboBox, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 11;
+        gridBagConstraints.ipady = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.9;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 2);
+        jPanel1.add(jSearchStringTextField, gridBagConstraints);
+
+        jFindButton.setText("Find");
+        jFindButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jFindButtonActionPerformed(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.RELATIVE;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 19;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.01;
+        gridBagConstraints.insets = new java.awt.Insets(4, 4, 2, 2);
+        jPanel1.add(jFindButton, gridBagConstraints);
+        
+        add(jPanel1, java.awt.BorderLayout.NORTH);
+		        
 		QueryMasterData tmpData = new QueryMasterData();
 		tmpData.name("Queries by " + UserInfoBean.getInstance().getUserName());
 		tmpData.tooltip("Previous query runs");
@@ -694,9 +965,175 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 		jTree1.setTransferHandler(new NodeCopyTransferHandler());
 		jTree1.addTreeExpansionListener(this);
 		jTree1.addTreeWillExpandListener(this);
-	}
+			
+		jPanel2.setLayout(new java.awt.GridBagLayout());
 
-	public void reset(int number, boolean byName) {
+        jPanel2.setMinimumSize(new java.awt.Dimension(92, 20));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 244;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.9;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        jPanel2.add(jStartTimeTextField, gridBagConstraints);
+
+        jBackwardButton.setText("<");
+        jBackwardButton.setMaximumSize(new java.awt.Dimension(43, 22));
+        jBackwardButton.setMinimumSize(new java.awt.Dimension(43, 22));
+        jBackwardButton.setPreferredSize(new java.awt.Dimension(43, 22));
+        jBackwardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBackwardButtonActionPerformed(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.01;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 2);
+        jPanel2.add(jBackwardButton, gridBagConstraints);
+
+        jForwardButton.setText(">");
+        jForwardButton.setMaximumSize(new java.awt.Dimension(43, 22));
+        jForwardButton.setMinimumSize(new java.awt.Dimension(43, 22));
+        jForwardButton.setPreferredSize(new java.awt.Dimension(43, 22));
+        jForwardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jForwardButtonActionPerformed(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.01;
+        gridBagConstraints.insets = new java.awt.Insets(0, 43, 0, 3);
+        jPanel2.add(jForwardButton, gridBagConstraints);
+
+        jLabel2.setText("Begin:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.01;
+        gridBagConstraints.insets = new java.awt.Insets(3, 7, 0, 2);
+        jPanel2.add(jLabel2, gridBagConstraints);
+
+        add(jPanel2, java.awt.BorderLayout.SOUTH);
+	}
+	
+	 private void jFindButtonActionPerformed(java.awt.event.ActionEvent evt) {                                            
+		 System.out.println("Loading previous queries for: "
+					+ System.getProperty("user"));
+		 
+		 cellStatus = "";
+		 String searchStr = this.jSearchStringTextField.getText();
+		 int category = this.jCategoryComboBox.getSelectedIndex();
+		 int strategy = this.jContainComboBox.getSelectedIndex();
+		 
+			String xmlStr = writeFindQueryXML(searchStr, category, strategy);
+			// System.out.println(xmlStr);
+
+			String responseStr = null;
+			if (System.getProperty("webServiceMethod").equals("SOAP")) {
+				responseStr = QueryListNamesClient.sendQueryRequestSOAP(xmlStr);
+			} else {
+				responseStr = QueryListNamesClient.sendFindQueryRequestREST(xmlStr);
+			}
+
+			if (responseStr.equalsIgnoreCase("CellDown")) {
+				cellStatus = new String("CellDown");
+				return; //"CellDown";
+			}
+
+			try {
+				JAXBUtil jaxbUtil = PreviousQueryJAXBUtil.getJAXBUtil();
+				JAXBElement jaxbElement = jaxbUtil.unMashallFromString(responseStr);
+				ResponseMessageType messageType = (ResponseMessageType) jaxbElement
+						.getValue();
+				BodyType bt = messageType.getMessageBody();
+				MasterResponseType masterResponseType = (MasterResponseType) new JAXBUnWrapHelper()
+						.getObjectByClass(
+								bt.getAny(),
+								edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.MasterResponseType.class);
+				for (Condition status : masterResponseType.getStatus()
+						.getCondition()) {
+					if (status.getType().equals("ERROR"))
+						cellStatus = new String("CellDown");
+				}
+				previousQueries = new ArrayList<QueryMasterData>();
+				for (QueryMasterType queryMasterType : masterResponseType
+						.getQueryMaster()) {
+					QueryMasterData tmpData;
+					tmpData = new QueryMasterData();
+					XMLGregorianCalendar cldr = queryMasterType.getCreateDate();
+					tmpData.name(queryMasterType.getName() + " ["
+							+ addZero(cldr.getMonth()) + "-"
+							+ addZero(cldr.getDay()) + "-"
+							+ addZero(cldr.getYear()) + " ]" + " ["
+							+ queryMasterType.getUserId() + "]");
+					tmpData
+							.tooltip("A query run by "
+									+ queryMasterType.getUserId());// System.
+					// getProperty
+					// ("user"));
+					tmpData.visualAttribute("CA");
+					tmpData.xmlContent(null);
+					tmpData.id(queryMasterType.getQueryMasterId());
+					tmpData.userId(queryMasterType.getUserId()); // System.getProperty
+					// ("user"));
+					previousQueries.add(tmpData);
+				}
+				
+				if (previousQueries.size() == 0) {
+					final JPanel parent = this;
+					java.awt.EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							JOptionPane.showMessageDialog(
+											parent,
+											"No results were found.",
+											"Not Found",
+											JOptionPane.INFORMATION_MESSAGE);
+						}
+					});
+					return;
+				}
+				
+				if (cellStatus.equalsIgnoreCase("")) {
+					reset(200, false, false);
+				} else if (cellStatus.equalsIgnoreCase("CellDown")) {
+					final JPanel parent = this;
+					java.awt.EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							JOptionPane
+									.showMessageDialog(
+											parent,
+											"Trouble with connection to the remote server, "
+													+ "this is often a network error, please try again",
+											"Network Error",
+											JOptionPane.INFORMATION_MESSAGE);
+						}
+					});
+				}
+				return;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return;
+			}
+	 }    
+
+	public void reset(int number, boolean byName, boolean left) {
 		while (top.getChildCount() > 0) {
 			for (int i = 0; i < top.getChildCount(); i++) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) top
@@ -734,6 +1171,14 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 				for (int i = queries.size() - 1; i >= queries.size() - number; i--) {
 					addNode(queries.get(i));
 				}
+			}
+		}
+		if(queries.size()>0) {
+			if(left) {
+				jStartTimeTextField.setText(queries.get(0).creationTimeStr());
+			}
+			else {
+				jStartTimeTextField.setText(queries.get(queries.size()-1).creationTimeStr());
 			}
 		}
 	}
@@ -1030,6 +1475,13 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 					key = "patient_count_xml";
 				else
 					key = "morepeople";
+			}
+			else if (data.getClass().getSimpleName().equalsIgnoreCase(
+							"QueryMasterData")) {
+				QueryMasterData node = (QueryMasterData) data;
+				if (node.queryType().equalsIgnoreCase("TEMPORAL")) {
+					key = "openFolderClock";
+				}
 			}
 
 			if (key.equals("multi")) {
@@ -1573,12 +2025,12 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 		} else if (e.getActionCommand().equalsIgnoreCase("Refresh All")) {
 			String status = "";
 			if (isManager) {
-				status = loadPreviousQueries(true);
+				status = loadPreviousQueries("all users");
 			} else {
-				status = loadPreviousQueries(false);
+				status = loadPreviousQueries(UserInfoBean.getInstance().getUserName());
 			}
 			if (status.equalsIgnoreCase("")) {
-				reset(200, false);
+				reset(200, false, false);
 			} else if (status.equalsIgnoreCase("CellDown")) {
 				final JPanel parent = this;
 				java.awt.EventQueue.invokeLater(new Runnable() {
@@ -1599,12 +2051,12 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 	public void refresh() {
 		String status = "";
 		if (isManager) {
-			status = loadPreviousQueries(true);
+			status = loadPreviousQueries("all users");
 		} else {
-			status = loadPreviousQueries(false);
+			status = loadPreviousQueries(UserInfoBean.getInstance().getUserName());
 		}
 		if (status.equalsIgnoreCase("")) {
-			reset(200, false);
+			reset(200, false, false);
 		} else if (status.equalsIgnoreCase("CellDown")) {
 			final JPanel parent = this;
 			java.awt.EventQueue.invokeLater(new Runnable() {
@@ -2213,6 +2665,292 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 
 		// implement for other type of nodes later!!!
 	}
+	
+	private void jBackwardButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		/*LoginHelper pms = new LoginHelper();
+		try {
+			PasswordType ptype = new PasswordType();
+			ptype.setIsToken(UserInfoBean.getInstance().getUserPasswordIsToken());
+			ptype.setTokenMsTimeout(UserInfoBean.getInstance()
+					.getUserPasswordTimeout());
+			ptype.setValue(UserInfoBean.getInstance().getUserPassword());
+			String response = pms.getUserInfo(UserInfoBean.getInstance().getUserName(), ptype, UserInfoBean.getInstance().getSelectedProjectUrl(), 
+					UserInfoBean.getInstance().getUserDomain(), false, UserInfoBean.getInstance().getProjectId());
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}*/
+		
+		System.out.println("Loading previous queries for: "
+				+ System.getProperty("user"));
+	 
+		cellStatus = "";
+		String searchStr = jSearchStringTextField.getText();
+		int category = jCategoryComboBox.getSelectedIndex();
+		int strategy = jContainComboBox.getSelectedIndex();
+	 
+		curCreationDate = previousQueries.get(0).creationTime();
+		////////////////////////////////////////////////
+		SimpleDateFormat df = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");//.getDateInstance();
+		Date date = null;
+		try {
+			date = df.parse(this.jStartTimeTextField.getText());
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		DTOFactory dtoFactory = new DTOFactory();
+
+		TimeZone tz = Calendar.getInstance().getTimeZone();
+		GregorianCalendar cal = new GregorianCalendar(tz);
+		cal.setTime(date);
+		//cal.get(Calendar.ZONE_OFFSET);
+		int zt_offset = (cal.get(Calendar.ZONE_OFFSET)+cal.get(Calendar.DST_OFFSET))/60000;
+		//log.info("Timezone: "+tz.getID()+" : "+zt_offset);
+		
+		//if (startTime() != -1) {
+			ConstrainDateType constraindateType = new ConstrainDateType();
+			XMLGregorianCalendar xmlC = dtoFactory.getXMLGregorianCalendarDate(
+					cal.get(GregorianCalendar.YEAR), cal.get(GregorianCalendar.MONTH)+1, 
+					cal.get(GregorianCalendar.DAY_OF_MONTH));
+			xmlC.setTimezone(zt_offset);//0);//-5*60);
+			xmlC.setHour(cal.get(GregorianCalendar.HOUR_OF_DAY));
+			xmlC.setMinute(cal.get(GregorianCalendar.MINUTE));
+			xmlC.setSecond(cal.get(GregorianCalendar.SECOND));
+			constraindateType.setValue(xmlC);
+			//timeConstrain.setDateFrom(constraindateType);
+		//}
+		////////////////////////////////////////////////
+		String xmlStr = writePagingQueryXML("", category, strategy, true, xmlC);//curCreationDate);
+		// System.out.println(xmlStr);
+
+		String responseStr = null;
+		if (System.getProperty("webServiceMethod").equals("SOAP")) {
+			responseStr = QueryListNamesClient.sendQueryRequestSOAP(xmlStr);
+		} else {
+			responseStr = QueryListNamesClient.sendFindQueryRequestREST(xmlStr);
+		}
+
+		if (responseStr.equalsIgnoreCase("CellDown")) {
+			cellStatus = new String("CellDown");
+			return; //"CellDown";
+		}
+
+		try {
+			JAXBUtil jaxbUtil = PreviousQueryJAXBUtil.getJAXBUtil();
+			JAXBElement jaxbElement = jaxbUtil.unMashallFromString(responseStr);
+			ResponseMessageType messageType = (ResponseMessageType) jaxbElement
+					.getValue();
+			BodyType bt = messageType.getMessageBody();
+			MasterResponseType masterResponseType = (MasterResponseType) new JAXBUnWrapHelper()
+					.getObjectByClass(
+							bt.getAny(),
+							edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.MasterResponseType.class);
+			for (Condition status : masterResponseType.getStatus()
+					.getCondition()) {
+				if (status.getType().equals("ERROR"))
+					cellStatus = new String("CellDown");
+			}
+			previousQueries = new ArrayList<QueryMasterData>();
+			for (QueryMasterType queryMasterType : masterResponseType
+					.getQueryMaster()) {
+				QueryMasterData tmpData;
+				tmpData = new QueryMasterData();
+				XMLGregorianCalendar cldr = queryMasterType.getCreateDate();
+				tmpData.name(queryMasterType.getName() + " ["
+						+ addZero(cldr.getMonth()) + "-"
+						+ addZero(cldr.getDay()) + "-"
+						+ addZero(cldr.getYear()) + " ]" + " ["
+						+ queryMasterType.getUserId() + "]");
+				tmpData.creationTime(cldr);//.clone());
+				tmpData.creationTimeStr(addZero(cldr.getMonth()) + "-"
+						+ addZero(cldr.getDay()) + "-"
+						+ addZero(cldr.getYear())+ " "+cldr.getHour()+":"
+						+cldr.getMinute()+":"+cldr.getSecond());
+				tmpData.tooltip("A query run by "
+								+ queryMasterType.getUserId());// System.
+				// getProperty
+				// ("user"));
+				tmpData.visualAttribute("CA");
+				tmpData.xmlContent(null);
+				tmpData.id(queryMasterType.getQueryMasterId());
+				tmpData.userId(queryMasterType.getUserId()); // System.getProperty
+				// ("user"));
+				previousQueries.add(tmpData);
+			}
+			
+			if (previousQueries.size() == 0) {
+				final JPanel parent = this;
+				java.awt.EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						JOptionPane.showMessageDialog(
+										parent,
+										"No results were found.",
+										"Not Found",
+										JOptionPane.INFORMATION_MESSAGE);
+					}
+				});
+				return;
+			}
+			
+			if (cellStatus.equalsIgnoreCase("")) {
+				reset(200, false, true);
+			} else if (cellStatus.equalsIgnoreCase("CellDown")) {
+				final JPanel parent = this;
+				java.awt.EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						JOptionPane
+								.showMessageDialog(
+										parent,
+										"Trouble with connection to the remote server, "
+												+ "this is often a network error, please try again",
+										"Network Error",
+										JOptionPane.INFORMATION_MESSAGE);
+					}
+				});
+			}
+			return;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+
+	private void jForwardButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		System.out.println("Loading previous queries for: "
+				+ System.getProperty("user"));
+	 
+		cellStatus = "";
+		String searchStr = jSearchStringTextField.getText();
+		int category = jCategoryComboBox.getSelectedIndex();
+		int strategy = jContainComboBox.getSelectedIndex();
+	 
+		curCreationDate = previousQueries.get(previousQueries.size()-1).creationTime();
+		////////////////////////////////////////////////
+		SimpleDateFormat df = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");//.getDateInstance();
+		Date date = null;
+		try {
+			date = df.parse(this.jStartTimeTextField.getText());
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		DTOFactory dtoFactory = new DTOFactory();
+
+		TimeZone tz = Calendar.getInstance().getTimeZone();
+		GregorianCalendar cal = new GregorianCalendar(tz);
+		cal.setTime(date);
+		//cal.get(Calendar.ZONE_OFFSET);
+		int zt_offset = (cal.get(Calendar.ZONE_OFFSET)+cal.get(Calendar.DST_OFFSET))/60000;
+		//log.info("Timezone: "+tz.getID()+" : "+zt_offset);
+		
+		//if (startTime() != -1) {
+			ConstrainDateType constraindateType = new ConstrainDateType();
+			XMLGregorianCalendar xmlC = dtoFactory.getXMLGregorianCalendarDate(
+					cal.get(GregorianCalendar.YEAR), cal.get(GregorianCalendar.MONTH)+1, 
+					cal.get(GregorianCalendar.DAY_OF_MONTH));
+			xmlC.setTimezone(zt_offset);//0);//-5*60);
+			xmlC.setHour(cal.get(GregorianCalendar.HOUR_OF_DAY));
+			xmlC.setMinute(cal.get(GregorianCalendar.MINUTE));
+			xmlC.setSecond(cal.get(GregorianCalendar.SECOND));
+			constraindateType.setValue(xmlC);
+			//timeConstrain.setDateFrom(constraindateType);
+		//}
+		////////////////////////////////////////////////
+		String xmlStr = writePagingQueryXML("", category, strategy, false, xmlC);//curCreationDate);
+		// System.out.println(xmlStr);
+
+		String responseStr = null;
+		if (System.getProperty("webServiceMethod").equals("SOAP")) {
+			responseStr = QueryListNamesClient.sendQueryRequestSOAP(xmlStr);
+		} else {
+			responseStr = QueryListNamesClient.sendFindQueryRequestREST(xmlStr);
+		}
+
+		if (responseStr.equalsIgnoreCase("CellDown")) {
+			cellStatus = new String("CellDown");
+			return; //"CellDown";
+		}
+
+		try {
+			JAXBUtil jaxbUtil = PreviousQueryJAXBUtil.getJAXBUtil();
+			JAXBElement jaxbElement = jaxbUtil.unMashallFromString(responseStr);
+			ResponseMessageType messageType = (ResponseMessageType) jaxbElement
+					.getValue();
+			BodyType bt = messageType.getMessageBody();
+			MasterResponseType masterResponseType = (MasterResponseType) new JAXBUnWrapHelper()
+					.getObjectByClass(
+							bt.getAny(),
+							edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.MasterResponseType.class);
+			for (Condition status : masterResponseType.getStatus()
+					.getCondition()) {
+				if (status.getType().equals("ERROR"))
+					cellStatus = new String("CellDown");
+			}
+			previousQueries = new ArrayList<QueryMasterData>();
+			for (QueryMasterType queryMasterType : masterResponseType
+					.getQueryMaster()) {
+				QueryMasterData tmpData;
+				tmpData = new QueryMasterData();
+				XMLGregorianCalendar cldr = queryMasterType.getCreateDate();
+				tmpData.name(queryMasterType.getName() + " ["
+						+ addZero(cldr.getMonth()) + "-"
+						+ addZero(cldr.getDay()) + "-"
+						+ addZero(cldr.getYear()) + " ]" + " ["
+						+ queryMasterType.getUserId() + "]");
+				tmpData.creationTime(cldr);//.clone());
+				tmpData.creationTimeStr(addZero(cldr.getMonth()) + "-"
+						+ addZero(cldr.getDay()) + "-"
+						+ addZero(cldr.getYear())+ " "+cldr.getHour()+":"
+						+cldr.getMinute()+":"+cldr.getSecond());
+				tmpData.tooltip("A query run by "
+								+ queryMasterType.getUserId());// System.
+				// getProperty
+				// ("user"));
+				tmpData.visualAttribute("CA");
+				tmpData.xmlContent(null);
+				tmpData.id(queryMasterType.getQueryMasterId());
+				tmpData.userId(queryMasterType.getUserId()); // System.getProperty
+				// ("user"));
+				previousQueries.add(tmpData);
+			}
+			
+			if (previousQueries.size() == 0) {
+				final JPanel parent = this;
+				java.awt.EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						JOptionPane.showMessageDialog(
+										parent,
+										"No results were found.",
+										"Not Found",
+										JOptionPane.INFORMATION_MESSAGE);
+					}
+				});
+				return;
+			}
+			
+			if (cellStatus.equalsIgnoreCase("")) {
+				reset(200, false, false);
+			} else if (cellStatus.equalsIgnoreCase("CellDown")) {
+				final JPanel parent = this;
+				java.awt.EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						JOptionPane
+								.showMessageDialog(
+										parent,
+										"Trouble with connection to the remote server, "
+												+ "this is often a network error, please try again",
+										"Network Error",
+										JOptionPane.INFORMATION_MESSAGE);
+					}
+				});
+			}
+			return;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	}
 
 	public void treeWillCollapse(TreeExpansionEvent event)
 			throws ExpandVetoException {
@@ -2244,7 +2982,17 @@ public class PreviousQueryPanel extends javax.swing.JPanel implements
 	}
 
 	// Variables declaration
-	private javax.swing.JScrollPane jScrollPane1;
-	private javax.swing.JTree jTree1;
+    private javax.swing.JButton jBackwardButton;
+    private javax.swing.JComboBox jCategoryComboBox;
+    private javax.swing.JComboBox jContainComboBox;
+    private javax.swing.JButton jFindButton;
+    private javax.swing.JButton jForwardButton;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField jSearchStringTextField;
+    private javax.swing.JTextField jStartTimeTextField;
+    private javax.swing.JTree jTree1;
+    private javax.swing.JLabel jLabel2;
 	// End of variables declaration
 }

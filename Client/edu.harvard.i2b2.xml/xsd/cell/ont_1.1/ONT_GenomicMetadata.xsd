@@ -30,12 +30,20 @@
     <xs:complexType name="sequenceVariantType">   
        <xs:sequence>
            <xs:element name="AaChange" type="xs:string" />
-           <xs:element name="DnaChange" type="xs:string" />
+           <xs:element name="DnaChange" type="ont:dnaChangeType" />
            <xs:element name="HGVSName" type="xs:string" />
            <xs:element name="SystematicName" type="xs:string" />
            <xs:element name="SystematicNameProtein" type="xs:string" />
        </xs:sequence>
     </xs:complexType>     
+    
+         
+    <xs:complexType name="dnaChangeType">   
+       <xs:sequence>
+           <xs:element name="type" type="xs:string" />
+           <xs:element name="value" type="xs:string" />
+       </xs:sequence>
+    </xs:complexType>   
     
     <xs:complexType name="sequenceVariantLocationType">
        <xs:sequence>

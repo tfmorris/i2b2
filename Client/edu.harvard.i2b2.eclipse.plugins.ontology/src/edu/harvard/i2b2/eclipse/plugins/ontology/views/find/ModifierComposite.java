@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -785,7 +785,7 @@ public class ModifierComposite //extends Composite
 			operator = "exact";	
 		match.setStrategy(operator);
 		vocabData.setMatchStr(match);
-		vocabData.setType("limited");
+		vocabData.setType("core");
 		vocabData.setBlob(true);
 		vocabData.setMax(Integer.parseInt(System.getProperty("OntFindMax")));
 		vocabData.setHiddens(Boolean.parseBoolean(System.getProperty("OntFindHiddens")));
@@ -957,7 +957,7 @@ public class ModifierComposite //extends Composite
 
 		nodeType.setBlob(false);
 		nodeType.setSelf("\\\\"+tableCd +  path);		
-		nodeType.setType("limited");
+		nodeType.setType("core");
 
 
 		GetModifiersResponseMessage msg = new GetModifiersResponseMessage();

@@ -14,9 +14,11 @@ package edu.harvard.i2b2.query.serviceClient;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Calendar;
 
 import javax.swing.JOptionPane;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
@@ -37,8 +39,12 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.MessageHeaderType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ResponseMessageType;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
 import edu.harvard.i2b2.eclipse.plugins.query.utils.MessageUtil;
+import edu.harvard.i2b2.query.datavo.QueryJAXBUtil;
 
 public class QueryRequestClient {
 	private static final Log log = LogFactory.getLog(QueryRequestClient.class);
@@ -58,6 +64,30 @@ public class QueryRequestClient {
 	private static String getCRCNavigatorQueryProcessorServiceName() {
 
 		return UserInfoBean.getInstance().getCellDataUrl("CRC") + "request";
+	}
+	
+	public static int processSecurityResult(String response) {
+		int timeout = -1;
+		try {
+			JAXBElement jaxbElement = QueryJAXBUtil.getJAXBUtil()
+					.unMashallFromString(response);
+			ResponseMessageType respMessageType = (ResponseMessageType) jaxbElement.getValue();
+
+			// Get response message status
+			MessageHeaderType messageHeader = respMessageType.getMessageHeader();
+			if(messageHeader.getSecurity() != null && messageHeader.getSecurity().getPassword() != null && messageHeader.getSecurity().getPassword().getTokenMsTimeout() != null) {
+				timeout = messageHeader.getSecurity().getPassword().getTokenMsTimeout().intValue();
+			}
+			/*if (procStatus.equals("ERROR")) {
+				log.error("Error reported by Ont web Service " + procMessage);
+			} else if (procStatus.equals("WARNING")) {
+				log.error("Warning reported by Ont web Service" + procMessage);
+			}*/
+
+		} catch (JAXBUtilException e) {
+			log.error(e.getMessage());
+		}
+		return timeout;
 	}
 
 	public static String sendQueryRequestREST(String XMLstr) {
@@ -105,6 +135,13 @@ public class QueryRequestClient {
 			MessageUtil.getInstance().setResponse(
 					"URL: " + getCRCNavigatorQueryProcessorServiceName() + "\n"
 							+ str);//result.toString());
+			int timeout = processSecurityResult(result.toString());
+			log.info("get timeout from server: "+ timeout + " at: "+Calendar.getInstance().getTime());
+			if(timeout != -1) {
+				UserInfoBean.setLastActivityTime(Calendar.getInstance().getTime());
+				UserInfoBean.getInstance().setUserPasswordTimeout(timeout);
+				//log.info("get timeout from server: "+ timeout + " at: "+Calendar.getInstance().getTime());
+			}
 
 			return result.toString();
 		} catch (AxisFault axisFault) {

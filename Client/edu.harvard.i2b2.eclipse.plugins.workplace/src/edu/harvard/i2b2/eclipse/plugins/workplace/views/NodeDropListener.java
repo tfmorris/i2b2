@@ -22,7 +22,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
+import edu.harvard.i2b2.common.datavo.pdo.PatientIdType;
+import edu.harvard.i2b2.common.datavo.pdo.PatientSet;
+import edu.harvard.i2b2.common.datavo.pdo.PatientType;
+import edu.harvard.i2b2.common.datavo.pdo.PidSet;
+import edu.harvard.i2b2.common.datavo.pdo.PidType;
 import edu.harvard.i2b2.common.exception.I2B2Exception;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
@@ -333,11 +340,104 @@ final class NodeDropListener implements DropTargetListener
 			}
 			
 			else if(XmlUtil.hasPatientTag(xml)) {
-				visualAttribute = "ZA";		
+				/*visualAttribute = "ZA";		
 				workXmlI2B2Type = "PATIENT";
 				if(name.equals("PDO"))
-					name = "PATIENT:" +  XmlUtil.getPatientId(xml);
+					name = "PATIENT " + XmlUtil.getSiteId(xml)
+					+":"+ XmlUtil.getPatientId(xml);
 				createWorkplaceNode(workItem, currentTarget, xml, name, workXmlI2B2Type, visualAttribute, moveFlag);
+			*/
+				Element rootElement = xml.getAny().get(0);
+				NodeList nameElements = rootElement.getElementsByTagName("patient_id");
+				if (nameElements.getLength() != 0 && nameElements.item(0).getAttributes().getLength() != 0){				
+				
+				for(int i=0; i<nameElements.getLength();i++) {
+					visualAttribute = "ZA";		
+					workXmlI2B2Type = "PATIENT";
+					String site = nameElements.item(i).getAttributes().item(0).getTextContent();
+					String id = nameElements.item(i).getTextContent();
+					if(name.equals("PDO"))
+						name = "PATIENT " + site +":"+id;
+					//XmlUtil.getSiteId(xml)+":"+ XmlUtil.getPatientId(xml);
+					//////
+					StringWriter strWriter = new StringWriter();
+			        try {
+			        
+			        
+			        JAXBUtil jaxbUtil = WorkplaceJAXBUtil.getJAXBUtil();
+			       
+			        PatientSet pdoPatientSet = new PatientSet();
+			        //for (int i = 0, n = selection.length; i < n; i++) {
+					
+						
+
+						// JAXBElement jaxbElement =
+						// jaxbUtil.unMashallFromString(nodedata.xmlContent());
+						// ResponseMessageType messageType =
+						// (ResponseMessageType)jaxbElement.getValue();
+						// BodyType bt = messageType.getMessageBody();
+						// ResultResponseType resultResponseType =
+						// (ResultResponseType) new
+						// JAXBUnWrapHelper().getObjectByClass(bt.getAny(),
+						// ResultResponseType.class);
+						// QueryResultInstanceType queryResultInstanceType =
+						// resultResponseType.getQueryResultInstance().get(0);
+						// strWriter = new StringWriter();
+						
+						//log.info(jTable1.getSelectedColumn());
+						
+						//else {
+							//site = "HIVE";
+						//}
+						//String hid = patientRowData.get(selection[i]-1).patientID;
+						//String site = "HIVE";
+						edu.harvard.i2b2.wkplclient.datavo.dnd.PatientType patientType = new edu.harvard.i2b2.wkplclient.datavo.dnd.PatientType();
+						edu.harvard.i2b2.wkplclient.datavo.dnd.PatientSet patientSet = new edu.harvard.i2b2.wkplclient.datavo.dnd.PatientSet();
+						patientType.setPatientId(id);//nodedata.patientID());
+						// patientType.setUploadId(nodedata.patientSetID());
+						//patientSet.setPatientSetId(nodedata.patientSetID());
+						//patientSet.setPatientSetName(nodedata.queryName());
+						patientSet.getPatient().add(patientType);
+						
+						PidType pidType = new PidType();
+						PidType.PatientId pid = new PidType.PatientId();
+						pid.setValue(id);//nodedata.patientID());
+						pidType.setPatientId(pid);
+						
+						PidSet pset = new PidSet();
+						pset.getPid().add(pidType);							
+						
+						PatientIdType pdoPidType = new PatientIdType();
+						pdoPidType.setValue(id);
+						pdoPidType.setSource(site);
+						
+						PatientType pdoPatientType = new PatientType();
+						pdoPatientType.setPatientId(pdoPidType);
+						pdoPatientSet.getPatient().add(pdoPatientType);
+					//}
+
+						DndType dnd = new DndType();
+						// edu.harvard.i2b2.crcxmljaxb.datavo.pdo.ObjectFactory
+						// pdoOf = new
+						// edu.harvard.i2b2.crcxmljaxb.datavo.pdo.ObjectFactory();
+						// dnd.getAny().add(patientType);
+						
+						//dnd.getAny().add(patientSet);
+						//dnd.getAny().add(pset);
+						dnd.getAny().add(pdoPatientSet);
+						edu.harvard.i2b2.wkplclient.datavo.dnd.ObjectFactory of = new edu.harvard.i2b2.wkplclient.datavo.dnd.ObjectFactory();
+						WorkplaceJAXBUtil.getJAXBUtil().marshaller(
+								of.createPluginDragDrop(dnd), strWriter);
+					} catch (JAXBUtilException e) {
+						// log.error("Error marshalling Ont drag text");
+						// throw e;
+						e.printStackTrace();
+					}
+					//////
+					createWorkplaceNode(workItem, currentTarget, XmlUtil.stringToXml(strWriter.toString())/*xml*/, name, workXmlI2B2Type, visualAttribute, moveFlag);
+					name = "PDO";
+				}
+				}
 			}
 			
 			if(visualAttribute.equals("")) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2010 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -18,14 +18,30 @@
 package edu.harvard.i2b2.previousquery.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.xml.bind.JAXBElement;
 
-import org.eclipse.swt.widgets.Display;
-
+import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.PasswordType;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
+import edu.harvard.i2b2.eclipse.plugins.previousquery.util.PmServiceController;
 import edu.harvard.i2b2.eclipse.plugins.previousquery.views.PreviousQueryView;
+import edu.harvard.i2b2.previousquery.data.QueryMasterData;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.BodyType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ResponseMessageType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.pm.ConfigureType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.pm.RoleType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.pm.RolesType;
 
 @SuppressWarnings("serial")
 public class DisplayOptionsDialog extends javax.swing.JFrame {
@@ -43,7 +59,7 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 
 		initComponents();
 
-		setSize(320, 430);
+		this.setSize(320, 325);
 		setLocation(400, 100);
 
 		// set up default properties if not previously set
@@ -67,11 +83,11 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 		jSortByNameCheckBox.setSelected(Boolean
 				.getBoolean("PQSortByNameCheckBox"));
 
-		Boolean ascending = previousQueryView_.runTreePanel().ascending();
-		System.setProperty("PQDescending", String.valueOf(!ascending));
-		jDescendingRadioButton.setSelected(!ascending);
-		System.setProperty("PQAscending", String.valueOf(ascending));
-		jAscendingRadioButton.setSelected(ascending);
+		//Boolean ascending = previousQueryView_.runTreePanel().ascending();
+		//System.setProperty("PQDescending", String.valueOf(!ascending));
+		//jDescendingRadioButton.setSelected(!ascending);
+		//System.setProperty("PQAscending", String.valueOf(ascending));
+		//jAscendingRadioButton.setSelected(ascending);
 
 		ArrayList<String> roles = (ArrayList<String>) UserInfoBean
 				.getInstance().getProjectRoles();
@@ -81,8 +97,8 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 				isManager = true;
 				if (System.getProperty("PQDisplayGroup") == null)
 					System.setProperty("PQDisplayGroup", "true");
-				jDisplayGroupCheckBox.setSelected(Boolean
-						.getBoolean("PQDisplayGroup"));
+				//jDisplayGroupCheckBox.setSelected(Boolean
+						//.getBoolean("PQDisplayGroup"));
 				break;
 			}
 		}
@@ -95,7 +111,8 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 		}
 
 		if (!isManager) {
-			jDisplayGroupCheckBox.setEnabled(false);
+			//jDisplayGroupCheckBox.setEnabled(false);
+			jUserComboBox.setEnabled(false);
 		}
 
 		if (hasProtectedAccess) {
@@ -116,6 +133,84 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 			jShowNameRadioButton.setEnabled(false);
 			jShowDemographicsRadioButton.setEnabled(false);
 		}
+		
+		if(!isManager) {
+			return;
+		}
+		
+		if(previousQueryView_.runTreePanel().users == null) {
+			previousQueryView_.runTreePanel().users = new ArrayList<String>();
+			PmServiceController pms = new PmServiceController();
+			try {
+				PasswordType ptype = new PasswordType();
+				ptype.setIsToken(UserInfoBean.getInstance().getUserPasswordIsToken());
+				ptype.setTokenMsTimeout(UserInfoBean.getInstance()
+						.getUserPasswordTimeout());
+				ptype.setValue(UserInfoBean.getInstance().getUserPassword());
+				String response = pms.getUserInfo(UserInfoBean.getInstance().getUserName(), ptype, UserInfoBean.getInstance().getSelectedProjectUrl(), 
+						UserInfoBean.getInstance().getUserDomain(), false, UserInfoBean.getInstance().getProjectId());
+			
+				////
+				JAXBUtil jaxbUtil = new JAXBUtil(new String[] {
+						"edu.harvard.i2b2.crcxmljaxb.datavo.pm", //$NON-NLS-1$
+						"edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message" //$NON-NLS-1$
+				});
+				JAXBElement jaxbElement = jaxbUtil.unMashallFromString(response);
+				ResponseMessageType responseMessageType = (ResponseMessageType) jaxbElement.getValue();
+
+				String procStatus = responseMessageType.getResponseHeader().getResultStatus().getStatus().getType();
+				//String procMessage = responseMessageType.getResponseHeader().getResultStatus().getStatus().getValue();
+
+				//String serverVersion = responseMessageType.getMessageHeader()
+				//.getSendingApplication().getApplicationVersion();
+				//System.setProperty("serverVersion", serverVersion);
+				
+				if(procStatus.equals("ERROR")){ //$NON-NLS-1$
+					//setMsg(procMessage);				
+				}
+				else if(procStatus.equals("WARNING")){ //$NON-NLS-1$
+					//setMsg(procMessage);
+				}	
+				else {
+					BodyType bodyType = responseMessageType.getMessageBody();
+					JAXBUnWrapHelper helper = new JAXBUnWrapHelper(); 
+					RolesType rolesType = (RolesType)helper.getObjectByClass(bodyType.getAny(), RolesType.class);
+					ArrayList<String> tmpArr = new ArrayList<String>();
+					for(int i=0; i<rolesType.getRole().size(); i++) {
+						RoleType role = rolesType.getRole().get(i);
+						tmpArr.add(role.getUserName());												
+					}
+					
+					Collections.sort(tmpArr, new Comparator<String>() {
+						public int compare(String d1, String d2) {
+							return java.text.Collator.getInstance().compare(d1, d2);
+						}
+					});
+					String curStr = tmpArr.get(0);
+					previousQueryView_.runTreePanel().users.add(curStr);
+					jUserComboBox.addItem(curStr);
+					for(int j=0; j<tmpArr.size(); j++) {
+						String user = tmpArr.get(j);
+						if(user.equalsIgnoreCase(curStr)) {
+							continue;
+						}
+						previousQueryView_.runTreePanel().users.add(user);
+						jUserComboBox.addItem(user);
+						curStr = user;
+					}
+				}
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			for(int i=0; i<previousQueryView_.runTreePanel().users.size(); i++) {
+				jUserComboBox.addItem(previousQueryView_.runTreePanel().users.get(i));						
+			}
+		}
+		
+		jUserComboBox.setSelectedIndex(previousQueryView_.runTreePanel().userIndex());
 	}
 
 	/**
@@ -132,9 +227,6 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 		jLabel2 = new javax.swing.JLabel();
 		jNumberOfQueryTextField = new javax.swing.JTextField();
 		jNumberOfPatientsTextField = new javax.swing.JTextField();
-		jAscendingRadioButton = new javax.swing.JRadioButton();
-		jDescendingRadioButton = new javax.swing.JRadioButton();
-		jDisplayGroupCheckBox = new javax.swing.JCheckBox();
 		jPanel2 = new javax.swing.JPanel();
 		jShowNameRadioButton = new javax.swing.JRadioButton();
 		jShowDemographicsRadioButton = new javax.swing.JRadioButton();
@@ -178,36 +270,8 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 		jPanel1.add(jSortByNameCheckBox);
 		jSortByNameCheckBox.setBounds(20, 60, 220, 15);
 
-		jAscendingRadioButton.setText("Ascending");
-		jAscendingRadioButton.setBorder(javax.swing.BorderFactory
-				.createEmptyBorder(0, 0, 0, 0));
-		jAscendingRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-		jAscendingRadioButton
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jAscendingRadioButtonActionPerformed(evt);
-					}
-				});
-
-		jPanel1.add(jAscendingRadioButton);
-		jAscendingRadioButton.setBounds(20, 90, 80, 16);
-
-		jDescendingRadioButton.setText("Descending");
-		jDescendingRadioButton.setBorder(javax.swing.BorderFactory
-				.createEmptyBorder(0, 0, 0, 0));
-		jDescendingRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-		jDescendingRadioButton
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jDescendingRadioButtonActionPerformed(evt);
-					}
-				});
-
-		jPanel1.add(jDescendingRadioButton);
-		jDescendingRadioButton.setBounds(150, 90, 90, 16);
-
-		getContentPane().add(jPanel1);
-		jPanel1.setBounds(10, 60, 285, 130);
+		//getContentPane().add(jPanel1);
+		//jPanel1.setBounds(10, 60, 285, 88);
 
 		jOKButton.setText("OK");
 		jOKButton.addActionListener(new java.awt.event.ActionListener() {
@@ -217,7 +281,7 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 		});
 
 		getContentPane().add(jOKButton);
-		jOKButton.setBounds(50, 360, 60, 23);
+		jOKButton.setBounds(53, 241, 60, 23);
 
 		jCancelButton.setText("Close");
 		jCancelButton.addActionListener(new java.awt.event.ActionListener() {
@@ -227,7 +291,7 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 		});
 
 		getContentPane().add(jCancelButton);
-		jCancelButton.setBounds(190, 360, 80, 23);
+		jCancelButton.setBounds(174, 241, 80, 23);
 
 		jLabel1.setText("Maximum number of queries to be displayed: ");
 		getContentPane().add(jLabel1);
@@ -242,20 +306,6 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 
 		getContentPane().add(jNumberOfPatientsTextField);
 		jNumberOfPatientsTextField.setBounds(248, 30, 45, 20);
-
-		jDisplayGroupCheckBox.setText("Get all queries in your group");
-		jDisplayGroupCheckBox.setBorder(javax.swing.BorderFactory
-				.createEmptyBorder(0, 0, 0, 0));
-		jDisplayGroupCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-		jDisplayGroupCheckBox
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jDisplayGroupCheckBoxActionPerformed(evt);
-					}
-				});
-
-		getContentPane().add(jDisplayGroupCheckBox);
-		jDisplayGroupCheckBox.setBounds(20, 315, 270, 16);
 
 		jPanel2.setLayout(null);
 
@@ -292,15 +342,39 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 		jShowDemographicsRadioButton.setBounds(20, 60, 250, 16);
 
 		getContentPane().add(jPanel2);
-		jPanel2.setBounds(10, 205, 285, 100);
+		jPanel2.setBounds(12, 62, 284, 102);
+		{
+			jLabel3 = new JLabel();
+			getContentPane().add(jLabel3);
+			jLabel3.setText("Get previous queries for");
+			jLabel3.setBounds(18, 192, 125, 16);
+		}
+		{
+			jUserComboBox = new JComboBox();
+			getContentPane().add(jUserComboBox);
+			jUserComboBox.setBounds(143, 190, 129, 21);
+			jUserComboBox.addItem("all users");
+			/*jUserComboBox.addItem("demo");
+			jUserComboBox.addItem("wp1");
+			jUserComboBox.addItem("demo");
+			jUserComboBox.addItem("wp1");
+			jUserComboBox.addItem("demo");
+			jUserComboBox.addItem("wp1");
+			jUserComboBox.addItem("demo");
+			jUserComboBox.addItem("wp1");
+			jUserComboBox.addItem("demo");
+			jUserComboBox.addItem("wp1");
+			jUserComboBox.addItem("demo");
+			jUserComboBox.addItem("wp1");*/
+		}
 
 		pack();
 	}
 
 	private void jDisplayGroupCheckBoxActionPerformed(
 			java.awt.event.ActionEvent evt) {
-		Boolean isSelected = jDisplayGroupCheckBox.isSelected();
-		System.setProperty("PQDisplayGroup", String.valueOf(isSelected));
+		//Boolean isSelected = jDisplayGroupCheckBox.isSelected();
+		//System.setProperty("PQDisplayGroup", String.valueOf(isSelected));
 		/*
 		 * String num = jNumberOfQueryTextField.getText();
 		 * System.setProperty("QueryToolMaxQueryNumber", num); String status =
@@ -341,10 +415,10 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 	private void jDescendingRadioButtonActionPerformed(
 			java.awt.event.ActionEvent evt) {
 
-		Boolean isSelected = jDescendingRadioButton.isSelected();
-		System.setProperty("PQDescending", String.valueOf(isSelected));
-		jAscendingRadioButton.setSelected(!isSelected);
-		previousQueryView_.runTreePanel().ascending(!isSelected);
+		//Boolean isSelected = jDescendingRadioButton.isSelected();
+		//System.setProperty("PQDescending", String.valueOf(isSelected));
+		//jAscendingRadioButton.setSelected(!isSelected);
+		//previousQueryView_.runTreePanel().ascending(!isSelected);
 
 		// String num = jNumberOfQueryTextField.getText();
 		// previousQueryView_.runTreePanel().reset(new Integer(num).intValue(),
@@ -354,10 +428,10 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 	private void jAscendingRadioButtonActionPerformed(
 			java.awt.event.ActionEvent evt) {
 
-		Boolean isSelected = jAscendingRadioButton.isSelected();
-		System.setProperty("PQAscending", String.valueOf(isSelected));
-		jDescendingRadioButton.setSelected(!isSelected);
-		previousQueryView_.runTreePanel().ascending(isSelected);
+		//Boolean isSelected = jAscendingRadioButton.isSelected();
+		//System.setProperty("PQAscending", String.valueOf(isSelected));
+		//jDescendingRadioButton.setSelected(!isSelected);
+		//previousQueryView_.runTreePanel().ascending(isSelected);
 
 		// String num = jNumberOfQueryTextField.getText();
 		// previousQueryView_.runTreePanel().reset(new Integer(num).intValue(),
@@ -386,7 +460,8 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 		System.out.println("Show Name: "
 				+ (previousQueryView_.runTreePanel().showName() ? "true"
 						: "false"));
-
+		
+		previousQueryView_.runTreePanel().userIndex(jUserComboBox.getSelectedIndex());
 		final String num = jNumberOfQueryTextField.getText();
 		System.setProperty("QueryToolMaxQueryNumber", num);
 
@@ -396,14 +471,18 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				String status = previousQueryView_
-						.runTreePanel()
-						.loadPreviousQueries(jDisplayGroupCheckBox.isSelected());
+				String user = UserInfoBean.getInstance().getUserName();
+				if(isManager) {
+					user = (String)jUserComboBox.getSelectedItem();
+				}
+				String status = previousQueryView_.runTreePanel().loadPreviousQueries(user);//jDisplayGroupCheckBox.isSelected());
+				//String status = previousQueryView_.runTreePanel();
 				if (status.equalsIgnoreCase("")) {
 
 					previousQueryView_.runTreePanel().reset(
 							new Integer(num).intValue(),
-							jSortByNameCheckBox.isSelected());
+							jSortByNameCheckBox.isSelected(),
+							false);
 
 					previousQueryView_.getViewSite().getShell().getDisplay()
 							.syncExec(new Runnable() {
@@ -462,6 +541,8 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 
 	// Variables declaration
 	private javax.swing.JButton jCancelButton;
+	private JLabel jLabel3;
+	private JComboBox jUserComboBox;
 	private javax.swing.JLabel jLabel1;
 	private javax.swing.JLabel jLabel2;
 	private javax.swing.JTextField jNumberOfQueryTextField;
@@ -471,9 +552,6 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 	private javax.swing.JPanel jPanel2;
 	private javax.swing.JCheckBox jSortByNameCheckBox;
 	private javax.swing.JCheckBox jSortByTimeCheckBox;
-	private javax.swing.JCheckBox jDisplayGroupCheckBox;
-	private javax.swing.JRadioButton jAscendingRadioButton;
-	private javax.swing.JRadioButton jDescendingRadioButton;
 	private javax.swing.JRadioButton jShowDemographicsRadioButton;
 	private javax.swing.JRadioButton jShowNameRadioButton;
 	// End of variables declaration

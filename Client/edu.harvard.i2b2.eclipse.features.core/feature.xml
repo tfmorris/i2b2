@@ -2,17 +2,17 @@
 <feature
       id="edu.harvard.i2b2.eclipse.features.core"
       label="i2b2 Core Features"
-      version="1.6.09"
+      version="1.7.02"
       provider-name="harvard.edu"
       plugin="edu.harvard.i2b2.eclipse">
 
    <description url="http://www.i2b2.org">
-      i2b2 Workbench core features, version 1.6.09
+      i2b2 Workbench core features, version 1.7.02
    </description>
 
    <copyright url="http://www.i2b2.org">
       /*
-* Copyright (c) 2006-2013 Massachusetts General Hospital 
+* Copyright (c) 2006-2014 Massachusetts General Hospital 
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the i2b2 Software License
 * v2.1 which accompanies this distribution.  
@@ -184,11 +184,7 @@ Version 2.1 - 1/15/08
       <import plugin="org.eclipse.help.webapp"/>
       <import plugin="org.eclipse.ui.forms"/>
       <import plugin="edu.harvard.i2b2.eclipse"/>
-      <import plugin="edu.harvard.i2b2.eclipse.plugins.commons_apache" version="1.0.4" match="greaterOrEqual"/>
-      <import plugin="edu.harvard.i2b2.eclipse.plugins.log" version="1.2.8" match="greaterOrEqual"/>
-      <import plugin="edu.harvard.i2b2.eclipse.plugins.webservicesAxis2" version="1.1.0" match="greaterOrEqual"/>
-      <import plugin="edu.harvard.i2b2.eclipse.plugins.xml_support_jaxb" version="2.1.2" match="greaterOrEqual"/>
-      <import plugin="edu.harvard.i2b2.eclipse.plugins.xml_support_jdom" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="edu.harvard.i2b2.eclipse.plugins.log"/>
       <import plugin="javax.servlet"/>
       <import plugin="javax.servlet.jsp"/>
       <import plugin="org.apache.commons.el"/>
@@ -209,6 +205,7 @@ Version 2.1 - 1/15/08
       <import plugin="org.eclipse.equinox.http.jetty"/>
       <import plugin="org.eclipse.core.databinding.property" version="1.2.0" match="compatible"/>
       <import plugin="org.eclipse.core.databinding.observable" version="1.2.0" match="compatible"/>
+      <import plugin="edu.harvard.i2b2.eclipse.plugins.webservicesAxis2"/>
    </requires>
 
    <plugin
@@ -222,7 +219,7 @@ Version 2.1 - 1/15/08
          id="edu.harvard.i2b2.eclipse"
          download-size="0"
          install-size="0"
-         version="1.6.9"
+         version="1.7.2"
          unpack="false"/>
 
    <plugin
@@ -235,7 +232,7 @@ Version 2.1 - 1/15/08
          id="edu.harvard.i2b2.eclipse.plugins.explorer"
          download-size="0"
          install-size="0"
-         version="1.6.9"
+         version="1.7.2"
          unpack="false"/>
 
    <plugin
@@ -254,21 +251,21 @@ Version 2.1 - 1/15/08
          id="edu.harvard.i2b2.eclipse.plugins.ontology"
          download-size="0"
          install-size="0"
-         version="1.6.9"
+         version="1.7.2"
          unpack="false"/>
 
    <plugin
          id="edu.harvard.i2b2.eclipse.plugins.previousQuery"
          download-size="0"
          install-size="0"
-         version="1.6.9"
+         version="1.7.2"
          unpack="false"/>
 
    <plugin
          id="edu.harvard.i2b2.eclipse.plugins.query"
          download-size="0"
          install-size="0"
-         version="1.6.9"
+         version="1.7.2"
          unpack="false"/>
 
    <plugin
@@ -281,7 +278,7 @@ Version 2.1 - 1/15/08
          id="edu.harvard.i2b2.eclipse.plugins.workplace"
          download-size="0"
          install-size="0"
-         version="1.6.9"
+         version="1.7.2"
          unpack="false"/>
 
    <plugin
@@ -697,7 +694,7 @@ Version 2.1 - 1/15/08
          id="edu.harvard.i2b2.eclipse.plugins.analysis"
          download-size="0"
          install-size="0"
-         version="1.6.9"
+         version="1.7.2"
          unpack="false"/>
 
    <plugin
@@ -725,6 +722,33 @@ Version 2.1 - 1/15/08
          download-size="0"
          install-size="0"
          version="1.0.100.v20100503"
+         unpack="false"/>
+
+   <plugin
+         id="edu.harvard.i2b2.eclipse.plugins.adminTool"
+         download-size="0"
+         install-size="0"
+         version="1.7.2"/>
+
+   <plugin
+         id="edu.harvard.i2b2.eclipse.plugins.patientMapping"
+         download-size="0"
+         install-size="0"
+         version="1.7.2"
+         unpack="false"/>
+
+   <plugin
+         id="edu.harvard.i2b2.eclipse.plugins.patientSet"
+         download-size="0"
+         install-size="0"
+         version="1.7.2"
+         unpack="false"/>
+
+   <plugin
+         id="edu.harvard.i2b2.eclipse.plugins.querytool"
+         download-size="0"
+         install-size="0"
+         version="1.7.2"
          unpack="false"/>
 
 </feature>

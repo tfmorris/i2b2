@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution.
@@ -31,6 +31,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -50,12 +51,17 @@ import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
 import edu.harvard.i2b2.eclipse.plugins.query.ontologyMessaging.GetChildrenResponseMessage;
 import edu.harvard.i2b2.eclipse.plugins.query.ontologyMessaging.OntServiceDriver;
+import edu.harvard.i2b2.eclipse.plugins.query.utils.XmlUtil;
+import edu.harvard.i2b2.eclipse.plugins.query.workplaceMessaging.WorkplaceServiceDriver;
+import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
+import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 import edu.harvard.i2b2.crcxmljaxb.datavo.dnd.DndType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.StatusType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ItemType;
@@ -69,9 +75,12 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.ConceptsType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.GetChildrenType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.GetTermInfoType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.vdo.XmlValueType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.wdo.FolderType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.wdo.FoldersType;
 import edu.harvard.i2b2.query.data.ModifierData;
 import edu.harvard.i2b2.query.data.QueryConceptTreePanelData;
 import edu.harvard.i2b2.query.data.QueryConceptTreeNodeData;
+import edu.harvard.i2b2.query.data.QueryMasterData;
 import edu.harvard.i2b2.query.data.UnitsData;
 import edu.harvard.i2b2.query.datavo.QueryJAXBUtil;
 
@@ -302,10 +311,13 @@ public class GroupPanel extends javax.swing.JPanel implements
 			} else if (data.visualAttribute().substring(0, 1).equals("L")) {
 				key = "leaf";
 			} else if (data.visualAttribute().substring(0, 1).equals("M")) {
-				key = "leaf";// "multi";
+				key = "leaf";
 			}
-			else if (data.visualAttribute().substring(0, 1).equals("P")) {
+			else if (data.visualAttribute().equals("PQ")) {
 				key = "prevQuery";// "multi";
+			}
+			else if (data.visualAttribute().equals("PT")) {
+				key = "plainpeople";// "multi";
 			}
 
 			if (key.equals("multi")) {
@@ -719,14 +731,14 @@ public class GroupPanel extends javax.swing.JPanel implements
 					if (panelData.startTime() != -1
 							|| panelData.endTime() != -1) {
 						ConstrainByDate timeConstrain = panelData
-								.writeTimeConstraint();
+								.writeTimeConstrain();
 						itemType.getConstrainByDate().add(timeConstrain);
 					}
 
 					// handle value constrain
 					if (!node.valuePropertyData().noValue()) {
 						ConstrainByValue valueConstrain = node
-								.valuePropertyData().writeValueConstraint();
+								.valuePropertyData().writeValueConstrain();
 						itemType.getConstrainByValue().add(valueConstrain);
 					}
 					
@@ -986,6 +998,139 @@ public class GroupPanel extends javax.swing.JPanel implements
 							break;
 						}
 					}
+					
+					/////////////////////////////////////////
+					if (tableXml1.getName().equalsIgnoreCase(
+					"folders")) {
+				JAXBUtil jaxbUtil = QueryJAXBUtil.getJAXBUtil();
+				FoldersType folders = null;
+				FolderType folder = null;
+				try {
+					JAXBElement jaxbElement  = jaxbUtil.unMashallFromString(text);
+					DndType dndType = (DndType)jaxbElement.getValue();     
+					folders = (FoldersType) new JAXBUnWrapHelper().getObjectByClass(dndType.getAny(),
+							FoldersType.class);
+					folder = folders.getFolder().get(0);
+				} catch (JAXBUtilException e) {
+					log.error("Unwrap error: " + e.getMessage(), e);
+					return true;
+				} 
+				
+				try {
+					edu.harvard.i2b2.crcxmljaxb.datavo.wdo.GetChildrenType parentType = new edu.harvard.i2b2.crcxmljaxb.datavo.wdo.GetChildrenType();
+					parentType.setBlob(true);
+					parentType.setParent(folder.getIndex());///*"\\\\" + this.getData().getTableCd() + "\\" + */this.getData().getIndex());	
+
+					//		log.info(parentType.getParent());
+					//		log.info(this.getData().getHierarchy());
+
+					edu.harvard.i2b2.eclipse.plugins.query.workplaceMessaging.GetChildrenResponseMessage msg 
+						= new edu.harvard.i2b2.eclipse.plugins.query.workplaceMessaging.GetChildrenResponseMessage();
+					StatusType procStatus = null;	
+					while(procStatus == null || !procStatus.getType().equals("DONE")){
+						String response = WorkplaceServiceDriver.getChildren(parentType);
+
+						procStatus = msg.processResult(response);
+						if(procStatus.getValue().equals("MAX_EXCEEDED")) {
+							/*theDisplay.syncExec(new Runnable() {
+								public void run() {
+									MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), 
+											SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+									mBox.setText("Please Note ...");
+									mBox.setMessage("The node has exceeded maximum number of children\n"
+											+ "Populating the node will be slow\n"
+											+"Do you want to continue?");
+									result = mBox.open();
+								}
+							});
+							if(result == SWT.NO) {
+								TreeNode node = (TreeNode) this.getChildren().get(0);
+								node.getData().setName("Over maximum number of child nodes");
+								procStatus.setType("DONE");
+							}
+							else {
+								parentType.setMax(null);
+								response = WorkplaceServiceDriver.getChildren(parentType);
+								procStatus = msg.processResult(response);
+							}*/
+						}
+						//				else if  other error codes
+						//				TABLE_ACCESS_DENIED and USER_INVALID and DATABASE ERRORS
+						else if (procStatus.getType().equals("ERROR")){		
+							System.setProperty("errorMessage",  procStatus.getValue());				
+							/*theDisplay.syncExec(new Runnable() {
+								public void run() {
+									MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+									mBox.setText("Please Note ...");
+									mBox.setMessage("Server reports: " +  System.getProperty("errorMessage"));
+									int result = mBox.open();
+								}
+							});*/
+							return true;
+						}			
+					}
+					FoldersType allFolders = msg.doReadFolders();   	  
+					if (allFolders != null){
+						List<FolderType> folders1 = allFolders.getFolder();
+						for(int i=0; i<folders1.size(); i++) {						
+							//addNode(qData);
+							//getChildren().clear();
+							//getNodesFromXMLString(folders);
+							//org.w3c.dom.Element dndElement = folders1.get(0).getWorkXml().getAny().get(0);
+							//dndElement.getChildNodes();
+							id = XmlUtil.getPatientId(folders1.get(i).getWorkXml());
+							if(id == null) {
+								continue;
+							}
+							QueryConceptTreeNodeData node = new QueryConceptTreeNodeData();
+							String source = XmlUtil.getSiteId(folders1.get(i).getWorkXml());
+							if(source == null) {
+								source = new String("HIVE");
+							}
+							id = XmlUtil.getPatientId(folders1.get(i).getWorkXml());
+							node.fullname("PATIENT:"+source+":" + id);
+							node.name("PATIENT "+source+":" + id);
+							log.info("PATIENT:"+source+":" + id);
+							node.originalXml(folders1.get(i).getWorkXml().toString());
+							node.visualAttribute("PT");
+
+							addNode(node);
+							panelData.getItems().add(node);							
+						}
+					}
+					parentPanel.getRunQueryButton().requestFocus();
+					setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+					return true;
+				} catch (AxisFault e) {
+					log.error(e.getMessage());
+					/*theDisplay.syncExec(new Runnable() {
+						public void run() {
+							// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+							MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+							mBox.setText("Please Note ...");
+							mBox.setMessage("Unable to make a connection to the remote server\n" +  
+									"This is often a network error, please try again");
+							int result = mBox.open();
+						}
+					});*/
+					return true;
+				} catch (Exception e) {
+					log.error(e.getMessage());
+					e.printStackTrace();
+					/*theDisplay.syncExec(new Runnable() {
+						public void run() {
+							// e.getMessage() == Incoming message input stream is null  -- for the case of connection down.
+							MessageBox mBox = new MessageBox(theViewer.getTree().getShell(), SWT.ICON_INFORMATION | SWT.OK);
+							mBox.setText("Please Note ...");
+							mBox.setMessage("Error message delivered from the remote server\n" +  
+									"You may wish to retry your last action");
+							int result = mBox.open();
+						}
+					});	*/		
+					return true;
+				}
+					}
+				
 					if (tableXml1.getName().equalsIgnoreCase(
 							"query_result_instance")) {
 						List children = tableXml1.getChildren();
@@ -1027,14 +1172,78 @@ public class GroupPanel extends javax.swing.JPanel implements
 						addNode(node);
 						panelData.getItems().add(node);
 						parentPanel.getRunQueryButton().requestFocus();
+						setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+						java.awt.EventQueue.invokeLater(new Runnable() {
+							public void run() {
+								Display display = ((QueryToolInvestigatorPanel) parentPanel.parentPanel).parentview
+								.getViewSite().getShell().getDisplay();
+								display.syncExec(new Runnable(){
+									public void run() {
+										IWorkbenchPage page = ((QueryToolInvestigatorPanel) parentPanel.parentPanel).parentview
+										.getViewSite().getPage();
+										IWorkbenchPart part = page.getActivePart();
+										IWorkbenchPartSite site = part.getSite();
+										IViewSite vSite = (IViewSite) site;
+										IActionBars actionBars = vSite.getActionBars();
+										if(actionBars != null) {
+											
+											IStatusLineManager statuslineManager = actionBars.getStatusLineManager();
+											//statuslineManager.removeAll();
+											((StatusLineContributionItem)statuslineManager.find("Status")).setText("..");
+											//statuslineManager.setMessage("\t\t\t\tRetriving information on this item ...");
+											statuslineManager.update(true);
+											//statuslineManager.setErrorMessage("error Retriving information on this item ...");
+										}
+									}
+								});
+							}
+						});
 						return true;
 					} else if (tableXml1.getName().equalsIgnoreCase(
-							"query_master")) {
+							"patient_set")) {
+						List children = tableXml1.getChildren();
+						QueryConceptTreeNodeData node; //= new QueryConceptTreeNodeData();
+						for (Iterator itr = children.iterator(); itr.hasNext();) {
+							Element element = (org.jdom.Element) itr.next();
+
+							if (element.getName().equalsIgnoreCase(
+									"patient")) {
+								children = element.getChildren();
+								node = new QueryConceptTreeNodeData();
+								for (Iterator itr1 = children.iterator(); itr1.hasNext();) {
+									Element element1 = (org.jdom.Element) itr1.next();
+
+									if (element1.getName().equalsIgnoreCase(
+											"patient_id")) {
+										id = element1.getText().trim();
+										String source = element1.getAttributeValue("source");
+										if(source == null) {
+											source = "HIVE";
+										}
+										node.fullname("PATIENT:"+source+":" + id);
+										node.name("PATIENT "+source+":" + id);
+										System.out.println("key: " + source+":" + id);
+									} 
+
+								}
+								node.originalXml(text);
+								node.visualAttribute("PT");
+
+								addNode(node);
+								panelData.getItems().add(node);
+							} 
+						}
+						
+						parentPanel.getRunQueryButton().requestFocus();
+						setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+						return true;
+					}
+					else if (tableXml1.getName().equalsIgnoreCase("query_master")) {
 						List children = tableXml1.getChildren();
 						QueryConceptTreeNodeData node = new QueryConceptTreeNodeData();
 						for (Iterator itr = children.iterator(); itr.hasNext();) {
 							Element element = (org.jdom.Element) itr.next();
-
+		
 							if (element.getName().equalsIgnoreCase(
 									"query_master_id")) {
 								id = element.getText().trim();
@@ -1045,17 +1254,16 @@ public class GroupPanel extends javax.swing.JPanel implements
 								description = element.getText().trim();
 								node.name("(PrevQuery)" + description);
 								node.tooltip(description);
-								System.out.println("name: " + description);
-
+								System.out.println("name: " + description);		
 							}
-
 						}
 						node.originalXml(text);
 						node.visualAttribute("PQ");
-
+		
 						addNode(node);
 						panelData.getItems().add(node);
 						parentPanel.getRunQueryButton().requestFocus();
+						setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 						return true;
 					}
 
@@ -1085,6 +1293,7 @@ public class GroupPanel extends javax.swing.JPanel implements
 							});
 							return true;
 						}
+						
 
 						final Element conTableXml = conceptXml;
 						org.jdom.Element nameXml = conTableXml.getChild("modifier");
@@ -1124,8 +1333,6 @@ public class GroupPanel extends javax.swing.JPanel implements
 						//String c_columnname = nameXml.getText();
 						//nameXml = conTableXml.getChild("tablename");
 						//String c_table = nameXml.getText();
-						//nameXml = conTableXml.getChild("tooltip");
-						//String c_tooltip = nameXml.getText();
 						nameXml = conTableXml.getChild("tooltip");
 						String c_tooltip = "";
 						if(nameXml != null) {
@@ -1312,42 +1519,69 @@ public class GroupPanel extends javax.swing.JPanel implements
 								jTree1.scrollPathToVisible(new TreePath(node2.getPath()));
 								parentPanel.repaint();
 								
-						if(fnode.isModifier()) {
-							parentPanel.enableSameInstanceVisit(true);
-							parentPanel.repaint();
-							
-							ModifierData ndata = (ModifierData) fnode;
-							if(ndata.hasModifierValue()) {
- 						if (ndata.modifierValuePropertyData().hasEnumValue()) {
-							ModifierEnumValueConstraintFrame vDialog = new ModifierEnumValueConstraintFrame(
-									thisPanel);
-							vDialog.setSize(410, 330);
-							vDialog.setLocation(300, 300);
-							vDialog
-									.setTitle("Choose modifier value of "
-											+ ndata.titleName());
-							vDialog.setVisible(true);
-						} else if (ndata.modifierValuePropertyData().hasStringValue()) {
-							ModifierStringValueConstraintFrame vDialog = new ModifierStringValueConstraintFrame(
-									thisPanel);
-							vDialog.setSize(410, 250);
-							vDialog.setLocation(300, 300);
-							vDialog
-									.setTitle("Choose modifier value of "
-											+ ndata.titleName());
-							vDialog.setVisible(true);
-						} else {
-							ModifierNumericValueConstraintFrame vDialog = new ModifierNumericValueConstraintFrame(
-									thisPanel);
-							vDialog.setSize(410, 215);
-							vDialog.setLocation(300, 300);
-							vDialog
-									.setTitle("Choose modifier value of "
-											+ ndata.titleName());
-							vDialog.setVisible(true);
-						}
-						}
-						}
+								if(fnode.isModifier()) {
+									parentPanel.enableSameInstanceVisit(true);
+									parentPanel.repaint();
+
+									ModifierData ndata = (ModifierData) fnode;
+									if(ndata.hasModifierValue()) {
+										if (ndata.modifierValuePropertyData().hasEnumValue()) {
+											ModifierEnumValueConstraintFrame vDialog = new ModifierEnumValueConstraintFrame(
+													thisPanel);
+											vDialog.setSize(410, 330);
+											vDialog.setLocation(300, 300);
+											vDialog
+											.setTitle("Choose modifier value of "
+													+ ndata.titleName());
+											vDialog.setVisible(true);
+										} else if (ndata.modifierValuePropertyData().hasStringValue()) {
+											if(ndata.hasModifierHelp()){
+												ModifierStringValueHelpConstraintFrame vDialog = new ModifierStringValueHelpConstraintFrame(
+														thisPanel);
+												vDialog.setSize(410, 250);
+												vDialog.setLocation(300, 300);
+												vDialog
+												.setTitle("Choose modifier value of "
+														+ ndata.titleName());
+												vDialog.setVisible(true);
+
+											}
+											else {
+												ModifierStringValueConstraintFrame vDialog = new ModifierStringValueConstraintFrame(
+														thisPanel);
+
+												vDialog.setSize(410, 250);
+												vDialog.setLocation(300, 300);
+												vDialog
+												.setTitle("Choose modifier value of "
+														+ ndata.titleName());
+												vDialog.setVisible(true);
+											}
+										} else {
+											if(ndata.hasModifierHelp()){
+												ModifierNumericValueHelpConstraintFrame vDialog = new ModifierNumericValueHelpConstraintFrame(
+														thisPanel);
+												vDialog.setSize(450, 250);
+												vDialog.setLocation(300, 300);
+												vDialog
+												.setTitle("Choose modifier value of "
+														+ ndata.titleName());
+												vDialog.setVisible(true);
+											}
+											else {
+												ModifierNumericValueConstraintFrame vDialog = new ModifierNumericValueConstraintFrame(
+														thisPanel);
+
+												vDialog.setSize(410, 215);
+												vDialog.setLocation(300, 300);
+												vDialog
+												.setTitle("Choose modifier value of "
+														+ ndata.titleName());
+												vDialog.setVisible(true);
+											}
+										}
+									}
+								}
 						
 						if(fnode.hasValue()) {
 	 						if (fnode.valuePropertyData().hasEnumValue()) {
@@ -1398,6 +1632,7 @@ public class GroupPanel extends javax.swing.JPanel implements
 											"Please note, You can not drop this item here.");
 						}
 					});
+					setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 					return true;
 				}
 			} catch (Exception e) {
@@ -1409,9 +1644,10 @@ public class GroupPanel extends javax.swing.JPanel implements
 										"Please note, You can not drop this item here.");
 					}
 				});
+				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 				return true;
 			}
-
+			setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			return true;
 		}
 	}
@@ -2616,6 +2852,18 @@ public class GroupPanel extends javax.swing.JPanel implements
 		}
 		return number;
 	}*/
+	
+	public String getSiteId(edu.harvard.i2b2.crcxmljaxb.datavo.wdo.XmlValueType xml)
+	{    	
+		org.w3c.dom.Element rootElement = xml.getAny().get(0);
+		NodeList nameElements = rootElement.getElementsByTagName("patient_id");
+		if (nameElements.getLength() != 0 && nameElements.item(0).getAttributes().getLength() != 0){
+			return nameElements.item(0).getAttributes().item(0).getTextContent();
+		}
+		else
+			return "";//MessageUtil.getInstance().getTimestamp();
+
+	}
 
 	// Variables declaration
 	private javax.swing.JButton jClearButton;

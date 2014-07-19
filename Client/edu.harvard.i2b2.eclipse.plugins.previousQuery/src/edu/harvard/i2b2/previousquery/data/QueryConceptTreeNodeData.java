@@ -15,7 +15,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
-import edu.harvard.i2b2.previousquery.ui.QueryConstraints;
+import edu.harvard.i2b2.previousquery.dataModel.QueryConstraints;
 
 public class QueryConceptTreeNodeData implements QueryConstraints {
 

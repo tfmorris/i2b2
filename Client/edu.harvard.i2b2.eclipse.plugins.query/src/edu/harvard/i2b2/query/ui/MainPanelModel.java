@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution.
@@ -39,7 +39,6 @@ import javax.xml.bind.Unmarshaller;
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUnWrapHelper;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtil;
-import edu.harvard.i2b2.query.data.Messages;
 import edu.harvard.i2b2.query.data.ModifierData;
 import edu.harvard.i2b2.query.data.QueryConceptTreePanelData;
 import edu.harvard.i2b2.query.data.QueryConceptTreeNodeData;
@@ -53,6 +52,7 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ItemType.ConstrainByDate;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ItemType.ConstrainByModifier;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ItemType.ConstrainByValue;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
+import edu.harvard.i2b2.eclipse.plugins.query.utils.Messages;
 
 public class MainPanelModel {
 	private ArrayList<GroupPanel> panelList;
@@ -320,7 +320,8 @@ public class MainPanelModel {
 					// prevQuery
 					if (node.name().indexOf("Patient Set") >= 0
 							|| node.name().indexOf("Encounter Set") >= 0
-							|| node.name().indexOf("PrevQuery") >= 0) {
+							|| node.name().indexOf("PrevQuery") >= 0
+							|| node.name().indexOf("PATIENT") >= 0) {
 						itemType.setItemKey(node.fullname());
 						itemType.setItemName(node.name());
 						// itemType.setItemTable(node.lookuptable());
@@ -339,14 +340,14 @@ public class MainPanelModel {
 					if (panel.data().startTime() != -1
 							|| panel.data().endTime() != -1) {
 						ConstrainByDate timeConstrain = panel.data()
-								.writeTimeConstraint();
+								.writeTimeConstrain();
 						itemType.getConstrainByDate().add(timeConstrain);
 					}
 
 					// handle value constrain
 					if (!node.valuePropertyData().noValue()) {
 						ConstrainByValue valueConstrain = node
-								.valuePropertyData().writeValueConstraint();
+								.valuePropertyData().writeValueConstrain();
 						itemType.getConstrainByValue().add(valueConstrain);
 					}
 					
@@ -359,6 +360,21 @@ public class MainPanelModel {
 					panelType.getItem().add(itemType);
 				}
 				queryDefinitionType.getPanel().add(panelType);
+
+				// JAXBUtil jaxbUtil = QueryJAXBUtil.getJAXBUtil();
+				// StringWriter strWriter = new StringWriter();
+				// try {
+				// edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory
+				// psmOf =
+				// new
+				// edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ObjectFactory();
+				// jaxbUtil.marshaller(psmOf.createPanelType(panelType),
+				// strWriter);
+				// System.out.println("panel xml: "+strWriter.toString());
+				// }
+				// catch(Exception e) {
+				// e.printStackTrace();
+				// }
 			}
 		}
 

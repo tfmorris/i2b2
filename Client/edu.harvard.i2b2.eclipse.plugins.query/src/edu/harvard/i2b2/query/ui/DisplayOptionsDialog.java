@@ -31,6 +31,13 @@ public class DisplayOptionsDialog extends javax.swing.JFrame {
 		queryView_ = queryView;
 
 		initComponents();
+		
+		//queryView_.queryToolPanel().getTopPanel().max_child();
+		jNumberOfQueryTextField.setText(new Integer(queryView_.queryToolPanel().getTopPanel().max_child()).toString());
+		String str = System.getProperty("QueryToolMaxWaitingTime");
+		if(str != null) {
+			jMaxWaitingTimeTextField.setText(str);
+		}
 
 		setSize(350, 140);
 		setLocation(300, 100);

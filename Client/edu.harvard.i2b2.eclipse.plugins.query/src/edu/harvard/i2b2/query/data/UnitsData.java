@@ -29,6 +29,7 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.PasswordType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ProcessingIdType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.SecurityType;
 import edu.harvard.i2b2.eclipse.UserInfoBean;
+import edu.harvard.i2b2.eclipse.plugins.query.utils.Messages;
 
 public class UnitsData {
 	private String name;

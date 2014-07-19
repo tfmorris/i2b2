@@ -142,7 +142,7 @@ public class OntServiceDriver {
 				 }
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (I2B2Exception e) {
 				log.error(e.getMessage());
 				throw new I2B2Exception(e.getMessage());
@@ -175,7 +175,7 @@ public class OntServiceDriver {
 	//			log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (I2B2Exception e) {
 				log.error(e.getMessage());
 				throw new I2B2Exception(e.getMessage());
@@ -210,7 +210,7 @@ public class OntServiceDriver {
 //				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (I2B2Exception e) {
 				log.error(e.getMessage());
 				throw new I2B2Exception(e.getMessage());
@@ -248,7 +248,7 @@ public class OntServiceDriver {
 //				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
@@ -283,7 +283,7 @@ public class OntServiceDriver {
 //				log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
@@ -337,7 +337,7 @@ public class OntServiceDriver {
 	//			log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
@@ -509,7 +509,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -544,7 +544,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -579,7 +579,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -614,7 +614,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -648,7 +648,7 @@ public class OntServiceDriver {
 			}
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
-			throw new AxisFault(e);
+			//throw new AxisFault(e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new Exception(e);
@@ -678,7 +678,7 @@ public class OntServiceDriver {
 	//			log.debug("Ont response = " + response);
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (I2B2Exception e) {
 				log.error(e.getMessage());
 				throw new I2B2Exception(e.getMessage());
@@ -714,7 +714,7 @@ public class OntServiceDriver {
 		} catch (AxisFault e) {
 			log.error(e.getMessage());
 			log.error("Unable to make connection to remote server");
-//			throw new AxisFault(e);
+//			//throw new AxisFault(e);
 		} catch (I2B2Exception e) {
 			log.error("Not enough memory to display modifiers");
 			log.error(e.getMessage());
@@ -752,7 +752,7 @@ public class OntServiceDriver {
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
 				log.error("Unable to make connection to remote server");
-	//			throw new AxisFault(e);
+	//			//throw new AxisFault(e);
 			} catch (I2B2Exception e) {
 				log.error("Not enough memory to display modifiers");
 				log.error(e.getMessage());
@@ -793,7 +793,7 @@ public class OntServiceDriver {
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
 				log.error("Unable to make connection to remote server");
-	//			throw new AxisFault(e);
+	//			//throw new AxisFault(e);
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				log.error("Error returned from remote server");

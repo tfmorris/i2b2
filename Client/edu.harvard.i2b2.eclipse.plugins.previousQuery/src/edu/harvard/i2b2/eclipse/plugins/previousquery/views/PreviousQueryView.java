@@ -22,7 +22,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
-
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.help.IWorkbenchHelpSystem;
 import org.eclipse.ui.part.ViewPart;
@@ -83,7 +82,9 @@ public class PreviousQueryView extends ViewPart implements ICommonMethod {
 			nameNode.id(msgs[1]);
 			nameNode.name(msgs[0] + " ["
 					+ UserInfoBean.getInstance().getUserName() + "]");
-
+			if(nameNode.name().startsWith("(t)")) {
+				nameNode.queryType("TEMPORAL");
+			}
 			addNode(nameNode);
 		}
 	}
@@ -118,6 +119,9 @@ public class PreviousQueryView extends ViewPart implements ICommonMethod {
 		Composite composite = new Composite(parent, SWT.EMBEDDED);
 
 		/* Create and setting up frame */
+		////for mac fix
+		//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+			//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 		Frame runFrame = SWT_AWT.new_Frame(composite);
 		Panel runPanel = new Panel(new BorderLayout());
 		try {

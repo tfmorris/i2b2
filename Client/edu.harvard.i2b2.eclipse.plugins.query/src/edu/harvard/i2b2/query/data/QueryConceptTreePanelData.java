@@ -17,9 +17,6 @@ import java.util.TimeZone;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ConstrainDateType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.psm.query.ItemType.ConstrainByDate;
@@ -32,8 +29,6 @@ import edu.harvard.i2b2.query.ui.QueryConstraints;
  */
 
 public class QueryConceptTreePanelData implements QueryConstraints {
-	private static final Log log = LogFactory.getLog(QueryConceptTreePanelData.class);
-	
 	private boolean exclude = false;
 
 	public void exclude(boolean b) {
@@ -189,42 +184,6 @@ public class QueryConceptTreePanelData implements QueryConstraints {
 	public QueryConceptTreePanelData() {
 		items = new ArrayList<QueryConceptTreeNodeData>();
 	}
-	
-	public ConstrainByDate writeTimeConstraint() {
-		ConstrainByDate timeConstrain = new ConstrainByDate();
-		DTOFactory dtoFactory = new DTOFactory();
-		
-		TimeZone tz = Calendar.getInstance().getTimeZone();
-		GregorianCalendar cal = new GregorianCalendar(tz);
-		//cal.get(Calendar.ZONE_OFFSET);
-		int zt_offset = (cal.get(Calendar.ZONE_OFFSET)+cal.get(Calendar.DST_OFFSET))/60000;
-		log.info("Timezone: "+tz.getID()+" : "+zt_offset);
-		
-		if (startTime() != -1) {
-			ConstrainDateType constraindateType = new ConstrainDateType();
-			XMLGregorianCalendar xmlC = dtoFactory.getXMLGregorianCalendarDate(
-					startYear(), startMonth() + 1, startDay());
-			xmlC.setTimezone(zt_offset);//0);//-5*60);
-			xmlC.setHour(0);
-			xmlC.setMinute(0);
-			xmlC.setSecond(0);
-			constraindateType.setValue(xmlC);
-			timeConstrain.setDateFrom(constraindateType);
-		}
-
-		if (endTime() != -1) {
-			ConstrainDateType constraindateType = new ConstrainDateType();
-			XMLGregorianCalendar xmlC = dtoFactory.getXMLGregorianCalendarDate(
-					endYear(), endMonth() + 1, endDay());
-			xmlC.setTimezone(zt_offset);//0);//-5*60);
-			xmlC.setHour(0);
-			xmlC.setMinute(0);
-			xmlC.setSecond(0);
-			constraindateType.setValue(xmlC);
-			timeConstrain.setDateTo(constraindateType);
-		}
-		return timeConstrain;
-	}
 
 	public ArrayList<QueryConceptTreeNodeData> getItems() {
 		return items;
@@ -266,5 +225,40 @@ public class QueryConceptTreePanelData implements QueryConstraints {
 		return timeConstrain;
 	}
 
-	
+	public ConstrainByDate writeTimeConstrain() {
+		ConstrainByDate timeConstrain = new ConstrainByDate();
+		DTOFactory dtoFactory = new DTOFactory();
+
+		TimeZone tz = Calendar.getInstance().getTimeZone();
+		GregorianCalendar cal = new GregorianCalendar(tz);
+		//cal.get(Calendar.ZONE_OFFSET);
+		int zt_offset = (cal.get(Calendar.ZONE_OFFSET)+cal.get(Calendar.DST_OFFSET))/60000;
+		//log.info("Timezone: "+tz.getID()+" : "+zt_offset);
+		
+		if (startTime() != -1) {
+			ConstrainDateType constraindateType = new ConstrainDateType();
+			XMLGregorianCalendar xmlC = dtoFactory.getXMLGregorianCalendarDate(
+					startYear(), startMonth() + 1, startDay());
+			xmlC.setTimezone(zt_offset);//0);//-5*60);
+			xmlC.setHour(0);
+			xmlC.setMinute(0);
+			xmlC.setSecond(0);
+			constraindateType.setValue(xmlC);
+			timeConstrain.setDateFrom(constraindateType);
+		}
+
+		if (endTime() != -1) {
+			ConstrainDateType constraindateType = new ConstrainDateType();
+			XMLGregorianCalendar xmlC = dtoFactory.getXMLGregorianCalendarDate(
+					endYear(), endMonth() + 1, endDay());
+			xmlC.setTimezone(zt_offset);//0);//-5*60);
+			xmlC.setHour(0);
+			xmlC.setMinute(0);
+			xmlC.setSecond(0);
+			constraindateType.setValue(xmlC);
+			timeConstrain.setDateTo(constraindateType);
+		}
+		
+		return timeConstrain;
+	}
 }

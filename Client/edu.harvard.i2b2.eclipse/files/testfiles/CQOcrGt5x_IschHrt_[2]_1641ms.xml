@@ -18,10 +18,10 @@
 		</receiving_facility>
 		<datetime_of_message>2011-08-18T11:41:54.623-04:00</datetime_of_message>
 		<security>
-			<domain>i2b2demo</domain>
-			<username>demo</username>
-			<password>demouser</password>
-		</security>
+          <domain>i2b2demo</domain>
+            <username>demo</username>
+            <password>demouser</password>
+ 		</security>
 		<message_type>
 			<message_code>Q04</message_code>
 			<event_type>EQQ</event_type>
@@ -52,41 +52,41 @@
 		<ns4:request xsi:type="ns4:query_definition_requestType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<query_definition>
 
-				<query_name>(+) Ischemic heart @11:21:13</query_name>
-
-				<query_timing>ANY</query_timing>
-
-				<specificity_scale>0</specificity_scale>
-
-				<panel>
-
-					<panel_number>1</panel_number>
-
-					<panel_timing>ANY</panel_timing>
-
-					<panel_accuracy_scale>100</panel_accuracy_scale>
-
-					<invert>0</invert>
-
-					<total_item_occurrences>6</total_item_occurrences>
-
-					<item>
-
-						<hlevel>3</hlevel>
-
-						<item_name>Ischemic heart disease</item_name>
-
-						<item_key>\\i2b2_DIAG\i2b2\Diagnoses\Circulatory system (390-459)\Ischemic heart disease (410-414)\</item_key>
-
-						<item_icon>FA</item_icon>
-
-						<tooltip>Diagnoses \ Circulatory system \ Ischemic heart disease</tooltip>
-
-						<class>ENC</class>
-
-						<item_is_synonym>false</item_is_synonym>
-					</item>
-				</panel>
+                        <query_name>(+) Ischemic heart @11:21:13</query_name>
+    
+                        <query_timing>ANY</query_timing>
+    
+                        <specificity_scale>0</specificity_scale>
+    
+                        <panel>
+        
+                            <panel_number>1</panel_number>
+        
+                            <panel_timing>ANY</panel_timing>
+        
+                            <panel_accuracy_scale>100</panel_accuracy_scale>
+        
+                            <invert>0</invert>
+        
+                            <total_item_occurrences>6</total_item_occurrences>
+        
+                            <item>
+            
+                                <hlevel>3</hlevel>
+            
+                                <item_name>Ischemic heart disease</item_name>
+            
+                                <item_key>\\i2b2_DIAG\i2b2\Diagnoses\Circulatory system (390-459)\Ischemic heart disease (410-414)\</item_key>
+            
+                                <item_icon>FA</item_icon>
+            
+                                <tooltip>Diagnoses \ Circulatory system \ Ischemic heart disease</tooltip>
+            
+                                <class>ENC</class>
+            
+                                <item_is_synonym>false</item_is_synonym>
+        </item>
+    </panel>
 			</query_definition>
 			<result_output_list>
 				<result_output priority_index="1" name="PATIENT_COUNT_XML"/>

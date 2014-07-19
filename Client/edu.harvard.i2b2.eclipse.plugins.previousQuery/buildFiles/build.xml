@@ -41,8 +41,8 @@
 	<!-- =================================================================== -->
 	<target name="jaxb_gen" depends="gensrcInit">
 			 <java dir="." jar="../edu.harvard.i2b2.common/lib/jaxb/jaxb-xjc.jar" fork="true" failonerror="true" >
-			     <arg line="-quiet -nv -extension ../${i2b2xmlproject}/xsd/cell/ont_1.1/ONT_QRY.xsd ../${i2b2xmlproject}/xsd/cell/ont_1.1/ONT_RESP.xsd ../${i2b2xmlproject}/xsd/cell/crc/psm_1.1/CRC_PSM_QRY.xsd ../${i2b2xmlproject}/xsd/cell/crc/pdo_1.1/CRC_PDO_QRY.xsd ../${i2b2xmlproject}/xsd/hive/msg_1.1/i2b2_response.xsd  ../${i2b2xmlproject}/xsd/hive/pdo_1.1/i2b2_PDO.xsd ../${i2b2xmlproject}/xsd/cell/crc/psm_1.1/CRC_PSM_QRY_query_definition.xsd ../${i2b2xmlproject}/xsd/hive/plugin/drag_drop.xsd       
-			     	-b etc/xsd/i2b2_vdo_bindings.xjb etc/xsd_1.1/i2b2_pdo_bindings.xjb etc/xsd_1.1/i2b2_response_message_bindings.xjb etc/xsd/crc_psm_qry.xjb etc/xsd/crc_pdo_qry.xjb etc/xsd/crc_psm_qry_def.xjb etc/xsd/i2b2_plugin_dnd.xjb -d ${gensrc}"/>
+			     <arg line="-quiet -nv -extension ../${i2b2xmlproject}/xsd/cell/pm_1.1/PM_USER.xsd ../${i2b2xmlproject}/xsd/cell/ont_1.1/ONT_QRY.xsd ../${i2b2xmlproject}/xsd/cell/ont_1.1/ONT_RESP.xsd ../${i2b2xmlproject}/xsd/cell/crc/psm_1.1/CRC_PSM_QRY.xsd ../${i2b2xmlproject}/xsd/cell/crc/pdo_1.1/CRC_PDO_QRY.xsd ../${i2b2xmlproject}/xsd/hive/msg_1.1/i2b2_response.xsd  ../${i2b2xmlproject}/xsd/hive/pdo_1.1/i2b2_PDO.xsd ../${i2b2xmlproject}/xsd/cell/crc/psm_1.1/CRC_PSM_QRY_query_definition.xsd ../${i2b2xmlproject}/xsd/hive/plugin/drag_drop.xsd       
+			     	-b etc/xsd_1.1/i2b2_pm_bindings.xjb etc/xsd/i2b2_vdo_bindings.xjb etc/xsd_1.1/i2b2_pdo_bindings.xjb etc/xsd_1.1/i2b2_response_message_bindings.xjb etc/xsd/crc_psm_qry.xjb etc/xsd/crc_pdo_qry.xjb etc/xsd/crc_psm_qry_def.xjb etc/xsd/i2b2_plugin_dnd.xjb -d ${gensrc}"/>
 			     <jvmarg value="-Djava.endorsed.dirs=../edu.harvard.i2b2.common/lib/jaxb" />
 			     <classpath refid="classpath"/>
 			</java>

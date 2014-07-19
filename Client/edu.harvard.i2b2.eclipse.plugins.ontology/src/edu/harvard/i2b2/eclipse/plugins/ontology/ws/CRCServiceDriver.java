@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -91,7 +91,7 @@ public class CRCServiceDriver {
 					 throw e;
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
@@ -123,7 +123,7 @@ public class CRCServiceDriver {
 				 }
 			} catch (AxisFault e) {
 				log.error(e.getMessage());
-				throw new AxisFault(e);
+				//throw new AxisFault(e);
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				throw new Exception(e);
@@ -159,7 +159,7 @@ public class CRCServiceDriver {
 				 throw e;
 			 } catch (AxisFault e) {
 				 log.error(e.getMessage());
-				 throw new AxisFault(e);
+				 //throw new AxisFault(e);
 
 			 } catch (Exception e) {
 				 log.error(e.getMessage());
@@ -195,7 +195,7 @@ public class CRCServiceDriver {
 				 throw e;
 			 } catch (AxisFault e) {
 				 log.error(e.getMessage());
-				 throw new AxisFault(e);
+				 //throw new AxisFault(e);
 
 			 } catch (Exception e) {
 				 log.error(e.getMessage());

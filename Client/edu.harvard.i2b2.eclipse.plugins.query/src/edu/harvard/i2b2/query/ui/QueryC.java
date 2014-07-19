@@ -15,9 +15,6 @@ import java.awt.Panel;
 
 import javax.swing.*;
 
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
-
 import org.eclipse.jface.action.StatusLineManager;
 import org.eclipse.swt.*;
 import org.eclipse.swt.awt.SWT_AWT;
@@ -125,6 +122,9 @@ public class QueryC extends Composite {
 		previousRunTab.setControl(composite);
 
 		/* Create and setting up frame */
+		////for mac fix
+		//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+			//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 		Frame runFrame = SWT_AWT.new_Frame(composite);
 		Panel runPanel = new Panel(new BorderLayout());
 		try {
@@ -151,6 +151,9 @@ public class QueryC extends Composite {
 		Composite rightComp = new Composite(verticalForm, SWT.BORDER
 				| SWT.EMBEDDED | SWT.DragDetect);
 		/* Create and setting up frame */
+		////for mac fix
+		//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+			//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 		Frame frame = SWT_AWT.new_Frame(rightComp);
 		Panel panel = new Panel(new BorderLayout());
 		try {

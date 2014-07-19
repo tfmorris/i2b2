@@ -458,8 +458,9 @@ public class QueryModel {
 				//String sVisualAttribs = visualAttribs.getText().trim();
 
 				Element metadataAttribs = conTableXml.getChild("metadataxml");
-				Element valuedataAttribs = metadataAttribs
-						.getChild("ValueMetadata");
+				Element valuedataAttribs = null;
+				if ( metadataAttribs != null )
+					valuedataAttribs = metadataAttribs.getChild("ValueMetadata");
 
 				if ((metadataAttribs != null) && (valuedataAttribs != null)) {
 					log.debug("Has value");

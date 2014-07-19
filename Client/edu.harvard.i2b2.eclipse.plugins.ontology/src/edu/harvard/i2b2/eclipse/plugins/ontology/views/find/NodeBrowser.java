@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -14,6 +14,8 @@ import java.util.*;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.ITreeViewerListener;
 import org.eclipse.jface.viewers.TreeExpansionEvent;
@@ -47,7 +49,15 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.graphics.*;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
 
+import edu.harvard.i2b2.eclipse.ICommonMethod;
+import edu.harvard.i2b2.eclipse.plugins.ontology.model.TermSelectionProvider;
 import edu.harvard.i2b2.eclipse.plugins.ontology.util.StringUtil;
 import edu.harvard.i2b2.eclipse.plugins.ontology.views.find.ModifierComposite;
 import edu.harvard.i2b2.eclipse.plugins.ontology.views.find.TreeData;
@@ -88,7 +98,8 @@ public class NodeBrowser extends ApplicationWindow
 		createTreeViewer(parent, SWT.MULTI | SWT.BORDER, inputFlag);
 		Transfer[] types = new Transfer[] { TextTransfer.getInstance() };
 
-		this.viewer.addDragSupport(DND.DROP_COPY, types, new NodeDragListener(this.viewer));      
+		this.viewer.addDragSupport(DND.DROP_COPY, types, new NodeDragListener(this.viewer));     
+		
 	}
 
 	private void createImageRegistry()
@@ -479,7 +490,7 @@ public class NodeBrowser extends ApplicationWindow
 			operator = "exact";	
 		match.setStrategy(operator);
 		vocabData.setMatchStr(match);
-		vocabData.setType("limited");
+		vocabData.setType("core");
 		vocabData.setBlob(true);
 		vocabData.setMax(Integer.parseInt(System.getProperty("OntFindMax")));
 		vocabData.setHiddens(Boolean.parseBoolean(System.getProperty("OntFindHiddens")));
@@ -650,7 +661,7 @@ public class NodeBrowser extends ApplicationWindow
 			operator = "exact";	
 		match.setStrategy(operator);
 
-		vocabData.setType("limited");
+		vocabData.setType("core");
 		//	vocabData.setBlob(false);
 		vocabData.setBlob(true);
 		vocabData.setMax(Integer.parseInt(System.getProperty("OntFindMax")));
@@ -810,7 +821,7 @@ public class NodeBrowser extends ApplicationWindow
 			operator = "exact";	
 		match.setStrategy(operator);
 		vocabData.setMatchStr(match);
-		vocabData.setType("limited");
+		vocabData.setType("core");
 		vocabData.setBlob(true);
 		vocabData.setMax(Integer.parseInt(System.getProperty("OntFindMax")));
 		vocabData.setHiddens(Boolean.parseBoolean(System.getProperty("OntFindHiddens")));
@@ -948,17 +959,20 @@ public class NodeBrowser extends ApplicationWindow
 		if(parent == ModifierComposite.getInstance().getParent()){
 			allPopupMenu = new MenuManager();
 			allPopupMenu.add(new FindModifierAction());
+			allPopupMenu.add(new JumpToTermAction());
 			//		allPopupMenu.add(new RefreshAction());
 		}
 		else if(parent == ModifierComposite.getCodeInstance().getParent()){
 			allPopupMenu = new MenuManager();
 			allPopupMenu.add(new FindCodeModifierAction());
+			allPopupMenu.add(new JumpToTermAction());
 
 
 		}
 		return allPopupMenu;
 
 	}
+
 
 	private class FindModifierAction extends Action 
 	{
@@ -994,6 +1008,33 @@ public class NodeBrowser extends ApplicationWindow
 			ModifierComposite.getCodeInstance().enableComposite(node);
 		}
 	}
+	private class JumpToTermAction extends Action 
+	{
+		public JumpToTermAction()
+		{
+			super("Jump To Term in Tree");
+		}
+		@Override
+		public void run()
+		{
+			IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+			IWorkbenchPage[] pages = windows[0].getPages();
+		
+			final ViewPart navTermsView = (ViewPart) pages[0].findView("edu.harvard.i2b2.eclipse.plugins.ontology.views.ontologyView");			
+			pages[0].activate(navTermsView);
+			
+			IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+			if (selection.size() != 1)
+				return;
+			TermSelectionProvider.getInstance().fireSelectionChanged(selection);
+			
+
+
+			
+		}
+	}
+	
+
 }
 
 // Old select service base methods

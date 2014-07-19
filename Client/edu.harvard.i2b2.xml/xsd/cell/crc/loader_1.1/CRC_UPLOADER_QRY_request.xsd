@@ -6,6 +6,17 @@
     <xs:element name="publish_data_request" type="loader:publish_data_request_type"/>
     <xs:element name="get_upload_info_request" type="loader:get_upload_info_request_type"/>
     <xs:element name="get_missing_term_report_request" type="loader:get_missing_term_request_type"/>
+    <xs:element name="bulk_load_request" type="loader:bulk_load_request_type"/>
+    <xs:element name="get_bulk_load_info_request" type="loader:get_bulk_load_info_request_type"/>
+ 
+    <xs:complexType name="bulk_load_request_type">
+        <xs:all>
+            <xs:element name="file_name" type="xs:string"/>
+            <xs:element name="file_type" type="xs:string"/>
+            <xs:element name="source_system_cd" type="xs:string"/>
+        </xs:all>
+    </xs:complexType>
+    
     
     <xs:complexType name="get_missing_term_request_type">
        <xs:sequence>
@@ -23,6 +34,15 @@
             <xs:element name="load_id" type="xs:string"/>
         </xs:all>
     </xs:complexType>    
+    
+    <xs:complexType name="get_bulk_load_info_request_type">
+        <xs:all>
+            <xs:element name="user_id" type="xs:string"/>
+            <xs:element name="load_id" type="xs:string"/>
+        </xs:all>
+    </xs:complexType>    
+    
+    
     
     <xs:complexType name="publish_data_request_type">
         <xs:all>
@@ -54,6 +74,7 @@
             <xs:element name="data_format_type" type="loader:dataFormatType" default="PDO"/>
             <xs:element name="source_system_cd" type="xs:string"/>
             <xs:element name="load_label" type="xs:string"/>
+            <xs:element name="transform_name" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
     

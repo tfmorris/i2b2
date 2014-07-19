@@ -16,7 +16,14 @@ import edu.harvard.i2b2.wkplclient.datavo.wdo.FolderType;
 public class TreeData extends FolderType
 {
 	private String tableCd;
-  	
+	
+	//private boolean protected_access = false; ////put it here for testing, remove when it is added in folder type.
+  	//public boolean protected_access() {
+  		//return protected_access;
+  	//}
+  	//public void protected_access(boolean b) {
+  		//protected_access = b;
+  	//}
   	
   	public TreeData(String index, String name, String visualAttributes)
   	{
@@ -53,6 +60,7 @@ public class TreeData extends FolderType
  		this.parentIndex = folder.getParentIndex();
  		this.groupId = folder.getGroupId();
  		this.userId = folder.getUserId();
+ 		this.protectedAccess = folder.getProtectedAccess();
   	}  	
 
 	public String getTableCd() {

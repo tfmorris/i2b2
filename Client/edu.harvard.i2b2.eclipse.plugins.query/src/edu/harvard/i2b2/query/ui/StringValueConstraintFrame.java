@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -62,7 +62,8 @@ public class StringValueConstraintFrame extends javax.swing.JFrame {
 		
 		setPreviousValues();
 		
-		if (!(UserInfoBean.getInstance().isRoleInProject("DATA_DEID"))) {
+		if ((!(UserInfoBean.getInstance().isRoleInProject("DATA_DEID")))
+				&& (parent_.currentData()).valuePropertyData().isLongText()) {
 			jTextValueRadioButton.setEnabled(false);
 		}
 	}

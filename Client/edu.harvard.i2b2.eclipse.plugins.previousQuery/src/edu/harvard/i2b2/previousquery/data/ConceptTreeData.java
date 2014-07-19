@@ -13,7 +13,7 @@ package edu.harvard.i2b2.previousquery.data;
 
 import java.util.ArrayList;
 
-import edu.harvard.i2b2.previousquery.ui.QueryConstraints;
+import edu.harvard.i2b2.previousquery.dataModel.QueryConstraints;
 
 /**
  * Class: QueryConceptTreeData.

@@ -25,7 +25,7 @@ import edu.harvard.i2b2.common.util.jaxb.DTOFactory;
 import edu.harvard.i2b2.common.util.jaxb.JAXBUtilException;
 
 import edu.harvard.i2b2.eclipse.UserInfoBean;
-import edu.harvard.i2b2.query.data.Messages;
+import edu.harvard.i2b2.eclipse.plugins.query.utils.Messages;
 import edu.harvard.i2b2.query.datavo.QueryJAXBUtil;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.PasswordType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.i2b2message.ApplicationType;

@@ -2,17 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ontology Plug-in
 Bundle-SymbolicName: edu.harvard.i2b2.eclipse.plugins.ontology; singleton:=true
-Bundle-Version: 1.6.09
+Bundle-Version: 1.7.02
 Bundle-Vendor: i2b2.harvard.edu
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  edu.harvard.i2b2.eclipse;bundle-version="1.4.0",
- edu.harvard.i2b2.eclipse.plugins.commons_apache;bundle-version="1.0.4",
  edu.harvard.i2b2.eclipse.plugins.log;bundle-version="1.2.8",
  edu.harvard.i2b2.eclipse.plugins.webservicesAxis2;bundle-version="1.1.0",
  edu.harvard.i2b2.eclipse.plugins.xml_support_jaxb;bundle-version="2.1.2",
  edu.harvard.i2b2.eclipse.plugins.xml_support_jdom;bundle-version="1.0",
+ edu.harvard.i2b2.eclipse.plugins.commons_apache;bundle-version="1.0.4",
  org.eclipse.help,
  org.eclipse.ui.forms;bundle-version="3.4.0"
 Eclipse-LazyStart: true

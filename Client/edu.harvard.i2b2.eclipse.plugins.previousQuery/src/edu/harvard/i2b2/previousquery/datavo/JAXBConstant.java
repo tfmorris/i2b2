@@ -22,5 +22,6 @@ public class JAXBConstant {
 			"edu.harvard.i2b2.common.datavo.pdo",
 			"edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query",
 			"edu.harvard.i2b2.crcxmljaxb.datavo.psm.query",
+			"edu.harvard.i2b2.crcxmljaxb.datavo.pm",
 			"edu.harvard.i2b2.crcxmljaxb.datavo.dnd" };
 }

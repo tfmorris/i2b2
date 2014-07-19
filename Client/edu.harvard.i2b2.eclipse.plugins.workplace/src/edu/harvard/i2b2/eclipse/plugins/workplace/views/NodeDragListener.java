@@ -68,7 +68,11 @@ final class NodeDragListener implements DragSourceListener
 		Iterator iterator = selectionOnDrag.iterator();
 		
 		TreeNode node = (TreeNode) iterator.next();
-		FolderType workData = (FolderType) node.getData();
+		TreeData ndata = (TreeData)node.getData();
+		String oindex = ndata.getIndex();
+		ndata.setIndex("\\\\" + ndata.getTableCd() + "\\" +oindex);
+		
+		FolderType workData = (FolderType) ndata;//node.getData();
 		
 		if(workData.getVisualAttributes().startsWith("F")){
 			StringWriter strWriter = null;
@@ -101,6 +105,7 @@ final class NodeDragListener implements DragSourceListener
 		// back door way to pass drag folderType data to drop target
 		//   used to pass any new rename or re-annotation data 
 		//   drag xml does not contain folderType data.
+		workData.setIndex(oindex);
 		event.display.setData(workData);
 	}
 

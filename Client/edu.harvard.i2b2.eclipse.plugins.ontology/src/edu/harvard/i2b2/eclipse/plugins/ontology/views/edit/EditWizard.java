@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2012 Massachusetts General Hospital 
+ * Copyright (c) 2006-2014 Massachusetts General Hospital 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the i2b2 Software License v2.1 
  * which accompanies this distribution. 
@@ -245,6 +245,11 @@ public class EditWizard extends Wizard {
 		}
 		
 	//	if(validate()){
+		
+		if((System.getProperty("OntEdit_ViewOnly") != null) && (System.getProperty("OntEdit_ViewOnly").equals("true")))
+				return true;
+				
+		
 		if(!(MetadataRecord.getInstance().isSynonymEditFlag())){
 			modifyChild(true).start();	
 			return true;
@@ -630,6 +635,8 @@ public class EditWizard extends Wizard {
 			textData.horizontalAlignment = SWT.FILL;
 			text1.setLayoutData(textData);
 
+
+			
 			// Check for page complete
 			text1.addModifyListener(new ModifyListener() {
 				
@@ -784,7 +791,8 @@ public class EditWizard extends Wizard {
 			typeCombo.add("FOLDER");
 			typeCombo.add("ITEM");
 			typeCombo.add("CONTAINER");
-			
+
+				
 			typeCombo.addSelectionListener(new SelectionListener(){
 				public void widgetSelected(SelectionEvent e) {
 					if(typeCombo.getText().equals("ITEM")){
@@ -808,7 +816,7 @@ public class EditWizard extends Wizard {
 			});
 
 			 
-	      
+			
 			
 			
 			new Label (itemSettings, SWT.NONE).setText("Visual Attribute:");			
@@ -886,7 +894,7 @@ public class EditWizard extends Wizard {
 			new Label (itemSettings, SWT.NONE);
 			new Label (itemSettings, SWT.NONE);
 			new Label (itemSettings, SWT.NONE).setText("* denotes required field.");			
-		
+				
 			setControl(itemSettings);
 				
 		/*	

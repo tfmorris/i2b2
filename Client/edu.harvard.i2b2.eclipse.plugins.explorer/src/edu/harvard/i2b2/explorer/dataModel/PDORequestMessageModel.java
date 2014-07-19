@@ -14,12 +14,7 @@ package edu.harvard.i2b2.explorer.dataModel;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
-
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +45,7 @@ import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.ObjectFactory;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.OutputOptionListType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.OutputOptionNameType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.OutputOptionSelectType;
+import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.OutputOptionSelectionFilterType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.OutputOptionType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.PanelType;
 import edu.harvard.i2b2.crcxmljaxb.datavo.pdo.query.PatientListType;
@@ -72,7 +68,7 @@ public class PDORequestMessageModel {
 
 	public GetPDOFromInputListRequestType getPDOFromInputListRequestType(
 			ArrayList<PDOItem> items, String patientSetRefId, Integer min,
-			Integer max, boolean fromFact) {
+			Integer max, boolean fromFact, String filter) {
 
 		PatientListType patientListType = new PatientListType();
 		if (patientSetRefId.compareTo("-1") == 0) {
@@ -142,38 +138,23 @@ public class PDORequestMessageModel {
 
 			ConstrainByDate timeConstrain = new ConstrainByDate();
 			DTOFactory dtoFactory = new DTOFactory();
-			
-			TimeZone tz = Calendar.getInstance().getTimeZone();
-			GregorianCalendar cal = new GregorianCalendar(tz);
-			//cal.get(Calendar.ZONE_OFFSET);
-			int zt_offset = (cal.get(Calendar.ZONE_OFFSET)+cal.get(Calendar.DST_OFFSET))/60000;
-			log.info("Timezone: "+tz.getID()+" : "+zt_offset);
-			
+
 			if (item.queryModel().startTime() != -1) {
 				ConstrainDateType constraindateType = new ConstrainDateType();
-				XMLGregorianCalendar xmlC = dtoFactory.getXMLGregorianCalendarDate(
-						item.queryModel()
-						.startYear(),
-						item.queryModel().startMonth() + 1, item
-								.queryModel().startDay());
-				xmlC.setTimezone(zt_offset);//0);//-5*60);
-				xmlC.setHour(0);
-				xmlC.setMinute(0);
-				xmlC.setSecond(0);
-				constraindateType.setValue(xmlC);
+				constraindateType.setValue(dtoFactory
+						.getXMLGregorianCalendarDate(item.queryModel()
+								.startYear(),
+								item.queryModel().startMonth() + 1, item
+										.queryModel().startDay()));
+
 				timeConstrain.setDateFrom(constraindateType);
 			}
 			if (item.queryModel().endTime() != -1) {
 				ConstrainDateType constraindateType = new ConstrainDateType();
-				XMLGregorianCalendar xmlC = dtoFactory.getXMLGregorianCalendarDate(
-						item.queryModel()
-						.endYear(), item.queryModel().endMonth() + 1,
-						item.queryModel().endDay());
-				xmlC.setTimezone(zt_offset);//0);//-5*60);
-				xmlC.setHour(0);
-				xmlC.setMinute(0);
-				xmlC.setSecond(0);
-				constraindateType.setValue(xmlC);
+				constraindateType.setValue(dtoFactory
+						.getXMLGregorianCalendarDate(item.queryModel()
+								.endYear(), item.queryModel().endMonth() + 1,
+								item.queryModel().endDay()));
 				timeConstrain.setDateTo(constraindateType);
 			}
 
@@ -196,6 +177,20 @@ public class PDORequestMessageModel {
 		FactOutputOptionType factOutputOptionType = new FactOutputOptionType();
 		factOutputOptionType.setOnlykeys(false);
 		factOutputOptionType.setBlob(false);
+		
+		//OutputOptionSelectionFilterType outputOptionSelectionFilterType = new OutputOptionSelectionFilterType();
+		if(filter.equalsIgnoreCase("max")) {
+			factOutputOptionType.setSelectionfilter(OutputOptionSelectionFilterType.MAX_VALUE);
+		}
+		else if(filter.equalsIgnoreCase("min")) {
+			factOutputOptionType.setSelectionfilter(OutputOptionSelectionFilterType.MIN_VALUE);
+		}
+		else if(filter.equalsIgnoreCase("first")) {
+			factOutputOptionType.setSelectionfilter(OutputOptionSelectionFilterType.FIRST_VALUE);
+		}
+		else if(filter.equalsIgnoreCase("last")) {
+			factOutputOptionType.setSelectionfilter(OutputOptionSelectionFilterType.LAST_VALUE);
+		}
 
 		OutputOptionType visitOutputOptionType = new OutputOptionType();
 		// if(fromFact) {
@@ -206,10 +201,22 @@ public class PDORequestMessageModel {
 		// visitOutputOptionType.setSelect("from_input");
 		// }
 		visitOutputOptionType.setOnlykeys(false);
+		
+		///////pid set
+		OutputOptionType pidOutputOptionType = new OutputOptionType();
+		// if(fromFact) {
+		pidOutputOptionType
+				.setSelect(OutputOptionSelectType.USING_FILTER_LIST);
+		// }
+		// else {
+		// visitOutputOptionType.setSelect("from_input");
+		// }
+		pidOutputOptionType.setOnlykeys(false);
 
 		OutputOptionListType outputOptionListType = new OutputOptionListType();
 		outputOptionListType.setPatientSet(patientOutputOptionType);
 		// outputOptionListType.setVisitDimension(visitOutputOptionType);
+		outputOptionListType.setPidSet(pidOutputOptionType);
 		outputOptionListType.setObservationSet(factOutputOptionType);
 		outputOptionListType.setNames(OutputOptionNameType.ASATTRIBUTES);
 
@@ -234,14 +241,15 @@ public class PDORequestMessageModel {
 	}
 
 	public String requestXmlMessage(ArrayList<PDOItem> items,
-			String patientSetRefId, Integer min, Integer max, boolean fromFact)
+			String patientSetRefId, Integer min, Integer max, 
+			boolean fromFact, String filter)
 			throws Exception {
 		PdoQryHeaderType headerType = buildHeaderType();
 		// GetPDOFromPatientSetRequestType patientSetRequestType =
 		// buildPatientSetRequestType();
 
 		GetPDOFromInputListRequestType patientSetRequestType = getPDOFromInputListRequestType(
-				items, patientSetRefId, min, max, fromFact);
+				items, patientSetRefId, min, max, fromFact, filter);
 		ObjectFactory obsFactory = new ObjectFactory();
 
 		BodyType bodyType = new BodyType();
@@ -288,7 +296,7 @@ public class PDORequestMessageModel {
 		ppaths.add(conceptPath);
 
 		pdoFactory.requestXmlMessage(null, "1545", new Integer(0), new Integer(
-				10), false);
+				10), false, "");
 	}
 
 	protected MessageHeaderType getMessageHeader() {

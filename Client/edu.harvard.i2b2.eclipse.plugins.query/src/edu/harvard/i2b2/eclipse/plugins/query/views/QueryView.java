@@ -86,7 +86,7 @@ public class QueryView extends ViewPart implements ICommonMethod {
 				QUERY_VIEW_CONTEXT_ID);
 		addHelpButtonToToolBar();
 
-		log.info("Query Tool plugin version 1.6.0");
+		log.info("Query Tool plugin version 1.7.0");
 		GridLayout topGridLayout = new GridLayout(1, false);
 		topGridLayout.numColumns = 1;
 		topGridLayout.marginWidth = 2;
@@ -105,6 +105,9 @@ public class QueryView extends ViewPart implements ICommonMethod {
 		Composite rightComp = new Composite(queryComposite, SWT.BORDER
 				| SWT.EMBEDDED | SWT.DragDetect);
 		/* Create and setting up frame */
+		////for mac fix
+		//if ( System.getProperty("os.name").toLowerCase().startsWith("mac"))
+			//SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 		Frame frame = SWT_AWT.new_Frame(rightComp);
 		Panel panel = new Panel(new BorderLayout());
 		try {
