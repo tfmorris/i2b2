@@ -20,9 +20,9 @@ i2b2.CRC.ctrlr.dateConstraint = {
 	showDates: function(panelControllerIndex) {
 		var dm = i2b2.CRC.model.queryCurrent;
 		var panelIndex = i2b2.CRC.ctrlr.QT.panelControllers[panelControllerIndex].panelCurrentIndex;
-		if (undefined==dm.panels[panelIndex]) return;
+		if (undefined==dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][panelIndex]) return;
 		// grab our current values
-		var qn = dm.panels[panelIndex];
+		var qn = dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup][panelIndex];
 		this.currentPanelIndex = panelIndex;
 
 		// only build the prompt box 1 time
@@ -183,7 +183,7 @@ i2b2.CRC.ctrlr.dateConstraint = {
 		var sDateError = false;
 		var rxDate = /^\d{1,2}(\-|\/|\.)\d{1,2}\1\d{4}$/
 		var DateRecord = {};
-		var dm = i2b2.CRC.model.queryCurrent.panels[panelIndex];
+		var dm = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][panelIndex];
 		this.currentPanelIndex = panelIndex;
 		// start date
 		if ($('checkboxDateStart').checked) {

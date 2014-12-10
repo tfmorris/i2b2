@@ -196,7 +196,7 @@ public class PdoQueryVisitDao extends CRCDAO implements IPdoQueryVisitDao {
 				String patientEncCollectionId = visitListTypeHandler
 						.getCollectionId();
 				preparedStmt = conn.prepareStatement(mainSqlString);
-				preparedStmt.setString(1, patientEncCollectionId);
+				preparedStmt.setInt(1,Integer.parseInt(patientEncCollectionId));
 
 			} else if (visitListTypeHandler.isEnumerationSet()) {
 				String serverType = dataSourceLookup.getServerType();

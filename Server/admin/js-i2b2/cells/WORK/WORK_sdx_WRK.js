@@ -160,10 +160,41 @@ i2b2.sdx.TypeControllers.WRK.RenderHTML= function(sdxData, options, targetDiv) {
 			o.table_name = i2b2.h.getXNodeVal(x, "tablename");
 			o.tooltip = i2b2.h.getXNodeVal(x, "tooltip");
 			o.hasChildren = i2b2.h.getXNodeVal(x, "visualattributes");
+			
+			
+			var bCanExp = false;
+			if (o.hasChildren.substring(1,0) === "C"){
+				// render as category
+				icon = 'root';
+				sDD = '';
+				sIG = ' isGroup="Y"';
+				bCanExp = true;
+			} else if (o.hasChildren.substring(1,0) === "F")  {
+				// render as possibly having children
+				icon = 'branch';
+				bCanExp = true;
+				//var sCanExpand = ' canExpand="Y"';
+			} else if (o.hasChildren.substring(1,0) === "O")  {
+				// render as possibly having children
+				icon = 'root';
+				bCanExp = true;
+				//var sCanExpand = ' canExpand="Y"';		
+			} else if (o.hasChildren.substring(1,0) === "D") {
+				// render as possibly having children
+				icon = 'branch';
+				bCanExp = true;
+				//var sCanExpand = ' canExpand="Y"';
+		
+			} else {
+				// render as not having children
+				var icon = 'leaf';
+				bCanExp = false;
+			}
+						
 			newOptions.icon = {
-				root: "sdx_ONT_CONCPT_leaf.gif",
-				branch: "sdx_ONT_CONCPT_leaf.gif",
-				leaf: "sdx_ONT_CONCPT_leaf.gif"
+				root: "sdx_ONT_CONCPT_"+icon+".gif",
+				branch: "sdx_ONT_CONCPT_"+icon+".gif",
+				leaf: "sdx_ONT_CONCPT_"+icon+".gif"
 			};
 			newOptions.showchildren = false;
 			newOptions.title = o.name;

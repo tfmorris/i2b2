@@ -594,7 +594,6 @@ i2b2.WORK.cfg.msgs.renameChild = '<?xml version="1.0" encoding="UTF-8" standalon
 '		<ns4:rename_child>\n'+
 '			<node>{{{rename_target_id}}}</node>\n'+
 '			<name>{{{rename_text}}}</name>\n'+
-'			<work_xml>{{{rename_xml}}}</work_xml>\n'+
 '		</ns4:rename_child>\n'+
 '	</message_body>\n'+
 '</ns3:request>\n';

@@ -105,8 +105,8 @@ public class TablePdoQueryConceptDao extends CRCDAO implements
 				
 				if (serverType.equalsIgnoreCase(DAOFactoryHelper.POSTGRESQL))
 					insertSql = " CAST(coalesce(char_param1, '0') as integer) ";
-				else 
-					insertSql += " (char_param1) ";
+				//else 
+				//	insertSql += " (char_param1) ";
 				insertSql += "(char_param1) select distinct obs_concept_cd from ( "
 						+ panelSql + ") b";
 

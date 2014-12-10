@@ -57,6 +57,10 @@ function QueryToolController() {
 		this.panelControllers[0].refTitle.innerHTML =  'Group 1';
 		$("defineTemporal-button").innerHTML = "Population in which events occur";
 		i2b2.CRC.view.QT.setQueryTiming(0);
+		i2b2.CRC.view.QT.clearTemportal();
+		$('temporalbuilders').innerHTML = "";
+		this.tenporalBuilders = -1;
+		this.doAddTemporal();
 	}
 
 // ================================================================================================== //
@@ -64,7 +68,7 @@ function QueryToolController() {
 		// clear existing query
 		i2b2.CRC.ctrlr.QT.doQueryClear();
 		// show on GUI that work is being done
-		i2b2.h.LoadingMask.show();
+		//i2b2.h.LoadingMask.show();
 
 		// callback processor
 		var scopedCallback = new i2b2_scopedCallback();
@@ -89,8 +93,10 @@ function QueryToolController() {
 				i2b2.CRC.ctrlr.QT.doQueryClear();
 				var dObj = {};
 				dObj.name = i2b2.h.getXNodeVal(results.refXML,'name');
-					$('queryName').innerHTML = dObj.name;
-				dObj.timing = i2b2.h.getXNodeVal(qd[0],'query_timing');
+				$('queryName').innerHTML = dObj.name;
+				dObj.timing = i2b2.h.XPath(qd[0],'descendant-or-self::query_timing/text()');
+				dObj.timing = dObj.timing[0].nodeValue;				
+
 				//i2b2.CRC.view.QT.queryTimingButtonset("label", dObj.timing);
 				i2b2.CRC.view.QT.setQueryTiming(dObj.timing);
 				dObj.specificity = i2b2.h.getXNodeVal(qd[0],'specificity_scale');
@@ -98,6 +104,12 @@ function QueryToolController() {
 	
 				var sqc = i2b2.h.XPath(qd[0], 'subquery_constraint');
 			
+				 for (var j=3; j < qd.length; j++)
+					i2b2.CRC.view.QT.addNewTemporalGroup();
+
+				 for (var j=1; j < sqc.length; j++)
+					i2b2.CRC.ctrlr.QT.doAddTemporal();
+
 				for (var j=0; j <sqc.length; j++) {
 
 					i2b2.CRC.view.QT.setQueryTiming("TEMPORAL");
@@ -106,7 +118,10 @@ function QueryToolController() {
 					 $('instancevent1['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'first_query/query_id');
 					 $('preloc1['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'first_query/join_column');
 					 $('instanceopf1['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'first_query/aggregate_operator');
-					$('postloc['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'operator');
+					 var operator = i2b2.h.XPath(sqc[j],'descendant-or-self::operator/text()');
+					 $('postloc['+j + ']').value = operator[0].nodeValue;
+
+					//$('postloc['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'operator');
 					$('instancevent2['+j + ']').value =i2b2.h.getXNodeVal(sqc[j],'second_query/query_id');
 					$('preloc2['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'second_query/join_column');
 					$('instanceopf2['+j + ']').value = i2b2.h.getXNodeVal(sqc[j],'second_query/aggregate_operator');
@@ -115,9 +130,10 @@ function QueryToolController() {
 					var span = i2b2.h.XPath(sqc[j], 'span');
 
 					for (var k=0; k < span.length; k++) {
-						$('byspan' + k + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'operator');
-						$('bytimevalue' + k + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'span_value');
-						$('bytimeunit' + k + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'units');
+						$('byspan' + (k + 1) + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'operator');
+						$('bytimevalue' + (k + 1) + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'span_value');
+						$('bytimeunit' + (k + 1) + '[' +j + ']').value = i2b2.h.getXNodeVal(span[k],'units');
+						$('bytime' + (k + 1) + '[' +j + ']').checked  = true;
 					}
 				}
 				
@@ -131,15 +147,18 @@ function QueryToolController() {
 					
 					var total_panels = qp.length;
 					for (var i1=0; i1<total_panels; i1++) {
+						i2b2.CRC.ctrlr.QT.temporalGroup = j;
+						i2b2.CRC.ctrlr.QT._redrawAllPanels();
+						
 						// extract the data for each panel
 						var po = {};
 						po.panel_num = i2b2.h.getXNodeVal(qp[i1],'panel_number');
 						var t = i2b2.h.getXNodeVal(qp[i1],'invert');
 						po.exclude = (t=="1");
-						//po.timing = i2b2.h.getXNodeVal(qp[i1],'panel_timing');
+						//po.timing = i2b2.h.getXNodeVal(qp[i1],'panel_timing');				
 						// 1.4 queries don't have panel_timing, and undefined doesn't work
 						// so default to ANY
-						po.timing = i2b2.h.getXNodeVal(qp[i1],'panel_timing') || 'ANY';				
+						po.timing = i2b2.h.getXNodeVal(qp[i1],'panel_timing') || 'ANY';			
 						i2b2.CRC.view.QT.setPanelTiming(po.panel_num, po.timing);
 						var t = i2b2.h.getXNodeVal(qp[i1],'total_item_occurrences');
 						po.occurs = (1*t)-1;
@@ -147,23 +166,26 @@ function QueryToolController() {
 						po.relevance = t;					
 						var t = i2b2.h.getXNodeVal(qp[i1],'panel_date_from');
 						if (t) {
-							t = t.replace('Z','');
-							t = t.split('-');
+						//	t = t.replace('T','-');
+						//	t = t.replace('Z','-');
+						//	t = t.split('-');
+							// new Date(start_date.substring(0,4), start_date.substring(5,7)-1, start_date.substring(8,10), start_date.substring(11,13), start_date.substring(14,16),start_date.substring(17,19),start_date.substring(20,23));
 							po.dateFrom = {};
-							po.dateFrom.Year = t[0];
-							po.dateFrom.Month = t[1];
-							po.dateFrom.Day = t[2];
+							po.dateFrom.Year = t.substring(0,4); //t[0];
+							po.dateFrom.Month = t.substring(5,7); //t[1];
+							po.dateFrom.Day = t.substring(8,10); //t[2];
 						} else {
 							po.dateFrom = false;
 						}
 						var t = i2b2.h.getXNodeVal(qp[i1],'panel_date_to');
 						if (t) {
-							t = t.replace('Z','');
-							t = t.split('-');
+							//t = t.replace('T','-');
+							//t = t.replace('Z','-');
+							//t = t.split('-');
 							po.dateTo = {};
-							po.dateTo.Year = t[0];
-							po.dateTo.Month = t[1];
-							po.dateTo.Day = t[2];
+							po.dateTo.Year =  t.substring(0,4); //t[0];
+							po.dateTo.Month =  t.substring(5,7); // t[1];
+							po.dateTo.Day = t.substring(8,10);// t[2];
 						} else {
 							po.dateTo = false;
 						}
@@ -419,6 +441,9 @@ function QueryToolController() {
 				// hide the loading mask
 				i2b2.h.LoadingMask.hide();
 				}
+				i2b2.CRC.ctrlr.QT.temporalGroup = 0;
+				i2b2.CRC.ctrlr.QT._redrawAllPanels();
+
 									//Load the query status
 				i2b2.CRC.ctrlr.QT.laodQueryStatus(qm_id, dObj.name);
 		}
@@ -719,39 +744,40 @@ function QueryToolController() {
 				//if equal to one than add subquery_contraint
 				if (ip == 1)
 				{
-					s += '\t<subquery_constraint>\n';
-					s += '\t\t<first_query>\n';
-					s +=  '\t\t\t<query_id>' + $('instancevent1[0]').options[$('instancevent1[0]').selectedIndex].value + '</query_id>\n';
-					s +=  '\t\t\t<join_column>' + $('preloc1[0]').options[$('preloc1[0]').selectedIndex].value + '</join_column>\n';
-					s +=  '\t\t\t<aggregate_operator>' + $('instanceopf1[0]').options[$('instanceopf1[0]').selectedIndex].value + '</aggregate_operator>\n';
-					s += '\t\t</first_query>\n';
-					s +=  '\t\t<operator>' + $('postloc[0]').options[$('postloc[0]').selectedIndex].value + '</operator>\n';
-					s += '\t\t<second_query>\n';
-					s +=  '\t\t\t<query_id>' + $('instancevent2[0]').options[$('instancevent2[0]').selectedIndex].value + '</query_id>\n';
-					s +=  '\t\t\t<join_column>' + $('preloc2[0]').options[$('preloc2[0]').selectedIndex].value + '</join_column>\n';
-					s +=  '\t\t\t<aggregate_operator>' + $('instanceopf2[0]').options[$('instanceopf2[0]').selectedIndex].value + '</aggregate_operator>\n';
-					s += '\t\t</second_query>\n';
-
-					if ( $('bytime1[0]').checked)
-					{
-							s += '\t\t<span>\n';
-                  			s += '\t\t\t<operator>' + $('byspan1[0]').options[$('byspan1[0]').selectedIndex].value + '</operator>\n';
-                 			s += '\t\t\t<span_value>' + $('bytimevalue1[0]').value + '</span_value>\n';
-                  			s += '\t\t\t<units>' + $('bytimeunit1[0]').options[$('bytimeunit1[0]').selectedIndex].value + '</units>\n';
-							s += '\t\t</span>\n';
-					}
-					if ( $('bytime2[0]').checked)
-					{
-							s += '\t\t<span>\n';
-                  			s += '\t\t\t<operator>' + $('byspan2[0]').options[$('byspan2[0]').selectedIndex].value + '</operator>\n';
-                 			s += '\t\t\t<span_value>' + $('bytimevalue2[0]').value + '</span_value>\n';
-                  			s += '\t\t\t<units>' + $('bytimeunit2[0]').options[$('bytimeunit2[0]').selectedIndex].value + '</units>\n';
-							s += '\t\t</span>\n';
-					}
-
+				   for (var tb=0; tb <= this.tenporalBuilders; tb++) {
+						s += '\t<subquery_constraint>\n';
+						s += '\t\t<first_query>\n';
+						s +=  '\t\t\t<query_id>' + $('instancevent1[' + tb + ']').options[$('instancevent1[' + tb + ']').selectedIndex].value + '</query_id>\n';
+						s +=  '\t\t\t<join_column>' + $('preloc1[' + tb + ']').options[$('preloc1[' + tb + ']').selectedIndex].value + '</join_column>\n';
+						s +=  '\t\t\t<aggregate_operator>' + $('instanceopf1[' + tb + ']').options[$('instanceopf1[' + tb + ']').selectedIndex].value + '</aggregate_operator>\n';
+						s += '\t\t</first_query>\n';
+						s +=  '\t\t<operator>' + $('postloc[' + tb + ']').options[$('postloc[' + tb + ']').selectedIndex].value + '</operator>\n';
+						s += '\t\t<second_query>\n';
+						s +=  '\t\t\t<query_id>' + $('instancevent2[' + tb + ']').options[$('instancevent2[' + tb + ']').selectedIndex].value + '</query_id>\n';
+						s +=  '\t\t\t<join_column>' + $('preloc2[' + tb + ']').options[$('preloc2[' + tb + ']').selectedIndex].value + '</join_column>\n';
+						s +=  '\t\t\t<aggregate_operator>' + $('instanceopf2[' + tb + ']').options[$('instanceopf2[' + tb + ']').selectedIndex].value + '</aggregate_operator>\n';
+						s += '\t\t</second_query>\n';
 	
-					s += '\t</subquery_constraint>\n';
-					
+						if ( $('bytime1[' + tb + ']').checked)
+						{
+								s += '\t\t<span>\n';
+	                  			s += '\t\t\t<operator>' + $('byspan1[' + tb + ']').options[$('byspan1[' + tb + ']').selectedIndex].value + '</operator>\n';
+	                 			s += '\t\t\t<span_value>' + $('bytimevalue1[' + tb + ']').value + '</span_value>\n';
+	                  			s += '\t\t\t<units>' + $('bytimeunit1[' + tb + ']').options[$('bytimeunit1[' + tb + ']').selectedIndex].value + '</units>\n';
+								s += '\t\t</span>\n';
+						}
+						if ( $('bytime2[' + tb + ']').checked)
+						{
+								s += '\t\t<span>\n';
+	                  			s += '\t\t\t<operator>' + $('byspan2[' + tb + ']').options[$('byspan2[' + tb + ']').selectedIndex].value + '</operator>\n';
+	                 			s += '\t\t\t<span_value>' + $('bytimevalue2[' + tb + ']').value + '</span_value>\n';
+	                  			s += '\t\t\t<units>' + $('bytimeunit2[' + tb + ']').options[$('bytimeunit2[' + tb + ']').selectedIndex].value + '</units>\n';
+								s += '\t\t</span>\n';
+						}
+	
+		
+						s += '\t</subquery_constraint>\n';
+					}
 					
 		
 				} 
@@ -774,10 +800,10 @@ function QueryToolController() {
 				s += '\t\t<panel_number>' + (p+1) + '</panel_number>\n';
 				// date range constraints
 				if (panel_list[p].dateFrom) {
-					s += '\t\t<panel_date_from>'+panel_list[p].dateFrom.Year+'-'+padNumber(panel_list[p].dateFrom.Month,2)+'-'+padNumber(panel_list[p].dateFrom.Day,2)+'</panel_date_from>\n';
+					s += '\t\t<panel_date_from>'+panel_list[p].dateFrom.Year+'-'+padNumber(panel_list[p].dateFrom.Month,2)+'-'+padNumber(panel_list[p].dateFrom.Day,2)+'T00:00:00.000-05:00</panel_date_from>\n';
 				}
 				if (panel_list[p].dateTo) {
-					s += '\t\t<panel_date_to>'+panel_list[p].dateTo.Year+'-'+padNumber(panel_list[p].dateTo.Month,2)+'-'+padNumber(panel_list[p].dateTo.Day,2)+'</panel_date_to>\n';
+					s += '\t\t<panel_date_to>'+panel_list[p].dateTo.Year+'-'+padNumber(panel_list[p].dateTo.Month,2)+'-'+padNumber(panel_list[p].dateTo.Day,2)+'T00:00:00.000-05:00</panel_date_to>\n';
 				}
 				s += "\t\t<panel_accuracy_scale>" + panel_list[p].relevance + "</panel_accuracy_scale>\n";
 				// Exclude constraint (invert flag)
@@ -1001,6 +1027,7 @@ function QueryToolController() {
 		var pi = dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup].length;
 		if (pi == undefined)
 		{
+		     dm.panels[i2b2.CRC.ctrlr.QT.temporalGroup] = new Array();
 			 pi = 0;
 		}
 		var tTiming = i2b2.CRC.ctrlr.QT.queryTiming;
@@ -1328,14 +1355,12 @@ function QueryToolController() {
 
 // ================================================================================================== //
 	this.doAddTemporal = function() {
-		var html = $('temporalbuilders').innerHTML;
+		//var html = $('temporalbuilders').innerHTML;
 		this.tenporalBuilders = this.tenporalBuilders + 1;
-		html = $('temporalbuilders').innerHTML 
-		
-					+ '		  <div class="relationshipAmongEvents" id="temporalbuilder_' + this.tenporalBuilders + '"> '
-                    + '          <select id="preloc1[' + this.tenporalBuilders + ']" name="preloc1[' + this.tenporalBuilders + ']" style="width:100px;"><option value="STARTDATE">Start of</option><option  value="ENDDATE">End of</option></select> '
+	//	html = '		  <div class="relationshipAmongEvents" id="temporalbuilder_' + this.tenporalBuilders + '"> '
+        html             = '          <select id="preloc1[' + this.tenporalBuilders + ']" name="preloc1[' + this.tenporalBuilders + ']" style="width:100px;"><option value="STARTDATE">Start of</option><option  value="ENDDATE">End of</option></select> '
                     + '          <select id="instanceopf1[' + this.tenporalBuilders + ']" name="instanceopf1[' + this.tenporalBuilders + ']" style="width:150px;"><option  value="FIRST">the First Ever</option><option  value="LAST">the Last Ever</option><option value="ANY">any</option></select> '
-                    + '          <select id="instancevent1[' + this.tenporalBuilders + ']" name="instancevent1[' + this.tenporalBuilders + ']" style="width:100px;"><option  selected="selected">Event 1</option><option>Event 2</option>';
+                    + '          <select id="instancevent1[' + this.tenporalBuilders + ']" name="instancevent1[' + this.tenporalBuilders + ']" style="width:100px;"><option  selected>Event 1</option><option>Event 2</option>';
 					
 					for (var j =3; j < i2b2.CRC.model.queryCurrent.panels.length; j ++)
 					{	
@@ -1344,10 +1369,10 @@ function QueryToolController() {
 
                     html += '  </select>    		<br/> '
 
-                    + '          <select id="postloc[' + this.tenporalBuilders + ']" name="postloc[' + this.tenporalBuilders + ']"  style="width:150px;"><option value="LESS">Occurs Before</option><option value="LESSEQUAL">On Or After</option> '
-                     + '         <option value="EQUAL">Equals</option> '
-                     + '         <option  value="GREATER">Occurs On Or After</option> '
-                    + '          <option  value="GREATEREQUAL">Occurs After</option> '
+                    + '          <select id="postloc[' + this.tenporalBuilders + ']" name="postloc[' + this.tenporalBuilders + ']"  style="width:150px;"><option value="LESS">Occurs Before</option><option value="LESSEQUAL">Occurs On Or Before</option> '
+                     + '         <option value="EQUAL">Occurs Simultaneously With</option> '
+                    + '          <option  value="GREATER">Occurs After</option> '
+                     + '         <option  value="GREATEREQUAL">Occurs On or After</option> '
                               
                      + '         </select> '
 
@@ -1355,7 +1380,7 @@ function QueryToolController() {
                                 
                       + '        <select id="preloc2[' + this.tenporalBuilders + ']" name="preloc2[' + this.tenporalBuilders + ']" style="width:100px;"><option value="STARTDATE">Start of</option><option  value="ENDDATE">End of</option></select> '
                       + '        <select id="instanceopf2[' + this.tenporalBuilders + ']" name="instanceopf2[' + this.tenporalBuilders + ']"  style="width:150px;"><option  value="FIRST">the First Ever</option><option  value="LAST">the Last Ever</option><option value="ANY">any</option></select> '
-                      + '        <select id="instancevent2[' + this.tenporalBuilders + ']" name="instancevent2[' + this.tenporalBuilders + ']" style="width:100px;"><option>Event 1</option><option  selected="selected">Event 2</option>';
+                      + '        <select id="instancevent2[' + this.tenporalBuilders + ']" name="instancevent2[' + this.tenporalBuilders + ']" style="width:100px;"><option>Event 1</option><option  selected>Event 2</option>';
 					
 					for (var j =3; j < i2b2.CRC.model.queryCurrent.panels.length; j ++)
 					{	
@@ -1364,32 +1389,36 @@ function QueryToolController() {
 
                     html += '  </select>      <br/> '
                                 
-                        + '        <input  id="bytime1[' + this.tenporalBuilders + ']" name="bytime1[' + this.tenporalBuilders + ']" type="checkbox">By <select id="byspan1[' + this.tenporalBuilders + ']" name="byspan1[' + this.tenporalBuilders + ']"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL">&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL">&le;</option><option value="LESS">&lt;</option></select> '
+                       + '        <input  id="bytime1[' + this.tenporalBuilders + ']" name="bytime1[' + this.tenporalBuilders + ']" type="checkbox">By <select id="byspan1[' + this.tenporalBuilders + ']" name="byspan1[' + this.tenporalBuilders + ']"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL" selected>&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL">&le;</option><option value="LESS">&lt;</option></select> '
                        + '         <input   id="bytimevalue1[' + this.tenporalBuilders + ']" name="bytimevalue1[' + this.tenporalBuilders + ']" style="width:50px;" type="text" value="1"> '
                        + '          <select   id="bytimeunit1[' + this.tenporalBuilders + ']" name="bytimeunit1[' + this.tenporalBuilders + ']" style="width:100px;"> '
                        + '          <option  value="HOUR">hour(s)</option> '
-                       + '          <option   value="DAY" selected="selected">day(s)</option> '
+                       + '          <option   value="DAY" selected>day(s)</option> '
                        + '          <option  value="MONTH">month(s)</option> '
                        + '          <option  value="YEAR">year(s)</option></select> '
                                  
                        + '          <br/> '
                                  
-                       + '         <input id="bytime2[' + this.tenporalBuilders + ']" name="bytime2[' + this.tenporalBuilders + ']" type="checkbox">And <select  id="byspan2[' + this.tenporalBuilders + ']" name="byspan2[' + this.tenporalBuilders + ']"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL">&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL">&le;</option><option value="LESS">&lt;</option></select> '
+                       + '         <input id="bytime2[' + this.tenporalBuilders + ']" name="bytime2[' + this.tenporalBuilders + ']" type="checkbox">And <select  id="byspan2[' + this.tenporalBuilders + ']" name="byspan2[' + this.tenporalBuilders + ']"  style="width:50px;"><option value="GREATER">&gt;</option><option value="GREATEREQUAL">&ge;</option><option value="EQUAL">=</option><option value="LESSEQUAL" selected>&le;</option><option value="LESS">&lt;</option></select> '
                        + '         <input id="bytimevalue2[' + this.tenporalBuilders + ']" name="bytimevalue2[' + this.tenporalBuilders + ']"  style="width:50px;" type="text" value="1"> '
                        + '          <select  id="bytimeunit2[' + this.tenporalBuilders + ']" name="bytimeunit2[' + this.tenporalBuilders + ']" style="width:100px;"> '
                        + '          <option  value="HOUR">hour(s)</option> '
-                       + '          <option   value="DAY" selected="selected">day(s)</option> '
+                       + '          <option   value="DAY" selected>day(s)</option> '
                        + '          <option  value="MONTH">month(s)</option> '
-                       + '          <option  value="YEAR">year(s)</option></select> '
+                       + '          <option  value="YEAR">year(s)</option></select> ';
+
                                  
                                  
                                  
-                      + '    </div> ';
+                    //  + '    </div> ';
 		
 		
 		 '<div class="relationshipAmongEvents" id="temporalbuilder_' + this.tenporalBuilders + '">' +  html + '</div>';
-		
-		 $('temporalbuilders').innerHTML = html;
+		 var content = document.createElement ("div");
+		 content.id = "temporalbuilder_" + this.tenporalBuilders;
+		 content.className = "relationshipAmongEvents";
+		 content.innerHTML = html;
+		 $('temporalbuilders').appendChild(content);
 		
 	}
 
@@ -1683,7 +1712,7 @@ function QueryToolController() {
 					win_html_inner += 
 						"<td width=30% style='align:center;solid;border-bottom-style:solid;border-right-style:solid;'>"+
 						"<span style='color:black;font-weight:normal;font-family:arial,helvetica;font-size:11px;'>"+
-						v_items[n].origData.name +
+						v_items[n].origData.newName +
 						"</span></td>";
 					
    					win_html_inner += 
@@ -1752,13 +1781,13 @@ function QueryToolController() {
 				
 				//end
 				
-					if (isTemporal == false)
-					break;
-				}
+					//if (isTemporal == false)
+					//break;
 			
 	
 			
 				win_html_inner += "</tbody></table>";
+			}
 				
 			}
 			

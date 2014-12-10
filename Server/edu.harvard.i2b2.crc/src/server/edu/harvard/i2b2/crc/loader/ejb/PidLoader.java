@@ -5,12 +5,6 @@ import java.io.StringWriter;
 import java.util.Date;
 
 import javax.naming.InitialContext;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -118,11 +112,9 @@ public class PidLoader extends AbstractDimensionLoader {
 
 	public void load() throws I2B2Exception {
 		UploadStatusDAOI uploadStatusDao = null;
-		UserTransaction tm = null;
 		InitialContext context = null;
 		try {
 
-			tm.begin();
 
 			// update the status table
 			uploadStatusDao = uploaderDaoFactory.getUploadStatusDAO();
@@ -134,33 +126,27 @@ public class PidLoader extends AbstractDimensionLoader {
 			setStatus.setSourceCd(getSourceSystemCd());
 			setStatus.setLoadDate(new Date(System.currentTimeMillis()));
 			uploadStatusDao.insertUploadSetStatus(setStatus);
-			tm.commit();
+
 			// set pdo xml file
 			setOutputXmlFileName(getInputLoadFile());
 
 			String tempPatientMappingTableName = "TEMP_PID_MAP_"
 					+ getUploadId();
 			setStagingTableName(tempPatientMappingTableName);
-			tm.begin();
 			IPidDAO pidDAO = uploaderDaoFactory.getPidDAO();
 			pidDAO.createTempTable(getStagingTableName());
 			log.info("Created PID staging table" + getStagingTableName());
-			tm.commit();
-			tm.begin();
 			PidXmlDbLoader pidDbLoader = new PidXmlDbLoader(
 					this.uploaderDaoFactory, getOutputXmlFileName(),
 					getStagingTableName(), getUploadId());
 			pidDbLoader.doUpload();
 			log.info("Uploaded " + getOutputXmlFileName() + "to staging table"
 					+ getStagingTableName());
-			tm.commit();
-			tm.begin();
 			pidDAO.createPidFromTempTable(tempPatientMappingTableName,
 					getUploadId());
 			log.info("Completed PID insert operation for staging table"
 					+ getStagingTableName());
 
-			tm.commit();
 
 			setStatus = uploadStatusDao.getUploadSetStatus(getUploadId(),
 					UploadStatusDAO.PID_SET);
@@ -185,29 +171,13 @@ public class PidLoader extends AbstractDimensionLoader {
 			uploadStatusDao.updateUploadSetStatus(setStatus);
 
 			throw i2b2Ex;
-		} catch (NotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (RollbackException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (HeuristicMixedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (HeuristicRollbackException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-
 	}
 
 }

@@ -184,7 +184,7 @@ i2b2.CRC.view.QT.ContextMenuRouter = function(a, b, actionName) {
 	switch(actionName) {
 		case "delete":
 			// delete item from the panel
-			cdat.ctrlr._deleteConcept(cdat.data.sdxInfo.sdxKeyValue, cdat.data);
+			cdat.ctrlr._deleteConcept(cdat.data.renderData.htmlID, cdat.data);
 			break;
 		case "labvalues":
 			cdat.ctrlr.showLabValues(cdat.data.sdxInfo.sdxKeyValue, cdat.data);
@@ -221,6 +221,24 @@ i2b2.CRC.view.QT.enableSameTiming = function() {
 				}
 }
 
+i2b2.CRC.view.QT.clearTemportal = function() {
+	
+	var t = defineTemporalButton.getMenu().getItems();
+	if (t.length > 4) {
+
+		defineTemporalButton.getMenu().clearContent();
+		defineTemporalButton.getMenu().addItems([ 	 
+		 										{ text: "Population in which events occur" , value: "0" }]);		 
+		defineTemporalButton.getMenu().addItems([ 	 
+			 										{ text: "Event 1" , value: "1" }]);	
+		defineTemporalButton.getMenu().addItems([ 	 
+			 										{ text: "Event 2" , value: "2" }]);	 
+		defineTemporalButton.getMenu().addItems([ 	 
+			 										{ text: "Define order of events" , value: "BUILDER" }]);	
+		defineTemporalButton.getMenu().render();			
+
+	}
+}
 // ================================================================================================== //
 
 i2b2.CRC.view.QT.setQueryTiming = function(sText) {
@@ -245,13 +263,13 @@ i2b2.CRC.view.QT.setQueryTiming = function(sText) {
 					queryTimingButton.getMenu().render();
 		}  else {
 			
-			if (sText ="TEMPORAL") {
+			if (sText =="TEMPORAL") {
 					queryTimingButton.set("label",  "Define sequence of Events");	
 					
 										i2b2.CRC.ctrlr.QT.queryTiming = "TEMPORAL";
 					$('defineTemporalBar').show();	
 	
-			} else if (sText ="SAMEVISIT") {
+			} else if (sText =="SAMEVISIT") {
 					queryTimingButton.set("label",  "Selected groups occur in the same financial encounter");	
 			}
 
@@ -484,6 +502,34 @@ i2b2.CRC.view.QT.ResizeHeight = function() {
 	$('QPD2').style.height = z;
 	$('QPD3').style.height = z;	
 	$('temporalbuilders').style.height = z + 50;	
+
+}
+
+i2b2.CRC.view.QT.addNewTemporalGroup = function() {
+
+					i2b2.CRC.ctrlr.QT.temporalGroup = i2b2.CRC.model.queryCurrent.panels.length;
+					//i2b2.CRC.ctrlr.QT.temporalGroup = i2b2.CRC.ctrlr.QT.temporalGroup + 1;
+					
+					if (YAHOO.util.Dom.inDocument(defineTemporalButton.getMenu().element)) {					
+						defineTemporalButton.getMenu().addItems([ 	 
+										{ text: "Event " + (i2b2.CRC.ctrlr.QT.temporalGroup), value: i2b2.CRC.ctrlr.QT.temporalGroup}]);	 
+						defineTemporalButton.getMenu().render();	
+					} else {
+						defineTemporalButton.itemData += {
+					    text: "Event " + (i2b2.CRC.ctrlr.QT.temporalGroup), value: i2b2.CRC.ctrlr.QT.temporalGroup}  ;
+					}
+					
+					i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup] = {};
+					this.yuiTree = new YAHOO.widget.TreeView("QPD1");
+					i2b2.CRC.ctrlr.QT.panelAdd(this.yuiTree);
+					i2b2.CRC.ctrlr.QT._redrawAllPanels();	
+					
+					//Add to define a query	
+					var select = document.getElementById("instancevent1[0]");
+					select.options[select.options.length] = new Option( 'Event '+i2b2.CRC.ctrlr.QT.temporalGroup, i2b2.CRC.ctrlr.QT.temporalGroup);
+	
+					 select = document.getElementById("instancevent2[0]");
+					select.options[select.options.length] = new Option( 'Event '+i2b2.CRC.ctrlr.QT.temporalGroup, i2b2.CRC.ctrlr.QT.temporalGroup);
 
 }
 
@@ -891,23 +937,7 @@ i2b2.events.afterCellInit.subscribe(
 
 			var addDefineGroup = new YAHOO.widget.Button("addDefineGroup"); 
 				addDefineGroup.on("click", function (event) {
-					i2b2.CRC.ctrlr.QT.temporalGroup = i2b2.CRC.model.queryCurrent.panels.length;
-					//i2b2.CRC.ctrlr.QT.temporalGroup = i2b2.CRC.ctrlr.QT.temporalGroup + 1;
-					defineTemporalButton.getMenu().addItems([ 	 
-										{ text: "Event " + (i2b2.CRC.ctrlr.QT.temporalGroup), value: i2b2.CRC.ctrlr.QT.temporalGroup}]);	 
-					defineTemporalButton.getMenu().render();			
-					
-					i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup] = {};
-					this.yuiTree = new YAHOO.widget.TreeView("QPD1");
-					i2b2.CRC.ctrlr.QT.panelAdd(this.yuiTree);
-					i2b2.CRC.ctrlr.QT._redrawAllPanels();	
-					
-					//Add to define a query	
-					var select = document.getElementById("instancevent1[0]");
-					select.options[select.options.length] = new Option( 'Event '+i2b2.CRC.ctrlr.QT.temporalGroup, i2b2.CRC.ctrlr.QT.temporalGroup);
-	
-					 select = document.getElementById("instancevent2[0]");
-					select.options[select.options.length] = new Option( 'Event '+i2b2.CRC.ctrlr.QT.temporalGroup, i2b2.CRC.ctrlr.QT.temporalGroup);
+					i2b2.CRC.view.QT.addNewTemporalGroup();
 
 						});
 
@@ -943,11 +973,12 @@ i2b2.events.afterCellInit.subscribe(
 					{
 						$('QPD1').style.background = '#FFFFFF';
 						$('queryPanelTitle1').innerHTML = 'Group 1';
+						i2b2.CRC.ctrlr.QT.panelControllers[0].refTiming.set('disabled', false);
 					} else {
 						$('QPD1').style.background = '#D9ECF0';
 						$('queryPanelTitle1').innerHTML = 'Anchoring Observation';	
 						i2b2.CRC.ctrlr.QT.panelControllers[0].doTiming("SAMEINSTANCENUM");
-					
+					    i2b2.CRC.ctrlr.QT.panelControllers[0].refTiming.set('disabled', true);
 						i2b2.CRC.ctrlr.QT.panelControllers[0].refTiming.set("label", "Items Instance will be the same");		
 
 

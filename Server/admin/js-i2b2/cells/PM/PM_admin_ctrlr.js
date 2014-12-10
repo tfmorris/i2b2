@@ -1389,7 +1389,7 @@ i2b2.PM.view.admin.treeClick = function(tvEvent, override) {
 		break;
 		case "CELLREC":
 			try {
-				$('pmMainTitle').innerHTML = 'Cell &gt; "'+info.label+'"';
+				$('pmMainTitle').innerHTML = 'Cell &gt; "'+info.i2b2NodeKey+'"';
 				i2b2.PM.view.admin.showInfoPanel("CELLREC");
 				var response = i2b2.PM.ajax.getCell("PM:Admin", {cell_id:info.i2b2NodeKey, proj_path:info.i2b2NodePath});
 				response.parse();
@@ -1421,9 +1421,9 @@ i2b2.PM.view.admin.treeClick = function(tvEvent, override) {
 			break;
 		case "APPROVALREC":
 			try {
-				$('pmMainTitle').innerHTML = 'APPROVAL &gt; "'+info.label+'"';
+				$('pmMainTitle').innerHTML = 'APPROVAL &gt; "'+info.i2b2NodeKey+'"';
 				i2b2.PM.view.admin.showInfoPanel("APPROVALREC");
-				var response = i2b2.PM.ajax.getApproval("PM:Admin", {id:info.i2b2NodeId});
+				var response = i2b2.PM.ajax.getApproval("PM:Admin", {id:'id = "' + info.i2b2NodeId + '"'});
 				response.parse();
 				var data = response.model[0];
 				if (data.id) { $('pmAdmin-approvalID').value = data.id; }
@@ -1444,7 +1444,7 @@ i2b2.PM.view.admin.treeClick = function(tvEvent, override) {
 			break;
 		case "PROJECTREC":
 			try {
-				$('pmMainTitle').innerHTML = 'Project &gt; "'+info.label+'"';
+				$('pmMainTitle').innerHTML = 'Project &gt; "'+info.i2b2NodeKey+'"';
 				i2b2.PM.view.admin.showInfoPanel("PROJECTREC");
 				var response = i2b2.PM.ajax.getProject("PM:Admin", {proj_code:info.i2b2NodeKey, proj_path:info.i2b2NodePath});
 				response.parse();
@@ -1468,7 +1468,7 @@ i2b2.PM.view.admin.treeClick = function(tvEvent, override) {
 			break;
 		case "USERREC":
 			try {
-				$('pmMainTitle').innerHTML = 'User &gt; "'+info.label+'"';
+				$('pmMainTitle').innerHTML = 'User &gt; "'+info.i2b2NodeKey+'"';
 				i2b2.PM.view.admin.showInfoPanel("USERREC");
 				
 				var response = i2b2.PM.ajax.getUser("PM:Admin", {user_id:info.i2b2NodeUserName});
@@ -1521,7 +1521,7 @@ i2b2.PM.view.admin.treeClick = function(tvEvent, override) {
 			break;
 		case "PROJECTREQUESTREC":
 			try {
-				$('pmMainTitle').innerHTML = 'Project Request &gt; "'+info.label+'"';
+				$('pmMainTitle').innerHTML = 'Project Request &gt; "'+info.i2b2NodeKey+'"';
 				i2b2.PM.view.admin.showInfoPanel("PROJECTREQUESTREC");
 				
 				i2b2.PM.view.admin.ProjectRequestViewer(info.i2b2RequestXml);

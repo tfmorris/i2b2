@@ -8,14 +8,6 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 import javax.xml.bind.JAXBElement;
 
 import org.apache.commons.logging.Log;
@@ -46,21 +38,6 @@ public class DataMartLoaderAsyncBean implements DataMartLoaderAsyncBeanRemote,
 		DataMartLoaderAsyncBeanLocal {
 
 	DTOFactory dtoFactory = new DTOFactory();
-	/*
-	 * //mm removed EJB
-	Connection connection = null;
-	@Resource(mappedName = "ConnectionFactory")
-	private static ConnectionFactory connectionFactory;
-	@Resource
-	private SessionContext sc;
-	@Resource(mappedName = "jms/edu.harvard.i2b2.crc.loader.loadrunner")
-	private static Queue queue;
-	@Resource(mappedName = "jms/edu.harvard.i2b2.crc.loader.loadresponse")
-	private static Queue responseQueue;
-
-	@Resource
-	*/
-	//private UserTransaction utx;
 
 	// get this
 	public static final String LOG_REFERENCE_PREFIX = "";
@@ -74,7 +51,6 @@ public class DataMartLoaderAsyncBean implements DataMartLoaderAsyncBeanRemote,
 	 * edu.harvard.i2b2.crc.loader.ejb.IDataMartLoaderBean#load(java.lang.String
 	 * )
 	 */
-	//mm removed EJB	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public LoadDataResponseType load(DataSourceLookup dataSourceLookup,
 			String publishMessage, SecurityType i2b2SecurityType, long timeout,
 			String fileSystemDefaultStorageResource) throws I2B2Exception {

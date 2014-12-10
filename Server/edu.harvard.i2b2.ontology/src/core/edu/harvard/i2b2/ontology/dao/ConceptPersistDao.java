@@ -114,27 +114,30 @@ public class ConceptPersistDao extends JdbcDaoSupport {
 			XmlValueType metadataXml=addChildType.getMetadataxml();
 			if (metadataXml != null) {
 				String addSql = "insert into " + metadataSchema+tableName  + 
-				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_metadataxml, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date, sourcesystem_cd, valuetype_cd, m_applied_path) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_metadataxml, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date, sourcesystem_cd, valuetype_cd, m_applied_path, c_path, c_symbol) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				log.info(addSql);
 
 				Element element = metadataXml.getAny().get(0);
-				if(element != null)
+				if(element != null){
 					xml = XMLUtil.convertDOMElementToString(element);
+					xml = xml.replaceAll("\n", "");
+				}
+				
 				numRowsAdded = jt.update(addSql, 
 						addChildType.getLevel(), StringUtil.getPath(addChildType.getKey()),addChildType.getName(), addChildType.getSynonymCd(), 
 						addChildType.getVisualattributes(), addChildType.getBasecode(), xml, addChildType.getFacttablecolumn() ,addChildType.getTablename() ,
 						addChildType.getColumnname() , addChildType.getColumndatatype() ,addChildType.getOperator() ,addChildType.getDimcode() ,addChildType.getComment() ,
-						addChildType.getTooltip(),today,  today,today, addChildType.getSourcesystemCd() ,addChildType.getValuetypeCd(), "@");
+						addChildType.getTooltip(),today,  today,today, addChildType.getSourcesystemCd() ,addChildType.getValuetypeCd(), "@", StringUtil.getCpath(addChildType.getKey()), StringUtil.getSymbol(addChildType.getKey()));
 			}		
 			else {
 				String addSql = "insert into " + metadataSchema+tableName  + 
-				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date,sourcesystem_cd, valuetype_cd, m_applied_path) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date,sourcesystem_cd, valuetype_cd, m_applied_path, c_path, c_symbol) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				log.info(addSql);
 				numRowsAdded = jt.update(addSql, 
 						addChildType.getLevel(), StringUtil.getPath(addChildType.getKey()),addChildType.getName(), addChildType.getSynonymCd(), 
 						addChildType.getVisualattributes(), addChildType.getBasecode(), addChildType.getFacttablecolumn() ,addChildType.getTablename() ,
 						addChildType.getColumnname() , addChildType.getColumndatatype() ,addChildType.getOperator() ,addChildType.getDimcode() ,addChildType.getComment() ,
-						addChildType.getTooltip(), today, today,today, addChildType.getSourcesystemCd() ,addChildType.getValuetypeCd(), "@");
+						addChildType.getTooltip(), today, today,today, addChildType.getSourcesystemCd() ,addChildType.getValuetypeCd(), "@", StringUtil.getCpath(addChildType.getKey()), StringUtil.getSymbol(addChildType.getKey()));
 			}
 		} catch (DataAccessException e) {
 			log.error("Dao addChild failed");
@@ -321,8 +324,10 @@ public class ConceptPersistDao extends JdbcDaoSupport {
 					metadataXml=modifyChildType.getSelf().getModifier().getMetadataxml();
 				if (metadataXml != null){
 					Element element = metadataXml.getAny().get(0);
-					if(element != null)
+					if(element != null){
 						xml = XMLUtil.convertDOMElementToString(element);
+						xml = xml.replaceAll("\n", "");
+					}
 				}
 				if((modifyChildType.getSelf().getModifier() == null)||(modifyChildType.getSelf().getModifier().getName() == null)){
 	//				log.debug("no modifier present");
@@ -532,27 +537,29 @@ public class ConceptPersistDao extends JdbcDaoSupport {
 			XmlValueType metadataXml=addChildType.getMetadataxml();
 			if (metadataXml != null) {
 				String addSql = "insert into " + metadataSchema+tableName  + 
-				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_metadataxml, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date, sourcesystem_cd, m_applied_path) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_metadataxml, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date, sourcesystem_cd, m_applied_path, c_path, c_symbol) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				log.info(addSql);
 
 				Element element = metadataXml.getAny().get(0);
-				if(element != null)
+				if(element != null){
 					xml = XMLUtil.convertDOMElementToString(element);
+					xml = xml.replaceAll("\n", "");
+				}
 				numRowsAdded = jt.update(addSql, 
 						addChildType.getLevel(), StringUtil.getPath(addChildType.getKey()),addChildType.getName(), addChildType.getSynonymCd(), 
 						addChildType.getVisualattributes(), addChildType.getBasecode(), xml, addChildType.getFacttablecolumn() ,addChildType.getTablename() ,
 						addChildType.getColumnname() , addChildType.getColumndatatype() ,addChildType.getOperator() ,addChildType.getDimcode() ,addChildType.getComment() ,
-						addChildType.getTooltip(),today,  today,today, addChildType.getSourcesystemCd() ,addChildType.getAppliedPath());
+						addChildType.getTooltip(),today,  today,today, addChildType.getSourcesystemCd() ,addChildType.getAppliedPath(),StringUtil.getCpath(addChildType.getKey()), StringUtil.getSymbol(addChildType.getKey()));
 			}		
 			else {
 				String addSql = "insert into " + metadataSchema+tableName  + 
-				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date,sourcesystem_cd, m_applied_path) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				"(c_hlevel, c_fullname, c_name, c_synonym_cd, c_visualattributes, c_basecode, c_facttablecolumn, c_tablename, c_columnname, c_columndatatype, c_operator, c_dimcode, c_comment, c_tooltip, import_date, update_date, download_date,sourcesystem_cd, m_applied_path, c_path, c_symbol) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				log.info(addSql);
 				numRowsAdded = jt.update(addSql, 
 						addChildType.getLevel(), StringUtil.getPath(addChildType.getKey()),addChildType.getName(), addChildType.getSynonymCd(), 
 						addChildType.getVisualattributes(), addChildType.getBasecode(), addChildType.getFacttablecolumn() ,addChildType.getTablename() ,
 						addChildType.getColumnname() , addChildType.getColumndatatype() ,addChildType.getOperator() ,addChildType.getDimcode() ,addChildType.getComment() ,
-						addChildType.getTooltip(), today, today,today, addChildType.getSourcesystemCd() ,addChildType.getAppliedPath());
+						addChildType.getTooltip(), today, today,today, addChildType.getSourcesystemCd() ,addChildType.getAppliedPath(),StringUtil.getCpath(addChildType.getKey()), StringUtil.getSymbol(addChildType.getKey()));
 			}
 		} catch (DataAccessException e) {
 			log.error("Dao addNode failed");
@@ -631,8 +638,10 @@ public class ConceptPersistDao extends JdbcDaoSupport {
 				log.info(addSql);
 
 				Element element = metadataXml.getAny().get(0);
-				if(element != null)
+				if(element != null){
 					xml = XMLUtil.convertDOMElementToString(element);
+					xml = xml.replaceAll("\n", "");
+				}
 				numRowsAdded = jt.update(addSql, 
 						addChildType.getLevel(), StringUtil.getPath(addChildType.getKey()),addChildType.getName(), addChildType.getSynonymCd(), 
 						addChildType.getVisualattributes(), addChildType.getBasecode(), xml, addChildType.getFacttablecolumn() ,addChildType.getTablename() ,

@@ -184,7 +184,10 @@ i2b2.PM._processUserConfig = function (data) {
 
 	 if (!i2b2.PM.model.isAdmin && i2b2.PM.model.admin_only)
 	{
-		alert("Requires ADMIN role, please contact your system administrator");
+		if (data.msgResponse == "")
+					alert("The PM Cell is down or the address in the properties file is incorrect.");	
+		else
+			alert("Requires ADMIN role, please contact your system administrator");
 		try { i2b2.PM.view.modal.login.show(); } catch(e) {}
 		return true;
 	} else if (i2b2.PM.model.admin_only) {	
@@ -239,6 +242,86 @@ i2b2.PM.doLogout = function() {
 	// bug fix - must reload page to avoid dirty data from lingering
 	window.location.reload();
 }
+
+
+i2b2.PM.changePassword = {
+	show: function() {
+		if (!i2b2.PM.changePassword.yuiPanel) {
+					// load the help page
+		
+			// show non-modal dialog with help documentation		
+			var panel = new YAHOO.widget.Panel("changepassword-viewer-panel", { 
+				draggable: true,
+				zindex:10000,
+				width: "300px", 
+				height: "200px", 
+				autofillheight: "body", 
+				constraintoviewport: true, 
+				context: ["showbtn", "tl", "bl"]
+			}); 
+			$("changepassword-viewer-panel").show();
+			panel.render(document.body); 
+			panel.show(); 
+			i2b2.PM.changePassword.yuiPanel = panel;
+			
+			
+		} else {
+			i2b2.PM.changePassword.yuiPanel.show();
+		}
+		// load the help page
+		
+	},
+	hide: function() {
+		try {
+			i2b2.PM.changePassword.yuiPanel.hide();
+			//$("changepassword-viewer-panel").hide();
+		} catch (e) {}
+	},
+	run: function() {
+		try {
+			var curpass = $('curpass').value;
+			var newpass = $('newpass').value;
+			var retypepass = $('retypepass').value;
+			
+			if (newpass != retypepass) {
+				alert("New password and Retype Password dont match");
+			} else { 
+				
+				// callback processor
+				var scopedCallback = new i2b2_scopedCallback();
+				scopedCallback.scope = this;
+				scopedCallback.callback = function(results) {
+					// THIS function is used to process the AJAX results of the getChild call
+					//		results data object contains the following attributes:
+					//			refXML: xmlDomObject <--- for data processing
+					//			msgRequest: xml (string)
+					//			msgResponse: xml (string)
+					//			error: boolean
+					//			errorStatus: string [only with error=true]
+					//			errorMsg: string [only with error=true]
+					
+					// check for errors
+					if (results.error) {
+						alert('Current password is incorrect');
+						console.error("Bad Results from Cell Communicator: ",results);
+						return false;
+					}
+					alert("Password successfully changed");	
+					i2b2.PM.changePassword.yuiPanel.hide();
+
+
+				}
+				
+				// AJAX CALL USING THE EXISTING CRC CELL COMMUNICATOR
+				//i2b2.CRC.ajax.getPDO_fromInputList
+				i2b2.PM.ajax.setPassword("Plugin:PM", {sec_oldpassword:curpass, sec_newpassword: newpass}, scopedCallback);
+				
+			}
+			//$("changepassword-viewer-panel").hide();
+		} catch (e) {}
+	}
+};
+
 
 
 i2b2.PM.view.modal.projectDialog = {

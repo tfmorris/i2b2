@@ -786,24 +786,14 @@ function i2b2_PanelController(parentCtrlr) {
 	}	
 
 // ================================================================================================== //
-	this._deleteConcept = function(key) {
+	this._deleteConcept = function(htmlID) {
 		var pd = i2b2.CRC.model.queryCurrent.panels[i2b2.CRC.ctrlr.QT.temporalGroup][this.panelCurrentIndex];
 		$('infoQueryStatusText').innerHTML = "";
-		// remove the concept from panel
-		for (var i=0; i< pd.items.length; i++) {
-			if ((pd.items[i].origData.key == key)
-						  || (pd.items[i].origData.id == key)) {
-				// found the concept to remove
-				var rto = pd.items[i];
-				break;
-			}
-		}
-		if (undefined===rto) { return; }
+		if (undefined===htmlID) { return; } 
 		// remove the node in the treeview
 		var tvChildren = pd.tvRootNode.children
 		for (var i=0; i< tvChildren.length; i++) {
-			if ((tvChildren[i].data.i2b2_SDX.sdxInfo.sdxKeyValue===rto.origData.key)
-							|| (tvChildren[i].data.i2b2_SDX.sdxInfo.sdxKeyValue===rto.origData.id)) {
+			 if (tvChildren[i].data.nodeid===htmlID) { 
 				this.yuiTree.removeNode(tvChildren[i],false);
 				this._redrawTree.call(this, pd);
 				break;

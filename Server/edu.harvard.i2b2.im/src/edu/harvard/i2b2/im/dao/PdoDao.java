@@ -288,7 +288,12 @@ public class PdoDao  extends JdbcDaoSupport {
 		} else 	if (dbInfo.getDb_serverType().toUpperCase().equals("POSTGRESQL"))
 		{
 
-			String sql = "CREATE TEMP TABLE " +  tempTable +"  (  "+
+			// Drop if already exists
+				String sql = "DROP TABLE IF EXISTS "+  tempTable;
+				jt.update(sql);
+			
+			
+			 sql = "CREATE TEMP TABLE " +  tempTable +"  (  "+
 					"LCL_SITE         VARCHAR(50) NULL, "+
 					"LCL_ID           VARCHAR(200) NULL, "+
 					"PROJECT_ID       VARCHAR(50) NULL "+

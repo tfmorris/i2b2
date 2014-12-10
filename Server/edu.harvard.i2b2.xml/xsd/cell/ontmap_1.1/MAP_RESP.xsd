@@ -6,13 +6,15 @@
     <xs:include schemaLocation="./MAP_QRY.xsd"/>
      
  
-    <xs:element name="mappings" type="map:mappingsType"/>
+
      <xs:element name="hierarchyMappings" type="map:hierarchyMappingsType"/>
 	 <xs:element name="allMappings" type="xs:string" />
 	 <xs:element name="allStatus" type="map:allStatusType" />
  	 <xs:element name="status" type="map:mapStatusType" />
   	 <xs:element name="mappingCount" type="map:mapCountType" />
  	<xs:element name="mappedConcepts" type="map:mappedConceptsType" />
+ 	 <xs:element name="shrineMappings" type="map:shrineMappingsType" />
+ 
  	 <xs:element name="schemes" type="map:schemesType"/>
 
    	<xs:complexType name="schemesType">
@@ -21,12 +23,7 @@
         </xs:sequence>
      </xs:complexType>
  	
- 
-   <xs:complexType name="mappingsType">
-        <xs:sequence>
-            <xs:element name="mapping" type="map:mapType" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
+
 
    <xs:complexType name="hierarchyMappingsType">
         <xs:sequence>
@@ -92,7 +89,7 @@
             <xs:element name="symbol" type="xs:string" />
             <xs:element name="applied_path" type="xs:string" />
             <xs:element name="exclusion_cd" type="xs:string" />
-            
+            <xs:element name="totalnum" nillable="true" type="xs:int" />            
         </xs:sequence>
     </xs:complexType>
     
@@ -101,4 +98,25 @@
             <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##any" processContents="skip"/>
         </xs:sequence>
     </xs:complexType>
+    
+     <xs:complexType name="shrineMappingsType">
+        <xs:sequence>
+            <xs:element name="shrineMap" type="map:shrineMapType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+
+    
+   	<xs:complexType name="shrineMapType">
+        <xs:sequence>
+            <xs:element name="source_key" type="xs:string" />
+            <xs:element name="destination_key" type="xs:string" />
+            <xs:element name="source_fullname" type="xs:string" />
+            <xs:element name="destination_fullname" type="xs:string" />
+            <xs:element name="source_table_cd" type="xs:string" />
+            <xs:element name="destination_table_cd" type="xs:string" /> 
+        </xs:sequence>
+    </xs:complexType>
+    
+    
 </xs:schema>

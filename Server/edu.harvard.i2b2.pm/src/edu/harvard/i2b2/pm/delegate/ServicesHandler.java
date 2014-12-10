@@ -69,11 +69,20 @@ public class ServicesHandler extends RequestHandler {
 		//setDbInfo(servicesMsg.getRequestMessageType().getMessageHeader());
 	}
 
+	private void saveLoginAttempt(PMDbDao pmDb, String username, String attempt)
+	{
+		// Add new timeout to it
+		pmDb.setLoginAttempt(username, attempt );
+
+	}
+
 
 	private UserType validateSuppliedPassword (String username, String password, Hashtable param) throws Exception
 	{
 		PMDbDao pmDb = new PMDbDao();
 
+		if (pmDb.verifyNotLockedOut(username))
+			throw new Exception ("To many invalid attempts, user locked out");
 
 		//if (method.equalsIgnoreCase("NTLM"))
 		if ((param.get("authentication_method") != null) && (!param.get("authentication_method").equals("")))
@@ -98,6 +107,7 @@ public class ServicesHandler extends RequestHandler {
 			if (user == null)
 			{
 				log.debug("Did not find user: " + username);
+				saveLoginAttempt(pmDb, username, "NONEXIST");
 
 				throw new Exception ("Username or password does not exist");
 			}
@@ -108,7 +118,7 @@ public class ServicesHandler extends RequestHandler {
 				classname = "edu.harvard.i2b2.pm.util.SecurityAuthenticationNTLM";
 			else if (param.get("authentication_method").equals("LDAP"))
 				classname = "edu.harvard.i2b2.pm.util.SecurityAuthenticationLDAP";
-			
+
 			ClassLoader classLoader = ServicesHandler.class.getClassLoader();
 
 			try {
@@ -152,16 +162,22 @@ public class ServicesHandler extends RequestHandler {
 				if (user.getPassword().getValue().startsWith("@"))
 				{
 					if	(!(user.getPassword().getValue().substring(1)).equals(password))
+					{
+						saveLoginAttempt(pmDb, username, "BADPASSWORD");
 						throw new Exception ("Username or password does not exist");
+					}
 				}				
 				else if (!user.getPassword().getValue().equals(PMUtil.getInstance().getHashedPassword(password)))
 				{
+					saveLoginAttempt(pmDb, username, "BADPASSWORD");
 					throw new Exception ("Username or password does not exist");
 
 				}
 			}
 			if (user == null)
 			{
+				saveLoginAttempt(pmDb, username, "NONEXIST");
+
 				log .debug("Did not find user: " + username + " with password: " + PMUtil.getInstance().getHashedPassword(password) );
 				throw new Exception ("Username or password does not exist");
 			}
@@ -265,7 +281,7 @@ public class ServicesHandler extends RequestHandler {
 			//Determine authentication method
 			log.debug("Get authentication method by using domain: " + domainId);
 			//String method = "", domainController= "", domain= "";
-			String method;
+			String method = null;
 			for( it=pmDb.getEnvironmentData(domainId).iterator();it.hasNext();){
 				HiveParamData hivedata =(HiveParamData)it.next();
 
@@ -283,6 +299,10 @@ public class ServicesHandler extends RequestHandler {
 			for( it=pmDb.getAllParam(userType,null,null).iterator();it.hasNext();){
 				UserParamData userdata =(UserParamData)it.next();			
 				params.put(userdata.getName(),  userdata.getValue());
+				
+				if (userdata.getName().equalsIgnoreCase("authentication_method"))
+					method  = userdata.getValue();
+
 			}
 			//Get any remaining params from the environment
 			for( it=pmDb.getEnvironmentData(domainId).iterator();it.hasNext();){
@@ -342,6 +362,8 @@ public class ServicesHandler extends RequestHandler {
 					UserType user = validateSuppliedPassword( rmt.getUsername(), rmt.getPassword().getValue(), params);
 					uType.setFullName(user.getFullName());
 					uType.setIsAdmin(user.isIsAdmin());
+					saveLoginAttempt(pmDb, rmt.getUsername(), "SUCCESS");
+
 				} catch (Exception e)
 				{
 					throw new Exception (e.getMessage());
@@ -480,6 +502,8 @@ public class ServicesHandler extends RequestHandler {
 				log.debug("Element is single and is: " + value);
 				if (name.equals("delete_user"))
 					return runDeleteUser(pmDb, project, rmt.getUsername(), value );
+				else if (name.equals("set_password") && method != null)
+					throw new Exception(method + " authencation method is used, use that provider to change the password.");
 				else if (name.equals("set_password"))
 					return runSetPassword(pmDb, rmt.getUsername(), value );
 				else if (name.equals("get_user"))
@@ -795,9 +819,11 @@ public class ServicesHandler extends RequestHandler {
 			try {
 				response = pmDb.setProjectRequest(value,project, caller);
 			} catch (I2B2DAOException e1) {
-				throw new Exception ( "Database error in getting user data for NTLM");
+				e1.printStackTrace();
+				throw new Exception ( "Database error in setting Projet Request: " + e1.getMessage());
 			} catch (I2B2Exception e1) {
-				throw new Exception ("Database error in getting user data for NTLM");
+				e1.printStackTrace();
+				throw new Exception ("Database error in setting Projet Request: " + e1.getMessage());
 			}
 
 			Iterator it = response.iterator();

@@ -135,6 +135,8 @@ IFactRelatedQueryHandler {
 	public static final String TEMP_PARAM_TABLE = "GLOBAL_TEMP_PARAM_TABLE";
 	public static final String TEMP_FACT_PARAM_TABLE = "GLOBAL_TEMP_FACT_PARAM_TABLE";
 
+	public static  String TEMP_PDO_INPUTLIST_TABLE = "TEMP_PDO_INPUTLIST";
+
 	private List<String> panelSqlList = new ArrayList<String>();
 
 	private Map projectParamMap = null;

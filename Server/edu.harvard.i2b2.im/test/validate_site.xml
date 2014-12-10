@@ -53,9 +53,9 @@
 		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<input_list>
 <pid_list>
-<pid index="1" source="BWH_E">643LL7U2ETFUDJ7P1D7BLJCGA!</pid>
-<pid index="1" source="BWH">2000002017</pid>
-<pid index="2" source="BWH">2000002062</pid>
+<pid index="1" source="Hospital-1_E">643LL7U2ETFUDJ7P1D7BLJCGA!</pid>
+<pid index="1" source="Hospital-1">2000002017</pid>
+<pid index="2" source="Hospital-1">2000002062</pid>
 </pid_list>
 </input_list>
  <filter_list>

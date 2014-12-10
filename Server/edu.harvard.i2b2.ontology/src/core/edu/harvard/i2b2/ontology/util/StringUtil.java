@@ -107,4 +107,27 @@ public class StringUtil {
     	return sql;
 	}
     
+    public static String getCpath(String key){
+    	int beginning = key.indexOf("\\", 3);
+    	if(key.endsWith("\\")){
+    		key = key.substring(0, key.length() - 1).trim();
+    	}
+    		int end = key.lastIndexOf("\\");    	
+    		String cpath = key.substring(beginning, end+1 ).trim();
+    		
+    		return cpath;
+
+    }
+    
+    public static String getSymbol(String key){
+    	if(key.endsWith("\\")){
+    		key = key.substring(0, key.length() - 1).trim();
+    	}
+    		int end = key.lastIndexOf("\\");    	
+    		String symbol = key.substring(end + 1 , key.length()).trim();
+    		
+    		return symbol;
+    }
+    
+    
 }

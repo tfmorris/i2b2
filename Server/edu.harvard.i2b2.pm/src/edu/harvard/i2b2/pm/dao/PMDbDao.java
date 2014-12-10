@@ -11,6 +11,7 @@ package edu.harvard.i2b2.pm.dao;
 
 import java.io.IOException;
 import java.sql.Clob;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -84,17 +85,38 @@ public class PMDbDao extends JdbcDaoSupport {
 
 
 	private SimpleJdbcTemplate jt;
-
+	private String database = "";
 	public PMDbDao() throws I2B2Exception{
 		DataSource ds = null;
+		Connection conn = null;
 		try {
 			ds = PMUtil.getInstance().getDataSource("java:/PMBootStrapDS");
+	//		database = ds.getConnection().getMetaData().getDatabaseProductName();
 			log.debug(ds.toString());
 		} catch (I2B2Exception e2) {
 			log.error("bootstrap ds failure: " + e2.getMessage());
 			throw e2;
+//		} catch (SQLException e2) {
+//			log.error("bootstrap ds failure: " + e2.getMessage());
+			//throw e2;
 		} 
+		
+		try {
+			conn  = ds.getConnection(); 
+			database = conn.getMetaData().getDatabaseProductName();
+			conn.close();
+			conn = null;
+		} catch (Exception e)
+		{
+			conn = null;
+			log.error("Error geting database name:" + e.getMessage());
+		} finally
+		{
+			conn = null;
+		}
+		
 		this.jt = new SimpleJdbcTemplate(ds);
+	//	ds = null;
 	}
 
 
@@ -782,8 +804,11 @@ public class PMDbDao extends JdbcDaoSupport {
 		List<DBInfoType> queryResult = null;
 		try {
 			String clob = null;
+			
 			if (groupdata.getRequestXml() != null)
 			{
+				clob = groupdata.getRequestXml();
+				/*
 				BlobType blobType = (BlobType)groupdata.getRequestXml();
 				for (int i=0; i < blobType.getContent().size(); i++)
 				{
@@ -796,6 +821,7 @@ public class PMDbDao extends JdbcDaoSupport {
 					//					JDBCUtil.getClobString(clob));
 					//		rData.setRequestXml(blobType);
 				}
+				*/
 			}
 			String addSql = "insert into pm_project_request " + 
 					"(title, request_xml, project_id, change_date, entry_date, submit_char, changeby_char, status_cd) values (?,?,?,?,?,?,?,?)";
@@ -903,6 +929,86 @@ public class PMDbDao extends JdbcDaoSupport {
 		return queryResult;	
 	}
 
+	public boolean verifyNotLockedOut(String userId)
+	{
+		
+		
+		String sql = null;
+		//get results count max
+		sql = "select * from pm_global_params where status_cd = 'A' and param_name_cd ='PM_LOCKED_MAX_COUNT'";
+
+		int resultmax = 10;
+		
+		try {
+			List<DBInfoType> queryResult  = jt.query(sql, getParam());
+			Iterator it = queryResult.iterator();
+			while (it.hasNext())
+			{
+				ParamType user = (ParamType)it.next();
+				resultmax = Integer.parseInt(user.getValue());
+			}
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			
+		}
+		
+		sql = "select * from pm_global_params where status_cd = 'A' and param_name_cd ='PM_LOCKED_WAIT_TIME'";
+
+		int waittime = 2;
+		
+		try {
+			List<DBInfoType> queryResult  = jt.query(sql, getParam());
+			Iterator it = queryResult.iterator();
+			while (it.hasNext())
+			{
+				ParamType user = (ParamType)it.next();
+				waittime = Integer.parseInt(user.getValue());
+			}
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			
+		}
+
+		
+		if (database.equalsIgnoreCase("oracle"))
+			sql =  "select count(*) as badlogin from pm_user_login where user_id = ? and " +
+				" attempt_cd = 'BADPASSWORD' and " +
+				"(entry_date + interval '" + waittime + "' minute)  >= CURRENT_TIMESTAMP ";
+		else if (database.equalsIgnoreCase("Microsoft sql server"))
+			sql =  "select count(*) as badlogin from pm_user_login where user_id = ? and " +
+					" attempt_cd = 'BADPASSWORD' and " +
+					"dateadd(minute, " + waittime + ", entry_date)  >= getdate() ";
+		else if (database.equalsIgnoreCase("postgresql"))
+			sql =  "select count(*) as badlogin from pm_user_login where user_id = ? and " +
+					" attempt_cd = 'BADPASSWORD' and " +
+					"(entry_date + cast('" + waittime + " minutes' as interval))  >= now() ";
+		
+		int results = jt.queryForInt(sql, userId);
+
+		//int results = 0;
+		
+		if (results >= resultmax)
+			return true;
+		else 
+			return false;
+	}
+	
+	public int setLoginAttempt(String userId, String attemptCd) {
+		String addSql = "insert into pm_user_login " + 
+				"(user_id, attempt_cd, changeby_char, entry_date, status_cd) values (?,?,?,?,'A')";
+
+		int numRowsAdded =
+				jt.update(addSql, 
+				userId,
+				attemptCd,
+				userId,
+				Calendar.getInstance().getTime());	
+
+		return numRowsAdded;		
+	}
+
 	public int setSession(String userId, String sessionId, int timeout)
 	{
 		String addSql = "insert into pm_user_session " + 
@@ -991,7 +1097,7 @@ public class PMDbDao extends JdbcDaoSupport {
 						groupdata.getName(),
 						groupdata.getUrl(),
 						groupdata.getMethod(),
-						groupdata.isCanOverride() ? 1 : 0,
+						(groupdata.isCanOverride() == null? 1 : groupdata.isCanOverride() ? 1 : 0),
 						Calendar.getInstance().getTime(),
 						Calendar.getInstance().getTime(),
 						caller,
@@ -1006,7 +1112,7 @@ public class PMDbDao extends JdbcDaoSupport {
 						groupdata.getName(),
 						groupdata.getUrl(),
 						groupdata.getMethod(),
-						groupdata.isCanOverride() ? 1 : 0,
+						(groupdata.isCanOverride() == null? 1 : groupdata.isCanOverride() ? 1 : 0),
 						Calendar.getInstance().getTime(),
 						caller,
 						groupdata.getId(),
@@ -1286,7 +1392,11 @@ public class PMDbDao extends JdbcDaoSupport {
 					}
 					if (((UserType) utype).getParam().get(i).getValue() != null)
 					{
-						sql +=  " and value=?";
+						if (database.equalsIgnoreCase("oracle"))
+							sql +=  " and to_char(value)=?";
+						else
+							sql +=  " and value=?";
+							
 						al.add((((UserType) utype).getParam().get(i).getValue()));
 					}
 
@@ -2287,13 +2397,12 @@ public class PMDbDao extends JdbcDaoSupport {
 		return map;
 	}
 
-
 	private ParameterizedRowMapper getProjectRequest() {
 		ParameterizedRowMapper<ProjectRequestType> map = new ParameterizedRowMapper<ProjectRequestType>() {
 			public ProjectRequestType mapRow(ResultSet rs, int rowNum) throws SQLException {
 				ProjectRequestType rData = new ProjectRequestType();
 				DTOFactory factory = new DTOFactory();
-				rData.setId(rs.getString("id"));
+				rData.setId(Integer.toString(rs.getInt("id")));
 				rData.setProjectId(rs.getString("project_id"));
 				rData.setTitle(rs.getString("title"));
 				rData.setSubmitChar(rs.getString("submit_char"));
@@ -2304,6 +2413,8 @@ public class PMDbDao extends JdbcDaoSupport {
 				else 
 					rData.setEntryDate(long2Gregorian(date.getTime())); 
 
+				rData.setRequestXml(rs.getString("request_xml"));
+				/*
 				Clob clob = rs.getClob("request_xml");
 
 				if (clob != null) {
@@ -2317,6 +2428,7 @@ public class PMDbDao extends JdbcDaoSupport {
 						log.debug(ioe.getMessage());
 					}
 				}
+				*/
 				//rData.setRequestXml(rs.getClob("request_xml"));
 				return rData;
 			} 
@@ -2448,6 +2560,34 @@ public class PMDbDao extends JdbcDaoSupport {
 
 
 	private ParameterizedRowMapper getSession() {
+		ParameterizedRowMapper<SessionData> map = new ParameterizedRowMapper<SessionData>() {
+			public SessionData mapRow(ResultSet rs, int rowNum) throws SQLException {
+				SessionData rData = new SessionData();
+				//				DTOFactory factory = new DTOFactory();
+
+				rData.setSessionID(rs.getString("session_id"));
+
+				Date date = rs.getTimestamp("expired_date");
+				if (date == null)
+					rData.setExpiredDate(null);
+				else 
+					rData.setExpiredDate(date); 
+
+				date = rs.getTimestamp("entry_date");
+				if (date == null)
+					rData.setIssuedDate(null);
+				else 
+					rData.setIssuedDate(date); 
+
+
+				return rData;
+			} 
+		};
+		return map;
+	}
+	
+
+	private ParameterizedRowMapper getUserLogin() {
 		ParameterizedRowMapper<SessionData> map = new ParameterizedRowMapper<SessionData>() {
 			public SessionData mapRow(ResultSet rs, int rowNum) throws SQLException {
 				SessionData rData = new SessionData();

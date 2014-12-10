@@ -143,8 +143,8 @@ public class QueryExecutorHelperDao extends CRCDAO {
 
 		if (dsLookup.getServerType().equalsIgnoreCase(
 				DAOFactoryHelper.SQLSERVER)) {
-			TEMP_TABLE = getDbSchemaName() + "#GLOBAL_TEMP_TABLE";
-			TEMP_DX_TABLE = getDbSchemaName() + "#DX";
+			TEMP_TABLE =  getDbSchemaName() + "#GLOBAL_TEMP_TABLE";
+			TEMP_DX_TABLE = getDbSchemaName() +  "#DX";
 			TEMP_MASTER_TABLE = getDbSchemaName() + "#MASTER_GLOBAL_TEMP_TABLE";
 		} else if (dsLookup.getServerType().equalsIgnoreCase(
 				DAOFactoryHelper.ORACLE) ) {
@@ -204,7 +204,7 @@ public class QueryExecutorHelperDao extends CRCDAO {
 						+ " fact_panels int " + ")";
 
 				if (dsLookup.getServerType().equalsIgnoreCase(
-							DAOFactoryHelper.POSTGRESQL))
+						DAOFactoryHelper.POSTGRESQL))
 					createSql =  "CREATE TEMP  TABLE " + TEMP_TABLE + " ( "
 							+ " ENCOUNTER_NUM int, " + " PATIENT_NUM int, INSTANCE_NUM int, CONCEPT_CD varchar(50), START_DATE TIMESTAMP, PROVIDER_ID varchar(50), "
 							+ " PANEL_COUNT int, " + " fact_count int, "
@@ -214,8 +214,8 @@ public class QueryExecutorHelperDao extends CRCDAO {
 						+ " ENCOUNTER_NUM int, " + " PATIENT_NUM int, INSTANCE_NUM int, CONCEPT_CD varchar(50), START_DATE DATETIME, PROVIDER_ID varchar(50), temporal_start_date datetime, temporal_end_date DATETIME ) ";
 				if (dsLookup.getServerType().equalsIgnoreCase(
 						DAOFactoryHelper.POSTGRESQL))
-				 createSql = " CREATE TEMP TABLE " + TEMP_DX_TABLE + "  ( "
-						+ " ENCOUNTER_NUM int, " + " PATIENT_NUM int, INSTANCE_NUM int, CONCEPT_CD varchar(50), START_DATE TIMESTAMP, PROVIDER_ID varchar(50), temporal_start_date TIMESTAMP, temporal_end_date TIMESTAMP ) ";
+					createSql = " CREATE TEMP TABLE " + TEMP_DX_TABLE + "  ( "
+							+ " ENCOUNTER_NUM int, " + " PATIENT_NUM int, INSTANCE_NUM int, CONCEPT_CD varchar(50), START_DATE TIMESTAMP, PROVIDER_ID varchar(50), temporal_start_date TIMESTAMP, temporal_end_date TIMESTAMP ) ";
 
 				stmt.executeUpdate(createSql);
 				createSql = " CREATE  TABLE " + TEMP_MASTER_TABLE + "  ( "
@@ -229,11 +229,11 @@ public class QueryExecutorHelperDao extends CRCDAO {
 				if (dsLookup.getServerType().equalsIgnoreCase(
 						DAOFactoryHelper.SQLSERVER)) {
 					String indexSql = "create index tempIndex on "
-							+ this.getDbSchemaName()
+							+ getDbSchemaName()
 							+ "#global_temp_table (patient_num,encounter_num,panel_count)";
 					log.debug("Executing sql [ " + indexSql + " ]");
 					stmt.executeUpdate(indexSql);
-					
+
 					indexSql = "CREATE NONCLUSTERED INDEX master_index_v1 "  
 							+ " ON " + TEMP_MASTER_TABLE + " (master_id, level_no, temporal_start_date, temporal_end_date) " 
 							+ " INCLUDE (patient_num) ";
@@ -243,7 +243,7 @@ public class QueryExecutorHelperDao extends CRCDAO {
 					indexSql = "CREATE NONCLUSTERED INDEX master_index_v2 "  
 							+ " ON " + TEMP_MASTER_TABLE + " (patient_num, master_id) " 
 							+ " INCLUDE (temporal_start_date, temporal_end_date) ";
-					
+
 					log.debug("Executing sql [ " + indexSql + " ]");
 					stmt.executeUpdate(indexSql);
 
@@ -312,10 +312,11 @@ public class QueryExecutorHelperDao extends CRCDAO {
 						// table statistics speed up the query
 						if (this.dataSourceLookup.getServerType().equalsIgnoreCase(
 								DAOFactoryHelper.SQLSERVER)) {
-							log.debug("UPDATE STATISTICS " + this.getDbSchemaName()
+							log.debug("UPDATE STATISTICS " 
+									+ getDbSchemaName()
 									+ "#global_temp_table ");
 							stmt.executeUpdate("UPDATE STATISTICS "
-									+ this.getDbSchemaName()
+									+ getDbSchemaName() 
 									+ "#global_temp_table ");
 						}
 					} else { 
@@ -377,35 +378,52 @@ public class QueryExecutorHelperDao extends CRCDAO {
 					sfDAOFactory, requestXml, patientSetId, queryInstanceId,
 					TEMP_DX_TABLE, recordCount, obfuscatedRecordCount, transactionTimeout, pmXml);
 
-			// delete temp table
-			String deleteGlobalTempTable = "";
-			String deleteCountTable = "", deleteMasterTable = "";
 
 			if (dsLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.SQLSERVER) || dsLookup.getServerType().equalsIgnoreCase(
 							DAOFactoryHelper.POSTGRESQL)) {
-				deleteGlobalTempTable = "drop table " + TEMP_TABLE;
-				deleteCountTable = "drop table " + TEMP_DX_TABLE;
-				deleteMasterTable = "drop table " + TEMP_MASTER_TABLE;
+				//Delete temp table for Sqlsever 
+				String checkDeleteGlobalTempTable = "drop table " + TEMP_TABLE;
+				String checkDeleteCountTable = "drop table " + TEMP_DX_TABLE;
+				String checkDeleteMasterTable = "drop table " + TEMP_MASTER_TABLE;
+				Statement clearTempStmt = manualConnection.createStatement();
+				try {
+					clearTempStmt.executeUpdate(checkDeleteGlobalTempTable);
+				} catch (SQLException dEx) {
+					;
+				}
+				try {
+					clearTempStmt.executeUpdate(checkDeleteCountTable);
+				} catch (SQLException dEx) {
+					;
+				}
+				try {
+					clearTempStmt.executeUpdate(checkDeleteMasterTable);
+				} catch (SQLException dEx) {
+					;
+				}
+				clearTempStmt.close();
 			} else if (dsLookup.getServerType().equalsIgnoreCase(
 					DAOFactoryHelper.ORACLE) ) {
+				String deleteGlobalTempTable = "";
+				String deleteCountTable = "", deleteMasterTable = "";
+
 				deleteGlobalTempTable = "delete from " + TEMP_TABLE;
 				deleteCountTable = "delete from " + TEMP_DX_TABLE;
 				deleteMasterTable = "delete from " + TEMP_MASTER_TABLE;
 
+				Statement deleteStmt = manualConnection.createStatement();
+				Statement deleteStmt1 = manualConnection.createStatement();
+
+				log.debug("Executing Sql [" + deleteGlobalTempTable + "]");
+				deleteStmt.executeUpdate(deleteGlobalTempTable);
+				log.debug("Executing Sql [" + deleteCountTable + "]");
+				deleteStmt1.executeUpdate(deleteCountTable);
+				log.debug("Executing Sql [" + deleteMasterTable + "]");
+				deleteStmt1.executeUpdate(deleteMasterTable);
+				deleteStmt.close();
+				deleteStmt1.close();
 			}
-
-			Statement deleteStmt = manualConnection.createStatement();
-			Statement deleteStmt1 = manualConnection.createStatement();
-
-			log.debug("Executing Sql [" + deleteGlobalTempTable + "]");
-			deleteStmt.executeUpdate(deleteGlobalTempTable);
-			log.debug("Executing Sql [" + deleteCountTable + "]");
-			deleteStmt1.executeUpdate(deleteCountTable);
-			log.debug("Executing Sql [" + deleteMasterTable + "]");
-			deleteStmt1.executeUpdate(deleteMasterTable);
-			deleteStmt.close();
-			deleteStmt1.close();
 
 			// update query instance restult status
 			setQueryInstanceStatus(sfDAOFactory, queryInstanceId, 6, null);
@@ -858,9 +876,9 @@ public class QueryExecutorHelperDao extends CRCDAO {
 				requestXml);
 		SecurityType origSecurityType = reqMsgHelper.getSecurityType();
 		String projectId = reqMsgHelper.getProjectId();
-		
+
 		SecurityType serviceSecurityType = PMServiceAccountUtil
-		.getServiceSecurityType(origSecurityType.getDomain());
+				.getServiceSecurityType(origSecurityType.getDomain());
 		//EJBPMUtil callPMUtil = new EJBPMUtil(serviceSecurityType, projectId);
 		List<String> roleList = new ArrayList<String>();
 		try {

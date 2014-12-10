@@ -17,8 +17,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.jdbc.object.BatchSqlUpdate;
 import org.springframework.jdbc.object.MappingSqlQuery;
 import org.springframework.jdbc.object.SqlUpdate;
@@ -48,15 +46,13 @@ public class UploadStatusDAO extends CRCLoaderDAO implements UploadStatusDAOI {
 
 	private DataSourceLookup dataSourceLookup = null;
 	private JdbcTemplate jdbcTemplate = null;
-	private DataSourceTransactionManager dsTm = null;
 
 	public UploadStatusDAO(DataSourceLookup dataSourceLookup, DataSource ds) {
 		setDataSource(ds);
 		setDbSchemaName(dataSourceLookup.getFullSchema());
 		this.dataSourceLookup = dataSourceLookup;
-		jdbcTemplate = new JdbcTemplate(new TransactionAwareDataSourceProxy(
-				getDataSource()));
-		// dsTm = new DataSourceTransactionManager(ds);
+		jdbcTemplate = new JdbcTemplate(
+				getDataSource());
 		// jdbcTemplate = new JdbcTemplate(dsTm.getDataSource());
 	}
 

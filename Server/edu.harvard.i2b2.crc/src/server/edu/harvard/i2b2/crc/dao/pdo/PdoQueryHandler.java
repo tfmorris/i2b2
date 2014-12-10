@@ -54,6 +54,7 @@ import edu.harvard.i2b2.crc.datavo.pdo.query.OutputOptionListType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.PanelType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.PatientListType;
 import edu.harvard.i2b2.crc.datavo.pdo.query.PidListType;
+import edu.harvard.i2b2.crc.datavo.pdo.query.PidListType.Pid;
 
 /**
  * <b>Main class for PDO queries.<b>
@@ -206,6 +207,18 @@ public class PdoQueryHandler {
 		
 	}
 	
+	/**
+	 * Method to find if input list is pid set
+	 * 
+	 * @return boolean
+	 */
+	public boolean isGetPDOFromPIDSet() {
+		if (inputList.getPidList() != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 	/**
 	 * Method to find if input list is patient set
@@ -399,7 +412,7 @@ public class PdoQueryHandler {
 		if (patientSelected) {
 			PatientSection ps = new PatientSection(pdoType, factRelatedQry,
 					patientFromFact, isGetPDOFromVisitSet(),
-					isGetPDOFromPatientSet(),patientMetaDataParamType);
+					isGetPDOFromPatientSet(), isGetPDOFromPIDSet(), patientMetaDataParamType);
 			ps.generateSet();
 
 			if (pdoType.equalsIgnoreCase(TABLE_PDO_TYPE)) {
@@ -801,6 +814,7 @@ public class PdoQueryHandler {
 		boolean patientFromFact = false;
 		boolean fromVisitSet = false;
 		boolean fromPatientSet = false;
+		boolean fromPIDSet = false;
 		PatientSet patientDimensionSet = null;
 		PatientSet patientSet = null;
 		String pType = null;
@@ -809,11 +823,12 @@ public class PdoQueryHandler {
 		public PatientSection(String pType,
 				IFactRelatedQueryHandler factRelatedQry,
 				boolean patientFromFact, boolean fromVisitSet,
-				boolean fromPatientSet, List<ParamType> patientMetaDataType) {
+				boolean fromPatientSet, boolean fromPIDSet, List<ParamType> patientMetaDataType) {
 			this.factRelatedQry = factRelatedQry;
 			this.patientFromFact = patientFromFact;
 			this.fromVisitSet = fromVisitSet;
 			this.fromPatientSet = fromPatientSet;
+			this.fromPIDSet = fromPIDSet;
 			this.pType = pType;
 			this.patientMetaDataType  = patientMetaDataType;
 		}
@@ -888,6 +903,27 @@ public class PdoQueryHandler {
 					} else {
 						patientDimensionSet = pdoQueryPatientDao
 								.getPatientFromPatientSet(patientListType,
+										detailFlag, blobFlag, statusFlag);
+					}
+				} else if (fromPIDSet) {
+					PidListType  pidListType = inputList.getPidList();
+					List<String> patientList = new ArrayList<String>();
+					
+					for (Pid pids : pidListType.getPid())
+					{
+						patientList.add(pids.getValue());
+						
+						
+					}
+					
+					
+					if (pType.equalsIgnoreCase(TABLE_PDO_TYPE)) {
+						patientSet = tablePdoQueryPatientDao
+								.getPatientByPatientNum(patientList,
+										detailFlag, blobFlag, statusFlag);
+					} else {
+						patientDimensionSet = pdoQueryPatientDao
+								.getPatientByPatientNum(patientList,
 										detailFlag, blobFlag, statusFlag);
 					}
 				} else if (fromVisitSet) {

@@ -136,7 +136,7 @@ public class TablePdoQueryVisitDao extends CRCDAO implements
 						+ getDbSchemaName()
 						+ "visit_dimension visit \n"
 						+ joinClause
-						+ " WHERE visit.encounter_num IN (select distinct char_param1 FROM "
+						+ " WHERE visit.encounter_num IN (select distinct CAST(coalesce(char_param1, '0') as integer) FROM "
 						+ tempTableName + " ) order by encounter_num,patient_num ";
 				log.debug("Executing [" + finalSql + "]");
 
@@ -519,7 +519,7 @@ public class TablePdoQueryVisitDao extends CRCDAO implements
 					+ getDbSchemaName()
 					+ "visit_dimension visit "
 					+ joinClause
-					+ " where encounter_num in (select distinct char_param1 from "
+					+ " where encounter_num in (select distinct CAST(coalesce(char_param1, '0') as integer) from "
 					+ factTempTable + ") order by encounter_num";
 			log.debug("Executing SQL [" + finalSql + "]");
 			

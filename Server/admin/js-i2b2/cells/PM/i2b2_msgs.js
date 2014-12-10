@@ -66,7 +66,56 @@ i2b2.PM.cfg.msgs.getUserAuth = '<?xml version="1.0" encoding="UTF-8" standalone=
 i2b2.PM.ajax._addFunctionCall("getUserAuth","{{{URL}}}getServices", i2b2.PM.cfg.msgs.getUserAuth);
 
 
-
+//================================================================================================== //
+i2b2.PM.cfg.msgs.setPassword = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+'<i2b2:request xmlns:i2b2="http://www.i2b2.org/xsd/hive/msg/1.1/" xmlns:pm="http://www.i2b2.org/xsd/cell/pm/1.1/">\n'+
+'    <message_header>\n'+
+'        {{{proxy_info}}}\n'+
+'        <i2b2_version_compatible>1.1</i2b2_version_compatible>\n'+
+'        <hl7_version_compatible>2.4</hl7_version_compatible>\n'+
+'        <sending_application>\n'+
+'            <application_name>i2b2 Project Management</application_name>\n'+
+'            <application_version>' + i2b2.ClientVersion + '</application_version>\n'+
+'        </sending_application>\n'+
+'        <sending_facility>\n'+
+'            <facility_name>i2b2 Hive</facility_name>\n'+
+'        </sending_facility>\n'+
+'        <receiving_application>\n'+
+'            <application_name>Project Management Cell</application_name>\n'+
+'            <application_version>' + i2b2.ClientVersion + '</application_version>\n'+
+'        </receiving_application>\n'+
+'        <receiving_facility>\n'+
+'            <facility_name>i2b2 Hive</facility_name>\n'+
+'        </receiving_facility>\n'+
+'        <datetime_of_message>{{{header_msg_datetime}}}</datetime_of_message>\n'+
+'               <security>\n'+
+'                       <domain>{{{sec_domain}}}</domain>\n'+
+'                       <username>{{{sec_user}}}</username>\n'+
+'                       <password>{{{sec_oldpassword}}}</password>\n'+
+'               </security>\n'+
+'        <message_control_id>\n'+
+'            <message_num>{{{header_msg_id}}}</message_num>\n'+
+'            <instance_num>0</instance_num>\n'+
+'        </message_control_id>\n'+
+'        <processing_id>\n'+
+'            <processing_id>P</processing_id>\n'+
+'            <processing_mode>I</processing_mode>\n'+
+'        </processing_id>\n'+
+'        <accept_acknowledgement_type>AL</accept_acknowledgement_type>\n'+
+'        <application_acknowledgement_type>AL</application_acknowledgement_type>\n'+
+'        <country_code>US</country_code>\n'+
+'        <project_id>{{{sec_project}}}</project_id>\n'+
+'    </message_header>\n'+
+'    <request_header>\n'+
+'        <result_waittime_ms>{{{result_wait_time}}}000</result_waittime_ms>\n'+
+'    </request_header>\n'+
+'    <message_body>\n'+
+'        <pm:set_password>\n'+
+'{{{sec_newpassword}}}'+
+'        </pm:set_password>\n'+
+'    </message_body>\n'+
+'</i2b2:request>';
+i2b2.PM.ajax._addFunctionCall("setPassword","{{{URL}}}getServices", i2b2.PM.cfg.msgs.setPassword);
 
 // ================================================================================================== //
 i2b2.PM.cfg.msgs.setProjectRequest = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
@@ -345,8 +394,8 @@ i2b2.PM.cfg.msgs.getApproval = '<?xml version="1.0" encoding="UTF-8" standalone=
 '    <request_header>\n'+
 '        <result_waittime_ms>{{{result_wait_time}}}000</result_waittime_ms>\n'+
 '    </request_header>\n'+
-'    <message_body>\n'+
-'        <pm:get_approval>\n'+
+'    <message_body>\n'+ 
+'        <pm:get_approval {{{id}}}>\n'+
 //'            <search by="user">{{{sec_user}}}</search>\n'+
 '        </pm:get_approval>\n'+
 '    </message_body>\n'+
@@ -1110,8 +1159,13 @@ i2b2.PM.cfg.parsers.getUser = function() {
 	if (!this.error) {
 		this.model = [];		
 		// extract records from XML msg
-		var c = this.refXML.getElementsByTagName('ns4:user');
+		var c = this.refXML.getElementsByTagName('user');
 		var l = c.length;
+		if (l == 0){
+			var c = this.refXML.getElementsByTagName('ns4:user');
+			var l = c.length;
+		}
+
 		for (var i=0; i<l; i++) {
 			var tmpRec = {};
 			tmpRec.full_name = i2b2.h.getXNodeVal(c[i], "full_name");
@@ -1180,8 +1234,12 @@ i2b2.PM.cfg.parsers.getCell = function() {
 	if (!this.error) {
 		this.model = [];		
 		// extract records from XML msg
-		var c = this.refXML.getElementsByTagName('ns4:cell');
+		var c = this.refXML.getElementsByTagName('cell');
 		var l = c.length;
+		if (l == 0){
+			var c = this.refXML.getElementsByTagName('ns4:cell');
+			var l = c.length;
+		}
 		for (var i=0; i<l; i++) {
 			var tmpRec = {};	
 			tmpRec.id = i2b2.h.XPath(c[i], "attribute::id")[0].nodeValue;
@@ -1253,9 +1311,14 @@ i2b2.PM.cfg.parsers.getParam = function() {
 if (!this.error) {
 		this.model = [];		
 		// extract records from XML msg
-		var c = this.refXML.getElementsByTagName('ns4:param');
+		var c = this.refXML.getElementsByTagName('param');
 //		var c = i2b2.h.XPath(this.refXML, "//message_body/descendant::param[@name]");
 		var l = c.length;
+		if (l == 0){
+			var c = this.refXML.getElementsByTagName('ns4:param');
+			var l = c.length;
+		}
+
 		for (var i=0; i<l; i++) {
 			var tmpRec = {};
 			tmpRec.name = i2b2.h.XPath(c[i], "attribute::name")[0].nodeValue;
@@ -2302,7 +2365,7 @@ i2b2.PM.cfg.msgs.deleteParam = '<?xml version="1.0" encoding="UTF-8" standalone=
 '</i2b2:request>';
 i2b2.PM.ajax._addFunctionCall("deleteParam","{{{URL}}}getServices", i2b2.PM.cfg.msgs.deleteParam,["msg_xml"]);
 
-// ================================================================================================== //
+//================================================================================================== //
 i2b2.PM.cfg.msgs.setPassword = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
 '<i2b2:request xmlns:i2b2="http://www.i2b2.org/xsd/hive/msg/1.1/" xmlns:pm="http://www.i2b2.org/xsd/cell/pm/1.1/">\n'+
 '    <message_header>\n'+
@@ -2324,11 +2387,11 @@ i2b2.PM.cfg.msgs.setPassword = '<?xml version="1.0" encoding="UTF-8" standalone=
 '            <facility_name>i2b2 Hive</facility_name>\n'+
 '        </receiving_facility>\n'+
 '        <datetime_of_message>{{{header_msg_datetime}}}</datetime_of_message>\n'+
-'		<security>\n'+
-'			<domain>{{{sec_domain}}}</domain>\n'+
-'			<username>{{{sec_user}}}</username>\n'+
-'			{{{sec_pass_node}}}\n'+
-'		</security>\n'+
+'               <security>\n'+
+'                       <domain>{{{sec_domain}}}</domain>\n'+
+'                       <username>{{{sec_user}}}</username>\n'+
+'                       <password>{{{sec_oldpassword}}}</password>\n'+
+'               </security>\n'+
 '        <message_control_id>\n'+
 '            <message_num>{{{header_msg_id}}}</message_num>\n'+
 '            <instance_num>0</instance_num>\n'+
@@ -2346,9 +2409,9 @@ i2b2.PM.cfg.msgs.setPassword = '<?xml version="1.0" encoding="UTF-8" standalone=
 '        <result_waittime_ms>{{{result_wait_time}}}000</result_waittime_ms>\n'+
 '    </request_header>\n'+
 '    <message_body>\n'+
-'        <pm:set_password {{{msg_attrib}}}>\n'+
-'{{{msg_xml}}}'+
+'        <pm:set_password>\n'+
+'{{{sec_newpassword}}}'+
 '        </pm:set_password>\n'+
 '    </message_body>\n'+
 '</i2b2:request>';
-i2b2.PM.ajax._addFunctionCall("setPassword","{{{URL}}}getServices", i2b2.PM.cfg.msgs.setPassword,["msg_xml"]);
+i2b2.PM.ajax._addFunctionCall("setPassword","{{{URL}}}getServices", i2b2.PM.cfg.msgs.setPassword);

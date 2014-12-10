@@ -5,14 +5,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 
-import javax.annotation.Resource;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 import javax.xml.bind.JAXBElement;
 
 import org.apache.commons.logging.Log;
@@ -44,8 +36,6 @@ public class DataMartLoader implements IDataMartLoaderHelper {
 	// this is temp holder, later its read thru property file
 	public static String loaderWorkingDirectory = "/";
 
-	//@Resource
-	//private UserTransaction utx = new UserTransaction();
 
 	// @EJB(mappedName = "service/local")
 	// private Service service;

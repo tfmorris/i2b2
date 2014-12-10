@@ -65,8 +65,8 @@ public class CRCLoaderDAO {
 	public Map<String, ParamType> buildNVParam(List<ParamType> paramTypeList) {
 		Map<String, ParamType> paramMap = new HashMap<String, ParamType>();
 		for (ParamType paramType : paramTypeList) {
-			if (paramType.getName() != null) {
-				paramMap.put(paramType.getName(), paramType);
+			if (paramType.getColumn() != null) {
+				paramMap.put(paramType.getColumn(), paramType);
 			}
 		}
 		return paramMap;

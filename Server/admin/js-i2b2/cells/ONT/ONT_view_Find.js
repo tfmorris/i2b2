@@ -54,7 +54,7 @@ i2b2.ONT.view.find.showOptions = function(subScreen) {
 	this.modalOptions.show();
 	// load settings
 	$('ONTFINDMaxQryDisp').value = this.params.max;
-	//$('ONTFINDshowSynonyms').checked = parseBoolean(this.params.synonyms);
+	$('ONTFINDshowSynonyms').checked = parseBoolean(!this.params.synonyms);
 	$('ONTFINDshowHiddens').checked = parseBoolean(this.params.hiddens);			
 }
 

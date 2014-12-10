@@ -6,10 +6,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.logging.Logger;
 
-import javax.annotation.Resource;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 import javax.xml.bind.JAXBElement;
 
 import org.apache.commons.logging.Log;
@@ -36,15 +32,7 @@ import edu.harvard.i2b2.crc.loader.util.CRCLoaderUtil;
  * javax.jms.MessageListener interface. It is defined as public (but not final
  * or abstract).
  */
-//mm removed EJB
-/*
-@MessageDriven(mappedName = "jms/edu.harvard.i2b2.crc.loader.loadrunner", activationConfig = {
-		@ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1"),
-		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-		@ActivationConfigProperty(propertyName = "destination", propertyValue = "jms/edu.harvard.i2b2.crc.loader.loadrunner"),
-		@ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge") })
-@TransactionManagement(TransactionManagementType.BEAN)
-*/
+
 public class DataMartLoaderBeanMDB { //mm removed EJB implements MessageListener {
 
 	public final static String UPLOAD_ID = "UPLOAD_ID";
@@ -57,8 +45,6 @@ public class DataMartLoaderBeanMDB { //mm removed EJB implements MessageListener
 	public final static String I2B2_PASSWORD_ISTOKEN = "false";
 	public final static String IROD_FILESYSTEM_STORAGE_RESOURCE = "IROD_FILESYSTEM_STORAGE_RESOURCE";
 
-	//mm removed EJB
-	//@EJB(name = "DataMartLoader")
 	IDataMartLoaderHelper dmLoader = new DataMartLoader();
 
 	// @ActivationConfigProperty(propertyName = "transactionTimeout",
@@ -79,19 +65,6 @@ public class DataMartLoaderBeanMDB { //mm removed EJB implements MessageListener
 	public static final String LOG_REFERENCE_PREFIX = "";
 
 	static final Logger logger = Logger.getLogger("DataMartLoaderBeanMDB");
-	//mm removed EJB
-	/*
-	@Resource
-	public MessageDrivenContext mdc;
-
-	Connection connection = null;
-	@Resource(mappedName = "ConnectionFactory")
-	private ConnectionFactory connectionFactory;
-	@Resource(mappedName = "jms/edu.harvard.i2b2.crc.loader.loadresponse")
-	private static Queue responseQueue;
-	@Resource
-	*/
-	//private UserTransaction utx;
 
 	/**
 	 * Constructor, which is public and takes no arguments.
@@ -142,55 +115,9 @@ public class DataMartLoaderBeanMDB { //mm removed EJB implements MessageListener
 						.getUpLoaderDAOFactory();
 				
 				publishMessage = (String)msg.get(I2B2_REQUEST_MSG);
+	
 
-				/* OLD CODE THAT CALLED FR to get file
-				//sessionId = msg.getJMSCorrelationID();
-				logger
-						.info("MESSAGE BEAN: Message received: "
-								+ publishMessage);
-
-				// set status to processing
-			//	utx.begin();
-
-				updateUploadStatus(uploaderDaoFactory, uploadId, "PROCESSING",
-						"");
-			//	utx.commit();
-
-				SecurityType securityType = new SecurityType();
-				securityType.setDomain(dsLookupDomainId);
-				securityType.setUsername(userId);
-				PasswordType ptype = new PasswordType();
-				ptype.setValue(password);
-				ptype.setIsToken(password_istoken);
-				
-				securityType.setPassword(ptype);
-				String localUploadFile = createLocalFile(uploadId,
-						publishMessage, securityType, dsLookupProjectId,
-						fileSystemDefaultStorageResource);
-				// four hours
-				String transactionTimeoutVal = CRCLoaderUtil.getInstance()
-						.getProcessTransactionTimeout();
-				int transactionTimeout = 43200;
-				if (transactionTimeoutVal != null) {
-					try {
-						transactionTimeout = Integer
-								.parseInt(transactionTimeoutVal.trim());
-						log.debug("Transaction timeout from property file ["
-								+ transactionTimeout + "]");
-					} catch (NumberFormatException numEx) {
-						transactionTimeout = 43200;
-						log.warn("Error in transaction timeout property ["
-								+ transactionTimeoutVal
-								+ "] using default value [43200]");
-					}
-				}
-END OLD FR CODE
-*/				
-			//	utx.setTransactionTimeout(transactionTimeout);
-
-			//	utx.begin();
-
-			if(publishMessage == null)
+				if(publishMessage == null)
 				log.debug("MDB publishMessage is NULL");
 		
 			

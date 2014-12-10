@@ -7,9 +7,12 @@
     <xs:element name="get_mapping_by_basecode" type="map:getMappingsType"/>
     <xs:element name="get_mapped_children_by_hierarchy" type="map:getMappedChildrenType"/>
     <xs:element name="add_map" type="map:hierarchyMapType"/>
+    <xs:element name="add_unmapped_terms" type="map:mappingsType"/>
 	<xs:element name="delete_map" type="map:hierarchyMapType"/>
+	<xs:element name="delete_unmapped_term" type="map:hierarchyMapType"/>
    	<xs:element name="move_map" type="map:hierarchyMapType"/>
-   	   	<xs:element name="verify_map" type="map:hierarchyMapType"/>
+   	<xs:element name="verify_map" type="map:hierarchyMapType"/>
+   	<xs:element name="verify_all" type="map:verifyAllType"/>
     <xs:element name="get_unmapped_terms" type="map:getTermsType"/>
      <xs:element name="get_unmapped_terms_by_name" type="map:getUnmappedTermsByNameType"/>
     <xs:element name="get_unmapped_terms_by_code" type="map:getUnmappedTermsByCodeType"/>
@@ -20,8 +23,8 @@
      <xs:element name="integrate_mapped_data" type="map:integrationType"/>
      <xs:element name="get_integration_status" type="map:getStatusType"/>
      <xs:element name="get_mapped_ontology" type="map:getOntologyType"/>
-     <xs:element name="get_mapped_ontology_size" type="map:getOntologyType"/>
-  
+     <xs:element name="get_mapped_ontology_count" type="map:getOntologyType"/>
+    <xs:element name="updateMappedTableCodes" type="map:updateMappedTableCodesType"/>
     
     <xs:complexType name="getMappingsType">
         <xs:sequence>
@@ -76,6 +79,7 @@
             <xs:element name="source_coding_system" type = "xs:string"/>
             <xs:element name="source_basecode" type = "xs:string"/>
              <xs:element name="source_name" type="xs:string"/>
+             <xs:element name="source_fullname" type="xs:string"/>
  			 <xs:element name="destination_coding_system" type="xs:string"/>
  			 <xs:element name="destination_basecode" type="xs:string"/>
  			 <xs:element name="destination_name" type="xs:string"/>
@@ -97,6 +101,7 @@
             <xs:element name="name" type = "xs:string"/>
             <xs:element name="i2b2_basecode" type = "xs:string"/>
             <xs:element name="source_coding_system" type = "xs:string"/>
+            <xs:element name="source_fullname" type="xs:string"/>
  			 <xs:element name="destination_fullname" type="xs:string"/>
  			 <xs:element name="symbol" type="xs:string"/>
  			 <xs:element name="prior_fullname" type="xs:string"/>
@@ -145,11 +150,30 @@
     <xs:complexType name="getOntologyType">
         <xs:all>
 	        <xs:element name="type" type="xs:string"/>
+	        <xs:element name="delimiter" type="xs:string"/>
+	        <xs:element name="stringQualifier" type="xs:string"/>
             <xs:element name="start" type="xs:long"/>
             <xs:element name="end" type="xs:long"/>
         </xs:all>
     </xs:complexType> 
     
+   <xs:element name="mappings" type="map:mappingsType"/>
+   <xs:complexType name="mappingsType">
+        <xs:sequence>
+            <xs:element name="mapping" type="map:mapType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="verifyAllType">
+    	<xs:sequence>
+            <xs:element name="destination_fullname" type="xs:string"/>
+            <xs:element name="destination_coding_system" type="xs:string"/>
+            <xs:element name="status_cd" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+     <xs:complexType name="updateMappedTableCodesType">
+    </xs:complexType>
     
  
 </xs:schema>
